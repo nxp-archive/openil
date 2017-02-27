@@ -1,7 +1,7 @@
 # Minimal SD card image for the NXP boards Template
 #
 # We mimic the .sdcard NXP's image format:
-# * the SD card must have 1 kB free space at the beginning,
+# * the SD card must have 4 kB free space at the beginning,
 # * U-Boot is dumped as is,
 # * a FAT partition at offset 8 MB is containing zImage/uImage and DTB files
 # * a single root filesystem partition is required (ext2, ext3 or ext4)
@@ -22,8 +22,14 @@ image sdcard.img {
 
   partition u-boot {
     in-partition-table = "no"
-    image = "u-boot.bin"
-    offset = 1024
+    image = "u-boot-with-spl-pbl.bin"
+    offset = 4096
+  }
+
+  partition u-boot-environment {
+    in-partition-table = "no"
+    image = "uboot-env.bin"
+    offset = 1M
   }
 
   partition boot {
