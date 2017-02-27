@@ -49,7 +49,7 @@ main()
 	rm -f ${GENIMAGE_CFG}
 
 	local MKIMAGE=${HOST_DIR}/usr/bin/mkimage
-	${MKIMAGE} -A $ARCH -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
+	${MKIMAGE} -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
 
 	exit $?
 }
