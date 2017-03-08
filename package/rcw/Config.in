@@ -1,0 +1,4 @@
+config BR2_PACKAGE_RCW
+	bool "rcw image"
+	help
+	The reset configuration word for NXP Layerscape platforms
