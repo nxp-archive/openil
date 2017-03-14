@@ -1776,7 +1776,4 @@ endmenu
 menu "rcw image"
 	source "package/rcw/Config.in"
 endmenu
-menu "ppa firmware"
-	source "package/ppa/Config.in"
-endmenu
 endmenu
