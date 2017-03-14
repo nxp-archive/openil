@@ -1,0 +1,107 @@
+From ea35362d05f75ff157eea577f51af39648b6e958 Mon Sep 17 00:00:00 2001
+From: Po Liu <po.liu@nxp.com>
+Date: Tue, 6 Dec 2016 22:19:49 +0800
+Subject: [PATCH 2/3] lnctool: add for netopeer
+
+Signed-off-by: Po Liu <po.liu@nxp.com>
+---
+ dev-tools/lnctool/generator/Makefile.in  | 34 +++++++++++++++++++++++++++++++-
+ dev-tools/lnctool/generator/configure.in | 18 +++++++++++++++++
+ 2 files changed, 51 insertions(+), 1 deletion(-)
+
+diff --git a/dev-tools/lnctool/generator/Makefile.in b/dev-tools/lnctool/generator/Makefile.in
+index 357583c..bfc0f07 100644
+--- a/dev-tools/lnctool/generator/Makefile.in
++++ b/dev-tools/lnctool/generator/Makefile.in
+@@ -17,11 +17,20 @@ INSTALL = @INSTALL@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+ INSTALL_DATA = @INSTALL_DATA@
+ LIBS = @LIBS@
+-CFLAGS = @CFLAGS@
++CFLAGS = -Wall -pthread @CFLAGS@
+ CPPFLAGS = @CPPFLAGS@
+ LDFLAGS = @LDFLAGS@
+ LIBTOOL = $(libtool) --tag=CC --quiet
+ 
++NETOPEER_MANAGER = @NETOPEER_MANAGER@
++NETOPEER_DIR = @NETOPEER_DIR@
++
++MODEL = @PROJECTNAME@.yin \
++	@PROJECTNAME@-config.rng \
++	@PROJECTNAME@-gdefs-config.rng \
++	@PROJECTNAME@-schematron.xsl
++
++
+ SRCS = @PROJECTNAME@.c
+ OBJDIR = .obj
+ LOBJS = $(SRCS:%.c=$(OBJDIR)/%.lo)
+@@ -40,6 +49,29 @@ $(OBJDIR)/%.lo: %.c
+ install: $(TARGET)
+ 	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
+ 	$(LIBTOOL) --mode=install cp $(TARGET) $(DESTDIR)/$(libdir)/;
++	$(INSTALL) -d $(NETOPEER_DIR)/$(PKGNAME)/
++	@for i in $(MODEL); do \
++		$(INSTALL_DATA) -m 600 $$i $(NETOPEER_DIR)/$(PKGNAME)/; \
++	done
++	if test -n "$(NETOPEER_MANAGER)"; then \
++		if test -n "`$(NETOPEER_MANAGER) list | grep "^$(PKGNAME) ("`"; then \
++			$(NETOPEER_MANAGER) rm --name $(PKGNAME); \
++		fi; \
++		$(NETOPEER_MANAGER) add --name $(PKGNAME) \
++			--model $(NETOPEER_DIR)/$(PKGNAME)/$(PKGNAME).yin \
++			--transapi $(DESTDIR)/$(libdir)/$(PKGNAME).so \
++			--datastore $(NETOPEER_DIR)/$(PKGNAME)/datastore.xml; \
++	fi
++
++.PHONY: uninstall
++uninstall:
++	$(LIBTOOL) --mode=uninstall rm -rf $(DESTDIR)/$(libdir)/$(TARGET);
++	rm -rf $(NETOPEER_DIR)/$(PKGNAME)/
++	if test -n "$(NETOPEER_MANAGER)"; then \
++		if test -n "`$(NETOPEER_MANAGER) list | grep "^$(PKGNAME) ("`"; then \
++			$(NETOPEER_MANAGER) rm --name $(PKGNAME); \
++		fi; \
++	fi
+ 
+ .PHONY: clean
+ clean:
+diff --git a/dev-tools/lnctool/generator/configure.in b/dev-tools/lnctool/generator/configure.in
+index 5caf5f2..68cbeee 100644
+--- a/dev-tools/lnctool/generator/configure.in
++++ b/dev-tools/lnctool/generator/configure.in
+@@ -12,6 +12,13 @@ AC_ARG_ENABLE([debug],
+ 	CFLAGS="$CFLAGS -O3"
+ )
+ 
++AC_ARG_WITH([netopeer-confdir],
++	[AC_HELP_STRING([--with-netopeer-confdir=DIR], [Netopeer server configuration directory (by default ${sysconfdir}/netopeer/)])],
++	[NETOPEER_DIR="$withval"],
++	[NETOPEER_DIR="${sysconfdir}/netopeer/"]
++)
++AC_SUBST(NETOPEER_DIR)
++
+ # --with-libxml2=path-to-libxml2-git-repository
+ AC_ARG_WITH([libxml2],
+ [AC_HELP_STRING([--with-libxml2], [specific libxml2 location])],
+@@ -38,7 +45,18 @@ if test -z "$libtool"; then
+ fi
+ AC_SUBST(libtool)
+ 
++AC_PATH_PROG(NETOPEER_MANAGER, [netopeer-manager], [])
++AC_SUBST(NETOPEER_MANAGER)
++
+ # Checks for libraries.
++export PKG_CONFIG_PATH=/usr/local/${libdir##*/}/pkgconfig:$PKG_CONFIG_PATH
++
++PKG_CHECK_MODULES(LIBNETCONF, libnetconf)
++CPPFLAGS="$CPPFLAGS $LIBNETCONF_CFLAGS"
++LIBS="$LIBS $LIBNETCONF_LIBS"
++LIBNETCONF_DATADIR="`$PKG_CONFIG --variable=datadir libnetconf`"
++AC_SUBST(LIBNETCONF_DATADIR)
++
+ AC_SEARCH_LIBS([ncds_apply_rpc2all], [netconf], ,AC_MSG_ERROR([libnetconf not found!]))
+ 
+ # Check for libxml2.
+-- 
+1.8.3.1
+

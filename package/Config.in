@@ -1769,6 +1769,10 @@ menu "Text editors and viewers"
 	source "package/uemacs/Config.in"
 	source "package/vim/Config.in"
 endmenu
+menu "Netconf Supporting"
+	source "package/pyang/Config.in"
+	source "package/libnetconf/Config.in"
+endmenu
 
 menu "Fman ucode"
 	source "package/fmucode/Config.in"
