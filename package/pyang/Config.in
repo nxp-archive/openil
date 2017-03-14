@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PYANG
+bool "pyang"
+help
+	this is comment that support pyang
