@@ -813,6 +813,7 @@ menu "External python modules"
 	source "package/python-xlutils/Config.in"
 	source "package/python-xlwt/Config.in"
 	source "package/python-zope-interface/Config.in"
+	source "package/python-libxml2/Config.in"
 endmenu
 endif
 	source "package/ruby/Config.in"
@@ -1774,5 +1775,8 @@ menu "Fman ucode"
 endmenu
 menu "rcw image"
 	source "package/rcw/Config.in"
+endmenu
+menu "ppa firmware"
+	source "package/ppa/Config.in"
 endmenu
 endmenu
