@@ -17,4 +17,12 @@ define PYTHON_LIBXML2_CONFIGURE_CMDS
 	echo "python_libxml2_include_dir = $(STAGING_DIR)/usr/include" >> $(@D)/Setup
 endef
 
+define PYTHON_LIBXML2_POST_INSTALL_TARGET_FIXUP
+	$(INSTALL) -D -m 0755 $(TARGET_DIR)/usr/lib/python$(PYTHON_VERSION_MAJOR)/site-packages/libxml2.py* $(TARGET_DIR)/usr/lib/python$(PYTHON_VERSION_MAJOR)/
+	$(INSTALL) -D -m 0755 $(TARGET_DIR)/usr/lib/python$(PYTHON_VERSION_MAJOR)/site-packages/libxml2mod.so $(TARGET_DIR)/usr/lib/python$(PYTHON_VERSION_MAJOR)/ 
+	$(INSTALL) -D -m 0755 $(TARGET_DIR)/usr/lib/python$(PYTHON_VERSION_MAJOR)/site-packages/drv_libxml2.py* $(TARGET_DIR)/usr/lib/python$(PYTHON_VERSION_MAJOR)/
+endef
+
+PYTHON_LIBXML2_POST_INSTALL_TARGET_HOOKS +=PYTHON_LIBXML2_POST_INSTALL_TARGET_FIXUP
+
 $(eval $(python-package))
