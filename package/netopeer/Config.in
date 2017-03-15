@@ -1,0 +1,6 @@
+config BR2_PACKAGE_NETOPEER
+bool "netopeer-server"
+help
+	this is comment that support netopeer-server 
+
+	  https://github.com/CESNET

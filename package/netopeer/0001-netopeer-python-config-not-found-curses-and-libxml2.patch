@@ -1,0 +1,43 @@
+From 36203d538202cc760fb154eca4858c0af9b68542 Mon Sep 17 00:00:00 2001
+From: Po Liu <Po.liu@nxp.com>
+Date: Fri, 3 Mar 2017 17:25:39 +0800
+Subject: [PATCH] netopeer: python config not found curses and libxml2
+
+Signed-off-by: Po Liu <Po.liu@nxp.com>
+---
+ server/configure | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/server/configure b/server/configure
+index 5036c6b..b29f103 100755
+--- a/server/configure
++++ b/server/configure
+@@ -3106,8 +3106,10 @@ $as_echo "no" >&6; }
+     PYTHON_NAME=`basename $PYTHON`
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking $PYTHON_NAME module: curses" >&5
+ $as_echo_n "checking $PYTHON_NAME module: curses... " >&6; }
+-	$PYTHON -c "import curses" 2>/dev/null
+-	if test $? -eq 0;
++#	$PYTHON -c "import curses" 2>/dev/null
++#	if test $? -eq 0;
++	TEMP=`find $PYTHON_LIB_PATH -name curses`
++	if test -n $TEMP
+ 	then
+ 		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+@@ -3132,8 +3134,10 @@ $as_echo "no" >&6; }
+     PYTHON_NAME=`basename $PYTHON`
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking $PYTHON_NAME module: libxml2" >&5
+ $as_echo_n "checking $PYTHON_NAME module: libxml2... " >&6; }
+-	$PYTHON -c "import libxml2" 2>/dev/null
+-	if test $? -eq 0;
++#	$PYTHON -c "import libxml2" 2>/dev/null
++#	if test $? -eq 0;
++	TEMP=`find $PYTHON_LIB_PATH -name libxml2`
++	if test -n $TEMP
+ 	then
+ 		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+-- 
+1.8.3.1
+
