@@ -10,7 +10,7 @@ LIBNETCONF_SITE_METHOD = git
 LIBNETCONF_INSTALL_STAGING = YES
 LIBNETCONF_LICENSE = MIT
 LIBNETCONF_LICENSE_FILES = COPYING
-
+LIBNETCONF_CONF_OPTS += --with-rpm
 HOST_LIBNETCONF_DEPENDENCIES = host-pkgconf pyang
 LIBNETCONF_DEPENDENCIES = libxml2 openssl libgcrypt libssh libxslt ncurses readline dbus pyang python-libxml2 host-python
 
