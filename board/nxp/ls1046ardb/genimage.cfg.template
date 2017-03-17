@@ -38,6 +38,12 @@ image sdcard.img {
     offset = 1040K
   }
 
+  partition ppa {
+    in-partition-table = "no"
+    image = "ppa.itb"
+    offset = 5M
+  }
+
   partition boot {
     partition-type = 0xC
     bootable = "true"
