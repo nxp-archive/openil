@@ -1,0 +1,5 @@
+config BR2_PACKAGE_YANG_CFGINTERFACES
+bool "yang-cfginterfaces"
+	select BR2_PACKAGE_NETOPEER
+help
+	netopeer yang model CFGINTERFACES

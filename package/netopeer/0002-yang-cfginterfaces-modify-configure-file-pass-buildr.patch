@@ -1,0 +1,105 @@
+From 87cf230618b8a4cf5d5deda23adf0da4dbf34861 Mon Sep 17 00:00:00 2001
+From: Po Liu <po.liu@nxp.com>
+Date: Fri, 17 Mar 2017 23:26:17 +0800
+Subject: [PATCH 2/2] yang-cfginterfaces: modify configure file pass buildroot
+
+Signed-off-by: Po Liu <po.liu@nxp.com>
+---
+ transAPI/cfginterfaces/Makefile.in | 16 ++++++++--------
+ transAPI/cfginterfaces/configure   | 16 +++++++++-------
+ 2 files changed, 17 insertions(+), 15 deletions(-)
+
+diff --git a/transAPI/cfginterfaces/Makefile.in b/transAPI/cfginterfaces/Makefile.in
+index 328124a..b400969 100644
+--- a/transAPI/cfginterfaces/Makefile.in
++++ b/transAPI/cfginterfaces/Makefile.in
+@@ -55,30 +55,30 @@ $(OBJDIR)/%.lo: %.c
+ install: $(MODULE) $(TARGET)-init
+ 	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
+ 	$(LIBTOOL) --mode=install cp $(MODULE) $(DESTDIR)/$(libdir)/;
+-	$(INSTALL) -d $(NETOPEER_DIR)/ietf-interfaces/
++	$(INSTALL) -d $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/
+ 	@for i in $(MODEL); do \
+-		$(INSTALL_DATA) -m 600 $$i $(NETOPEER_DIR)/ietf-interfaces/; \
++		$(INSTALL_DATA) -m 600 $$i $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/; \
+ 	done
+ 	if test -n "$(NETOPEER_MANAGER)"; then \
+ 		if test -n "`$(NETOPEER_MANAGER) list | grep "^ietf-interfaces ("`"; then \
+ 			$(NETOPEER_MANAGER) rm --name ietf-interfaces; \
+ 		fi; \
+ 		$(NETOPEER_MANAGER) add --name ietf-interfaces \
+-			--model $(NETOPEER_DIR)/ietf-interfaces/ietf-interfaces.yin \
++			--model $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/ietf-interfaces.yin \
+ 			--transapi $(DESTDIR)/$(libdir)/cfginterfaces.so \
+-			--datastore $(NETOPEER_DIR)/ietf-interfaces/datastore.xml; \
++			--datastore $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/datastore.xml; \
+ 		$(NETOPEER_MANAGER) add --name ietf-interfaces \
+-			--augment $(NETOPEER_DIR)/ietf-interfaces/ietf-ip.yin \
++			--augment $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/ietf-ip.yin \
+ 			--features ipv4-non-contiguous-netmasks ipv6-privacy-autoconf; \
+ 		$(NETOPEER_MANAGER) add --name ietf-interfaces \
+-			--import $(NETOPEER_DIR)/ietf-interfaces/iana-if-type.yin; \
++			--import $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/iana-if-type.yin; \
+ 	fi
+-	./$(TARGET)-init $(NETOPEER_DIR)/ietf-interfaces/datastore.xml ipv4-non-contiguous-netmasks ipv6-privacy-autoconf
++#	./$(TARGET)-init $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/datastore.xml ipv4-non-contiguous-netmasks ipv6-privacy-autoconf
+ 
+ .PHONY: uninstall
+ uninstall:
+ 	$(LIBTOOL) --mode=uninstall rm -rf $(DESTDIR)/$(libdir)/$(MODULE);
+-	rm -rf $(NETOPEER_DIR)/ietf-interfaces/
++	rm -rf $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/
+ 	if test -n "$(NETOPEER_MANAGER)"; then \
+ 		if test -n "`$(NETOPEER_MANAGER) list | grep "^ietf-interfaces ("`"; then \
+ 			$(NETOPEER_MANAGER) rm --name ietf-interfaces; \
+diff --git a/transAPI/cfginterfaces/configure b/transAPI/cfginterfaces/configure
+index 4ebfc66..725d8cb 100755
+--- a/transAPI/cfginterfaces/configure
++++ b/transAPI/cfginterfaces/configure
+@@ -2266,8 +2266,8 @@ fi
+ 	if test "$XML2_CONFIG" = "no"; then
+ 		as_fn_error $? "Missing development package of libxml2." "$LINENO" 5
+ 	fi
+-	CFLAGS="`$withval/xml2-config --cflags` $CFLAGS"
+-	LDFLAGS="`$withval/xml2-config --libs` $LDFLAGS"
++	CFLAGS="$CFLAGS `$withval/xml2-config --cflags`"
++	LDFLAGS="$LDFLAGS `$withval/xml2-config --libs`"
+ 	WITH_LIBXML2="$withval"
+ 
+ 
+@@ -3414,8 +3414,9 @@ $as_echo_n "checking for /etc/redhat-release... " >&6; }
+ if ${ac_cv_file__etc_redhat_release+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  test "$cross_compiling" = yes &&
+-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
++	echo "pass checking for /etc/redhat-release..."
++#  test "$cross_compiling" = yes &&
++#  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+ if test -r "/etc/redhat-release"; then
+   ac_cv_file__etc_redhat_release=yes
+ else
+@@ -3436,8 +3437,9 @@ $as_echo_n "checking for /etc/SuSE-release... " >&6; }
+ if ${ac_cv_file__etc_SuSE_release+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  test "$cross_compiling" = yes &&
+-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
++	echo "pass checking for /etc/SuSE-release..."
++#  test "$cross_compiling" = yes &&
++#  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+ if test -r "/etc/SuSE-release"; then
+   ac_cv_file__etc_SuSE_release=yes
+ else
+@@ -11515,7 +11517,7 @@ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_xml2_main" >&5
+ $as_echo "$ac_cv_lib_xml2_main" >&6; }
+ if test "x$ac_cv_lib_xml2_main" = xyes; then :
+-  LIBS="`xml2-config --libs` $LIBS" CFLAGS="`xml2-config --cflags` $CFLAGS"
++  LIBS="$LIBS `xml2-config --libs`" CFLAGS="$CFLAGS `xml2-config --cflags`"
+ else
+   as_fn_error $? "Libxml2 not found " "$LINENO" 5
+ fi
+-- 
+1.8.3.1
+

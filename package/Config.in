@@ -1773,6 +1773,7 @@ menu "Netconf Supporting"
 	source "package/pyang/Config.in"
 	source "package/libnetconf/Config.in"
 	source "package/netopeer/Config.in"
+	source "package/yang-cfginterfaces/Config.in"
 endmenu
 
 menu "Fman ucode"
