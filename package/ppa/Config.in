@@ -1,0 +1,24 @@
+config BR2_PACKAGE_PPA
+	bool "ppa"
+	help
+	Primary Protected Application (PPA), a resident EL3 firmware.
+
+	Services provided:
+		EL3 initialization
+			v8 cores
+			GIC
+			Interconnect
+			SoC
+		Secure Monitor gateway
+		PSCI v0.2
+		Aarch32 kernel support
+
+	Devices Supported:
+		LS1012A
+		LS1028A
+		LS1043A, incl v1.1
+		LS1046A
+		LS1088A
+		LS2080A/2085A
+		LS2088A
+		UA
