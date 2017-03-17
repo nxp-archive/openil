@@ -9,8 +9,6 @@
 echo ${2}
 echo ${3}
 
-rm .config
-
 rm -rf board/nxp/ls1012ardb/temp
 mkdir board/nxp/ls1012ardb/temp
 

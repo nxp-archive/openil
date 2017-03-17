@@ -55,6 +55,7 @@ main()
 
 	rm -f ${GENIMAGE_CFG}
 
+	mv ${BINARIES_DIR}/sdcard.img ${BINARIES_DIR}/qspi.img
 
 	exit $?
 }

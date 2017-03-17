@@ -20,27 +20,33 @@ image sdcard.img {
   hdimage {
   }
 
+  partition rcw {
+    in-partition-table = "no"
+    image = "PBL_0x35_0x08_800_250_1000_default.bin"
+    offset = 0
+  }
+
   partition u-boot {
     in-partition-table = "no"
     image = "u-boot-dtb.bin"
-    offset = 4096
+    offset = 1M
   }
 
   partition u-boot-environment {
     in-partition-table = "no"
     image = "uboot-env.bin"
-    offset = 1M
+    offset = 2M
+  }
+
+  partition ppa {
+    in-partition-table = "no"
+    image = "ppa.itb"
+    offset = 5M
   }
 
   partition boot {
-    partition-type = 0xC
-    bootable = "true"
-    image = "boot.vfat"
-    offset = 8M
-  }
-
-  partition rootfs {
-    partition-type = 0x83
-    image = "rootfs.ext2"
+    in-partition-table = "no"
+    image = "kernel-ls1012a-rdb-aarch32.itb"
+    offset = 10M
   }
 }
