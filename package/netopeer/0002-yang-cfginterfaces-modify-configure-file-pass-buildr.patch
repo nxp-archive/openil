@@ -1,13 +1,13 @@
-From c219c298bf00de9704cbcd4ecdebc75a52e424d2 Mon Sep 17 00:00:00 2001
+From a5a6ca4f4bc7d1584207b53d74c40846d050d3d7 Mon Sep 17 00:00:00 2001
 From: Po Liu <po.liu@nxp.com>
 Date: Fri, 17 Mar 2017 23:26:17 +0800
 Subject: [PATCH 2/2] yang-cfginterfaces: modify configure file pass buildroot
 
 Signed-off-by: Po Liu <po.liu@nxp.com>
 ---
- transAPI/cfginterfaces/Makefile.in | 30 +++++++++++++++++++++---------
- transAPI/cfginterfaces/configure   | 16 +++++++++-------
- 2 files changed, 30 insertions(+), 16 deletions(-)
+ transAPI/cfginterfaces/Makefile.in | 30 ++++++++++++-----
+ transAPI/cfginterfaces/configure   | 69 ++++----------------------------------
+ 2 files changed, 27 insertions(+), 72 deletions(-)
 
 diff --git a/transAPI/cfginterfaces/Makefile.in b/transAPI/cfginterfaces/Makefile.in
 index 328124a..205e5d6 100644
@@ -61,7 +61,7 @@ index 328124a..205e5d6 100644
  .PHONY: uninstall
  uninstall:
 diff --git a/transAPI/cfginterfaces/configure b/transAPI/cfginterfaces/configure
-index 4ebfc66..725d8cb 100755
+index 4ebfc66..3dd8739 100755
 --- a/transAPI/cfginterfaces/configure
 +++ b/transAPI/cfginterfaces/configure
 @@ -2266,8 +2266,8 @@ fi
@@ -75,31 +75,80 @@ index 4ebfc66..725d8cb 100755
  	WITH_LIBXML2="$withval"
  
  
-@@ -3414,8 +3414,9 @@ $as_echo_n "checking for /etc/redhat-release... " >&6; }
- if ${ac_cv_file__etc_redhat_release+:} false; then :
-   $as_echo_n "(cached) " >&6
- else
+@@ -3409,69 +3409,12 @@ fi
+ 
+ 
+ # Check distribution
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for /etc/redhat-release" >&5
+-$as_echo_n "checking for /etc/redhat-release... " >&6; }
+-if ${ac_cv_file__etc_redhat_release+:} false; then :
+-  $as_echo_n "(cached) " >&6
+-else
 -  test "$cross_compiling" = yes &&
 -  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-+	echo "pass checking for /etc/redhat-release..."
-+#  test "$cross_compiling" = yes &&
-+#  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
- if test -r "/etc/redhat-release"; then
-   ac_cv_file__etc_redhat_release=yes
- else
-@@ -3436,8 +3437,9 @@ $as_echo_n "checking for /etc/SuSE-release... " >&6; }
- if ${ac_cv_file__etc_SuSE_release+:} false; then :
-   $as_echo_n "(cached) " >&6
- else
+-if test -r "/etc/redhat-release"; then
+-  ac_cv_file__etc_redhat_release=yes
+-else
+-  ac_cv_file__etc_redhat_release=no
+-fi
+-fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__etc_redhat_release" >&5
+-$as_echo "$ac_cv_file__etc_redhat_release" >&6; }
+-if test "x$ac_cv_file__etc_redhat_release" = xyes; then :
+-  DISTRO=REDHAT
+-else
+-  DISTRO=unknown
+-fi
+ 
+-if test "$DISTRO" = "unknown"; then
+-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for /etc/SuSE-release" >&5
+-$as_echo_n "checking for /etc/SuSE-release... " >&6; }
+-if ${ac_cv_file__etc_SuSE_release+:} false; then :
+-  $as_echo_n "(cached) " >&6
+-else
 -  test "$cross_compiling" = yes &&
 -  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-+	echo "pass checking for /etc/SuSE-release..."
-+#  test "$cross_compiling" = yes &&
-+#  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
- if test -r "/etc/SuSE-release"; then
-   ac_cv_file__etc_SuSE_release=yes
- else
-@@ -11515,7 +11517,7 @@ fi
+-if test -r "/etc/SuSE-release"; then
+-  ac_cv_file__etc_SuSE_release=yes
+-else
+-  ac_cv_file__etc_SuSE_release=no
+-fi
+-fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__etc_SuSE_release" >&5
+-$as_echo "$ac_cv_file__etc_SuSE_release" >&6; }
+-if test "x$ac_cv_file__etc_SuSE_release" = xyes; then :
+-  DISTRO=SUSE
+-fi
+ 
+-fi
+-if test "$DISTRO" = "unknown"; then
+-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for /etc/debian_version" >&5
+-$as_echo_n "checking for /etc/debian_version... " >&6; }
+-if ${ac_cv_file__etc_debian_version+:} false; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-  test "$cross_compiling" = yes &&
+-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+-if test -r "/etc/debian_version"; then
+-  ac_cv_file__etc_debian_version=yes
+-else
+-  ac_cv_file__etc_debian_version=no
+-fi
+-fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__etc_debian_version" >&5
+-$as_echo "$ac_cv_file__etc_debian_version" >&6; }
+-if test "x$ac_cv_file__etc_debian_version" = xyes; then :
+-  DISTRO=DEBIAN
+-fi
++ac_cv_file__etc_debian_version=yes
++
++DISTRO=DEBIAN
+ 
+-fi
+ if test "$DISTRO" = "unknown"; then
+ 	DISTRO=REDHAT
+ 	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Failed to detect the Linux distribution, assuming RedHat base!" >&5
+@@ -11515,7 +11458,7 @@ fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_xml2_main" >&5
  $as_echo "$ac_cv_lib_xml2_main" >&6; }
  if test "x$ac_cv_lib_xml2_main" = xyes; then :
