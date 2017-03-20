@@ -33,12 +33,23 @@ define NETOPEER_BUILD_CMDS
 	    --host=arm-buildroot-linux-gnueabihf \
 	    --build=x86_64-pc-linux-gnu 
 	$(TARGET_MAKE_ENV) $(MAKE) $(TARGET_MAKE_OPTS) -C $(@D)/server
-#	make
 endef
 
 define NETOPEER_INSTALL_TARGET_CMDS
 	cd $(@D)/server;$(TARGET_MAKE_ENV) $(MAKE) DESTDIR=$(TARGET_DIR) install
-#	$(TARGET_MAKE_ENV) $(MAKE) PREFIX="$(TARGET_DIR)/usr" -C $(@D) install
+
 endef
+
+define NETOPEER_INSTALL_DATASTORE
+	$(INSTALL) -D -m 0755 package/netopeer/datastore.xml $(TARGET_DIR)/usr/local/etc/netopeer/cfgnetopeer/
+endef
+
+define NETOPEER_INSTALL_NETOPEER_MANAGER_HOST
+	$(INSTALL) -D -m 0755 package/netopeer/netopeer-manager.host $(HOST_DIR)/usr/bin/
+endef
+
+NETOPEER_POST_INSTALL_TARGET_HOOKS +=NETOPEER_INSTALL_DATASTORE
+NETOPEER_POST_INSTALL_TARGET_HOOKS +=NETOPEER_INSTALL_NETOPEER_MANAGER_HOST
+
 #$(eval $(autotools-package))
 $(eval $(generic-package))

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datastores xmlns="urn:cesnet:tmc:datastores:file">
+  <running lock=""/>
+  <startup lock=""/>
+  <candidate modified="false" lock=""/>
+</datastores>

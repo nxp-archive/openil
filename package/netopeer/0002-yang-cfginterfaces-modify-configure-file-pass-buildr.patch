@@ -1,19 +1,19 @@
-From 87cf230618b8a4cf5d5deda23adf0da4dbf34861 Mon Sep 17 00:00:00 2001
+From c219c298bf00de9704cbcd4ecdebc75a52e424d2 Mon Sep 17 00:00:00 2001
 From: Po Liu <po.liu@nxp.com>
 Date: Fri, 17 Mar 2017 23:26:17 +0800
 Subject: [PATCH 2/2] yang-cfginterfaces: modify configure file pass buildroot
 
 Signed-off-by: Po Liu <po.liu@nxp.com>
 ---
- transAPI/cfginterfaces/Makefile.in | 16 ++++++++--------
+ transAPI/cfginterfaces/Makefile.in | 30 +++++++++++++++++++++---------
  transAPI/cfginterfaces/configure   | 16 +++++++++-------
- 2 files changed, 17 insertions(+), 15 deletions(-)
+ 2 files changed, 30 insertions(+), 16 deletions(-)
 
 diff --git a/transAPI/cfginterfaces/Makefile.in b/transAPI/cfginterfaces/Makefile.in
-index 328124a..b400969 100644
+index 328124a..205e5d6 100644
 --- a/transAPI/cfginterfaces/Makefile.in
 +++ b/transAPI/cfginterfaces/Makefile.in
-@@ -55,30 +55,30 @@ $(OBJDIR)/%.lo: %.c
+@@ -55,25 +55,37 @@ $(OBJDIR)/%.lo: %.c
  install: $(MODULE) $(TARGET)-init
  	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
  	$(LIBTOOL) --mode=install cp $(MODULE) $(DESTDIR)/$(libdir)/;
@@ -25,33 +25,41 @@ index 328124a..b400969 100644
  	done
  	if test -n "$(NETOPEER_MANAGER)"; then \
  		if test -n "`$(NETOPEER_MANAGER) list | grep "^ietf-interfaces ("`"; then \
- 			$(NETOPEER_MANAGER) rm --name ietf-interfaces; \
+-			$(NETOPEER_MANAGER) rm --name ietf-interfaces; \
++			$(NETOPEER_MANAGER) rm --name ietf-interfaces \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
  		fi; \
  		$(NETOPEER_MANAGER) add --name ietf-interfaces \
 -			--model $(NETOPEER_DIR)/ietf-interfaces/ietf-interfaces.yin \
 +			--model $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/ietf-interfaces.yin \
++			--model_target $(NETOPEER_DIR)/ietf-interfaces/ietf-interfaces.yin \
  			--transapi $(DESTDIR)/$(libdir)/cfginterfaces.so \
 -			--datastore $(NETOPEER_DIR)/ietf-interfaces/datastore.xml; \
-+			--datastore $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/datastore.xml; \
++			--transapi_target $(libdir)/cfginterfaces.so \
++			--datastore $(NETOPEER_DIR)/ietf-interfaces/datastore.xml \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
  		$(NETOPEER_MANAGER) add --name ietf-interfaces \
 -			--augment $(NETOPEER_DIR)/ietf-interfaces/ietf-ip.yin \
+-			--features ipv4-non-contiguous-netmasks ipv6-privacy-autoconf; \
 +			--augment $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/ietf-ip.yin \
- 			--features ipv4-non-contiguous-netmasks ipv6-privacy-autoconf; \
++			--augment_target $(NETOPEER_DIR)/ietf-interfaces/ietf-ip.yin \
++			--features ipv4-non-contiguous-netmasks ipv6-privacy-autoconf \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
  		$(NETOPEER_MANAGER) add --name ietf-interfaces \
 -			--import $(NETOPEER_DIR)/ietf-interfaces/iana-if-type.yin; \
-+			--import $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/iana-if-type.yin; \
++			--import $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/iana-if-type.yin \
++			--import_target $(NETOPEER_DIR)/ietf-interfaces/iana-if-type.yin \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
  	fi
 -	./$(TARGET)-init $(NETOPEER_DIR)/ietf-interfaces/datastore.xml ipv4-non-contiguous-netmasks ipv6-privacy-autoconf
 +#	./$(TARGET)-init $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/datastore.xml ipv4-non-contiguous-netmasks ipv6-privacy-autoconf
  
  .PHONY: uninstall
  uninstall:
- 	$(LIBTOOL) --mode=uninstall rm -rf $(DESTDIR)/$(libdir)/$(MODULE);
--	rm -rf $(NETOPEER_DIR)/ietf-interfaces/
-+	rm -rf $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/
- 	if test -n "$(NETOPEER_MANAGER)"; then \
- 		if test -n "`$(NETOPEER_MANAGER) list | grep "^ietf-interfaces ("`"; then \
- 			$(NETOPEER_MANAGER) rm --name ietf-interfaces; \
 diff --git a/transAPI/cfginterfaces/configure b/transAPI/cfginterfaces/configure
 index 4ebfc66..725d8cb 100755
 --- a/transAPI/cfginterfaces/configure
