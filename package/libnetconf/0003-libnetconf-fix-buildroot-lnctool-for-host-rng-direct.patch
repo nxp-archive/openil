@@ -1,0 +1,27 @@
+From 30497ee28a23fc51fbe9fb519c7ab05f1a4e1a0b Mon Sep 17 00:00:00 2001
+From: Po Liu <po.liu@nxp.com>
+Date: Tue, 21 Mar 2017 00:05:39 +0800
+Subject: [PATCH 3/3] libnetconf: fix buildroot lnctool for host rng directory
+ wrong issue
+
+Signed-off-by: Po Liu <po.liu@nxp.com>
+---
+ Makefile.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index 4916daa..4005cf6 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -222,7 +222,7 @@ $(LNCTOOL): $(LNCTOOL).in
+ 		sed "s/@RNGLIB@/$(subst /,\/,@LNCTOOLDESTDIR@$(datadir)/$(NAME)/rnglib/)/g" $< | \
+ 		sed 's/@XSLTDIR@/$(subst /,\/,@LNCTOOLDESTDIR@$(datadir)/$(NAME)/xslt/)/g' | \
+ 		sed 's/@TEMPLATEDIR@/$(subst /,\/,@LNCTOOLDESTDIR@$(datadir)/$(NAME)/templates/)/g' > $(LNCTOOL).install; \
+-		sed "s/@RNGLIB@/$(subst /,\/,$(abs_srcdir)/dev-tools/lnctool/rnglib/)/g" $< | \
++		sed "s/@RNGLIB@/$(subst /,\/,@LNCTOOLDESTDIR@$(datadir)/$(NAME)/rnglib/)/g" $< | \
+ 		sed 's/@XSLTDIR@/$(subst /,\/,$(abs_srcdir)/dev-tools/lnctool/xslt/)/g' | \
+ 		sed 's/@TEMPLATEDIR@/$(subst /,\/,$(abs_srcdir)/dev-tools/lnctool/generator/)/g' > $(LNCTOOL); \
+ 		chmod +x $(LNCTOOL) $(LNCTOOL).install; \
+-- 
+1.8.3.1
+
