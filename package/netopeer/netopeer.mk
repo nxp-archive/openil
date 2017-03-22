@@ -5,7 +5,7 @@
 ################################################################################
 
 NETOPEER_VERSION = master 
-NETOPEER_SITE = https://github.com/CESNET/netopeer.git
+NETOPEER_SITE = ssh://git@sw-stash.freescale.net/dnind/netopeer.git
 NETOPEER_SITE_METHOD = git
 NETOPEER_LICENSE = MIT
 NETOPEER_LICENSE_FILES = COPYING
