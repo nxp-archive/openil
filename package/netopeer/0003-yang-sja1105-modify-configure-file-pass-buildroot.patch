@@ -1,19 +1,19 @@
-From 3fd6bae57f5da92402ec426e2a47926fb379aa6e Mon Sep 17 00:00:00 2001
+From 85f52cdcf54078dc5c4a663ff482e1d4d337b372 Mon Sep 17 00:00:00 2001
 From: Liu Po-B43644 <Po.Liu@freescale.com>
 Date: Wed, 22 Mar 2017 02:20:10 +0800
 Subject: [PATCH 3/3] yang-sja1105: modify configure file pass buildroot
 
 Signed-off-by: Liu Po-B43644 <Po.Liu@freescale.com>
 ---
- transAPI/sja1105/Makefile.in  | 15 ++++++++++-----
+ transAPI/sja1105/Makefile.in  | 19 +++++++++++++------
  transAPI/sja1105/configure.in |  6 +++---
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ 2 files changed, 16 insertions(+), 9 deletions(-)
 
 diff --git a/transAPI/sja1105/Makefile.in b/transAPI/sja1105/Makefile.in
-index bfc0f07..645ff96 100755
+index bfc0f07..ec29c70 100755
 --- a/transAPI/sja1105/Makefile.in
 +++ b/transAPI/sja1105/Makefile.in
-@@ -49,18 +49,23 @@ $(OBJDIR)/%.lo: %.c
+@@ -49,18 +49,25 @@ $(OBJDIR)/%.lo: %.c
  install: $(TARGET)
  	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
  	$(LIBTOOL) --mode=install cp $(TARGET) $(DESTDIR)/$(libdir)/;
@@ -24,8 +24,11 @@ index bfc0f07..645ff96 100755
 +		$(INSTALL_DATA) -m 600 $$i $(DESTDIR)/$(NETOPEER_DIR)/$(PKGNAME)/; \
  	done
  	if test -n "$(NETOPEER_MANAGER)"; then \
- 		if test -n "`$(NETOPEER_MANAGER) list | grep "^$(PKGNAME) ("`"; then \
+-		if test -n "`$(NETOPEER_MANAGER) list | grep "^$(PKGNAME) ("`"; then \
 -			$(NETOPEER_MANAGER) rm --name $(PKGNAME); \
++		if test -n "`$(NETOPEER_MANAGER) list \
++				--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++				--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml | grep "^$(PKGNAME) ("`"; then \
 +			$(NETOPEER_MANAGER) rm --name $(PKGNAME) \
 +			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
 +			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\

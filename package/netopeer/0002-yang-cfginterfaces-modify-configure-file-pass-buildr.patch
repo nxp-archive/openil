@@ -1,19 +1,19 @@
-From a5a6ca4f4bc7d1584207b53d74c40846d050d3d7 Mon Sep 17 00:00:00 2001
+From d1e9d8a5e32083506c229f33be34a4b0f37a28cc Mon Sep 17 00:00:00 2001
 From: Po Liu <po.liu@nxp.com>
 Date: Fri, 17 Mar 2017 23:26:17 +0800
-Subject: [PATCH 2/2] yang-cfginterfaces: modify configure file pass buildroot
+Subject: [PATCH 2/3] yang-cfginterfaces: modify configure file pass buildroot
 
 Signed-off-by: Po Liu <po.liu@nxp.com>
 ---
- transAPI/cfginterfaces/Makefile.in | 30 ++++++++++++-----
+ transAPI/cfginterfaces/Makefile.in | 34 +++++++++++++------
  transAPI/cfginterfaces/configure   | 69 ++++----------------------------------
- 2 files changed, 27 insertions(+), 72 deletions(-)
+ 2 files changed, 30 insertions(+), 73 deletions(-)
 
 diff --git a/transAPI/cfginterfaces/Makefile.in b/transAPI/cfginterfaces/Makefile.in
-index 328124a..205e5d6 100644
+index 328124a..a03dbf7 100644
 --- a/transAPI/cfginterfaces/Makefile.in
 +++ b/transAPI/cfginterfaces/Makefile.in
-@@ -55,25 +55,37 @@ $(OBJDIR)/%.lo: %.c
+@@ -55,25 +55,39 @@ $(OBJDIR)/%.lo: %.c
  install: $(MODULE) $(TARGET)-init
  	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
  	$(LIBTOOL) --mode=install cp $(MODULE) $(DESTDIR)/$(libdir)/;
@@ -24,8 +24,11 @@ index 328124a..205e5d6 100644
 +		$(INSTALL_DATA) -m 600 $$i $(DESTDIR)/$(NETOPEER_DIR)/ietf-interfaces/; \
  	done
  	if test -n "$(NETOPEER_MANAGER)"; then \
- 		if test -n "`$(NETOPEER_MANAGER) list | grep "^ietf-interfaces ("`"; then \
+-		if test -n "`$(NETOPEER_MANAGER) list | grep "^ietf-interfaces ("`"; then \
 -			$(NETOPEER_MANAGER) rm --name ietf-interfaces; \
++		if test -n "`$(NETOPEER_MANAGER) list \
++		--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++		--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml | grep "^ietf-interfaces ("`"; then \
 +			$(NETOPEER_MANAGER) rm --name ietf-interfaces \
 +			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
 +			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
