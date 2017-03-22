@@ -1,0 +1,5 @@
+config BR2_PACKAGE_YANG_SJA1105
+bool "yang-sja1105"
+	select BR2_PACKAGE_NETOPEER
+help
+	netopeer yang model NXP sja1105

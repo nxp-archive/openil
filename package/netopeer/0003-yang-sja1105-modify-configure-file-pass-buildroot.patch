@@ -1,0 +1,71 @@
+From 3fd6bae57f5da92402ec426e2a47926fb379aa6e Mon Sep 17 00:00:00 2001
+From: Liu Po-B43644 <Po.Liu@freescale.com>
+Date: Wed, 22 Mar 2017 02:20:10 +0800
+Subject: [PATCH 3/3] yang-sja1105: modify configure file pass buildroot
+
+Signed-off-by: Liu Po-B43644 <Po.Liu@freescale.com>
+---
+ transAPI/sja1105/Makefile.in  | 15 ++++++++++-----
+ transAPI/sja1105/configure.in |  6 +++---
+ 2 files changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/transAPI/sja1105/Makefile.in b/transAPI/sja1105/Makefile.in
+index bfc0f07..645ff96 100755
+--- a/transAPI/sja1105/Makefile.in
++++ b/transAPI/sja1105/Makefile.in
+@@ -49,18 +49,23 @@ $(OBJDIR)/%.lo: %.c
+ install: $(TARGET)
+ 	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
+ 	$(LIBTOOL) --mode=install cp $(TARGET) $(DESTDIR)/$(libdir)/;
+-	$(INSTALL) -d $(NETOPEER_DIR)/$(PKGNAME)/
++	$(INSTALL) -d $(DESTDIR)/$(NETOPEER_DIR)/$(PKGNAME)/
+ 	@for i in $(MODEL); do \
+-		$(INSTALL_DATA) -m 600 $$i $(NETOPEER_DIR)/$(PKGNAME)/; \
++		$(INSTALL_DATA) -m 600 $$i $(DESTDIR)/$(NETOPEER_DIR)/$(PKGNAME)/; \
+ 	done
+ 	if test -n "$(NETOPEER_MANAGER)"; then \
+ 		if test -n "`$(NETOPEER_MANAGER) list | grep "^$(PKGNAME) ("`"; then \
+-			$(NETOPEER_MANAGER) rm --name $(PKGNAME); \
++			$(NETOPEER_MANAGER) rm --name $(PKGNAME) \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
+ 		fi; \
+ 		$(NETOPEER_MANAGER) add --name $(PKGNAME) \
+-			--model $(NETOPEER_DIR)/$(PKGNAME)/$(PKGNAME).yin \
++			--model $(DESTDIR)/$(NETOPEER_DIR)/$(PKGNAME)/$(PKGNAME).yin \
++			--model_target $(NETOPEER_DIR)/$(PKGNAME)/$(PKGNAME).yin \
+ 			--transapi $(DESTDIR)/$(libdir)/$(PKGNAME).so \
+-			--datastore $(NETOPEER_DIR)/$(PKGNAME)/datastore.xml; \
++			--transapi_target $(libdir)/$(PKGNAME).so \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
+ 	fi
+ 
+ .PHONY: uninstall
+diff --git a/transAPI/sja1105/configure.in b/transAPI/sja1105/configure.in
+index 05d6efd..ca745e4 100644
+--- a/transAPI/sja1105/configure.in
++++ b/transAPI/sja1105/configure.in
+@@ -27,8 +27,8 @@ AC_ARG_WITH([libxml2],
+ 	if test "$XML2_CONFIG" = "no"; then
+ 		AC_MSG_ERROR([Missing development package of libxml2.])
+ 	fi
+-	CFLAGS="`$withval/xml2-config --cflags` $CFLAGS"
+-	LDFLAGS="`$withval/xml2-config --libs` $LDFLAGS"
++	CFLAGS="$CFLAGS `$withval/xml2-config --cflags`"
++	LDFLAGS="$LDFLAGS `$withval/xml2-config --libs`"
+ 	WITH_LIBXML2="$withval"
+ ]
+ )
+@@ -65,7 +65,7 @@ if test -z "$WITH_LIBXML2" ; then
+ 	if test "$XML2_CONFIG" = "no"; then
+ 		AC_MSG_ERROR([Missing development package of libxml2.])
+ 	fi
+-	AC_CHECK_LIB([xml2], [main], [LIBS="`xml2-config --libs` $LIBS" CFLAGS="`xml2-config --cflags` $CFLAGS"], AC_MSG_ERROR([Libxml2 not found ]))
++	AC_CHECK_LIB([xml2], [main], [LIBS="$LIBS `xml2-config --libs`" CFLAGS="$CFLAGS `xml2-config --cflags`"], AC_MSG_ERROR([Libxml2 not found ]))
+ fi
+ 
+ # Checks for header files.
+-- 
+1.8.3.1
+
