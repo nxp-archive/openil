@@ -1,19 +1,19 @@
 From 85f52cdcf54078dc5c4a663ff482e1d4d337b372 Mon Sep 17 00:00:00 2001
 From: Liu Po-B43644 <Po.Liu@freescale.com>
 Date: Wed, 22 Mar 2017 02:20:10 +0800
-Subject: [PATCH 3/3] yang-sja1105: modify configure file pass buildroot
+Subject: [PATCH 1/1] yang-sja1105: modify configure file pass buildroot
 
 Signed-off-by: Liu Po-B43644 <Po.Liu@freescale.com>
 ---
- Makefile.in  | 19 +++++++++++++------
+ Makefile.in  | 20 ++++++++++++++------
  configure.in |  6 +++---
- 2 files changed, 16 insertions(+), 9 deletions(-)
+ 2 files changed, 17 insertions(+), 9 deletions(-)
 
 diff --git a/Makefile.in b/Makefile.in
 index bfc0f07..ec29c70 100755
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -49,18 +49,25 @@ $(OBJDIR)/%.lo: %.c
+@@ -49,18 +49,26 @@ $(OBJDIR)/%.lo: %.c
  install: $(TARGET)
  	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
  	$(LIBTOOL) --mode=install cp $(TARGET) $(DESTDIR)/$(libdir)/;
@@ -39,6 +39,7 @@ index bfc0f07..ec29c70 100755
 +			--model_target $(NETOPEER_DIR)/$(PKGNAME)/$(PKGNAME).yin \
  			--transapi $(DESTDIR)/$(libdir)/$(PKGNAME).so \
 -			--datastore $(NETOPEER_DIR)/$(PKGNAME)/datastore.xml; \
++			--datastore $(NETOPEER_DIR)/$(PKGNAME)/datastore.xml \
 +			--transapi_target $(libdir)/$(PKGNAME).so \
 +			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
 +			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
