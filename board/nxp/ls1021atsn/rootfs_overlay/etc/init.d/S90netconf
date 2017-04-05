@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# System-V init script for the hardware_report
+#
+
+DESC="NXP NETCONF tool"
+NAME="netconf"
+
+case "$1" in
+  start)
+	echo -n "Starting $DESC: $NAME"
+	export PATH=$PATH:/usr/local/bin/
+	if [ ! -f /usr/local/etc/netopeer/ietf-interfaces/datastore.xml ]; then
+		/usr/local/bin/cfginterfaces-init /usr/local/etc/netopeer/ietf-interfaces/datastore.xml ipv4-non-contiguous-netmasks ipv6-privacy-autoconf
+	fi
+	if [ ! -d /lib/firmware/ ]; then
+		mkdir /lib/firmware/
+	fi
+	/usr/local/bin/netopeer-server -d
+	echo "."
+	;;
+  stop) echo -n "Stopping $DESC: $NAME"
+	killall -9 netopeer-server
+	echo "."
+	;;
+  restart) echo "Restarting $DESC: $NAME"
+	$0 stop
+	sleep 1
+	$0 start
+	;;
+  *) echo "Usage: $0 {start|stop|restart|reload|force-reload}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
