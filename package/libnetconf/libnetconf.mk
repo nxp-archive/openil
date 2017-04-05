@@ -13,6 +13,8 @@ LIBNETCONF_LICENSE_FILES = COPYING
 LIBNETCONF_CONF_OPTS += --with-rpm
 HOST_LIBNETCONF_DEPENDENCIES = host-pkgconf pyang
 LIBNETCONF_DEPENDENCIES = libxml2 openssl libgcrypt libssh libxslt ncurses readline dbus pyang python-libxml2 host-python
+LIBNETCONF_CONF_ENV += PKG_CONFIG=$(HOST_DIR)/usr/bin/pkg-config
+LIBNETCONF_CONF_ENV +=PATH=$(STAGING_DIR)/usr/bin:$(BR_PATH)
 
 define LIBNETCONF_INSTALL_STAGING_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/dev-tools/lnctool/lnctool $(HOST_DIR)/usr/bin
@@ -22,6 +24,7 @@ define LIBNETCONF_INSTALL_STAGING_CMDS
 	mkdir -p $(STAGING_DIR)/usr/include/libnetconf
 	$(INSTALL) -D -m 0755 $(@D)/src/*.h $(STAGING_DIR)/usr/include/libnetconf/
 	$(INSTALL) -D -m 0755 $(@D)/src/datastore/custom/datastore_custom.h $(STAGING_DIR)/usr/include/libnetconf/
+	$(INSTALL) -D -m 0755 $(@D)/libnetconf.pc $(STAGING_DIR)/usr/lib/pkgconfig/
 endef
 
 $(eval $(autotools-package))

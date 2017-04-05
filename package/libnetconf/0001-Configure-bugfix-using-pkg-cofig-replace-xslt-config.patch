@@ -19,7 +19,7 @@ index 3534fed..916008b 100755
  		if test "$XSLT_CONFIG" != "no"; then
  			CFLAGS="`xslt-config --cflags` $CFLAGS"
 -			LIBS="`xslt-config --libs` $LIBS"
-+			LIBS="`${PKG_CONFIG:=pkg-config} --libs libxslt` $LIBS"
++			LIBS="`${PKG_CONFIG} --libs libxslt` $LIBS"
  		fi
  	fi
  	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for xsltApplyStylesheet in -lxslt" >&5
@@ -32,7 +32,7 @@ index 215bf68..975f15f 100644
  		if test "$XSLT_CONFIG" != "no"; then
  			CFLAGS="`xslt-config --cflags` $CFLAGS"
 -			LIBS="`xslt-config --libs` $LIBS"
-+			LIBS="`${PKG_CONFIG:=pkg-config} --libs libxslt` $LIBS"
++			LIBS="`${PKG_CONFIG} --libs libxslt` $LIBS"
  		fi
  	fi
  	AC_CHECK_LIB([xslt], [xsltApplyStylesheet], [], AC_MSG_ERROR([Missing libxslt library]))
