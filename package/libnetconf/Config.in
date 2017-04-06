@@ -1,5 +1,6 @@
 config BR2_PACKAGE_LIBNETCONF
 bool "libnetconf"
+	select BR2_PACKAGE_HOST_PYTHON_LIBXML2
 help
 	this is comment that support libnetconf
 
