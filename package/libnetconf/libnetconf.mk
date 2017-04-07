@@ -14,7 +14,6 @@ LIBNETCONF_CONF_OPTS += --with-rpm
 HOST_LIBNETCONF_DEPENDENCIES = host-pkgconf pyang
 LIBNETCONF_DEPENDENCIES = libxml2 openssl libgcrypt libssh libxslt ncurses readline dbus pyang python-libxml2 host-python host-h-python-libxml2 host-libxslt
 LIBNETCONF_CONF_ENV += PKG_CONFIG=$(HOST_DIR)/usr/bin/pkg-config
-LIBNETCONF_CONF_ENV +=PATH=$(STAGING_DIR)/usr/bin:$(BR_PATH)
 
 LIBNETCONF_POST_INSTALL_HOOKS += LIBNETCONF_UPDATE_LNCTOOL 
 
