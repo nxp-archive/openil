@@ -1,0 +1,6 @@
+config BR2_PACKAGE_H_LIBXML2
+	bool "h-libxml2"
+	help
+	  XML C Parser
+
+	  http://xmlsoft.org/
