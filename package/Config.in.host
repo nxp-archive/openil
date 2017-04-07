@@ -46,5 +46,6 @@ menu "Host utilities"
 	source "package/zip/Config.in.host"
 	source "package/h-python-libxml2/Config.in.host"
 	source "package/h-libxml2/Config.in.host"
+	source "package/libxslt/Config.in.host"
 
 endmenu
