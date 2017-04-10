@@ -1787,4 +1787,7 @@ endmenu
 menu "rcw image"
 	source "package/rcw/Config.in"
 endmenu
+menu "ppfe firmware"
+	source "package/ppfe/Config.in"
+endmenu
 endmenu
