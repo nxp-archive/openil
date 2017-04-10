@@ -1774,6 +1774,7 @@ menu "Netconf Supporting"
 	source "package/pyang/Config.in"
 	source "package/libnetconf/Config.in"
 	source "package/netopeer/Config.in"
+	source "package/netopeer-client/Config.in"
 	source "package/yang-cfginterfaces/Config.in"
 	source "package/yang-sja1105/Config.in"
 endmenu

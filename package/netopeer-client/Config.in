@@ -1,0 +1,5 @@
+config BR2_PACKAGE_NETOPEER_CLIENT
+bool "netopeer-client"
+	select BR2_PACKAGE_NETOPEER
+help
+	netopeer client for NETCONF test
