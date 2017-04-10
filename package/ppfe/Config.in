@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PPFE
+	bool "ppfe firmware for NXP ls1012a platform"
+	help
+	ls1012a/slow_path : This folder contains pfe firmware
+	binaries which supports slow path only.
