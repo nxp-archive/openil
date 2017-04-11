@@ -1,0 +1,28 @@
+Install netopeer-cli on x86-64 Centos
+---------------------------------------
+
+	Here is a rough example to install netopeer-cli:
+
+	- Install the following packages:
+			yum install libxml2-devel libxslt-devel openssl-devel libgcrypt dbus-devel doxygen libevent readline.x86_64 ncurses-libs.x86_64 ncurses-devel.x86_64 libssh.x86_64 libssh2-devel.x86_64 libssh2.x86_64 libssh2-devel.x86_64
+
+	- pyang install 
+			git clone https://github.com/mbj4668/pyang.git
+			cd pyang
+			python setup.py install
+
+	- Pull, configure, make, and install libnetconf
+			git clone https://github.com/CESNET/libnetconf.git
+			cd libnetconf
+			./configure
+			make
+			make install
+			
+
+	- Pull netopeer and configure, make, and install cli
+			git clone https://github.com/CESNET/netopeer.git
+			cd netopeer/cli
+			./configure
+			make
+			make install
+
