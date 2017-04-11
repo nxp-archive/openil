@@ -36,6 +36,7 @@ endef
 
 define NETOPEER_INSTALL_NETOPEER_MANAGER_HOST
 	$(INSTALL) -D -m 0755 package/netopeer/netopeer-manager.host $(HOST_DIR)/usr/bin/
+	$(INSTALL) -D -m 0755 package/netopeer/S90netconf $(TARGET_DIR)/etc/init.d/
 endef
 
 NETOPEER_POST_INSTALL_TARGET_HOOKS +=NETOPEER_INSTALL_DATASTORE
