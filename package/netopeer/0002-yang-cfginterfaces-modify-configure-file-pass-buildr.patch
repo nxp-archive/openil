@@ -67,17 +67,6 @@ diff --git a/transAPI/cfginterfaces/configure b/transAPI/cfginterfaces/configure
 index 4ebfc66..3dd8739 100755
 --- a/transAPI/cfginterfaces/configure
 +++ b/transAPI/cfginterfaces/configure
-@@ -2266,8 +2266,8 @@ fi
- 	if test "$XML2_CONFIG" = "no"; then
- 		as_fn_error $? "Missing development package of libxml2." "$LINENO" 5
- 	fi
--	CFLAGS="`$withval/xml2-config --cflags` $CFLAGS"
--	LDFLAGS="`$withval/xml2-config --libs` $LDFLAGS"
-+	CFLAGS="$CFLAGS `$withval/xml2-config --cflags`"
-+	LDFLAGS="$LDFLAGS `$withval/xml2-config --libs`"
- 	WITH_LIBXML2="$withval"
- 
- 
 @@ -3409,69 +3409,12 @@ fi
  
  
@@ -156,7 +145,7 @@ index 4ebfc66..3dd8739 100755
  $as_echo "$ac_cv_lib_xml2_main" >&6; }
  if test "x$ac_cv_lib_xml2_main" = xyes; then :
 -  LIBS="`xml2-config --libs` $LIBS" CFLAGS="`xml2-config --cflags` $CFLAGS"
-+  LIBS="$LIBS `xml2-config --libs`" CFLAGS="$CFLAGS `xml2-config --cflags`"
++  LIBS="`${WITH_LIBXML2_DIR}/xml2-config --libs` $LIBS" CFLAGS="`${WITH_LIBXML2_DIR}/xml2-config --cflags` $CFLAGS"
  else
    as_fn_error $? "Libxml2 not found " "$LINENO" 5
  fi

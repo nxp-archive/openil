@@ -50,23 +50,12 @@ diff --git a/configure.in b/configure.in
 index 05d6efd..ca745e4 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -27,8 +27,8 @@ AC_ARG_WITH([libxml2],
- 	if test "$XML2_CONFIG" = "no"; then
- 		AC_MSG_ERROR([Missing development package of libxml2.])
- 	fi
--	CFLAGS="`$withval/xml2-config --cflags` $CFLAGS"
--	LDFLAGS="`$withval/xml2-config --libs` $LDFLAGS"
-+	CFLAGS="$CFLAGS `$withval/xml2-config --cflags`"
-+	LDFLAGS="$LDFLAGS `$withval/xml2-config --libs`"
- 	WITH_LIBXML2="$withval"
- ]
- )
 @@ -65,7 +65,7 @@ if test -z "$WITH_LIBXML2" ; then
  	if test "$XML2_CONFIG" = "no"; then
  		AC_MSG_ERROR([Missing development package of libxml2.])
  	fi
 -	AC_CHECK_LIB([xml2], [main], [LIBS="`xml2-config --libs` $LIBS" CFLAGS="`xml2-config --cflags` $CFLAGS"], AC_MSG_ERROR([Libxml2 not found ]))
-+	AC_CHECK_LIB([xml2], [main], [LIBS="$LIBS `xml2-config --libs`" CFLAGS="$CFLAGS `xml2-config --cflags`"], AC_MSG_ERROR([Libxml2 not found ]))
++	AC_CHECK_LIB([xml2], [main], [LIBS="`${WITH_LIBXML2}/xml2-config --libs` $LIBS" CFLAGS="`${WITH_LIBXML2}/xml2-config --cflags` $CFLAGS"], AC_MSG_ERROR([Libxml2 not found ]))
  fi
  
  # Checks for header files.
