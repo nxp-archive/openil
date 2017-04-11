@@ -1,0 +1,204 @@
+yang-sja1105
+------------
+
+Model sja1105 used for configure sja1105 chip in the ls1021atsn board.
+
+
+Install
+-------
+
+Enable depends on netopeer-server enabled.
+Select on the
+target packages -> netconf supporting-> yang-sja1105
+
+
+Model node semantics
+--------------------
+
+There are registers tables in the sja1105.
+
+        "schedule-table",
+        "schedule-entry-points-table",
+        "vl-lookup-table",
+        "vl-policing-table",
+        "vl-forwarding-table",
+        "l2-address-lookup-table",
+        "l2-policing-table",
+        "vlan-lookup-table",
+        "l2-forwarding-table",
+        "mac-configuration-table",
+        "schedule-parameters-table",
+        "schedule-entry-points-parameters-table",
+        "vl-forwarding-parameters-table",
+        "l2-address-lookup-parameters-table",
+        "l2-forwarding-parameters-table",
+        "clock-synchronization-parameters-table",
+        "avb-parameters-table",
+        "general-parameters-table",
+        "retagging-table",
+        "xmii-mode-parameters-table",
+
+Each table owns their registers list. For example:
+
+ <l2-policing-table>
+  <entry>
+   <index>0</index>
+   <sharindx>0x0</sharindx>
+   <smax>0xFFFF</smax>
+   <rate>0xFA00</rate>
+   <maxlen>0x5EE</maxlen>
+   <partition>0x0</partition>
+  </entry>
+ </l2-policing-table>
+
+
+How to test yang model sja1105
+------------------------------
+
+
+User may set any register of sj1105 or a whole registers into a mode.
+
+Make sure the netconf server is running(check netopeer-server is running at ls1021atsn).
+
+if netopeer-server is not running. Input command to let it run(verbose mode):
+
+	/usr/local/bin/netopeer-server -v 3
+
+
+Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
+
+#Start client software
+
+	>$ netopeer-cli
+	
+
+- connect
+
+	#Connect the netconf server ls1021atsn board(use the ip on ls1021atsn, here 10.193.20.53 is example):
+
+	netconf> connect --port 830 --login root 10.193.20.53
+	
+
+- get
+
+	#Get staus datas of server
+
+	netconf> get
+	
+
+	#User can get datas what he want by --filter option
+	
+	netconf> get --filter
+	
+	# With eidtor input one of below node names:
+	#<sja1105 />
+	#<interfaces />
+	#<netconf-state />
+	#<netopeer />
+	#<nacm />
+	#<netconf-state />
+
+
+- get-config
+
+	#Get current running configs:
+
+	netconf> get-config running
+
+	
+- edit-config
+
+	#User can edit any elements in the tables or multi tables elements(This modification would
+	# only effect the staging registers map. Not really modify into sja1105 true registers).
+		
+	netconf> edit-config running
+	
+	#Input below text into the editor and wait for got 'OK' message:
+	# For example: below message means edit entry index 1 in l2-policing-table
+	
+	<sja1105 xmlns="http://nxp.com/sja1105">
+	  <l2-policing-table>
+		<entry>
+		  <index>1</index>
+		  <sharindx>0x1</sharindx>
+		  <smax>0xFFFF</smax>
+		  <rate>0xFA00</rate>
+		  <maxlen>0x5EE</maxlen>
+		  <partition>0x0</partition>
+		</entry>
+	  </l2-policing-table>
+	</sja1105>
+	
+	
+	#User can refer the files under board/nxp/ls1021atsn/rootfs_overlay/etc/sja1105/netconf/*.xml
+	# policing.xml      prioritizing.xml  scheduling.xml    standard.xml
+	# use 'edit-config' command in the netopeer-cli to edit the value.
+
+	# for example(suppose we are under buildroot source code root folder):
+	
+	netconf> edit-config --config board/nxp/ls1021atsn/rootfs_overlay/etc/sja1105/netconf/policing.xml running
+	
+	# Wait seconds to get 'OK' messgae.
+	
+
+- user-rpc
+
+	
+	# If user wants to save current registers mapping into a file(must extend with .xml)
+	# (This saving command would save current staging registers mapping into the file.)
+	# by user-rpc with message:
+
+	netconf> user-rpc
+
+	#Input below text into the editor(nc_standard.xml is an example name):
+	
+	<sja1105_config_save xmlns="http://nxp.com/sja1105">
+	  <file_name_xml>
+		nc_standard.xml
+	  </file_name_xml>
+	</sja1105_config_save>
+
+
+	# If user wants to load a registers mapping mode(standard, policing, scheduling etc.)
+	# (This loading commands would only effect the staging registers mapping.
+	# Not really load into sja1105 true registers).
+
+	# by user-rpc with message:
+
+	netconf> user-rpc
+
+	#Input below text into the editor(standard.xml is an example name):
+
+	<sja1105_config_load xmlns="http://nxp.com/sja1105">
+	  <file_name_xml>
+		policing.xml
+	  </file_name_xml>
+	</sja1105_config_load>
+
+
+	# If user wants to load a deafult registers mapping mode(sja1105 as a normal switch mode).
+	# (This loading commands would only effect the staging registers mapping.
+	# Not really load into sja1105 true registers).
+
+	# This mode is generally used as first step to modify the registers.
+
+	# by user-rpc with message:
+
+	netconf> user-rpc
+
+	#Input below text into the editor:
+
+	<sja1105_config_default xmlns="http://nxp.com/sja1105" />
+
+	
+	# If user wants to make current registers mapping(get-config to check value) effect into
+	# real registers in the sja1105. He has to do sja1105_upload command what ever he modify
+	# any registers before this step.
+	# by user-rpc with message:
+
+	netconf> user-rpc
+
+	#Input below text into the editor:	
+	
+	<sja1105_upload xmlns="http://nxp.com/sja1105" />
+

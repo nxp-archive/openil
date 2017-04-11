@@ -137,8 +137,6 @@ parser_list.add_argument('--name', help='If listing augment modules, the name of
 parser_rm.add_argument('--name', required=True, help='Name of the main module to remove.')
 parser_rm.add_argument('--model', type=argparse.FileType('r'), help='Specify augment or import model file of the main module to be removed instead.')
 
-#modules_path = '/home/inic/liupo/lidia/output/target/usr/local/etc/netopeer/modules.conf.d/'
-#netopeer_config = '/home/inic/liupo/lidia/output/target/usr/local/etc/netopeer/cfgnetopeer/datastore.xml'
 
 try:
 	args = parser.parse_args()
