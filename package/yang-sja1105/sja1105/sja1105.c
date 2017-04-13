@@ -29,6 +29,12 @@ struct reg_desp {
 /* transAPI version which must be compatible with libnetconf */
 int transapi_version = 6;
 
+char *config_xml_list[] = {};
+
+const char conf_folder[]="/etc/sja1105";
+const char datastore_folder[]="/usr/local/etc/netopeer/sja1105/datastore.xml";
+const char command_name[]="sja1105-tool";
+
 /* Signal to libnetconf that configuration data were modified by any callback.
  * 0 - data not modified
  * 1 - data have been modified
@@ -92,6 +98,7 @@ char *sja1105_run_cmd(char *command_run)
 }
 
 int write_to_datastore(char *file_name);
+int file_validate(char *file);
 
 /**
  * @brief Initialize plugin after loaded and before any other functions are called.
@@ -118,8 +125,8 @@ int transapi_init(xmlDocPtr *running) {
   
 	res = pthread_mutex_init(&file_mutex,NULL);    /* ........ */
 	if (res != 0) {
-	perror("Mutex initialization failed");
-	exit(EXIT_FAILURE);
+		perror("Mutex initialization failed");
+		exit(EXIT_FAILURE);
 	}
 
 	if (init_flag) {
@@ -127,8 +134,84 @@ int transapi_init(xmlDocPtr *running) {
 		sja1105_run_cmd("sja1105-tool config upload");
 		clear_entry_count();
 		init_flag = 0;
+
+		if (access(datastore_folder, F_OK) == 0) {
+			printf("datastore.xml exist!\n");
+			xmlNodePtr startup_node = NULL, node;
+			xmlDocPtr datastore = xmlReadFile(datastore_folder, NULL, XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NOBLANKS | XML_PARSE_NSCLEAN);
+			/* get the startup node */
+			for (node = datastore->children; node != NULL; node = node->next) {
+				if (node->type != XML_ELEMENT_NODE || xmlStrcmp(node->name, BAD_CAST "datastores") != 0) {
+					continue;
+				}
+				for (node = node->children; node != NULL; node = node->next) {
+					if (node->type != XML_ELEMENT_NODE || xmlStrcmp(node->name, BAD_CAST "startup") != 0) {
+						continue;
+					}
+					startup_node = node;
+					break;
+				}
+				break;
+			}
+
+			if ((startup_node != NULL)  && (startup_node->children != NULL)) {
+				/* datastore is exist */
+				xmlFreeDoc(datastore);
+				goto initdone;
+			}
+
+			xmlFreeDoc(datastore);
+		}
+
+		*running = xmlNewDoc(BAD_CAST "1.0");
+
+		char newnodes_file[512];
+		char file_name[] = "standard.xml";
+
+		if(file_validate(file_name))
+			return -1;
+	
+		if (pthread_mutex_trylock(&file_mutex) != 0) {
+		/* file is still editing */
+			return -1;
+		}
+
+		memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
+		sprintf(newnodes_file, "%s/netconf/%s", conf_folder, file_name);
+
+		/* Init libxml */     
+		xmlInitParser();
+
+		xmlDocPtr doc_newnodes = xmlReadFile(newnodes_file, NULL, 0);
+		xmlNodePtr root_newnodes = xmlDocGetRootElement(doc_newnodes);
+
+		if (strcasecmp((char*) root_newnodes->name, "sja1105")) {
+			fprintf(stderr, "Root node must be named \"sja1105\"!\n");
+			xmlFreeDoc(doc_newnodes);
+			xmlCleanupParser();
+			xmlMemoryDump();
+			pthread_mutex_unlock(&file_mutex);
+			return -1;
+		}
+
+		xmlNodePtr rootnode = xmlCopyNodeList(root_newnodes);	
+
+		xmlFreeDoc(doc_newnodes);
+
+		/* Shutdown libxml */
+		xmlCleanupParser();
+    
+		/*
+		* this is to debug memory for regression tests
+		*/
+		xmlMemoryDump();
+		pthread_mutex_unlock(&file_mutex);
+
+		xmlDocSetRootElement(*running, rootnode);
+
 	}
 
+initdone:
 	return EXIT_SUCCESS;
 }
 
@@ -907,11 +990,6 @@ xmlNodePtr get_rpc_node(const char *name, const xmlNodePtr node) {
  * If input was not set in RPC message argument is set to NULL. To retrieve each argument, preferably use get_rpc_node().
  */
 
-char *config_xml_list[] = {};
-
-const char conf_folder[]="/etc/sja1105";
-const char datastore_folder[]="/usr/local/etc/netopeer/sja1105/datastore.xml";
-const char command_name[]="sja1105-tool";
 
 xmlNodePtr probe_running_node(xmlNodePtr datastore_node)
 {

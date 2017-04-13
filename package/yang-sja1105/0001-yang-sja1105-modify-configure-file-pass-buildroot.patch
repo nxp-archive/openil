@@ -1,19 +1,31 @@
-From 85f52cdcf54078dc5c4a663ff482e1d4d337b372 Mon Sep 17 00:00:00 2001
+From 3950e85953daf01f5ccd0d527a6d464a1a340a29 Mon Sep 17 00:00:00 2001
 From: Liu Po-B43644 <Po.Liu@freescale.com>
 Date: Wed, 22 Mar 2017 02:20:10 +0800
-Subject: [PATCH 1/1] yang-sja1105: modify configure file pass buildroot
+Subject: [PATCH] yang-sja1105: modify configure file pass buildroot
 
 Signed-off-by: Liu Po-B43644 <Po.Liu@freescale.com>
 ---
- Makefile.in  | 20 ++++++++++++++------
- configure.in |  6 +++---
- 2 files changed, 17 insertions(+), 9 deletions(-)
+ Makefile.in  | 25 ++++++++++++++++++-------
+ configure.in |  2 +-
+ 2 files changed, 19 insertions(+), 8 deletions(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index bfc0f07..ec29c70 100755
+index bfc0f07..2d4bbcb 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -49,18 +49,26 @@ $(OBJDIR)/%.lo: %.c
+@@ -35,7 +35,10 @@ SRCS = @PROJECTNAME@.c
+ OBJDIR = .obj
+ LOBJS = $(SRCS:%.c=$(OBJDIR)/%.lo)
+ 
+-all: $(TARGET)
++all: $(TARGET) $(PKGNAME)-init
++
++$(PKGNAME)-init: $(SRCS) $(PKGNAME)-init.c
++	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+ 
+ $(TARGET): $(LOBJS)
+ 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -avoid-version -module -shared -export-dynamic --mode=link -o $@ $^ -rpath $(libdir)
+@@ -49,18 +52,26 @@ $(OBJDIR)/%.lo: %.c
  install: $(TARGET)
  	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
  	$(LIBTOOL) --mode=install cp $(TARGET) $(DESTDIR)/$(libdir)/;
@@ -47,7 +59,7 @@ index bfc0f07..ec29c70 100755
  
  .PHONY: uninstall
 diff --git a/configure.in b/configure.in
-index 05d6efd..ca745e4 100644
+index 05d6efd..7207abb 100644
 --- a/configure.in
 +++ b/configure.in
 @@ -65,7 +65,7 @@ if test -z "$WITH_LIBXML2" ; then

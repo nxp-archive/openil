@@ -16,6 +16,7 @@ YANG_SJA1105_CONF_ENV += ac_cv_path_NETOPEER_MANAGER="$(HOST_DIR)/usr/bin/netope
 define YANG_SJA1105_CREATE_CONFIGURE
 	cd $(@D); $(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/lnctool --model ./sja1105.yang transapi --paths ./paths.txt; \
 	$(INSTALL) -D -m 0755 $(TOPDIR)/package/yang-sja1105/sja1105/sja1105.c $(BUILD_DIR)/yang-sja1105-$(YANG_SJA1105_VERSION)/;\
+	$(INSTALL) -D -m 0755 $(TOPDIR)/package/yang-sja1105/sja1105/sja1105-init.c $(BUILD_DIR)/yang-sja1105-$(YANG_SJA1105_VERSION)/;\
 	cd $(TOPDIR); \
 	$(APPLY_PATCHES) $(@D) package/yang-sja1105/ 0001-yang-sja1105-modify-configure-file-pass-buildroot.patch; \
 	cd $(@D); \
@@ -38,5 +39,11 @@ define YANG_SJA1105_LNCTOOL_CREATE_FILES
 endef
 
 YANG_SJA1105_POST_BUILD_HOOKS +=YANG_SJA1105_LNCTOOL_CREATE_FILES
+
+define YANG_SJA1105_POST_INSTALL_INIT
+	$(INSTALL) -D -m 0755 $(@D)/sja1105-init $(TARGET_DIR)/usr/local/bin/
+endef
+
+YANG_SJA1105_POST_INSTALL_TARGET_HOOKS += YANG_SJA1105_POST_INSTALL_INIT
 
 $(eval $(autotools-package))
