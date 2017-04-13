@@ -195,6 +195,8 @@ int sja1105_modify_reg(char *table_name, xmlNodePtr new_node, reg_type *type, ch
 		}
 	}
 
+	sja1105_run_cmd("sja1105-tool config upload");
+
 	free(reg_list);
 	return 0;
 }
@@ -1198,6 +1200,7 @@ nc_reply *rpc_sja1105_config_load(xmlNodePtr input) {
 	sprintf(command_full, "%s config load %s/%s", command_name, conf_folder, cmd_file);
 
 	sja1105_run_cmd(command_full);
+	sja1105_run_cmd("sja1105-tool config upload");
 
 	clear_entry_count();
 
@@ -1224,6 +1227,7 @@ nc_reply *rpc_sja1105_config_default(xmlNodePtr input) {
 	struct nc_err* e = NULL;
 
 	sja1105_run_cmd(command_full);
+	sja1105_run_cmd("sja1105-tool config upload");
 
 	clear_entry_count();
 
