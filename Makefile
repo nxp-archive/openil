@@ -83,7 +83,7 @@ else # umask / $(CURDIR) / $(O)
 all:
 
 # Set and export the version string
-export BR2_VERSION := 2016.11.2
+export BR2_VERSION := 2017.05.26
 
 # Save running make version since it's clobbered by the make package
 RUNNING_MAKE_VERSION := $(MAKE_VERSION)
@@ -677,11 +677,11 @@ endif
 		{ echo "ERROR: we shouldn't have a /etc/ld.so.conf.d directory"; exit 1; } || true
 	mkdir -p $(TARGET_DIR)/etc
 	( \
-		echo "NAME=Buildroot"; \
+		echo "NAME=OpenIL"; \
 		echo "VERSION=$(BR2_VERSION_FULL)"; \
-		echo "ID=buildroot"; \
+		echo "ID=OpenIL"; \
 		echo "VERSION_ID=$(BR2_VERSION)"; \
-		echo "PRETTY_NAME=\"Buildroot $(BR2_VERSION)\"" \
+		echo "PRETTY_NAME=\"OpenIL $(BR2_VERSION)\"" \
 	) >  $(TARGET_DIR)/etc/os-release
 
 	@$(foreach d, $(call qstrip,$(BR2_ROOTFS_OVERLAY)), \
@@ -1035,7 +1035,7 @@ list-defconfigs:
 		$(call list-defconfigs,$(BR2_EXTERNAL_$(name)_PATH),\
 			$(BR2_EXTERNAL_$(name)_DESC))$(sep))
 
-release: OUT = buildroot-$(BR2_VERSION)
+release: OUT = OpenIL-$(BR2_VERSION)
 
 # Create release tarballs. We need to fiddle a bit to add the generated
 # documentation to the git output

@@ -1,6 +1,6 @@
 #
 
-mainmenu "Buildroot $BR2_VERSION Configuration"
+mainmenu "OpenIL $BR2_VERSION Configuration"
 
 config BR2_HAVE_DOT_CONFIG
 	bool
