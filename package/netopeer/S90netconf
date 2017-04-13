@@ -13,14 +13,20 @@ case "$1" in
 	if [ ! -f /usr/local/etc/netopeer/ietf-interfaces/datastore.xml ]; then
 		/usr/local/bin/cfginterfaces-init /usr/local/etc/netopeer/ietf-interfaces/datastore.xml ipv4-non-contiguous-netmasks ipv6-privacy-autoconf
 	fi
+
 	if [ ! -d /lib/firmware/ ]; then
 		mkdir /lib/firmware/
 	fi
-	/usr/local/bin/netopeer-server -d
+
+	if [ ! -f /usr/local/etc/netopeer/sja1105/datastore.xml ]; then
+		/usr/local/bin/sja1105-init /usr/local/etc/netopeer/sja1105/datastore.xml
+	fi
+
+#	/usr/local/bin/netopeer-server -d 
 	echo "."
 	;;
   stop) echo -n "Stopping $DESC: $NAME"
-	killall -9 netopeer-server
+	killall -2 netopeer-server
 	echo "."
 	;;
   restart) echo "Restarting $DESC: $NAME"
