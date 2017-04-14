@@ -45,7 +45,7 @@ int config_modified = 0;
 
 pthread_mutex_t file_mutex;
 
-const char netconf_file_dir[] = "/etc/sja1105/netconf/";
+const char netconf_file_dir[] = "/etc/sja1105/";
 
 enum ENTRY_COUNT_LIST {
 	SCHEDULE_TABLE = 0,
@@ -179,7 +179,7 @@ int transapi_init(xmlDocPtr *running) {
 		}
 
 		memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
-		sprintf(newnodes_file, "%s/netconf/%s", conf_folder, file_name);
+		sprintf(newnodes_file, "%s/%s", conf_folder, file_name);
 
 		/* Init libxml */     
 		xmlInitParser();
@@ -391,6 +391,10 @@ int callback_nxp_sja1105_nxp_schedule_table_nxp_entry(void **data, XMLDIFF_OP op
 	reg_type type[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int len = sizeof(options)/sizeof(options[0]);
 
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
+
 	if (op & XMLDIFF_ADD) {
 		entry_count[SCHEDULE_TABLE]++;
 		sja1105_add_entry("schedule-table", entry_count[SCHEDULE_TABLE]);
@@ -426,6 +430,10 @@ int callback_nxp_sja1105_nxp_schedule_entry_points_table_nxp_entry(void **data, 
 	};
 	reg_type type[] = {0, 0, 0, 0};
 	int len = sizeof(options)/sizeof(options[0]);
+
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
 
 	if (op & XMLDIFF_ADD) {
 		entry_count[SCHEDULE_ENTRY_POINTS]++;
@@ -534,6 +542,10 @@ int callback_nxp_sja1105_nxp_l2_policing_table_nxp_entry(void **data, XMLDIFF_OP
 	reg_type type[] = {0, 0, 0, 0, 0, 0};
 	int len = sizeof(options)/sizeof(options[0]);
 
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
+
 	rc = sja1105_modify_reg("l2-policing-table", new_node, type, options, len);
 	if (rc < 0)
 		return -1; 
@@ -568,6 +580,10 @@ int callback_nxp_sja1105_nxp_vlan_lookup_table_nxp_entry(void **data, XMLDIFF_OP
 	reg_type type[] = {0, 0, 0, 0, 0, 0, 0};
 	int len = sizeof(options)/sizeof(options[0]);
 
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
+
 	rc = sja1105_modify_reg("vlan-lookup-table", new_node, type, options, len);
 	if (rc < 0)
 		return -1;
@@ -599,6 +615,10 @@ int callback_nxp_sja1105_nxp_l2_forwarding_table_nxp_entry(void **data, XMLDIFF_
 	};
 	reg_type type[] = {0, 0, 0, 0, 1};
 	int len = sizeof(options)/sizeof(options[0]);
+
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
 
 	rc = sja1105_modify_reg("l2-forwarding-table", new_node, type, options, len);
 	if (rc < 0)
@@ -647,6 +667,10 @@ int callback_nxp_sja1105_nxp_mac_configuration_table_nxp_entry(void **data, XMLD
 	reg_type type[] = {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int len = sizeof(options)/sizeof(options[0]);
 
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
+
 	rc = sja1105_modify_reg("mac-configuration-table", new_node, type, options, len);
 	if (rc < 0)
 		return -1;
@@ -675,6 +699,10 @@ int callback_nxp_sja1105_nxp_schedule_parameters_table_nxp_entry(void **data, XM
 	};
 	reg_type type[] = {0, 1};
 	int len = sizeof(options)/sizeof(options[0]);
+
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
 
 	if (op & XMLDIFF_ADD) {
 		entry_count[SCHEDULE_PARAMETERS]++;
@@ -709,6 +737,10 @@ int callback_nxp_sja1105_nxp_schedule_entry_points_parameters_table_nxp_entry(vo
 	};
 	reg_type type[] = {0, 0, 0};
 	int len = sizeof(options)/sizeof(options[0]);
+
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
 
 	if (op & XMLDIFF_ADD) {
 		entry_count[SCHEDULE_ENTRY_POINTS_PARAMETERS]++;
@@ -766,6 +798,10 @@ int callback_nxp_sja1105_nxp_l2_address_lookup_parameters_table_nxp_entry(void *
 	reg_type type[] = {0, 0, 0, 0, 0, 0, 0};
 	int len = sizeof(options)/sizeof(options[0]);
 
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
+
 	rc = sja1105_modify_reg("l2-address-lookup-parameters-table", new_node, type, options, len);
 	if (rc < 0)
 		return -1;
@@ -795,6 +831,10 @@ int callback_nxp_sja1105_nxp_l2_forwarding_parameters_table_nxp_entry(void **dat
 	};
 	reg_type type[] = {0, 0, 1};
 	int len = sizeof(options)/sizeof(options[0]);
+
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
 
 	rc = sja1105_modify_reg("l2-forwarding-parameters-table", new_node, type, options, len);
 	if (rc < 0)
@@ -878,6 +918,10 @@ int callback_nxp_sja1105_nxp_general_parameters_table_nxp_entry(void **data, XML
 	reg_type type[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int len = sizeof(options)/sizeof(options[0]);
 
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
+
 	rc = sja1105_modify_reg("general-parameters-table", new_node, type, options, len);
 	if (rc < 0)
 		return -1;
@@ -924,6 +968,10 @@ int callback_nxp_sja1105_nxp_xmii_mode_parameters_table_nxp_entry(void **data, X
 	};
 	reg_type type[] = {0, 1, 1};
 	int len = sizeof(options)/sizeof(options[0]);
+
+	if (op & XMLDIFF_REM) {
+		return EXIT_SUCCESS;
+	}
 
 	rc = sja1105_modify_reg("xmii-mode-parameters-table", new_node, type, options, len);
 	if (rc < 0)
@@ -1024,7 +1072,7 @@ int file_validate(char *file)
 	char newnodes_file[512];
 
 	memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
-	sprintf(newnodes_file, "%s/netconf/%s", conf_folder, file);
+	sprintf(newnodes_file, "%s/%s", conf_folder, file);
 	if (access(newnodes_file, F_OK) == -1) {
 		printf("config file not exist, newnodes_file= %s\n", newnodes_file);
 		return -1;
@@ -1060,7 +1108,7 @@ int write_to_datastore(char *file_name)
 
 	nc_verb_verbose("write_to_datastore:\n");
 	memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
-	sprintf(newnodes_file, "%s/netconf/%s", conf_folder, file_name);
+	sprintf(newnodes_file, "%s/%s", conf_folder, file_name);
 
 	if (access(datastore_folder, F_OK) == -1) {
 		printf("datastore.xml not exist\n");
@@ -1161,7 +1209,7 @@ int check_netconf_conf(char *file_dir)
 	if(strcmp(a, "etc") || strcmp(b, "sja1105"))
 		return -1;
 
-	sprintf(cmd_config_file, "%s/netconf/%s", conf_folder, xmlfile);
+	sprintf(cmd_config_file, "%s/%s", conf_folder, xmlfile);
 	if (access(cmd_config_file, F_OK) == -1) {
 		printf("netconf config file not exist, command file = %s\n", cmd_config_file);
 		return -1;
@@ -1178,7 +1226,7 @@ int add_netconf_conf(char *file)
 {
 	char cmd_create_file[256];
 
-	sprintf(cmd_create_file, "sja1105-netconf config save %s/netconf/%s", conf_folder, file);
+	sprintf(cmd_create_file, "sja1105-netconf config save %s/%s", conf_folder, file);
 	sja1105_run_cmd(cmd_create_file);
 
 	return 0;	
@@ -1268,7 +1316,7 @@ nc_reply *rpc_sja1105_config_load(xmlNodePtr input) {
 
 	nc_verb_verbose("rpc_sja1105_config_load: preparing load file : %s\n", cmd_file);
 
-	sprintf(folder, "%s/netconf/%s", conf_folder, cmd_file);
+	sprintf(folder, "%s/%s", conf_folder, cmd_file);
 
 	if (access(folder, F_OK) == -1) {
 		printf("config file not exist, command file = %s\n", folder);
