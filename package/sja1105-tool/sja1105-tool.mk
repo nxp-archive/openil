@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SJA1105_TOOL_VERSION = master
+SJA1105_TOOL_VERSION = devel
 SJA1105_TOOL_SITE =ssh://git@sw-stash.freescale.net/dnind/sja1105-tool.git 
 SJA1105_TOOL_SITE_METHOD = git
 SJA1105_TOOL_INSTALL_STAGING = YES
@@ -18,7 +18,6 @@ endef
 
 define SJA1105_TOOL_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/sja1105-tool $(TARGET_DIR)/usr/bin
-	$(INSTALL) -D -m 0755 $(@D)/sja1105-netconf $(TARGET_DIR)/usr/bin
 endef
 
 $(eval $(generic-package))
