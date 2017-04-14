@@ -105,18 +105,27 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 
 	netconf> get-config running
 
+	#Get current candidate configs:
+
+	netconf> get-config candidate
+
 	
 - edit-config
 
-	#User can edit any elements in the tables or multi tables elements(This modification would
-	# only effect the staging registers map. Not really modify into sja1105 true registers).
+	#User can edit any elements in the tables or multi tables elements
+
+	netconf> edit-config candidate
+
+	#Candidate modification would only effect the candidate registers map. Not really modify into sja1105 true registers.
 		
 	netconf> edit-config running
+
+	#Running modification would only effect the candidate registers map. Not really modify into sja1105 true registers.
 	
 	#Input below text into the editor and wait for got 'OK' message:
 	# For example: below message means edit entry index 1 in l2-policing-table
 	
-	<sja1105 xmlns="http://nxp.com/sja1105">
+	<sja1105 xmlns="http://nxp.com/ns/yang/tsn/sja1105">
 	  <l2-policing-table>
 		<entry>
 		  <index>1</index>
@@ -136,16 +145,35 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 
 	# for example(suppose we are under buildroot source code root folder):
 	
-	netconf> edit-config --config board/nxp/ls1021atsn/rootfs_overlay/etc/sja1105/netconf/policing.xml running
+	netconf> edit-config --config board/nxp/ls1021atsn/rootfs_overlay/etc/sja1105/policing.xml running
+
+	# Use 'running' option to direct edit into physical registers of sja1105.
+	# Use 'candidate' option to edit the register into staging area.
 	
 	# Wait seconds to get 'OK' messgae.
-	
+
+
+- commit
+
+	#'commit' command will copy the candidate area data into running area. Will trigger true activaties
+	# to the real registers in sja1105
+
+	netconf> commit
+
+
+- discard-changes
+	#'discard-changes' simply resets the candidate datastore to be the same as the running datastore, 
+	# but that should be so by default when starting netopeer-server. You should read about it in the NETCONF RFC. 
+	# It is suggest to run 'get-config candidate' and 'get-config running' check whether they are same or not
+	# every after connect opertion. If not, run 'discard-changes' first.
+
+	netconf> discard-changes
+
 
 - user-rpc
 
-	
 	# If user wants to save current registers mapping into a file(must extend with .xml)
-	# (This saving command would save current staging registers mapping into the file.)
+	# (This saving command would save current real registers value into the file.)
 	# by user-rpc with message:
 
 	netconf> user-rpc
@@ -160,8 +188,7 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 
 
 	# If user wants to load a registers mapping mode(standard, policing, scheduling etc.)
-	# (This loading commands would only effect the staging registers mapping.
-	# Not really load into sja1105 true registers).
+	# It is really load into sja1105 true registers).
 
 	# by user-rpc with message:
 
@@ -169,7 +196,7 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 
 	#Input below text into the editor(standard.xml is an example name):
 
-	<sja1105_config_load xmlns="http://nxp.com/sja1105">
+	<sja1105_config_load xmlns="http://nxp.com/ns/yang/tsn/sja1105">
 	  <file_name_xml>
 		policing.xml
 	  </file_name_xml>
@@ -177,8 +204,7 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 
 
 	# If user wants to load a deafult registers mapping mode(sja1105 as a normal switch mode).
-	# (This loading commands would only effect the staging registers mapping.
-	# Not really load into sja1105 true registers).
+	# It is really load into sja1105 true registers).
 
 	# This mode is generally used as first step to modify the registers.
 
@@ -188,17 +214,6 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 
 	#Input below text into the editor:
 
-	<sja1105_config_default xmlns="http://nxp.com/sja1105" />
+	<sja1105_config_default xmlns="http://nxp.com/ns/yang/tsn/sja1105" />
 
-	
-	# If user wants to make current registers mapping(get-config to check value) effect into
-	# real registers in the sja1105. He has to do sja1105_upload command what ever he modify
-	# any registers before this step.
-	# by user-rpc with message:
-
-	netconf> user-rpc
-
-	#Input below text into the editor:	
-	
-	<sja1105_upload xmlns="http://nxp.com/sja1105" />
 
