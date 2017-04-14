@@ -1,5 +1,5 @@
 module sja1105 {
-	namespace "http://nxp.com/sja1105";
+	namespace "http://nxp.com/ns/yang/tsn/sja1105";
 	prefix "nxp";
 
 	revision 2017-02-22 {

@@ -1,4 +1,4 @@
-nxp=http://nxp.com/sja1105
+nxp=http://nxp.com/ns/yang/tsn/sja1105
 /nxp:sja1105/nxp:schedule-table/nxp:entry
 /nxp:sja1105/nxp:schedule-entry-points-table/nxp:entry
 /nxp:sja1105/nxp:vl-lookup-table/nxp:entry
