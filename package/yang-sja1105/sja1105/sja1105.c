@@ -132,8 +132,7 @@ int transapi_init(xmlDocPtr *running) {
 	}
 
 	if (init_flag) {
-		sja1105_run_cmd("sja1105-tool config default ls1021atsn");
-		sja1105_run_cmd("sja1105-tool config upload");
+		sja1105_run_cmd("sja1105-tool config default -f ls1021atsn");
 		clear_entry_count();
 		init_flag = 0;
 
@@ -270,17 +269,15 @@ int sja1105_modify_reg(char *table_name, xmlNodePtr new_node, reg_type *type, ch
 	for (i = 1; i < len; i++) {
 		if ((reg_list + i)->exist) {
 			if ((reg_list + i)->type == REG_UINT64)
-				sprintf(cmd_modify, "sja1105-tool config modify %s[%s] %s %s", table_name,
+				sprintf(cmd_modify, "sja1105-tool config modify -f %s[%s] %s %s", table_name,
 						reg_list->value, (reg_list + i)->name, (reg_list + i)->value);
 			else
-				sprintf(cmd_modify, "sja1105-tool config modify %s[%s] %s \"%s\"", table_name,
+				sprintf(cmd_modify, "sja1105-tool config modify -f %s[%s] %s \"%s\"", table_name,
 						reg_list->value, (reg_list + i)->name, (reg_list + i)->value);
 
 			sja1105_run_cmd(cmd_modify);
 		}
 	}
-
-	sja1105_run_cmd("sja1105-tool config upload");
 
 	free(reg_list);
 	return 0;
@@ -1325,10 +1322,9 @@ nc_reply *rpc_sja1105_config_load(xmlNodePtr input) {
 		goto error;
 	}
 
-	sprintf(command_full, "%s config load %s/%s", command_name, conf_folder, cmd_file);
+	sprintf(command_full, "%s config load -f %s/%s", command_name, conf_folder, cmd_file);
 
 	sja1105_run_cmd(command_full);
-	sja1105_run_cmd("sja1105-tool config upload");
 
 	clear_entry_count();
 
@@ -1349,13 +1345,12 @@ error:
 
 nc_reply *rpc_sja1105_config_default(xmlNodePtr input) {
 	nc_verb_verbose("rpc_sja1105_config_default\n");
-	char command_full[] = "sja1105-tool config default ls1021atsn";
+	char command_full[] = "sja1105-tool config default -f ls1021atsn";
 	int ret;
 	char msg_err[256];
 	struct nc_err* e = NULL;
 
 	sja1105_run_cmd(command_full);
-	sja1105_run_cmd("sja1105-tool config upload");
 
 	clear_entry_count();
 
