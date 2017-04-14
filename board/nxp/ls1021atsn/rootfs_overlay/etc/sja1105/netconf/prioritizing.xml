@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sja1105 xmlns="http://nxp.com/sja1105">
+<sja1105 xmlns="http://nxp.com/ns/yang/tsn/sja1105">
  <schedule-table/>
  <schedule-entry-points-table/>
  <l2-address-lookup-table/>

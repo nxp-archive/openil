@@ -14,6 +14,8 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+#define SJA1105_NETCONF_NS "http://nxp.com/ns/yang/tsn/sja1105"
+
 typedef enum {
 	REG_UINT64 = 0,
 	REG_ARRAY = 1
@@ -317,7 +319,7 @@ xmlDocPtr get_state_data(xmlDocPtr model, xmlDocPtr running, struct nc_err **err
 
 	doc = xmlNewDoc(BAD_CAST "1.0");
 	xmlDocSetRootElement(doc, root = xmlNewDocNode(doc, NULL, BAD_CAST "sja1105", NULL));
-	ns = xmlNewNs(root, BAD_CAST "http://nxp.com/sja1105", NULL);
+	ns = xmlNewNs(root, BAD_CAST SJA1105_NETCONF_NS, NULL);
 	xmlSetNs(root, ns);
 
 	xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "config-files");
@@ -350,7 +352,7 @@ xmlDocPtr get_state_data(xmlDocPtr model, xmlDocPtr running, struct nc_err **err
  * Mapping prefixes with namespaces.
  * Do NOT modify this structure!
  */
-struct ns_pair namespace_mapping[] = {{"nxp", "http://nxp.com/sja1105"}, {NULL, NULL}};
+struct ns_pair namespace_mapping[] = {{"nxp", SJA1105_NETCONF_NS}, {NULL, NULL}};
 
 /*
  * CONFIGURATION callbacks
