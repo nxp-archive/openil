@@ -106,17 +106,17 @@ int main(int argc, char** argv)
 
 	/* set the path to the target file */
 	if (ncds_file_set_path(ds, argv[1]) != 0) {
-		nc_verb_error("Could not set \"%s\" to the datastore.", argv[1]);
+		debug_print(NC_VERB_DEBUG, "Could not set to the datastore.");
 		nc_close();
 		return 1;
 	}
 	if (ncds_init(ds) < 0) {
-		nc_verb_error("Failed to nitialize datastore.");
+		debug_print(NC_VERB_ERROR, "Failed to nitialize datastore.");
 		nc_close();
 		return 1;
 	}
 	if (ncds_consolidate() != 0) {
-		nc_verb_error("Could not consolidate the datastore.");
+		debug_print(NC_VERB_ERROR, "Could not consolidate the datastore.");
 		nc_close();
 		return 1;
 	}
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
 	/* create the dummy session */
 	capabs = nc_cpblts_new(capabilities);
 	if ((dummy_session = nc_session_dummy("session0", "root", NULL, capabs)) == NULL) {
-		nc_verb_error("Could not create a dummy session.");
+		debug_print(NC_VERB_ERROR, "Could not create a dummy session.");
 		nc_close();
 		return 1;
 	}
@@ -146,14 +146,14 @@ int main(int argc, char** argv)
 
 	/* apply edit-config rpc on the datastore */
 	if ((rpc = nc_rpc_editconfig(NC_DATASTORE_STARTUP, NC_DATASTORE_CONFIG, 0, 0, 0, new_startup_config)) == NULL) {
-		nc_verb_error("Could not create edit-config RPC.");
+		debug_print(NC_VERB_ERROR, "Could not create edit-config RPC.");
 		nc_close();
 		return 1;
 	}
 	free(new_startup_config);
 	reply = ncds_apply_rpc2all(dummy_session, rpc, NULL);
 	if (nc_reply_get_type(reply) != NC_REPLY_OK) {
-		nc_verb_error("Edit-config RPC failed.");
+		debug_print(NC_VERB_ERROR, "Edit-config RPC failed.");
 		nc_close();
 		return 1;
 	}
