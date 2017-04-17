@@ -36,7 +36,7 @@ char *config_xml_list[] = {};
 const char conf_folder[]="/etc/sja1105";
 const char datastore_folder[]="/usr/local/etc/netopeer/sja1105/datastore.xml";
 const char command_name[]="sja1105-tool";
-
+const char tempxml[] = "/var/lib/libnetconf/config.xml";
 /* Signal to libnetconf that configuration data were modified by any callback.
  * 0 - data not modified
  * 1 - data have been modified
@@ -135,7 +135,7 @@ int transapi_init(xmlDocPtr *running) {
 		sja1105_run_cmd("sja1105-tool config default -f ls1021atsn");
 		clear_entry_count();
 		init_flag = 0;
-
+		goto initdone;
 		if (access(datastore_folder, F_OK) == 0) {
 			printf("datastore.xml exist!\n");
 			xmlNodePtr startup_node = NULL, node;
@@ -225,78 +225,26 @@ void transapi_close(void) {
 	return;
 }
 
-int sja1105_modify_reg(char *table_name, xmlNodePtr new_node, reg_type *type, char **options, int len)
-{
-	xmlNodePtr n1;
-	struct reg_desp *reg_list;
-	char *contend;
-	char cmd_modify[1024];
-	int i;
-
-	reg_list = (struct reg_desp *)calloc(len, sizeof(struct reg_desp));
-	for (i = 0; i < len; i++) {
-		strcpy((reg_list + i)->name, options[i]);
-		(reg_list + i)->type = *(type + i);
-	}
-
-	for (n1 = new_node->children; n1 != NULL; n1 = n1->next) {
-
-		if (n1->type != XML_ELEMENT_NODE) {
-			printf("not xml element\n");
-			continue;
-		}
-
-		contend = (char*)xmlNodeGetContent(n1);
-
-		for (i = 0; i < len; i++) {
-			if (xmlStrEqual(n1->name, BAD_CAST (reg_list + i)->name)) {
-				nc_verb_verbose("found %s = %s\n", (reg_list + i)->name, (char*)xmlNodeGetContent(n1));
-				(reg_list + i)->exist = 1;
-				strcpy((reg_list + i)->value, contend); 
-			}
-		}
-		free(contend);
-	}
-
-	if (!strcmp(table_name, "xmii-mode-parameters-table")) {
-		sprintf(reg_list->value, "%s", "0x0");
-	} else if (reg_list->exist != 1){
-		free(reg_list);
-		return -1;
-	}
-
-	/* set value by sja1105-tool */
-	for (i = 1; i < len; i++) {
-		if ((reg_list + i)->exist) {
-			if ((reg_list + i)->type == REG_UINT64)
-				sprintf(cmd_modify, "sja1105-tool config modify -f %s[%s] %s %s", table_name,
-						reg_list->value, (reg_list + i)->name, (reg_list + i)->value);
-			else
-				sprintf(cmd_modify, "sja1105-tool config modify -f %s[%s] %s \"%s\"", table_name,
-						reg_list->value, (reg_list + i)->name, (reg_list + i)->value);
-
-			sja1105_run_cmd(cmd_modify);
-		}
-	}
-
-	free(reg_list);
-	return 0;
-}
-
-int sja1105_add_entry(char *table_name, int number)
+int save_to_temp_file(xmlNodePtr new_node)
 {
 	char command[256];
-	char *rc;
+	xmlDocPtr	configfile = xmlNewDoc(BAD_CAST "1.0");
 
-	/*sja1105-tool conf mod schedule-table entry-count 2*/
-	sprintf(command, "sja1105-tool conf mod %s entry-count %d", table_name, number);
+	xmlDocSetRootElement(configfile, new_node);
+	xmlSaveFormatFileEnc(tempxml, configfile, "UTF-8", 1);
+	xmlFreeDoc(configfile);
+	xmlCleanupParser();
+	xmlMemoryDump(); //debug memory for regression tests
 
-	rc = sja1105_run_cmd(command);
-	if (rc == NULL)
-		return 0;
-	return -1;
+	memset(command, 0, sizeof(command));
+	sprintf(command, "sed -i '/wd:default/d' %s", tempxml);
+	sja1105_run_cmd(command);
+
+	memset(command, 0, sizeof(command));
+	sprintf(command, "sed -i '/version/d' %s", tempxml);
+	sja1105_run_cmd(command);
+	return 0;
 }
-
 /**
  * @brief Retrieve state data from device and return them as XML document
  *
@@ -369,610 +317,28 @@ struct ns_pair namespace_mapping[] = {{"nxp", SJA1105_NETCONF_NS}, {NULL, NULL}}
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 /* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_schedule_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_schedule_table_nxp_entry\n");
+int callback_nxp_sja1105(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
+	nc_verb_verbose("callback_nxp_sja1105\n");
+
 	int rc;
-	char *options[] = {
-		"index",
-		"winstindex",
-		"winend",
-		"winst",
-		"destports",
-		"setvalid",
-		"txen",
-		"resmedia_en",
-		"resmedia",
-		"vlindex",
-		"delta"
-	};
-	reg_type type[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int len = sizeof(options)/sizeof(options[0]);
 
 	if (op & XMLDIFF_REM) {
+		nc_verb_verbose("callback_nxp_sja1105 op is REMOVE\n");
 		return EXIT_SUCCESS;
 	}
 
-	if (op & XMLDIFF_ADD) {
-		entry_count[SCHEDULE_TABLE]++;
-		sja1105_add_entry("schedule-table", entry_count[SCHEDULE_TABLE]);
+	if (((op & XMLDIFF_ADD) || (op & XMLDIFF_MOD)) && (new_node!= NULL)) {
+		char command[256];
+
+		rc = save_to_temp_file(new_node);
+		if (rc < 0)
+			return -1;
+
+		sprintf(command, "sja1105-tool config load -f %s", tempxml);
+		sja1105_run_cmd(command);
+	} else {
+		nc_verb_verbose("unknown operation type\n");
 	}
-
-	rc = sja1105_modify_reg("schedule-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1; 
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:schedule-entry-points-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_schedule_entry_points_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_schedule_entry_points_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"subschindx",
-		"delta",
-		"address"
-	};
-	reg_type type[] = {0, 0, 0, 0};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	if (op & XMLDIFF_ADD) {
-		entry_count[SCHEDULE_ENTRY_POINTS]++;
-		sja1105_add_entry("schedule-entry-points-table", entry_count[SCHEDULE_ENTRY_POINTS]);
-	}
-
-	rc = sja1105_modify_reg("schedule-entry-points-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1; 
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:vl-lookup-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_vl_lookup_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_vl_lookup_table_nxp_entry\n");
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:vl-policing-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_vl_policing_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_vl_policing_table_nxp_entry\n");
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:vl-forwarding-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_vl_forwarding_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_vl_forwarding_table_nxp_entry\n");
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:l2-address-lookup-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_l2_address_lookup_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_l2_address_lookup_table_nxp_entry\n");
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:l2-policing-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_l2_policing_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_l2_policing_table_nxp_entry\n");
-
-	int rc;
-	char *options[] = {
-		"index",
-		"sharindx",
-		"smax",
-		"rate",
-		"maxlen",
-		"partition"
-	};
-	reg_type type[] = {0, 0, 0, 0, 0, 0};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	rc = sja1105_modify_reg("l2-policing-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1; 
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:vlan-lookup-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_vlan_lookup_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_vlan_lookup_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"ving_mirr",
-		"vegr_mirr",
-		"vmemb_port",
-		"vlan_bc",
-		"tag_port",
-		"vlanid"
-	};
-	reg_type type[] = {0, 0, 0, 0, 0, 0, 0};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	rc = sja1105_modify_reg("vlan-lookup-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1;
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:l2-forwarding-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_l2_forwarding_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_l2_forwarding_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"bc_domain",
-		"reach_port",
-		"fl_domain",
-		"vlan_pmap"
-	};
-	reg_type type[] = {0, 0, 0, 0, 1};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	rc = sja1105_modify_reg("l2-forwarding-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1;
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:mac-configuration-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_mac_configuration_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_mac_configuration_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"top",
-		"base",
-		"enabled",
-		"ifg",
-		"speed",
-		"tp_delin",
-		"tp_delout",
-		"maxage",
-		"vlanprio",
-		"vlanid",
-		"ing_mirr",
-		"egr_mirr",
-		"drpnona664",
-		"drpdtag",
-		"drpuntag",
-		"retag",
-		"dyn_learn",
-		"egress",
-		"ingress"
-	};
-	reg_type type[] = {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	rc = sja1105_modify_reg("mac-configuration-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1;
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:schedule-parameters-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_schedule_parameters_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_schedule_parameters_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"subscheind"
-	};
-	reg_type type[] = {0, 1};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	if (op & XMLDIFF_ADD) {
-		entry_count[SCHEDULE_PARAMETERS]++;
-		sja1105_add_entry("schedule-parameters-table", entry_count[SCHEDULE_PARAMETERS]);
-	}
-
-	rc = sja1105_modify_reg("schedule-parameters-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1;
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:schedule-entry-points-parameters-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_schedule_entry_points_parameters_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_schedule_entry_points_parameters_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"clksrc",
-		"actsubsch"
-	};
-	reg_type type[] = {0, 0, 0};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	if (op & XMLDIFF_ADD) {
-		entry_count[SCHEDULE_ENTRY_POINTS_PARAMETERS]++;
-		sja1105_add_entry("schedule-entry-points-parameters-table", entry_count[SCHEDULE_ENTRY_POINTS_PARAMETERS]);
-	}
-
-	rc = sja1105_modify_reg("schedule-entry-points-parameters-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1;
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:vl-forwarding-parameters-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_vl_forwarding_parameters_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_vl_forwarding_parameters_table_nxp_entry\n");
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:l2-address-lookup-parameters-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_l2_address_lookup_parameters_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_l2_address_lookup_parameters_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"maxage",
-		"dyn_tbsz",
-		"poly",
-		"shared_learn",
-		"no_enf_hostprt",
-		"no_mgmt_learn"
-	};
-	reg_type type[] = {0, 0, 0, 0, 0, 0, 0};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	rc = sja1105_modify_reg("l2-address-lookup-parameters-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1;
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:l2-forwarding-parameters-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_l2_forwarding_parameters_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_l2_forwarding_parameters_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"max_dynp",
-		"part_spc"
-	};
-	reg_type type[] = {0, 0, 1};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	rc = sja1105_modify_reg("l2-forwarding-parameters-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1;
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:clock-synchronization-parameters-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_clock_synchronization_parameters_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_clock_synchronization_parameters_table_nxp_entry\n");
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:avb-parameters-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_avb_parameters_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_avb_parameters_table_nxp_entry\n");
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:general-parameters-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_general_parameters_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_general_parameters_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"vllupformat",
-		"mirr_ptacu",
-		"switchid",
-		"hostprio",
-		"mac_fltres1",
-		"mac_fltres0",
-		"mac_flt1",
-		"mac_flt0",
-		"incl_srcpt1",
-		"incl_srcpt0",
-		"send_meta1",
-		"send_meta0",
-		"casc_port",
-		"host_port",
-		"mirr_port",
-		"vimarker",
-		"vimask",
-		"tpid",
-		"ignore2stf",
-		"tpid2"
-	};
-	reg_type type[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	rc = sja1105_modify_reg("general-parameters-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1;
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:retagging-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_retagging_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_retagging_table_nxp_entry\n");
-	return EXIT_SUCCESS;
-}
-
-/**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:xmii-mode-parameters-table/nxp:entry changes
- *
- * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
- * @param[in] op	Observed change in path. XMLDIFF_OP type.
- * @param[in] old_node	Old configuration node. If op == XMLDIFF_ADD, it is NULL.
- * @param[in] new_node	New configuration node. if op == XMLDIFF_REM, it is NULL.
- * @param[out] error	If callback fails, it can return libnetconf error structure with a failure description.
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-/* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105_nxp_xmii_mode_parameters_table_nxp_entry(void **data, XMLDIFF_OP op, xmlNodePtr old_node, xmlNodePtr new_node, struct nc_err **error) {
-	nc_verb_verbose("callback_nxp_sja1105_nxp_xmii_mode_parameters_table_nxp_entry\n");
-	int rc;
-	char *options[] = {
-		"index",
-		"phy_mac",
-		"xmii_mode"
-	};
-	reg_type type[] = {0, 1, 1};
-	int len = sizeof(options)/sizeof(options[0]);
-
-	if (op & XMLDIFF_REM) {
-		return EXIT_SUCCESS;
-	}
-
-	rc = sja1105_modify_reg("xmii-mode-parameters-table", new_node, type, options, len);
-	if (rc < 0)
-		return -1;
 
 	return EXIT_SUCCESS;
 }
@@ -983,29 +349,10 @@ int callback_nxp_sja1105_nxp_xmii_mode_parameters_table_nxp_entry(void **data, X
  * DO NOT alter this structure
  */
 struct transapi_data_callbacks clbks =  {
-	.callbacks_count = 20,
+	.callbacks_count = 1,
 	.data = NULL,
 	.callbacks = {
-		{.path = "/nxp:sja1105/nxp:schedule-table/nxp:entry", .func = callback_nxp_sja1105_nxp_schedule_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:schedule-entry-points-table/nxp:entry", .func = callback_nxp_sja1105_nxp_schedule_entry_points_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:vl-lookup-table/nxp:entry", .func = callback_nxp_sja1105_nxp_vl_lookup_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:vl-policing-table/nxp:entry", .func = callback_nxp_sja1105_nxp_vl_policing_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:vl-forwarding-table/nxp:entry", .func = callback_nxp_sja1105_nxp_vl_forwarding_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:l2-address-lookup-table/nxp:entry", .func = callback_nxp_sja1105_nxp_l2_address_lookup_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:l2-policing-table/nxp:entry", .func = callback_nxp_sja1105_nxp_l2_policing_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:vlan-lookup-table/nxp:entry", .func = callback_nxp_sja1105_nxp_vlan_lookup_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:l2-forwarding-table/nxp:entry", .func = callback_nxp_sja1105_nxp_l2_forwarding_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:mac-configuration-table/nxp:entry", .func = callback_nxp_sja1105_nxp_mac_configuration_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:schedule-parameters-table/nxp:entry", .func = callback_nxp_sja1105_nxp_schedule_parameters_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:schedule-entry-points-parameters-table/nxp:entry", .func = callback_nxp_sja1105_nxp_schedule_entry_points_parameters_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:vl-forwarding-parameters-table/nxp:entry", .func = callback_nxp_sja1105_nxp_vl_forwarding_parameters_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:l2-address-lookup-parameters-table/nxp:entry", .func = callback_nxp_sja1105_nxp_l2_address_lookup_parameters_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:l2-forwarding-parameters-table/nxp:entry", .func = callback_nxp_sja1105_nxp_l2_forwarding_parameters_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:clock-synchronization-parameters-table/nxp:entry", .func = callback_nxp_sja1105_nxp_clock_synchronization_parameters_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:avb-parameters-table/nxp:entry", .func = callback_nxp_sja1105_nxp_avb_parameters_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:general-parameters-table/nxp:entry", .func = callback_nxp_sja1105_nxp_general_parameters_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:retagging-table/nxp:entry", .func = callback_nxp_sja1105_nxp_retagging_table_nxp_entry},
-		{.path = "/nxp:sja1105/nxp:xmii-mode-parameters-table/nxp:entry", .func = callback_nxp_sja1105_nxp_xmii_mode_parameters_table_nxp_entry}
+		{.path = "/nxp:sja1105", .func = callback_nxp_sja1105},
 	}
 };
 
@@ -1038,7 +385,7 @@ xmlNodePtr get_rpc_node(const char *name, const xmlNodePtr node) {
  */
 
 
-xmlNodePtr probe_running_node(xmlNodePtr datastore_node)
+xmlNodePtr probe_datastore_node(xmlNodePtr datastore_node, char *node_name)
 {
 	xmlNodePtr node = NULL;
 
@@ -1051,11 +398,8 @@ xmlNodePtr probe_running_node(xmlNodePtr datastore_node)
 		goto out;
 	}
 	for (node = datastore_node->children; node != NULL; node = node->next) {
-		if (node->type != XML_ELEMENT_NODE) {
-			continue;
-		}
-		if (strcmp((char*) datastore_node->name, "running")) {
-			nc_verb_verbose("found the running node!\n");
+		if (!strcmp((char*)node->name, node_name)) {
+			nc_verb_verbose("found the %s node!\n", node_name);
 			return node;
 		}
 	}
@@ -1121,9 +465,16 @@ int write_to_datastore(char *file_name)
 	xmlNodePtr root_datastore = xmlDocGetRootElement(doc_datastore);
 	xmlNodePtr root_newnodes = xmlDocGetRootElement(doc_newnodes);
 
-	xmlNodePtr node = probe_running_node(root_datastore);
-	if (node == NULL) {
+	xmlNodePtr node_running = probe_datastore_node(root_datastore, "running");
+	if (node_running == NULL) {
 		printf("Not found the running node\n");
+		rc = -1;
+		goto quiting;
+	}
+
+	xmlNodePtr node_candidate = probe_datastore_node(root_datastore, "candidate");
+	if (node_candidate == NULL) {
+		printf("Not found the candidate node\n");
 		rc = -1;
 		goto quiting;
 	}
@@ -1134,16 +485,18 @@ int write_to_datastore(char *file_name)
 		goto quiting;
 	}
 
-	xmlNodePtr rootnode = xmlCopyNodeList(root_newnodes);	
+	/* add new sja1105 node to running node in datastore.xml */
+	xmlNodePtr rootnode_running = xmlCopyNodeList(root_newnodes);
+
 	/* start copy the node */
-	xmlNodePtr new = xmlAddChild(node, rootnode);
-	if (new == NULL) {
+	xmlNodePtr new_run = xmlAddChild(node_running, rootnode_running);
+	if (new_run == NULL) {
 		printf("error adding the sja1105 node\n");
 		goto quiting;
 	}
 
 	/* there is already running node */
-	xmlNodePtr tempNode = new->prev;
+	xmlNodePtr tempNode = new_run->prev;
 
 	while (tempNode != NULL) {
 		xmlNodePtr tempNode1;
@@ -1151,8 +504,34 @@ int write_to_datastore(char *file_name)
 		tempNode = tempNode->prev;
 		xmlUnlinkNode(tempNode1);
 		xmlFreeNode(tempNode1);
-		nc_verb_verbose("delete previous sja1105 node\n");
+		nc_verb_verbose("delete previous sja1105 running node\n");
 	}
+
+	/* Add new sja1105 node to candidate node in datastore.xml */
+	xmlNodePtr rootnode_candidate = xmlCopyNodeList(root_newnodes);	
+
+	xmlSetProp(node_candidate, (const xmlChar *)"modified", (const xmlChar *)"true");
+
+	/* start copy the node */
+	xmlNodePtr new_candi = xmlAddChild(node_candidate, rootnode_candidate);
+	if (new_candi == NULL) {
+		printf("error adding the sja1105 node\n");
+		goto quiting;
+	}
+
+	/* there is already running node */
+	tempNode = new_candi->prev;
+
+	while (tempNode != NULL) {
+		xmlNodePtr tempNode1;
+		tempNode1 = tempNode;
+		tempNode = tempNode->prev;
+		xmlUnlinkNode(tempNode1);
+		xmlFreeNode(tempNode1);
+		nc_verb_verbose("delete previous sja1105 candidate node\n");
+	}
+
+	xmlSetProp(node_candidate, (const xmlChar *)"modified", (const xmlChar *)"false");
 
 quiting:
 	xmlSaveFile(datastore_folder, doc_datastore);
@@ -1186,34 +565,6 @@ int sja1105_check_dir(char *file)
 	strncpy(dir_copy, file, strlen(conf_folder));
 
 	if (strcmp(dir_copy, conf_folder))
-		return -1;
-
-	return 0;
-}
-
-int check_netconf_conf(char *file_dir)
-{
-	char a[128], b[128], xmlfile[128];
-	char cmd_config_file[256];
-	int ret;
-
-	nc_verb_verbose("v2 in the check_netconf_conf, file = %s\n", file_dir);
-
-	sscanf(file_dir, "/%[^/]/%[^/]/%s", a, b , xmlfile);
-
-	nc_verb_verbose("a=%s, b= %s, c= %s\n", a, b, xmlfile);
-
-	if(strcmp(a, "etc") || strcmp(b, "sja1105"))
-		return -1;
-
-	sprintf(cmd_config_file, "%s/%s", conf_folder, xmlfile);
-	if (access(cmd_config_file, F_OK) == -1) {
-		printf("netconf config file not exist, command file = %s\n", cmd_config_file);
-		return -1;
-	}
-
-	ret = write_to_datastore(xmlfile);
-	if (ret < 0)
 		return -1;
 
 	return 0;
