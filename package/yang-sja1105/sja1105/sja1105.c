@@ -47,15 +47,6 @@ pthread_mutex_t file_mutex;
 
 const char netconf_file_dir[] = "/etc/sja1105/";
 
-enum ENTRY_COUNT_LIST {
-	SCHEDULE_TABLE = 0,
-	SCHEDULE_ENTRY_POINTS,
-	SCHEDULE_PARAMETERS,
-	SCHEDULE_ENTRY_POINTS_PARAMETERS,
-	ENTRY_COUNT_LIST_COUNTS
-};
-
-int entry_count[ENTRY_COUNT_LIST_COUNTS];
 
 /*
  * Determines the callbacks order.
@@ -76,14 +67,6 @@ Feel free to use it to distinguish module behavior for different error-option va
  */
 NC_EDIT_ERROPT_TYPE erropt = NC_EDIT_ERROPT_NOTSET;
 
-void clear_entry_count()
-{
-	int i;
-
-	for(i = 0; i < ENTRY_COUNT_LIST_COUNTS; i++) {
-		entry_count[i] = 0;
-	}
-}
 
 char *sja1105_run_cmd(char *command_run)
 {
@@ -133,37 +116,7 @@ int transapi_init(xmlDocPtr *running) {
 
 	if (init_flag) {
 		sja1105_run_cmd("sja1105-tool config default -f ls1021atsn");
-		clear_entry_count();
 		init_flag = 0;
-		goto initdone;
-		if (access(datastore_folder, F_OK) == 0) {
-			printf("datastore.xml exist!\n");
-			xmlNodePtr startup_node = NULL, node;
-			xmlDocPtr datastore = xmlReadFile(datastore_folder, NULL, XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NOBLANKS | XML_PARSE_NSCLEAN);
-			/* get the startup node */
-			for (node = datastore->children; node != NULL; node = node->next) {
-				if (node->type != XML_ELEMENT_NODE || xmlStrcmp(node->name, BAD_CAST "datastores") != 0) {
-					continue;
-				}
-				for (node = node->children; node != NULL; node = node->next) {
-					if (node->type != XML_ELEMENT_NODE || xmlStrcmp(node->name, BAD_CAST "startup") != 0) {
-						continue;
-					}
-					startup_node = node;
-					break;
-				}
-				break;
-			}
-
-			if ((startup_node != NULL)  && (startup_node->children != NULL)) {
-				/* datastore is exist */
-				xmlFreeDoc(datastore);
-				goto initdone;
-			}
-
-			xmlFreeDoc(datastore);
-		}
-
 		*running = xmlNewDoc(BAD_CAST "1.0");
 
 		char newnodes_file[512];
@@ -199,17 +152,9 @@ int transapi_init(xmlDocPtr *running) {
 
 		xmlFreeDoc(doc_newnodes);
 
-		/* Shutdown libxml */
-		xmlCleanupParser();
-    
-		/*
-		* this is to debug memory for regression tests
-		*/
-		xmlMemoryDump();
 		pthread_mutex_unlock(&file_mutex);
 
 		xmlDocSetRootElement(*running, rootnode);
-
 	}
 
 initdone:
@@ -306,7 +251,7 @@ struct ns_pair namespace_mapping[] = {{"nxp", SJA1105_NETCONF_NS}, {NULL, NULL}}
  */
 
 /**
- * @brief This callback will be run when node in path /nxp:sja1105/nxp:schedule-table/nxp:entry changes
+ * @brief This callback will be run when node in path /nxp:sja1105 changes
  *
  * @param[in] data	Double pointer to void. Its passed to every callback. You can share data using it.
  * @param[in] op	Observed change in path. XMLDIFF_OP type.
@@ -677,8 +622,6 @@ nc_reply *rpc_sja1105_config_load(xmlNodePtr input) {
 
 	sja1105_run_cmd(command_full);
 
-	clear_entry_count();
-
 	ret = write_to_datastore(cmd_file);
 	if (ret < 0) {
 		memset(msg_err, '\0', sizeof(msg_err));
@@ -702,8 +645,6 @@ nc_reply *rpc_sja1105_config_default(xmlNodePtr input) {
 	struct nc_err* e = NULL;
 
 	sja1105_run_cmd(command_full);
-
-	clear_entry_count();
 
 	ret = write_to_datastore("standard.xml");
 	if (ret < 0) {
