@@ -478,41 +478,39 @@ module sja1105 {
 
 	/* Add RPC command */
 
-	rpc sja1105_config_save {
+	rpc save-local-config {
 		description
 			"run command:
-			'sja1105-tool config save xxx.xml' ";
+			'sja1105-tool config -f save xxx.xml'
+			save to /etc/sja1105/xxx.xml";
 		input {
-			leaf file_name_xml {
+			leaf configfile {
 				type string;
 			}
 		}
 	}
 
-	rpc sja1105_config_load {
+	rpc load-local-config {
 		description
 			"run command:
-			'sja1105-tool config load xxx.xml' ";
+			'sja1105-tool config -f load xxx.xml' 
+			update to running/candidate nodes";
 		input {
-			leaf file_name_xml {
+			leaf configfile {
 				type string;
 			}
 		}
 	}
 
-	rpc sja1105_config_default {
+	rpc load-default {
 		description
 			"run command:
-			'sja1105-tool config default ls1021atsn' ";
+			'sja1105-tool config -f default ls1021atsn'
+			update to running/candidate nodes";
 	}
 
-	rpc sja1105_upload {
-		description
-			"run: 'sja1105-tool config upload' ";
-	}
-
-	notification sja1105_xml_list {
-		leaf list_xmls {
+	notification sja1105_ports_status {
+		leaf ports {
 			type string;
 		}
 	}

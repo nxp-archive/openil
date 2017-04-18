@@ -139,7 +139,7 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 	</sja1105>
 	
 	
-	#User can refer the files under board/nxp/ls1021atsn/rootfs_overlay/etc/sja1105/netconf/*.xml
+	#User can refer the files under board/nxp/ls1021atsn/rootfs_overlay/etc/sja1105/*.xml
 	# policing.xml      prioritizing.xml  scheduling.xml    standard.xml
 	# use 'edit-config' command in the netopeer-cli to edit the value.
 
@@ -164,7 +164,7 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 - discard-changes
 	#'discard-changes' simply resets the candidate datastore to be the same as the running datastore, 
 	# but that should be so by default when starting netopeer-server. You should read about it in the NETCONF RFC. 
-	# It is suggest to run 'get-config candidate' and 'get-config running' check whether they are same or not
+	# It is suggested to run 'get-config candidate' and 'get-config running' check whether they are same or not
 	# every after connect opertion. If not, run 'discard-changes' first.
 
 	netconf> discard-changes
@@ -180,11 +180,13 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 
 	#Input below text into the editor(nc_standard.xml is an example name):
 	
-	<sja1105_config_save xmlns="http://nxp.com/sja1105">
-	  <file_name_xml>
+	<save-local-config xmlns="http://nxp.com/ns/yang/tsn/sja1105">
+	  <configfile>
 		nc_standard.xml
-	  </file_name_xml>
-	</sja1105_config_save>
+	  </configfile>
+	</save-local-config>
+
+	#Note: you can get all saved xml files by 'get' command.
 
 
 	# If user wants to load a registers mapping mode(standard, policing, scheduling etc.)
@@ -196,11 +198,11 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 
 	#Input below text into the editor(standard.xml is an example name):
 
-	<sja1105_config_load xmlns="http://nxp.com/ns/yang/tsn/sja1105">
-	  <file_name_xml>
+	<load-local-config xmlns="http://nxp.com/ns/yang/tsn/sja1105">
+	  <configfile>
 		policing.xml
-	  </file_name_xml>
-	</sja1105_config_load>
+	  </configfile>
+	</load-local-config>
 
 
 	# If user wants to load a deafult registers mapping mode(sja1105 as a normal switch mode).
@@ -214,6 +216,6 @@ Test commands at netopeer-client(a CentOS/Ubuntu PC to run netopeer-cli):
 
 	#Input below text into the editor:
 
-	<sja1105_config_default xmlns="http://nxp.com/ns/yang/tsn/sja1105" />
+	<load-default xmlns="http://nxp.com/ns/yang/tsn/sja1105" />
 
 
