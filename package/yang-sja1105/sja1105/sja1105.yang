@@ -474,6 +474,14 @@ module sja1105 {
 				"list all the config xml files for talbes";
 			}
 		}
+
+		container ports {
+			leaf-list port {
+				type string;
+				description
+					"one port status";
+			}
+		}
 	}
 
 	/* Add RPC command */
