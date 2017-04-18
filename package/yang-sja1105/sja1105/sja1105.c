@@ -157,7 +157,6 @@ int transapi_init(xmlDocPtr *running) {
 		xmlDocSetRootElement(*running, rootnode);
 	}
 
-initdone:
 	return EXIT_SUCCESS;
 }
 
@@ -515,20 +514,10 @@ int sja1105_check_dir(char *file)
 	return 0;
 }
 
-int add_netconf_conf(char *file)
-{
-	char cmd_create_file[256];
-
-	sprintf(cmd_create_file, "sja1105-netconf config save %s/%s", conf_folder, file);
-	sja1105_run_cmd(cmd_create_file);
-
-	return 0;	
-}
-
-nc_reply *rpc_sja1105_config_save(xmlNodePtr input) {
+nc_reply *rpc_save_local_config(xmlNodePtr input) {
 
 	nc_verb_verbose("rpc_sja1105_config_save\n");
-	xmlNodePtr file_name_xml = get_rpc_node("file_name_xml", input);
+	xmlNodePtr file_name_xml = get_rpc_node("configfile", input);
 	char *file_name;
 	struct nc_err* e = NULL;
 	char command_full[256];
@@ -561,13 +550,6 @@ nc_reply *rpc_sja1105_config_save(xmlNodePtr input) {
 
 	nc_verb_verbose("run command --- %s\n", command_full);
 
-	ret = add_netconf_conf(cmd_file);
-	if (ret < 0) {
-		memset(msg_err, '\0', sizeof(msg_err));
-		strcpy(msg_err, "run netconf command failure");
-		goto error;
-	}
-
 	return nc_reply_ok();
 
 error:
@@ -576,9 +558,9 @@ error:
 	return nc_reply_error(e);
 }
 
-nc_reply *rpc_sja1105_config_load(xmlNodePtr input) {
+nc_reply *rpc_load_local_config(xmlNodePtr input) { 
 	nc_verb_verbose("rpc_sja1105_config_load\n");
-	xmlNodePtr file_name_xml = get_rpc_node("file_name_xml", input);
+	xmlNodePtr file_name_xml = get_rpc_node("configfile", input);
 	char *file_name;
 	struct nc_err* e = NULL;
 	char command_full[256];
@@ -637,7 +619,7 @@ error:
 	return nc_reply_error(e);
 }
 
-nc_reply *rpc_sja1105_config_default(xmlNodePtr input) {
+nc_reply *rpc_load_default(xmlNodePtr input) {
 	nc_verb_verbose("rpc_sja1105_config_default\n");
 	char command_full[] = "sja1105-tool config default -f ls1021atsn";
 	int ret;
@@ -661,26 +643,17 @@ default_error:
 	return nc_reply_error(e);
 }
 
-nc_reply *rpc_sja1105_upload(xmlNodePtr input) {
-	nc_verb_verbose("rpc_sja1105_upload\n");
-	char command_full[] = "sja1105-tool config upload";
-
-	sja1105_run_cmd(command_full);
-
-	return nc_reply_ok();
-}
 /*
  * Structure transapi_rpc_callbacks provides mapping between callbacks and RPC messages.
  * It is used by libnetconf library to decide which callbacks will be run when RPC arrives.
  * DO NOT alter this structure
  */
 struct transapi_rpc_callbacks rpc_clbks = {
-	.callbacks_count = 4,
+	.callbacks_count = 3,
 	.callbacks = {
-		{.name="sja1105_config_save", .func=rpc_sja1105_config_save},
-		{.name="sja1105_config_load", .func=rpc_sja1105_config_load},
-		{.name="sja1105_config_default", .func=rpc_sja1105_config_default},
-		{.name="sja1105_upload", .func=rpc_sja1105_upload}
+		{.name="save-local-config", .func=rpc_save_local_config},
+		{.name="load-local-config", .func=rpc_load_local_config},
+		{.name="load-default", .func=rpc_load_default}
 	}
 };
 
