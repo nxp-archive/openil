@@ -15,6 +15,7 @@
 #include <semaphore.h>
 
 #define SJA1105_NETCONF_NS "http://nxp.com/ns/yang/tsn/sja1105"
+#define TOTAL_PORTS 5
 
 typedef enum {
 	REG_UINT64 = 0,
@@ -205,6 +206,7 @@ xmlDocPtr get_state_data(xmlDocPtr model, xmlDocPtr running, struct nc_err **err
 	xmlDocPtr doc = NULL;
 	xmlNodePtr root;
 	xmlNsPtr ns;
+	int i;
 
 	doc = xmlNewDoc(BAD_CAST "1.0");
 	xmlDocSetRootElement(doc, root = xmlNewDocNode(doc, NULL, BAD_CAST "sja1105", NULL));
@@ -235,6 +237,39 @@ xmlDocPtr get_state_data(xmlDocPtr model, xmlDocPtr running, struct nc_err **err
 	}
 
 	pclose(fp);
+
+	xmlNodePtr node_ports = xmlNewNode(NULL, BAD_CAST "ports");
+	xmlAddChild(root, node_ports);
+
+	for (i = 0; i < TOTAL_PORTS; i++)
+	{
+		char lbuf[256];
+		char full_status[4096];
+		int len = 0;
+
+		memset(full_status, 0, sizeof(full_status));
+
+		memset(command_line, 0, sizeof(command_line));
+
+		sprintf(command_line, "%s status ports %d", command_name, i);
+
+		if ((fp = popen(command_line, "r")) == NULL) {
+			printf("command fail: %s status ports %d\n", command_name, i);
+			return(NULL);
+		}
+
+		while (fgets(lbuf, 256, fp) != NULL) {
+			int llen;
+
+			llen = strlen(lbuf);
+			strncpy(full_status + len, lbuf, llen);
+			len += llen;
+			full_status[len++] = '\t';
+		}
+
+		xmlNewChild(node_ports, root->ns, BAD_CAST "port", BAD_CAST full_status);
+	}
+
 	return(doc);
 }
 /*
@@ -558,7 +593,7 @@ error:
 	return nc_reply_error(e);
 }
 
-nc_reply *rpc_load_local_config(xmlNodePtr input) { 
+nc_reply *rpc_load_local_config(xmlNodePtr input) {
 	nc_verb_verbose("rpc_sja1105_config_load\n");
 	xmlNodePtr file_name_xml = get_rpc_node("configfile", input);
 	char *file_name;
