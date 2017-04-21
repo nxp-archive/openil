@@ -14,6 +14,8 @@ YANG_CFGINTERFACES_CONF_ENV += PYTHON_CONFIG="$(STAGING_DIR)/usr/bin/python-conf
 YANG_CFGINTERFACES_CONF_ENV += ac_cv_path_NETOPEER_MANAGER="$(HOST_DIR)/usr/bin/netopeer-manager.host"
 YANG_CFGINTERFACES_CONF_ENV += ac_cv_file__etc_debian_version=yes
 YANG_CFGINTERFACES_CONF_ENV += WITH_LIBXML2_DIR=$(STAGING_DIR)/usr/bin/ 
+YANG_CFGINTERFACES_CONF_ENV += ac_cv_prog_AVAHI_AUTOIPD=no
+YANG_CFGINTERFACES_CONF_ENV += ac_cv_prog_AVAHI_DAEMON=no
 
 define YANG_CFGINTERFACES_UPDATE_INIT_BIN
 	sed -i "s/.\/model/\/usr\/local\/etc\/netopeer\/ietf-interfaces/g"  `grep "./model" -rl $(@D)/cfginterfaces-init.c`
