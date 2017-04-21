@@ -104,59 +104,8 @@ int file_validate(char *file);
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int transapi_init(xmlDocPtr *running) {
-	int res;
-	static int init_flag = 1;
 
 	nc_verb_verbose("transapi_init: run sja1105-tool config load stanard_policy\n");
-  
-	res = pthread_mutex_init(&file_mutex,NULL);    /* ........ */
-	if (res != 0) {
-		perror("Mutex initialization failed");
-		exit(EXIT_FAILURE);
-	}
-
-	if (init_flag) {
-		sja1105_run_cmd("sja1105-tool config default -f ls1021atsn");
-		init_flag = 0;
-		*running = xmlNewDoc(BAD_CAST "1.0");
-
-		char newnodes_file[512];
-		char file_name[] = "standard.xml";
-
-		if(file_validate(file_name))
-			return -1;
-	
-		if (pthread_mutex_trylock(&file_mutex) != 0) {
-		/* file is still editing */
-			return -1;
-		}
-
-		memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
-		sprintf(newnodes_file, "%s/%s", conf_folder, file_name);
-
-		/* Init libxml */     
-		xmlInitParser();
-
-		xmlDocPtr doc_newnodes = xmlReadFile(newnodes_file, NULL, 0);
-		xmlNodePtr root_newnodes = xmlDocGetRootElement(doc_newnodes);
-
-		if (strcasecmp((char*) root_newnodes->name, "sja1105")) {
-			fprintf(stderr, "Root node must be named \"sja1105\"!\n");
-			xmlFreeDoc(doc_newnodes);
-			xmlCleanupParser();
-			xmlMemoryDump();
-			pthread_mutex_unlock(&file_mutex);
-			return -1;
-		}
-
-		xmlNodePtr rootnode = xmlCopyNodeList(root_newnodes);	
-
-		xmlFreeDoc(doc_newnodes);
-
-		pthread_mutex_unlock(&file_mutex);
-
-		xmlDocSetRootElement(*running, rootnode);
-	}
 
 	return EXIT_SUCCESS;
 }

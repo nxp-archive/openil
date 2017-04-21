@@ -18,10 +18,6 @@ case "$1" in
 		mkdir /lib/firmware/
 	fi
 
-	if [ ! -f /usr/local/etc/netopeer/sja1105/datastore.xml ]; then
-		/usr/local/bin/sja1105-init /usr/local/etc/netopeer/sja1105/datastore.xml
-	fi
-
 	/usr/local/bin/netopeer-server -d
 	echo "."
 	;;
