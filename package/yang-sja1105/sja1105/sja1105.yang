@@ -468,6 +468,7 @@ module sja1105 {
 		}
 
 		container config-files {
+			config false;
 			leaf-list configFile {
 				type string;
 				description
@@ -476,6 +477,7 @@ module sja1105 {
 		}
 
 		container ports {
+			config false;
 			leaf-list port {
 				type string;
 				description
@@ -517,9 +519,4 @@ module sja1105 {
 			update to running/candidate nodes";
 	}
 
-	notification sja1105_ports_status {
-		leaf ports {
-			type string;
-		}
-	}
 }
