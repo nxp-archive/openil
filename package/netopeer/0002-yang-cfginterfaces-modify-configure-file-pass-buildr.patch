@@ -1,13 +1,13 @@
-From d1e9d8a5e32083506c229f33be34a4b0f37a28cc Mon Sep 17 00:00:00 2001
+From 55ea9fbf25784093ff2430fd8891a9023c746c92 Mon Sep 17 00:00:00 2001
 From: Po Liu <po.liu@nxp.com>
 Date: Fri, 17 Mar 2017 23:26:17 +0800
-Subject: [PATCH 2/3] yang-cfginterfaces: modify configure file pass buildroot
+Subject: [PATCH 2/2] yang-cfginterfaces: modify configure file pass buildroot
 
 Signed-off-by: Po Liu <po.liu@nxp.com>
 ---
  transAPI/cfginterfaces/Makefile.in | 34 +++++++++++++------
- transAPI/cfginterfaces/configure   | 69 ++++----------------------------------
- 2 files changed, 30 insertions(+), 73 deletions(-)
+ transAPI/cfginterfaces/configure   | 67 +++-----------------------------------
+ 2 files changed, 29 insertions(+), 72 deletions(-)
 
 diff --git a/transAPI/cfginterfaces/Makefile.in b/transAPI/cfginterfaces/Makefile.in
 index 328124a..a03dbf7 100644
@@ -64,7 +64,7 @@ index 328124a..a03dbf7 100644
  .PHONY: uninstall
  uninstall:
 diff --git a/transAPI/cfginterfaces/configure b/transAPI/cfginterfaces/configure
-index 4ebfc66..3dd8739 100755
+index 4ebfc66..0867575 100755
 --- a/transAPI/cfginterfaces/configure
 +++ b/transAPI/cfginterfaces/configure
 @@ -3409,69 +3409,12 @@ fi
@@ -140,6 +140,15 @@ index 4ebfc66..3dd8739 100755
  if test "$DISTRO" = "unknown"; then
  	DISTRO=REDHAT
  	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Failed to detect the Linux distribution, assuming RedHat base!" >&5
+@@ -11167,7 +11110,7 @@ fi
+ 
+ 
+ # Checks for libraries.
+-export PKG_CONFIG_PATH=/usr/local/${libdir##*/}/pkgconfig:$PKG_CONFIG_PATH
++#export PKG_CONFIG_PATH=/usr/local/${libdir##*/}/pkgconfig:$PKG_CONFIG_PATH
+ 
+ 
+ 
 @@ -11515,7 +11458,7 @@ fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_xml2_main" >&5
  $as_echo "$ac_cv_lib_xml2_main" >&6; }
