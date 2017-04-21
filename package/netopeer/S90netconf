@@ -22,7 +22,7 @@ case "$1" in
 		/usr/local/bin/sja1105-init /usr/local/etc/netopeer/sja1105/datastore.xml
 	fi
 
-#	/usr/local/bin/netopeer-server -d 
+	/usr/local/bin/netopeer-server -d
 	echo "."
 	;;
   stop) echo -n "Stopping $DESC: $NAME"
