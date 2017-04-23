@@ -14,8 +14,7 @@ LIBNETCONF_CONF_OPTS += --with-rpm
 HOST_LIBNETCONF_DEPENDENCIES = host-pkgconf pyang
 LIBNETCONF_DEPENDENCIES = libxml2 openssl libgcrypt libssh libxslt ncurses readline dbus pyang python-libxml2 host-python host-h-python-libxml2 host-libxslt
 LIBNETCONF_CONF_ENV += PKG_CONFIG=$(HOST_DIR)/usr/bin/pkg-config
-
-LIBNETCONF_POST_INSTALL_HOOKS += LIBNETCONF_UPDATE_LNCTOOL 
+LIBNETCONF_CONF_ENV += enable_validation=no
 
 define LIBNETCONF_INSTALL_STAGING_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/dev-tools/lnctool/lnctool $(HOST_DIR)/usr/bin
