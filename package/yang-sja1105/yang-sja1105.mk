@@ -20,7 +20,7 @@ define YANG_SJA1105_CREATE_CONFIGURE
 	cd $(TOPDIR); \
 	$(APPLY_PATCHES) $(@D) package/yang-sja1105/ 0001-yang-sja1105-modify-configure-file-pass-buildroot.patch; \
 	cd $(@D); \
-	$(HOST_DIR)/usr/bin/autoreconf --force --install
+	$(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/autoreconf --force --install
 endef
 YANG_SJA1105_PRE_CONFIGURE_HOOKS += YANG_SJA1105_CREATE_CONFIGURE
 
