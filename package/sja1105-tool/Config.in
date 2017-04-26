@@ -2,5 +2,3 @@ config BR2_PACKAGE_SJA1105_TOOL
 bool "sja1105-tool"
 help
 	this is comment that support NXP sja1105-tool
-
-	  http://sw-stash.freescale.net/projects/DNIND/repos/sja1105-tool/browse
