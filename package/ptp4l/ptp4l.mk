@@ -5,7 +5,7 @@
 ################################################################################
 
 PTP4L_VERSION = master
-PTP4L_SITE = http://sw-stash.freescale.net/scm/dnind/linux-ptp.git
+PTP4L_SITE = https://github.com/openil/linuxptp.git
 PTP4L_SITE_METHOD = git
 PTP4L_LICENSE = GPL2
 PTP4L_LICENSE_FILES = COPYING
