@@ -553,7 +553,7 @@
 		<entry>
 			<index>0</index>
 			<max_dynp>0x0</max_dynp>
-			<part_spc>[0x3B5 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ]</part_spc>
+			<part_spc>[929 0 0 0 0 0 0 0]</part_spc>
 		</entry>
 	</l2-forwarding-parameters-table>
 	<general-parameters-table>
@@ -574,8 +574,8 @@
 			<casc_port>0x6</casc_port>
 			<host_port>0x6</host_port>
 			<mirr_port>0x4</mirr_port>
-			<vimarker>0x0</vimarker>
-			<vimask>0x0</vimask>
+			<vlmarker>0x0</vlmarker>
+			<vlmask>0x0</vlmask>
 			<tpid>0x8100</tpid>
 			<ignore2stf>0x1</ignore2stf>
 			<tpid2>0x9100</tpid2>
