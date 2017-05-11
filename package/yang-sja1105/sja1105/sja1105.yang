@@ -22,6 +22,138 @@ module sja1105 {
 			}
 		}
 
+		container vl-lookup-table{
+			leaf name {
+				type string;
+				config false;
+				default "vl-lookup-table";
+			}
+
+			list entry {
+				key index;
+				leaf index {
+					type uint32;
+				}
+				leaf port {
+					type string;
+				}
+				leaf destports {
+					type string;
+				}
+				leaf iscritical {
+					type string;
+				}
+				leaf macaddr {
+					type string;
+				}
+				leaf vlanid {
+					type string;
+				}
+				leaf vlanprior {
+					type string;
+				}
+				leaf egrmirr {
+					type string;
+				}
+				leaf ingrmirr {
+					type string;
+				}
+				leaf vlld {
+					type string;
+				}
+			}
+		}
+		container vl-policing-table {
+			leaf name {
+				type string;
+				config false;
+				default "vl-policing-table";
+			}
+			list entry {
+				key index;
+				leaf index {
+					type uint32;
+				}
+				leaf type {
+					type string;
+				}
+				leaf maxlen {
+					type string;
+				}
+				leaf sharindx {
+					type string;
+				}
+				leaf bag {
+					type string;
+				}
+				leaf jitter {
+					type string;
+				}
+			}
+		}
+		container vl-forwarding-table {
+			leaf name {
+				type string;
+				config false;
+				default "vl-forwarding-table";
+			}
+			list entry {
+				key index;
+				leaf index {
+					type uint32;
+				}
+				leaf type {
+					type string;
+				}
+				leaf priority {
+					type string;
+				}
+				leaf partition {
+					type string;
+				}
+				leaf destports {
+					type string;
+				}
+			}
+		}
+		container vl-forwarding-params-table {
+			leaf name {
+				type string;
+				config false;
+				default "vl-forwarding-params-table";
+			}
+			list entry {
+				key index;
+				leaf index {
+					type uint32;
+				}
+				leaf partspc {
+					type string;
+				}
+				leaf debugen {
+					type string;
+				}
+			}
+		}
+		container avb-params-table {
+			leaf name {
+				type string;
+				config false;
+				default "avb-params-table";
+			}
+			list entry {
+				key index;
+				leaf index {
+					type uint32;
+				}
+				leaf destmeta {
+					type string;
+				}
+				leaf srcmeta {
+					type string;
+				}
+			}
+		}
 		container schedule-table{
 			leaf name {
 				type string;
@@ -430,10 +562,10 @@ module sja1105 {
 				leaf mirr_port {
 				  type string;
 				}
-				leaf vimarker {
+				leaf vlmarker {
 				  type string;
 				}
-				leaf vimask {
+				leaf vlmask {
 				  type string;
 				}
 				leaf tpid {
@@ -456,7 +588,10 @@ module sja1105 {
 			}
 
 			list entry{
-				key phy_mac;
+				key index;
+				leaf index {
+				  type uint32;
+				}
 				leaf phy_mac {
 				  type string;
 				}
