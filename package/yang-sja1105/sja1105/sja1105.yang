@@ -58,7 +58,7 @@ module sja1105 {
 				leaf ingrmirr {
 					type string;
 				}
-				leaf vlld {
+				leaf vlid {
 					type string;
 				}
 			}
