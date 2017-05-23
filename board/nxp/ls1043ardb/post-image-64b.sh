@@ -46,7 +46,7 @@ main()
 
 	# build the ppa firmware
 	make ppa-build
-	cp ${BUILD_DIR}/ppa-fsl-sdk-v2.0-1701/ppa/soc-ls1043/build/obj/ppa.itb output/images
+	cp ${BUILD_DIR}/ppa-fsl-sdk-v2.0-1703/ppa/soc-ls1043/build/obj/ppa.itb output/images
 
 	# obtain the fman-ucode image
 	tar zxf dl/fmucode-fsl-sdk-v2.0.tar.gz -C board/nxp/ls1043ardb/temp/
