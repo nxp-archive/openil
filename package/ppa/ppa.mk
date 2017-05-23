@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PPA_VERSION = fsl-sdk-v2.0-1701
+PPA_VERSION = fsl-sdk-v2.0-1703
 PPA_SITE = git://git.freescale.com/ppc/sdk/ppa-generic.git
 PPA_LICENSE = Freescale-EULA
 PPA_LICENSE_FILES = EULA
