@@ -48,5 +48,6 @@ image sdcard.img {
     in-partition-table = "no"
     image = "kernel-ls1012a-rdb-aarch32.itb"
     offset = 10M
+    size = 3G
   }
 }
