@@ -1,0 +1,44 @@
+Using "Modern" GnuPG
+====================
+
+As of version 2.1.11-7+exp1, the gnupg package is provided by the "modern"
+version of GnuPG.
+
+This means:
+
+  * supporting daemons are auto-launched as needed
+
+  * all access to secret key material is handled by gpg-agent
+
+  * all smartcard access is handled by scdaemon
+
+  * all network access is handled by dirmngr
+
+  * PGPv3 keys are no longer supported
+
+  * secret keys are no longer stored in $GNUPGHOME/secring.gpg, but
+    instead in $GNUPGHOME/private-keys-v1.d/
+
+  * public keyrings are stored in keybox format (~/.gnupg/pubring.kbx) by
+    default for new users.  Upgrading users will continue to use
+    pubring.gpg until they decide to explicitly convert.
+
+Converting an existing installation
+-----------------------------------
+
+If you have an existing GnuPG homedir from "classic" GnuPG, secret
+keys should be migrated automatically upon the first run of the
+"modern" version.
+
+If you have any secret keys that are stored only in a smartcard, after
+your first use of "modern" gpg you should insert the card and run:
+
+   gpg --card-status
+
+ (see https://bugs.debian.org/795881)
+
+Public keys will not be automatically migrated from pubring.gpg to
+pubring.kbx, however.  If you want to migrate your public keyring, you
+can use a script like /usr/bin/migrate-pubring-from-classic-gpg
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>, Mon, 18 Apr 2016 19:08:36 -0400

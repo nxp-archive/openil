@@ -1,0 +1,26 @@
+# On systems with systemd running, we expect the agent to be launched
+# via systemd's user mode (see /usr/lib/systemd/user/gpg-agent.service
+# and systemd.unit(5)).  This allows systemd to clean up the agent
+# automatically at logout.
+
+# If systemd is absent from your system, or you do not permit it to
+# run in user mode, then you may need to manually launch gpg-agent
+# from your session initialization with something like "gpgconf
+# --launch gpg-agent"
+
+# Nonetheless, ssh and older versions of gpg require environment
+# variables to be set in order to find the agent, so we will set those
+# here.
+
+# On Ubuntu all of below is done in the user systemd units
+if [ ! -d /run/user/$(id -u)/systemd ]
+then
+
+agent_sock=$(gpgconf --list-dirs | grep ^agent-socket: | cut -d: -f2)
+export GPG_AGENT_INFO=${agent_sock}:0:1
+if [ -n "$(gpgconf --list-options gpg-agent | \
+      awk -F: '/^enable-ssh-support:/{ print $10 }')" ]; then
+    export SSH_AUTH_SOCK=${agent_sock}.ssh
+fi
+
+fi

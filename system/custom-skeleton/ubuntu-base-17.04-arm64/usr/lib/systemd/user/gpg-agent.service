@@ -1,0 +1,28 @@
+[Unit]
+Description=GPG 1.x agent compatibility
+ConditionPathIsDirectory=%h/.gnupg
+Before=gnome-keyring-ssh.service ssh-agent.service
+
+[Service]
+Type=forking
+Environment=GNUPGHOME=%h/.gnupg
+
+ExecStartPre=/usr/bin/dbus-update-activation-environment --verbose --systemd GPG_AGENT_INFO=${GNUPGHOME}/S.gpg-agent:0:1:
+ExecStartPre=-/sbin/initctl set-env --global GPG_AGENT_INFO=${GNUPGHOME}/S.gpg-agent:0:1
+ExecStartPre=/bin/sh -ec '\
+    out=$$(gpgconf --list-options gpg-agent | awk -F: "/^enable-ssh-support:/{ print \\$$10 }"); \
+    if [ -n "$$out" ]; then \
+        dbus-update-activation-environment --verbose --systemd SSH_AUTH_SOCK=$$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh SSH_AGENT_LAUNCHER=gpg-agent; \
+        initctl set-env --global SSH_AUTH_SOCK=$$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh || true; \
+    fi'
+
+ExecStart=/usr/bin/gpgconf --launch gpg-agent
+
+ExecStop=/usr/bin/gpgconf --kill gpg-agent
+ExecStopPost=/usr/bin/dbus-update-activation-environment --verbose --systemd GPG_AGENT_INFO=
+ExecStopPost=-/sbin/initctl unset-env --global GPG_AGENT_INFO
+ExecStopPost=/bin/sh -ec '\
+    if [ "${SSH_AGENT_LAUNCHER}" = gpg-agent ]; then \
+        dbus-update-activation-environment --verbose --systemd SSH_AUTH_SOCK= SSH_AGENT_LAUNCHER=; \
+        initctl unset-env --global SSH_AUTH_SOCK || true; \
+    fi'

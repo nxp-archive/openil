@@ -1,0 +1,571 @@
+Package: firefox
+Description-md5: 46b619f510631c4693dc09c1a3778a55
+Description-en: Safe and easy web browser from Mozilla
+ Firefox delivers safe, easy web browsing. A familiar user interface,
+ enhanced security features including protection from online identity theft,
+ and integrated search let you get the most out of the web.
+
+Package: firefox-dbg
+Description-md5: 2937d9d7faa9d066b938045bc076f879
+Description-en: Safe and easy web browser from Mozilla - debug symbols
+ Firefox delivers safe, easy web browsing. A familiar user interface,
+ enhanced security features including protection from online identity theft,
+ and integrated search let you get the most out of the web.
+ .
+ This package contains the debugging symbols for the Firefox web
+ browser
+
+Package: firefox-dev
+Description-md5: e6b1c31ba86625fb8e5f17ebd7dfd6c8
+Description-en: Safe and easy web browser from Mozilla - development files
+ Firefox delivers safe, easy web browsing. A familiar user interface,
+ enhanced security features including protection from online identity theft,
+ and integrated search let you get the most out of the web.
+ .
+ This package contains the headers and SDK for building plugins with Firefox
+
+Package: firefox-locale-af
+Description-md5: 1f2d31c5ec337989fa73d4561a877f98
+Description-en: Afrikaans language pack for Firefox
+ This package contains Afrikaans translations and search plugins
+ for Firefox
+
+Package: firefox-locale-an
+Description-md5: 84dc3959cabfc22bb848244498e5653a
+Description-en: Aragonese language pack for Firefox
+ This package contains Aragonese translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ar
+Description-md5: a5123286dfa8a3ded7978c0ec00ec6f1
+Description-en: Arabic language pack for Firefox
+ This package contains Arabic translations and search plugins
+ for Firefox
+
+Package: firefox-locale-as
+Description-md5: 9c46a24962d3692dcff9f290ff8f2e5b
+Description-en: Assamese language pack for Firefox
+ This package contains Assamese translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ast
+Description-md5: f648bf0b51344fe4fc8b6419faaf903f
+Description-en: Asturian language pack for Firefox
+ This package contains Asturian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-az
+Description-md5: 43fa8dcddb7f4272224420d5f3548139
+Description-en: Azerbaijani language pack for Firefox
+ This package contains Azerbaijani translations and search plugins
+ for Firefox
+
+Package: firefox-locale-be
+Description-md5: bc79d90071e5d3639a93287638590a8e
+Description-en: Transitional package for unavailable language
+ This language is unavailable for the current version of Firefox
+ .
+ This is an empty transitional package to ensure a clean upgrade
+ process. You can safely remove this package after installation.
+
+Package: firefox-locale-bg
+Description-md5: a6418377c6a1864fbec5d0096027c80b
+Description-en: Bulgarian language pack for Firefox
+ This package contains Bulgarian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-bn
+Description-md5: cd17d1988001fce46f906d72ce3c6612
+Description-en: Bengali language pack for Firefox
+ This package contains Bengali translations and search plugins
+ for Firefox
+
+Package: firefox-locale-br
+Description-md5: 880da4a954cd5c32e28bc4be50b8dea2
+Description-en: Breton language pack for Firefox
+ This package contains Breton translations and search plugins
+ for Firefox
+
+Package: firefox-locale-bs
+Description-md5: 5ee279fa3b945b639bc360970fc44d88
+Description-en: Bosnian language pack for Firefox
+ This package contains Bosnian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ca
+Description-md5: d48166338c00f06f6c36f6214a5a0d8b
+Description-en: Catalan; Valencian language pack for Firefox
+ This package contains Catalan; Valencian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-cak
+Description-md5: b8ca2fd25cdee59588c8335dc03e4f07
+Description-en: Kaqchikel language pack for Firefox
+ This package contains Kaqchikel translations and search plugins
+ for Firefox
+
+Package: firefox-locale-cs
+Description-md5: 9b0b230a019634cdfd1b60f7fd46b813
+Description-en: Czech language pack for Firefox
+ This package contains Czech translations and search plugins
+ for Firefox
+
+Package: firefox-locale-csb
+Description-md5: bc79d90071e5d3639a93287638590a8e
+Description-en: Transitional package for unavailable language
+ This language is unavailable for the current version of Firefox
+ .
+ This is an empty transitional package to ensure a clean upgrade
+ process. You can safely remove this package after installation.
+
+Package: firefox-locale-cy
+Description-md5: 9f3df834aa7f35a8968d57963f462187
+Description-en: Welsh language pack for Firefox
+ This package contains Welsh translations and search plugins
+ for Firefox
+
+Package: firefox-locale-da
+Description-md5: 25350d542907c601644fdbaf48ce9060
+Description-en: Danish language pack for Firefox
+ This package contains Danish translations and search plugins
+ for Firefox
+
+Package: firefox-locale-de
+Description-md5: 97a5b441966c2394117490ceebbb8584
+Description-en: German language pack for Firefox
+ This package contains German translations and search plugins
+ for Firefox
+
+Package: firefox-locale-el
+Description-md5: f0378f5c3eae2c3f377fbc483e6581b0
+Description-en: Greek language pack for Firefox
+ This package contains Greek translations and search plugins
+ for Firefox
+
+Package: firefox-locale-en
+Description-md5: 59e7e034b5f9626737da9a2c21a3e6b4
+Description-en: English language pack for Firefox
+ This package contains English translations and search plugins
+ for Firefox
+
+Package: firefox-locale-eo
+Description-md5: 1b15bec1df3ef8869a632d474dfb2589
+Description-en: Esperanto language pack for Firefox
+ This package contains Esperanto translations and search plugins
+ for Firefox
+
+Package: firefox-locale-es
+Description-md5: 30083dcb82dfa2029aeabd0206ce0f4b
+Description-en: Spanish; Castilian language pack for Firefox
+ This package contains Spanish; Castilian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-et
+Description-md5: 334b47c1e5a384da36ae89623fec8e70
+Description-en: Estonian language pack for Firefox
+ This package contains Estonian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-eu
+Description-md5: af348a109ea600cac4199bf41ea027f2
+Description-en: Basque language pack for Firefox
+ This package contains Basque translations and search plugins
+ for Firefox
+
+Package: firefox-locale-fa
+Description-md5: 39c9ec90bfa422dbe322c5144c9719eb
+Description-en: Persian language pack for Firefox
+ This package contains Persian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-fi
+Description-md5: 845195bd76d02590d0c2a74ed1b5c5f2
+Description-en: Finnish language pack for Firefox
+ This package contains Finnish translations and search plugins
+ for Firefox
+
+Package: firefox-locale-fr
+Description-md5: 4b599250252777b1f0b2e86222826241
+Description-en: French language pack for Firefox
+ This package contains French translations and search plugins
+ for Firefox
+
+Package: firefox-locale-fy
+Description-md5: 73e0293d227dc25de2183bbda4ffb994
+Description-en: Western Frisian language pack for Firefox
+ This package contains Western Frisian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ga
+Description-md5: 3989bf0d690ce80122175c0328ae435d
+Description-en: Irish language pack for Firefox
+ This package contains Irish translations and search plugins
+ for Firefox
+
+Package: firefox-locale-gd
+Description-md5: f88ffac5fcd5341c9502358cb67b49f1
+Description-en: Gaelic; Scottish Gaelic language pack for Firefox
+ This package contains Gaelic; Scottish Gaelic translations and search plugins
+ for Firefox
+
+Package: firefox-locale-gl
+Description-md5: f411e16f3f4a2f154a90570e3ca52ef8
+Description-en: Galician language pack for Firefox
+ This package contains Galician translations and search plugins
+ for Firefox
+
+Package: firefox-locale-gn
+Description-md5: 778cd0d0c1cb677512d998134d223dc4
+Description-en: Guarani language pack for Firefox
+ This package contains Guarani translations and search plugins
+ for Firefox
+
+Package: firefox-locale-gu
+Description-md5: c646198c5d0155da51530f8b2225818b
+Description-en: Gujarati language pack for Firefox
+ This package contains Gujarati translations and search plugins
+ for Firefox
+
+Package: firefox-locale-he
+Description-md5: 8d33d6616f2426b1fe3287417f0d7949
+Description-en: Hebrew language pack for Firefox
+ This package contains Hebrew translations and search plugins
+ for Firefox
+
+Package: firefox-locale-hi
+Description-md5: 29f96336756fa58ec44eefd686bd6e85
+Description-en: Hindi language pack for Firefox
+ This package contains Hindi translations and search plugins
+ for Firefox
+
+Package: firefox-locale-hr
+Description-md5: 4138741435206cca66b4c3941d2b6e82
+Description-en: Croatian language pack for Firefox
+ This package contains Croatian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-hsb
+Description-md5: 0eb6ed804f0de00384a7def562d6544b
+Description-en: Sorbian, Upper language pack for Firefox
+ This package contains Sorbian, Upper translations and search plugins
+ for Firefox
+
+Package: firefox-locale-hu
+Description-md5: 7587d24fac9230de0dab2a74b1b3c298
+Description-en: Hungarian language pack for Firefox
+ This package contains Hungarian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-hy
+Description-md5: 2278344f15e1efe17aecd1af5a2be846
+Description-en: Armenian language pack for Firefox
+ This package contains Armenian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-id
+Description-md5: 568a225a428289bfedbfee77f12ef445
+Description-en: Indonesian language pack for Firefox
+ This package contains Indonesian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-is
+Description-md5: 3a574633745f9b6d97f07f1c738599a3
+Description-en: Icelandic language pack for Firefox
+ This package contains Icelandic translations and search plugins
+ for Firefox
+
+Package: firefox-locale-it
+Description-md5: 67e195ac5003115f8cafa0ec0b0ec849
+Description-en: Italian language pack for Firefox
+ This package contains Italian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ja
+Description-md5: aa0b0e800989cac3ce480ef7507c17d5
+Description-en: Japanese language pack for Firefox
+ This package contains Japanese translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ka
+Description-md5: 7943b0997c58e1187648de81c841bd0a
+Description-en: Georgian language pack for Firefox
+ This package contains Georgian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-kab
+Description-md5: 19f7669d9e291fce20d8f1758c87846c
+Description-en: Kabyle language pack for Firefox
+ This package contains Kabyle translations and search plugins
+ for Firefox
+
+Package: firefox-locale-kk
+Description-md5: 98ad9668e81080f67619b3468ea616a9
+Description-en: Kazakh language pack for Firefox
+ This package contains Kazakh translations and search plugins
+ for Firefox
+
+Package: firefox-locale-km
+Description-md5: 5244e85b69105bab39ff55a3e06c2079
+Description-en: Central Khmer language pack for Firefox
+ This package contains Central Khmer translations and search plugins
+ for Firefox
+
+Package: firefox-locale-kn
+Description-md5: 609de6cf2cadf99b292a639def3e15db
+Description-en: Kannada language pack for Firefox
+ This package contains Kannada translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ko
+Description-md5: 7477cc3b85c1cc2886c7438ffec39b8d
+Description-en: Korean language pack for Firefox
+ This package contains Korean translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ku
+Description-md5: bc79d90071e5d3639a93287638590a8e
+Description-en: Transitional package for unavailable language
+ This language is unavailable for the current version of Firefox
+ .
+ This is an empty transitional package to ensure a clean upgrade
+ process. You can safely remove this package after installation.
+
+Package: firefox-locale-lg
+Description-md5: bc79d90071e5d3639a93287638590a8e
+Description-en: Transitional package for unavailable language
+ This language is unavailable for the current version of Firefox
+ .
+ This is an empty transitional package to ensure a clean upgrade
+ process. You can safely remove this package after installation.
+
+Package: firefox-locale-lt
+Description-md5: 519f3c51c7a90ee972069b44a1acef4e
+Description-en: Lithuanian language pack for Firefox
+ This package contains Lithuanian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-lv
+Description-md5: 355c458949586e8977646d1ce6c5096d
+Description-en: Latvian language pack for Firefox
+ This package contains Latvian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-mai
+Description-md5: 9fd42103512e10b616b758b3e6da26f7
+Description-en: Maithili language pack for Firefox
+ This package contains Maithili translations and search plugins
+ for Firefox
+
+Package: firefox-locale-mk
+Description-md5: 0731fc46c1b1fae2ba6f6b1105017640
+Description-en: Macedonian language pack for Firefox
+ This package contains Macedonian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ml
+Description-md5: 90093d1da853cba1ef56fb07a5d3ccff
+Description-en: Malayalam language pack for Firefox
+ This package contains Malayalam translations and search plugins
+ for Firefox
+
+Package: firefox-locale-mn
+Description-md5: bc79d90071e5d3639a93287638590a8e
+Description-en: Transitional package for unavailable language
+ This language is unavailable for the current version of Firefox
+ .
+ This is an empty transitional package to ensure a clean upgrade
+ process. You can safely remove this package after installation.
+
+Package: firefox-locale-mr
+Description-md5: b7ac24ce2d3f6d087e9a9bbf9c956d6a
+Description-en: Marathi language pack for Firefox
+ This package contains Marathi translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ms
+Description-md5: 6ffd385f99315a9c4002cee865bb8368
+Description-en: Malay language pack for Firefox
+ This package contains Malay translations and search plugins
+ for Firefox
+
+Package: firefox-locale-nb
+Description-md5: 8a05e67a1c0fa64d86a13ead1dbd4981
+Description-en: Bokmål, Norwegian; Norwegian Bokmål language pack for Firefox
+ This package contains Bokmål, Norwegian; Norwegian Bokmål translations and search plugins
+ for Firefox
+
+Package: firefox-locale-nl
+Description-md5: c8c7d0f350530c7041fcfc71d8f297a2
+Description-en: Dutch; Flemish language pack for Firefox
+ This package contains Dutch; Flemish translations and search plugins
+ for Firefox
+
+Package: firefox-locale-nn
+Description-md5: a2434677506d5d2ae1b6f340d5e3b2ee
+Description-en: Norwegian Nynorsk; Nynorsk, Norwegian language pack for Firefox
+ This package contains Norwegian Nynorsk; Nynorsk, Norwegian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-nso
+Description-md5: bc79d90071e5d3639a93287638590a8e
+Description-en: Transitional package for unavailable language
+ This language is unavailable for the current version of Firefox
+ .
+ This is an empty transitional package to ensure a clean upgrade
+ process. You can safely remove this package after installation.
+
+Package: firefox-locale-oc
+Description-md5: bc79d90071e5d3639a93287638590a8e
+Description-en: Transitional package for unavailable language
+ This language is unavailable for the current version of Firefox
+ .
+ This is an empty transitional package to ensure a clean upgrade
+ process. You can safely remove this package after installation.
+
+Package: firefox-locale-or
+Description-md5: 5135d4190ce2532be58c91c5fd3f319b
+Description-en: Oriya language pack for Firefox
+ This package contains Oriya translations and search plugins
+ for Firefox
+
+Package: firefox-locale-pa
+Description-md5: 3bfbd21e289c4d4ef3e9bd89d92a048f
+Description-en: Panjabi; Punjabi language pack for Firefox
+ This package contains Panjabi; Punjabi translations and search plugins
+ for Firefox
+
+Package: firefox-locale-pl
+Description-md5: ffd73141d32fab7a8990d3663208d5ae
+Description-en: Polish language pack for Firefox
+ This package contains Polish translations and search plugins
+ for Firefox
+
+Package: firefox-locale-pt
+Description-md5: ba400e83844c93550cd9bbb88c3f610f
+Description-en: Portuguese language pack for Firefox
+ This package contains Portuguese translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ro
+Description-md5: bfe768497923b95b007c38b40a8b5c77
+Description-en: Romanian language pack for Firefox
+ This package contains Romanian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-ru
+Description-md5: b936b6c575ae73b427a148a37de4ebd1
+Description-en: Russian language pack for Firefox
+ This package contains Russian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-si
+Description-md5: d336ad9f3d64d9c8b369c2627a15f388
+Description-en: Sinhala; Sinhalese language pack for Firefox
+ This package contains Sinhala; Sinhalese translations and search plugins
+ for Firefox
+
+Package: firefox-locale-sk
+Description-md5: 66f1264b5485237c1ea88079ced9a6a4
+Description-en: Slovak language pack for Firefox
+ This package contains Slovak translations and search plugins
+ for Firefox
+
+Package: firefox-locale-sl
+Description-md5: 6fe2fc03696fbf18b2bf180914ee1eb3
+Description-en: Slovenian language pack for Firefox
+ This package contains Slovenian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-sq
+Description-md5: 6c9c10ead9f18734cd4a77e1c53deb4a
+Description-en: Albanian language pack for Firefox
+ This package contains Albanian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-sr
+Description-md5: 8d2109908f20a4405f139a82593c158f
+Description-en: Serbian language pack for Firefox
+ This package contains Serbian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-sv
+Description-md5: 2ea193ea12432f41b53f83a470b59148
+Description-en: Swedish language pack for Firefox
+ This package contains Swedish translations and search plugins
+ for Firefox
+
+Package: firefox-locale-sw
+Description-md5: bc79d90071e5d3639a93287638590a8e
+Description-en: Transitional package for unavailable language
+ This language is unavailable for the current version of Firefox
+ .
+ This is an empty transitional package to ensure a clean upgrade
+ process. You can safely remove this package after installation.
+
+Package: firefox-locale-ta
+Description-md5: 6ccedad7af96901a91334720c56bd490
+Description-en: Tamil language pack for Firefox
+ This package contains Tamil translations and search plugins
+ for Firefox
+
+Package: firefox-locale-te
+Description-md5: d66752b03661f62d700263ab82e868e7
+Description-en: Telugu language pack for Firefox
+ This package contains Telugu translations and search plugins
+ for Firefox
+
+Package: firefox-locale-th
+Description-md5: cc27bcd11daedf111f9aab87632f7263
+Description-en: Thai language pack for Firefox
+ This package contains Thai translations and search plugins
+ for Firefox
+
+Package: firefox-locale-tr
+Description-md5: 3c205697910b54cdfc483ed64de82490
+Description-en: Turkish language pack for Firefox
+ This package contains Turkish translations and search plugins
+ for Firefox
+
+Package: firefox-locale-uk
+Description-md5: ba467b5c78e88b367e14f3ac484d3816
+Description-en: Ukrainian language pack for Firefox
+ This package contains Ukrainian translations and search plugins
+ for Firefox
+
+Package: firefox-locale-uz
+Description-md5: ead82ba3c22d7f3a256c2faea30be3e6
+Description-en: Uzbek language pack for Firefox
+ This package contains Uzbek translations and search plugins
+ for Firefox
+
+Package: firefox-locale-vi
+Description-md5: e187907de9840d733e0c8a14eafc65ef
+Description-en: Vietnamese language pack for Firefox
+ This package contains Vietnamese translations and search plugins
+ for Firefox
+
+Package: firefox-locale-xh
+Description-md5: e188707f31d9656051e8d08cd25f43fa
+Description-en: Xhosa language pack for Firefox
+ This package contains Xhosa translations and search plugins
+ for Firefox
+
+Package: firefox-locale-zh-hans
+Description-md5: 3e3ba5b1c9c87d325f38630cc1f5f593
+Description-en: Simplified Chinese language pack for Firefox
+ This package contains Simplified Chinese translations and search plugins
+ for Firefox
+
+Package: firefox-locale-zh-hant
+Description-md5: 344951ca63511f11ceb711b1ac9aa10f
+Description-en: Traditional Chinese language pack for Firefox
+ This package contains Traditional Chinese translations and search plugins
+ for Firefox
+
+Package: firefox-locale-zu
+Description-md5: bc79d90071e5d3639a93287638590a8e
+Description-en: Transitional package for unavailable language
+ This language is unavailable for the current version of Firefox
+ .
+ This is an empty transitional package to ensure a clean upgrade
+ process. You can safely remove this package after installation.

@@ -1,0 +1,48 @@
+gpg-agent system integration
+============================
+
+Since 2.1.x, gpg and most related processes will auto-launch gpg-agent
+if needed.  These auto-launched processes will inherit whatever
+environment they started from, and they will not terminate
+automatically.
+
+systemd
+=======
+
+Users on machines with systemd can ensure that gpg-agent is always
+running for their session, and that it gets terminated safely at
+logout by doing:
+
+   systemctl --user enable gpg-agent
+
+If you do this from the middle of a running session, you probably also
+want to clean up any other running gpg-agent, and ensure that the
+service is started for the current session as well:
+
+   gpgconf --kill gpg-agent
+   systemctl --user start gpg-agent
+
+Manual gpg-agent startup
+========================
+
+Any user who wants to launch gpg-agent manually (e.g., to talk to it
+with a tool from outside the GnuPG suite) should do so with:
+
+   gpgconf --launch gpg-agent
+
+You may wish to add this to your session login scripts if you're not
+using systemd.
+
+gpg-agent teardown
+==================
+
+If gpg-agent is launched manually or automatically (but not supervised
+by systemd), you probably want to ensure that it terminates when your
+session ends with:
+
+   gpgconf --kill gpg-agent
+
+You may wish to add this to your session logout scripts if you're not
+using systemd.
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>, Wed, 29 Jun 2016 13:40:35 -0400

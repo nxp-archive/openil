@@ -1,0 +1,12 @@
+[Unit]
+Description=Message of the Day
+
+[Timer]
+OnUnitActiveSec=12h
+RandomizedDelaySec=1h
+AccuracySec=10min
+Persistent=true
+OnStartupSec=1min
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,7 @@
+#! /bin/sh
+
+set -e
+
+if [ "$1" = remove ]; then
+	update-alternatives --quiet --remove pinentry /usr/bin/pinentry-curses
+fi

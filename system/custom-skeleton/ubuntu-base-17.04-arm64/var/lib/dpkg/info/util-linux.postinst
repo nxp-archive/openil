@@ -1,0 +1,43 @@
+#!/bin/sh
+set -e
+
+update-alternatives --install /usr/bin/pager pager /bin/more 50 \
+	--slave /usr/share/man/man1/pager.1.gz pager.1.gz \
+	/usr/share/man/man1/more.1.gz
+update-alternatives --install /usr/bin/pager pager /usr/bin/pg 10 \
+	--slave /usr/share/man/man1/pager.1.gz pager.1.gz \
+	/usr/share/man/man1/pg.1.gz
+
+# hwclock works on all Linux architectures, except s390 (and s390x, of course).
+if [ "$(uname -s)" = "Linux" ]; then
+	model=$(uname -m)
+	if [ ${model%x} != "s390" ]; then
+		# work around that initscripts package might still be
+		# in "unpacked" (not yet configured) state and insserv
+		# will fail on hwclock.sh if Required scripts are not
+		# processed yet. See http://bugs.debian.org/823665
+		# (We can't add initscripts dependency to util-linux because
+		# that would introduce a dependency cycle via
+		# sysvinit-utils<->initscripts<->util-linux
+		# because of Depends/Breaks relations. Ideally the hwclock.sh
+		# scripts should just be moved over to initscripts pkg, but
+		# moving conffiles between packages is problematic.)
+		if dpkg-query -W --showformat '${Status}\n' initscripts | grep -q unpacked ; then
+			if [ -x /etc/init.d/mountkernfs.sh ]; then
+				update-rc.d mountkernfs.sh         defaults >/dev/null || exit $?
+			fi
+			if [ -x /etc/init.d/mountdevsubfs.sh ]; then
+				update-rc.d mountdevsubfs.sh       defaults >/dev/null || exit $?
+			fi
+		fi
+
+		update-rc.d -f hwclock.sh remove >/dev/null 2>&1 || true
+		update-rc.d hwclock.sh defaults > /dev/null
+	fi
+fi
+
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init/hwclock-save.conf 2.28.1-1ubuntu1\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/init/hwclock.conf 2.28.1-1ubuntu1\~ -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/init/hwclock.sh.conf 2.28.1-1ubuntu1\~ -- "$@"
+# End automatically added section

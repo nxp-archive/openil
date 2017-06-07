@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = 'remove' -a -L '/usr/bin/touch' ]; then
+  rm /usr/bin/touch
+fi

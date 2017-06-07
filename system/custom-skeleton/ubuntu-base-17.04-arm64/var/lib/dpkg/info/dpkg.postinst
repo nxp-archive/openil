@@ -1,0 +1,91 @@
+#!/bin/sh
+# This script can be called in the following ways:
+#
+# After the package was installed:
+#	<postinst> configure <old-version>
+#
+# After the package was triggered:
+#	<postinst> triggered <trigger-name>…
+#
+#
+# If prerm fails during upgrade or fails on failed upgrade:
+#	<old-postinst> abort-upgrade <new-version>
+#
+# If prerm fails during removal:
+#	<old-postinst> abort-remove
+#
+# If prerm fails during deconfiguration of a package:
+#	<postinst> abort-deconfigure in-favour <new-package> <version>
+#		   removing <old-package> <version>
+#
+# If prerm fails during replacement due to conflict:
+#	<postinst> abort-remove in-favour <new-package> <version>
+
+set -e
+
+# Create the database files if they don't already exist
+create_database() {
+    admindir=${DPKG_ADMINDIR:-/var/lib/dpkg}
+
+    for file in diversions statoverride status; do
+	if [ ! -f "$admindir/$file" ]; then
+	    touch "$admindir/$file"
+	fi
+    done
+}
+
+
+# Move the info directory from /usr/info to /usr/share/info
+move_info_directory() {
+    if [ -d /usr/info ] && [ ! -L /usr/info ] \
+	&& [ -f /usr/info/dir ] && [ ! -L /usr/info/dir ]
+    then
+	echo "Moving /usr/info/dir to /usr/share/info/dir ..."
+	mv /usr/info/dir /usr/share/info/dir
+	if [ -f /usr/info/dir.old ]; then
+	    mv /usr/info/dir.old /usr/share/info/dir.old
+	fi
+    fi
+}
+
+
+# Remove the /usr/info symlinks we used to generate
+remove_info_symlink() {
+    if [ -L /usr/info ]; then
+	echo "Removing /usr/info symlink ..."
+	rm /usr/info
+    elif [ -L /usr/info/dir ]; then
+	echo "Removing /usr/info/dir symlink ..."
+	rm /usr/info/dir
+    fi
+}
+
+# Create log file and set default permissions if possible
+create_logfile() {
+    logfile=/var/log/dpkg.log
+    touch $logfile
+    chmod 644 $logfile
+    chown root:root $logfile 2>/dev/null || chown 0:0 $logfile
+}
+
+
+case "$1" in
+    configure)
+	create_database
+	create_logfile
+
+	move_info_directory
+	remove_info_symlink
+	;;
+
+    abort-upgrade|abort-deconfigure|abort-remove)
+	;;
+
+    *)
+	echo "$0 called with unknown argument '$1'" 1>&2
+	exit 1
+	;;
+esac
+
+
+exit 0

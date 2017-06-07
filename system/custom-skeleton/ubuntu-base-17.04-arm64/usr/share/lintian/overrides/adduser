@@ -1,0 +1,3 @@
+adduser: maintainer-script-needs-depends-on-adduser postinst
+adduser: maintainer-script-needs-depends-on-adduser postrm
+adduser: maintainer-script-needs-depends-on-adduser config

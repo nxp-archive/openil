@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/update-motd.d/50-news 9.6ubuntu11~ -- "$@"
+# End automatically added section
+# Automatically added by dh_systemd_start
+if [ -d /run/systemd/system ]; then
+	deb-systemd-invoke stop motd-news.service >/dev/null
+fi
+# End automatically added section
+# Automatically added by dh_systemd_start
+if [ -d /run/systemd/system ]; then
+	deb-systemd-invoke stop motd-news.timer >/dev/null
+fi
+# End automatically added section

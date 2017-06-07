@@ -1,0 +1,51 @@
+PIN entry for Debian
+--------------------
+
+This package and its sibling packages are intended to be used as a
+pass-phrase entry dialog for the program gpg-agent (Debian package
+gnupg-agent).  To configure gpg-agent to use one of the provided
+pinentry programs, put something like this into your
+~/.gnupg/gpg-agent.conf:
+
+    pinentry-program /usr/bin/pinentry-FLAVOR
+
+You have the following pinentry variants to choose from:
+
+/usr/bin/pinentry
+    Generic name that points, via the Debian alternatives system, to
+    the "best" installed PIN entry program.  gpg-agent uses this by
+    default.
+
+/usr/bin/pinentry-x11
+    Generic name that points, via the Debian alternatives system, to
+    the "best" installed PIN entry program with X11 support (that is,
+    one of the GTK+ or Qt flavors).
+
+/usr/bin/pinentry-curses
+    Text-mode PIN entry program that uses the curses tool kit (package
+    pinentry-curses).
+
+/usr/bin/pinentry-gtk-2
+    Graphical PIN entry program that uses the GTK+ tool kit version 2
+    (package pinentry-gtk2).
+
+/usr/bin/pinentry-qt4
+    Graphical PIN entry program that uses the Qt tool kit version 4
+    (package pinentry-qt4).
+
+The programs pinentry-gtk-2 and pinentry-qt4 automatically fall back
+to the curses interface if no X Window System is available.  So for
+example, if you frequently switch between text mode and KDE, and you
+want to use both Mutt and KMail with GnuPG pass-phrase agent support,
+then configuring /usr/bin/pinentry-qt4 would work.  (In this case,
+leaving it at /usr/bin/pinentry would also work, since pinentry-qt4 is
+the preferred alternative overall, but if you prefer to use, say,
+pinentry-gtk-2, then you need to set it up explicitly (or manually
+alter the alternatives system; the possibilities abound).)
+
+Note that for the complete system to work, you also need to configure
+GnuPG to use the gpg-agent to get the pass phrases, and you need to
+configure your e-mail client to use GnuPG.  These issues are not
+covered here.
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>, Sun, 12 Apr 2015 18:41:18 -0400

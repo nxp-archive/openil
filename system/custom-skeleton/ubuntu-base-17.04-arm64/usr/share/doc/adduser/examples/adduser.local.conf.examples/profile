@@ -1,0 +1,31 @@
+#########################################################################
+#        /etc/profile: System-wide initialisation file for bash         #
+#########################################################################
+
+# This script file is executed by bash(1) for login shells.  By default,
+# it executes /etc/bash.bashrc and ~/.bashrc, as well as performing login-
+# only functions.
+#
+# [JNZ] Modified 23-Sep-2004
+#
+# Written by John Zaitseff and released into the public domain.
+
+if [ -r /etc/bash.bashrc ]; then . /etc/bash.bashrc; fi
+if [ -r $HOME/.bashrc ];    then . $HOME/.bashrc;    fi
+
+# Display a verse from the Bible using verse(1)
+
+if [ ! -f $HOME/.hushlogin -a ! -f $HOME/.hushverse ]; then
+    if [ $(type -p verse) ]; then
+        echo
+        verse
+    fi
+fi
+
+# Turn on talk(1) messages, unless the user does not want this
+
+if [ ! -f $HOME/.hushlogin -a ! -f $HOME/.hushtalk ]; then
+    mesg y
+fi
+
+echo
