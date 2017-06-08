@@ -13,7 +13,7 @@ image boot.vfat {
       %FILES%
     }
   }
-  size = 32M
+  size = 50M
 }
 
 image sdcard.img {
@@ -46,8 +46,7 @@ image sdcard.img {
 
   partition boot {
     in-partition-table = "no"
-    image = "kernel-ls1012a-rdb-aarch32.itb"
+    image = "kernel-ls1012a-rdb.itb"
     offset = 10M
-    size = 3G
   }
 }
