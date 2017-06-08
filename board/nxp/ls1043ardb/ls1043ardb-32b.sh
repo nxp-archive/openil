@@ -18,7 +18,7 @@ cp ${2}/tools/mkimage board/nxp/ls1043ardb/temp/
 # Copy the uboot mkimage to output/host/usr/bin for the PPA building
 cp ${2}/tools/mkimage output/host/usr/bin
 make ppa-build
-cp ${BUILD_DIR}/ppa-fsl-sdk-v2.0-1701/ppa/soc-ls1043/build/obj/ppa.itb board/nxp/ls1043ardb/temp/
+cp ${BUILD_DIR}/ppa-fsl-sdk-v2.0-1703/ppa/soc-ls1043/build/obj/ppa.itb board/nxp/ls1043ardb/temp/
 
 make clean
 rm .config
