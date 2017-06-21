@@ -24,6 +24,12 @@ main()
 	make ppa-build
 	cp ${BUILD_DIR}/ppa-fsl-sdk-v2.0-1703/ppa/soc-ls1046/build/obj/ppa.itb output/images
 
+	# workaround for ls1046ardb 64bit kernel hang after loading PPA,
+	# just give a error PPA image so the uboot cannot load it.
+	mv output/images/ppa.itb output/images/ppa.itb.real
+	touch output/images/ppa.itb
+	echo "This is a fake ppa.itb" > output/images/ppa.itb
+
 	# obtain the fman-ucode image
 	tar zxf dl/fmucode-fsl-sdk-v2.0.tar.gz -C board/nxp/ls1046ardb/temp/
 	cp board/nxp/ls1046ardb/temp/fmucode-fsl-sdk-v2.0/fsl_fman_ucode_ls1043_r1.0_108_4_5.bin output/images
