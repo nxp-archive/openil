@@ -78,6 +78,9 @@ BR2_PACKAGE_XENOMAI_TESTSUITE=y
 # ptp4l package
 BR2_PACKAGE_PTP4L=y
 
+# dhcpd package
+BR2_PACKAGE_DHCPCD=y
+
 # Add for NETCONF apps
 BR2_ROOTFS_OVERLAY="board/nxp/ls1021atsn/rootfs_overlay"
 BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
