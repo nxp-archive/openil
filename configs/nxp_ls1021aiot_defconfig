@@ -96,3 +96,6 @@ BR2_PACKAGE_LIBCGROUP=y
 
 # ca-certs packages
 BR2_PACKAGE_CA_CERTIFICATES=y
+
+# dhcpd package
+BR2_PACKAGE_DHCPCD=y
