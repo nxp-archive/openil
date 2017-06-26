@@ -1,0 +1,11 @@
+[Unit]
+Description=DHCP client daemon
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/sbin/dhcpcd
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
