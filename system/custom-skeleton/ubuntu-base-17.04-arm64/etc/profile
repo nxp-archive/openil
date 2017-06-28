@@ -25,3 +25,5 @@ if [ -d /etc/profile.d ]; then
   done
   unset i
 fi
+
+resize2fs /dev/mmcblk0p2
