@@ -1,0 +1,54 @@
+#! /bin/bash
+# Script from Frans Pop
+
+set -e
+
+if [ -z "$1" ]; then
+	echo "Usage: insserv-seq-changes /var/lib/insserv/<old bootscripts tarball>"
+	exit 1
+fi
+
+oldtar="$(tar tzf $1)"
+for i in S $(seq 0 6); do
+	echo "Runlevel $i"
+	new="$(cd /etc/rc$i.d; ls -1 [KS]* | sort | nl)"
+	old="$(echo "$oldtar" | grep "^rc$i.d/[KS]" | cut -d/ -f2 | sort | nl)"
+	case $i in
+	    S|0|6)
+		old="$(echo "$old" | sed -r "s/[KS][0-9]+//")"
+		new="$(echo "$new" | sed -r "s/[KS][0-9]+//")"
+		;;
+	    *)
+		old="$(echo "$old" | sed -r "s/([KS])[0-9]+/\1_/")"
+		new="$(echo "$new" | sed -r "s/([KS])[0-9]+/\1_/")"
+		;;
+	esac
+	echo "$new" | while read num cmd; do
+		oldnum=$(echo "$old" | grep "[[:space:]]$cmd$" | awk '{print $1}')
+		if [ "$oldnum" ]; then
+			diff=$(($num - $oldnum))
+		else
+			oldnum="---"
+			diff=""
+		fi
+		if [ ${#cmd} -ge 16 ]; then
+			echo -e "$cmd\t$num\t$oldnum\t$diff"
+		elif [ ${#cmd} -ge 8 ]; then
+			echo -e "$cmd\t\t$num\t$oldnum\t$diff"
+		else
+			echo -e "$cmd\t\t\t$num\t$oldnum\t$diff"
+		fi
+	done
+	echo "$old"  | while read num cmd; do
+		if ! echo "$new" | grep -q "[[:space:]]$cmd$"; then
+			if [ ${#cmd} -ge 16 ]; then
+				echo -e "$cmd\t---\t$oldnum"
+			elif [ ${#cmd} -ge 8 ]; then
+				echo -e "$cmd\t\t---\t$oldnum"
+			else
+				echo -e "$cmd\t\t\t---\t$oldnum"
+			fi
+		fi
+	done
+	echo
+done

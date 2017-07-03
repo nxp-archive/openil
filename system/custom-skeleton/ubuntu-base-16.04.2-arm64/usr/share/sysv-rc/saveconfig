@@ -1,0 +1,94 @@
+#! /usr/bin/perl
+#
+# saveconfig
+#
+# Print out the configuration of the current /etc/rc?.d
+# symlink setup, in a format compatible to the
+# "update-rc.d" command line.
+#
+# Author: Miquel van Smoorenburg <miquels@cistron.nl>
+# Adjusted by Petter Reinholdtsen
+#
+
+sub usage {
+    print STDERR "error: ", @_, "\n" if @_;
+    print STDERR <<EOF;
+saveconfig [-h] [-s <archivedir>]
+  -s  save each scripts setting in directory <archivedir>
+  -h  show usage inforation
+EOF
+}
+
+my $archivedir = "";
+
+while($#ARGV >= 0 && ($_ = $ARGV[0]) =~ /^-/) {
+        shift @ARGV;
+        if (/^-s$/) { $archivedir = shift; usage("Missing -s argument"), exit 1 unless $archivedir; next }
+        if (/^-h|--help$/) { &usage; }
+        &usage("unknown option");
+}
+
+chdir "/etc/init.d";
+
+sub scan {
+	my $dir = shift;
+	local *DD;
+	my $f;
+	opendir DD, $dir;
+	foreach $f (readdir DD) {
+		next if ($f =~ m/^\./);
+		push @{$dir{$dir}}, $f;
+	}
+	closedir DD;
+}
+
+foreach my $d (qw(S 0 1 2 3 4 5 6 7 8 9)) {
+	scan("/etc/rc$d.d");
+}
+scan("/etc/init.d");
+
+foreach my $s (@{$dir{"/etc/init.d"}}) {
+	my %start;
+	my %stop;
+	my $start = 0;
+	my $stop = 0;
+	foreach my $l (qw(S 0 1 2 3 4 5 6)) {
+		#print "L: $l\n";
+		foreach my $f (@{$dir{"/etc/rc$l.d"}}) {
+			#print "F: $f\n";
+			if ($f =~ m#^S(\d+)$s$#) {
+				$start{$1} .= "$l ";
+				$start = 1;
+			}
+			if ($f =~ m#^K(\d+)$s$#) {
+				$stop{$1} .= "$l ";
+				$stop = 1;
+			}
+		}
+	}
+        my $entry;
+        if ($start || $stop) {
+		$entry = "update-rc.d $s ";
+		if ($start > 0) {
+			foreach my $x (sort keys %start) {
+				$entry .= "start $x " . $start{$x} . ". ";
+			}
+		}
+		if ($stop > 0) {
+			foreach my $x (sort keys %stop) {
+				$entry .= "stop $x " . $stop{$x} . ". ";
+			}
+		}
+		$entry .= "\n";
+		if ($archivedir) {
+			my $file = "$archivedir/$s";
+			open(FILE, ">", "${file}.new") ||
+				die "Unable to write to $file";
+			print FILE $entry;
+			close(FILE);
+			rename "${file}.new", "$file";
+		} else {
+			print $entry;
+		}
+	}
+}

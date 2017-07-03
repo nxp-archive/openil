@@ -1,0 +1,94 @@
+comment_char %
+escape_char  /
+%
+% German locale for Liechtenstein
+% Language: de
+% Territory: LI
+% Revision: 1.0
+% Date: 2007-11-27
+% Users: general
+% Repertoiremap: mnemonic.ds
+% Charset: ISO-8859-1
+% Distribution and use is free, also
+% for commercial purposes.
+
+LC_IDENTIFICATION
+title      "German locale for Liechtenstein"
+source     ""
+address    ""
+contact    ""
+email      "bug-glibc-locales@gnu.org"
+tel        ""
+fax        ""
+language   "German"
+territory  "Liechtenstein"
+revision   "1.0"
+date       "2007-11-27"
+%
+category  "de_LI:2000";LC_IDENTIFICATION
+category  "de_LI:2000";LC_CTYPE
+category  "de_LI:2000";LC_COLLATE
+category  "de_LI:2000";LC_TIME
+category  "de_LI:2000";LC_NUMERIC
+category  "de_LI:2000";LC_MONETARY
+category  "de_LI:2000";LC_MESSAGES
+category  "de_LI:2000";LC_PAPER
+category  "de_LI:2000";LC_NAME
+category  "de_LI:2000";LC_ADDRESS
+category  "de_LI:2000";LC_TELEPHONE
+
+END LC_IDENTIFICATION
+
+LC_CTYPE
+copy "de_CH"
+END LC_CTYPE
+
+LC_COLLATE
+copy "de_CH"
+END LC_COLLATE
+
+LC_MESSAGES
+copy "de_CH"
+END LC_MESSAGES
+
+LC_MONETARY
+copy  "de_CH"
+END LC_MONETARY
+
+LC_NUMERIC
+copy  "de_CH"
+END LC_NUMERIC
+
+LC_TIME
+copy  "de_CH"
+END LC_TIME
+
+LC_PAPER
+copy  "de_CH"
+END LC_PAPER
+
+LC_TELEPHONE
+tel_int_fmt    "<U002B><U0025><U0063><U0020><U0025><U0061><U0020><U0025>/
+<U006C>"
+int_prefix     "<U0034><U0032><U0033>"
+END LC_TELEPHONE
+
+LC_MEASUREMENT
+copy  "de_CH"
+END LC_MEASUREMENT
+
+LC_NAME
+copy  "de_CH"
+END LC_NAME
+
+LC_ADDRESS
+postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
+<U0025><U0064><U0025><U004E><U0025><U0062><U0025><U004E><U0025><U0073>/
+<U0020><U0025><U0068><U0020><U0025><U0065><U0020><U0025><U0072><U0025>/
+<U004E><U0025><U0025><U007A><U0020><U0025><U0054><U0025>/
+<U004E><U0025><U0063><U0025><U004E>"
+country_ab2 "<U004C><U0049>"
+country_ab3 "<U004C><U0049><U0045>"
+country_num 438
+END LC_ADDRESS
+

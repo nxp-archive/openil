@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+# copied from /usr/share/debhelper/autoscripts/prerm-python for now
+dpkg -L debconf |
+	awk '$0~/\.py$/ {print $0"c\n" $0"o"}' |
+	xargs rm -f >&2
+
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/bash_completion.d/debconf 1.5.58~ -- "$@"
+# End automatically added section
+
+# Automatically added by dh_python2:
+if which pyclean >/dev/null 2>&1; then
+	pyclean -p debconf 
+else
+	dpkg -L debconf | grep \.py$ | while read file
+	do
+		rm -f "${file}"[co] >/dev/null
+  	done
+fi
+
+# End automatically added section
+
+
+exit 0

@@ -1,0 +1,10 @@
+/etc/debian_version
+/etc/dpkg/origins/debian
+/etc/dpkg/origins/ubuntu
+/etc/host.conf
+/etc/issue
+/etc/issue.net
+/etc/legal
+/etc/lsb-release
+/etc/update-motd.d/00-header
+/etc/update-motd.d/10-help-text

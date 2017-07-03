@@ -1,0 +1,52 @@
+This is the Debian GNU/Linux prepackaged version of System V Init.
+
+Init was written by Miquel van Smoorenburg <miquels@cistron.nl>.
+
+This package was first put together by Bruce Perens <Bruce@Pixar.com>
+from pre-distribution sources. Ian Murdock <imurdock@debian.org>
+integrated it into the base system maintained it until the end of 1995.
+Miquel van Smoorenburg <miquels@cistron.nl> implemented Debian support.
+In version 2.85 the package was split into three (sysvinit, sysv-rc,
+and initscripts) in order to make room for alternative rc mechanisms.
+
+The upstream source is available at:
+
+Primary-Site:   ftp.cistron.nl /pub/people/miquels/software
+                92K sysvinit-2.86.tar.gz
+Alternate-Site: sunsite.unc.edu /pub/Linux/system/daemons/init
+                92K sysvinit-2.86.tar.gz
+
+Send patches to sysvinit-devel@nongnu.org.
+
+The sysvinit package in Debian is maintained as an alioth project.
+The project page is http://alioth.debian.org/projects/pkg-sysvinit/.
+
+Copyright 1997-2005 Miquel van Smoorenburg <miquels@cistron.nl> and
+the members pkg-sysvinit project.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA
+
+On Debian GNU/Linux systems, the complete text of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL-2'.
+
+The of the start-stop-daemon:
+
+ * A rewrite of the original Debian's start-stop-daemon Perl script
+ * in C (faster - it is executed many times during system startup).
+ *
+ * Written by Marek Michalkiewicz <marekm@i17linuxb.ists.pwr.wroc.pl>,
+ * public domain.
+

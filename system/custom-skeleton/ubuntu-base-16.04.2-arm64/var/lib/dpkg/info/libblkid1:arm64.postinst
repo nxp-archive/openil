@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/blkid.conf 2.25-8ubuntu3~ -- "$@"
+# End automatically added section

@@ -1,0 +1,68 @@
+#!/bin/sh -e
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <language code> <class> [<version>]"
+    exit 0
+fi
+
+# Copied from locale-gen
+normalize_locale() {
+    #  Insert a leading x in case $1 begins with a dash
+    this_locale=x$1
+    charset=
+    if echo $this_locale | LC_ALL=C grep '\.' > /dev/null 2>&1; then
+	charset=$(echo $this_locale | sed -e 's/^x//' -e 's/.*\(\.[^@]*\).*/\1/' | LC_ALL=C tr '[A-Z]' '[a-z]' | LC_ALL=C sed -e 's/[^a-z0-9.]//g')
+    fi
+    modifier=
+    if echo $this_locale | LC_ALL=C grep '@' > /dev/null 2>&1; then
+	modifier=$(echo $this_locale | sed -e 's/^x//' -e 's/.*\(@[^.]*\).*/\1/')
+    fi
+    main=$(echo $this_locale | sed -e 's/^x//' -e 's/[.@].*//')
+    echo $main$charset$modifier
+}
+
+get_supported_local_normalized() {
+    [ -e /etc/locale.gen ] || return 0
+    sort -u /etc/locale.gen | while read locale charset; do
+	case $locale in
+	    \#*) continue ;;
+	    "") continue ;;
+	esac
+	normalize_locale "$locale"
+    done
+}
+
+remove_locale() {
+    this_locale=$(normalize_locale "$1")
+    if ! echo "$supported_local_normalized" | fgrep -qx "$this_locale"; then
+	if [ -e /usr/lib/locale/locale-archive ]; then
+	    localedef --delete-from-archive "$this_locale"
+	fi
+    fi
+}
+
+# remove binary locales
+# do nothing for gnome/kde
+if [ -z "$2" ]; then
+    # do not remove locales if we merely remove language-support-* without
+    # removing language-pack-*
+    if [ ! -e /var/lib/locales/supported.d/$1 ]; then
+	supported_local_normalized="$(get_supported_local_normalized)"
+	if [ "$1" = 'zh-hans' ]; then
+	    remove_locale zh_CN.utf8
+	    remove_locale zh_SG.utf8
+	elif [ "$1" = 'zh-hant' ]; then
+	    remove_locale zh_HK.utf8
+	    remove_locale zh_TW.utf8
+	else
+	    if [ -e /usr/lib/locale/locale-archive ]; then
+		for l in $(localedef --list-archive|grep "^$1[._@]"); do
+		    remove_locale "$l"
+		done
+	    fi
+	fi
+    fi
+fi
+
+# ensure that .desktop caches are up to date
+dpkg-trigger gmenucache || true

@@ -1,0 +1,46 @@
+README for sysv-rc
+------------------
+
+Policy requires that maintainer scripts use update-rc.d to register and
+deregister initscripts.  An unfortunate result of this policy, combined
+with shortcomings in current update-rc.d implementations, is that there
+is no way for maintainer scripts to change the sequence number of an
+initscript that has already been registered if and only if its sequence
+number has not been changed by the administrator.  update-rc.d *never*
+changes the sequence number of an already registered initscript, even
+if its sequence number has not been changed by the administrator.
+There are no plans to fix this problem.  Therefore, if it is necessary
+to change the sequence number of an initscript in order to fix a bug
+then the maintainer script should go ahead and do:
+
+    update-rc.d -f <scriptname> remove
+
+before the new update-rc.d call, even though this overrides out any
+administrator changes.
+
+Migrating to dependency-based boot sequencing
+---------------------------------------------
+
+Migrating to the dependency-based system of boot sequencing (using LSB
+headers) is non-reversible, and renders obsolete the legacy system of
+static sequence numbers. Please note that any boot sequence changes
+made locally will be lost in the migration, and must be reimplemented
+in terms of dependencies. However, the new system is recommended for
+several reasons.
+
+ * initscripts can be made to run more efficiently via parallelized
+   execution strategies (see $POINTER_TO_ENTICING_BOOTCHARTS);
+ * boot and shutdown ordering is calculated on the basis of the
+   dependency information declared within each init.d script, ensuring
+   that the sequence is optimized for the set of packages installed;
+ * problems introduced by new or upgraded packages can be detected and
+   averted - the boot sequence is only modified if it is safe to do
+   so.
+
+It can also bring benefits for Debian package development, and for
+admins maintaining local software, since it eliminates the difficulty
+of fitting an initscript into the boot sequence between existing
+services with adjacent sequence numbers.
+
+It is also a step in the direction of boot systems better suited to
+the asynchronous nature of the Linux-2.6 kernel boot process.

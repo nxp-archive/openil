@@ -1,0 +1,46 @@
+This package is maintained for Debian by Bdale Garbee, <bdale@gag.com>.
+
+It was downloaded from ftp.redhat.com, as a source .rpm from the 5.1 release.
+
+Copyright:
+
+No explicit copyright is asserted.  Nick Holloway is the earliest author 
+recorded in the sourcecode.  I queried him for an explicit statement 
+regarding the license status of this work, and this is his reply:
+  
+ Date: Tue, 21 Jul 1998 19:57:10 +0100
+ From: Nick Holloway <Nick.Holloway@alfie.demon.co.uk>
+ Message-Id: <199807211857.TAA19068@alfie.demon.co.uk>
+ To: Bdale Garbee <bdale@gag.com>
+ Subject: Re: makedev license?
+ 
+ > I maintain the makedev package for Debian GNU/Linux.  I am about to move 
+ > from the ill-fated makedev-1.6 to the makedev-2.3.1 derived from your work 
+ > by the folks at Redhat.  I don't see any evidence of a copyright assertion 
+ > or explicit license statement in the source.  Your name appears to be the 
+ > earliest attached to the current sourcecode.  Am I correct in assuming the 
+ > GPL?  We try to be meticulous about having our base system be compliant 
+ > with our Debian Free Software Guidelines, so I'd like an explicit statement.
+ 
+ It was never explictly released as GPL, as that would have required
+ including the file COPYING which would have been much larger than the
+ actual MAKEDEV script (I was also too lazy to find out what incantations
+ needed to be made).  However, it is intended to be used as anyone sees
+ fit, and the statement under "Copying Policy" is "Freely Redistributable"
+ (see MAKEDEV.lsm from any of the releases I made).
+ 
+ The more recent modifications were done by Michael K. Johnson at
+ Redhat.  I think the understanding was that he would be taking over the
+ maintenance of MAKEDEV (our discussion took place last September).
+ 
+ The only previous history was (according to an old posting to
+ comp.os.linux) that I started with Jim Winstead's script.
+ 
+ So, as far as I am concerned, it is consistentwith the Debian FSG.
+ 
+ -- 
+  `O O'  | Home: Nick.Holloway@alfie.demon.co.uk  http://www.alfie.demon.co.uk/
+ // ^ \\ | Work: Nick.Holloway@parallax.co.uk
+ 
+A complete copy of the GPL is provided on Debian systems in the file
+/usr/share/common-licenses/GPL.

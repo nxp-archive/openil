@@ -1,0 +1,190 @@
+escape_char /
+comment_char %
+
+% Lithuanian language locale for Lithuania
+% Created on January 30, 1992
+%  by Edmundas Miseikis, Algimantas
+%  Oskinis and Evaldas Kulbokas
+% Revised on April 10, 1992
+% Revised on February 8, 1993
+% Revised on April 3, 1993
+% Revised on May 22, 1993
+% Revised on November 21, 1993
+% Revised on December 1, 1993
+% Source: Lithuanian Computer Society and
+%   Technical committee for IT standardisation
+% Address: P.O Box 1147, Donelaic<io 60
+%   3000 Kaunas, Lithuania
+% Tel: +370 - 7 - 223510
+% Fax: +370 - 7 - 228500
+% Contact: Evaldas Kulbokas
+% Email: coolbox@seka.ktu.lt
+% Language: lt
+% Territory: LT
+% Revision: 4.0
+% Date: 1995-08-28
+% Application: general
+% Users: general
+% Charset: BALTIC
+% Distribution and use is free, also
+% for commercial purposes.
+
+LC_IDENTIFICATION
+title      "Lithuanian locale for Lithuania"
+source     "Lithuanian Computer Society and"
+address    "P.O Box 1147, Donelaicio 60, 3000 Kaunas, Lithuania"
+contact    ""
+email      "bug-glibc-locales@gnu.org"
+tel        ""
+fax        ""
+language   "Lithuanian"
+territory  "Lithuania"
+revision   "1.0"
+date       "2000-06-29"
+%
+category  "lt_LT:2000";LC_IDENTIFICATION
+category  "lt_LT:2000";LC_CTYPE
+category  "lt_LT:2000";LC_COLLATE
+category  "lt_LT:2000";LC_TIME
+category  "lt_LT:2000";LC_NUMERIC
+category  "lt_LT:2000";LC_MONETARY
+category  "lt_LT:2000";LC_MESSAGES
+category  "lt_LT:2000";LC_PAPER
+category  "lt_LT:2000";LC_NAME
+category  "lt_LT:2000";LC_ADDRESS
+category  "lt_LT:2000";LC_TELEPHONE
+category  "lt_LT:2000";LC_MEASUREMENT
+END LC_IDENTIFICATION
+
+LC_COLLATE
+define UPPERCASE_FIRST
+copy "iso14651_t1"
+
+reorder-after <i>
+<y>
+
+reorder-end
+
+END LC_COLLATE
+
+LC_CTYPE
+copy "i18n"
+
+translit_start
+include  "translit_combining";""
+translit_end
+END LC_CTYPE
+
+LC_MONETARY
+int_curr_symbol     "<U0045><U0055><U0052><U0020>"
+currency_symbol     "<U20AC>"
+mon_decimal_point   "<U002C>"
+mon_thousands_sep   "<U002E>"
+mon_grouping        3;3
+positive_sign       ""
+negative_sign       "<U002D>"
+int_frac_digits     2
+frac_digits         2
+p_cs_precedes       0
+p_sep_by_space      1
+n_cs_precedes       0
+n_sep_by_space      1
+p_sign_posn         1
+n_sign_posn         1
+END LC_MONETARY
+
+LC_NUMERIC
+decimal_point       "<U002C>"
+thousands_sep       "<U002E>"
+grouping            3;3
+END LC_NUMERIC
+
+LC_TIME
+abday     "<U0053><U006B>";"<U0050><U0072>";"<U0041><U006E>";/
+          "<U0054><U0072>";"<U004B><U0074>";"<U0050><U006E>";/
+          "<U0160><U0074>"
+day       "<U0053><U0065><U006B><U006D><U0061><U0064><U0069><U0065><U006E><U0069><U0073>";/
+          "<U0050><U0069><U0072><U006D><U0061><U0064><U0069><U0065><U006E><U0069><U0073>";/
+          "<U0041><U006E><U0074><U0072><U0061><U0064><U0069><U0065><U006E><U0069><U0073>";/
+          "<U0054><U0072><U0065><U010D><U0069><U0061><U0064><U0069><U0065><U006E><U0069><U0073>";/
+          "<U004B><U0065><U0074><U0076><U0069><U0072><U0074><U0061><U0064><U0069><U0065><U006E><U0069><U0073>";/
+          "<U0050><U0065><U006E><U006B><U0074><U0061><U0064><U0069><U0065><U006E><U0069><U0073>";/
+          "<U0160><U0065><U0161><U0074><U0061><U0064><U0069><U0065><U006E><U0069><U0073>"
+abmon     "<U0053><U0061><U0075>";"<U0056><U0061><U0073>";/
+          "<U004B><U006F><U0076>";"<U0042><U0061><U006C>";/
+          "<U0047><U0065><U0067>";"<U0042><U0069><U0072>";/
+          "<U004C><U0069><U0065>";"<U0052><U0067><U0070>";/
+          "<U0052><U0067><U0073>";"<U0053><U0070><U0061>";/
+          "<U004C><U0061><U0070>";"<U0047><U0072><U0064>"
+mon       "<U0073><U0061><U0075><U0073><U0069><U006F>";/
+          "<U0076><U0061><U0073><U0061><U0072><U0069><U006F>";/
+          "<U006B><U006F><U0076><U006F>";/
+          "<U0062><U0061><U006C><U0061><U006E><U0064><U017E><U0069><U006F>";/
+          "<U0067><U0065><U0067><U0075><U017E><U0117><U0073>";/
+          "<U0062><U0069><U0072><U017E><U0065><U006C><U0069><U006F>";/
+          "<U006C><U0069><U0065><U0070><U006F><U0073>";/
+          "<U0072><U0075><U0067><U0070><U006A><U016B><U010D><U0069><U006F>";/
+          "<U0072><U0075><U0067><U0073><U0117><U006A><U006F>";/
+          "<U0073><U0070><U0061><U006C><U0069><U006F>";/
+          "<U006C><U0061><U0070><U006B><U0072><U0069><U010D><U0069><U006F>";/
+          "<U0067><U0072><U0075><U006F><U0064><U017E><U0069><U006F>"
+d_t_fmt   "<U0025><U0059><U0020><U006D><U002E><U0020><U0025><U0042><U0020><U0025><U0064><U0020><U0064><U002E><U0020><U0025><U0054>"
+d_fmt     "<U0025><U0059><U002E><U0025><U006D><U002E><U0025><U0064>"
+t_fmt     "<U0025><U0054>"
+am_pm     "";""
+t_fmt_ampm ""
+date_fmt       "<U0025><U0061><U0020><U0025><U0062><U0020><U0025><U0065>/
+<U0020><U0025><U0048><U003A><U0025><U004D><U003A><U0025><U0053><U0020>/
+<U0025><U005A><U0020><U0025><U0059>"
+first_workday 2
+first_weekday 2
+END LC_TIME
+
+LC_MESSAGES
+yesexpr    "<U005E><U005B><U0054><U0074><U0059><U0079><U005D><U002E><U002A>"
+noexpr     "<U005E><U005B><U004E><U006E><U005D><U002E><U002A>"
+END LC_MESSAGES
+
+LC_PAPER
+% FIXME
+height   297
+% FIXME
+width    210
+END LC_PAPER
+
+LC_TELEPHONE
+tel_int_fmt    "<U002B><U0025><U0063><U0020><U0025><U0061><U0020><U0025>/
+<U006C>"
+int_prefix     "<U0033><U0037><U0030>"
+END LC_TELEPHONE
+
+LC_MEASUREMENT
+% metric
+measurement 1
+END LC_MEASUREMENT
+
+LC_NAME
+name_fmt    "<U0025><U0064><U0025><U0074><U0025><U0067><U0025><U0074>/
+<U0025><U006D><U0025><U0074><U0025><U0066>"
+END LC_NAME
+
+LC_ADDRESS
+postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
+<U0025><U0064><U0025><U004E><U0025><U0062><U0025><U004E><U0025><U0073>/
+<U0020><U0025><U0068><U0020><U0025><U0065><U0020><U0025><U0072><U0025>/
+<U004E><U0025><U007A><U0020><U0025><U0054><U0025>/
+<U004E><U0025><U0063><U0025><U004E>"
+country_ab2 "<U004C><U0054>"
+country_ab3 "<U004C><U0054><U0055>"
+country_num 440
+% LT
+country_car    "<U004C><U0054>"
+% lietuvių kalba
+lang_name    "<U006C><U0069><U0065><U0074><U0075><U0076><U0069><U0173><U0020><U006B><U0061><U006C><U0062><U0061>"
+% lt
+lang_ab      "<U006C><U0074>"
+% lit
+lang_term    "<U006C><U0069><U0074>"
+% lit
+lang_lib    "<U006C><U0069><U0074>"
+END LC_ADDRESS

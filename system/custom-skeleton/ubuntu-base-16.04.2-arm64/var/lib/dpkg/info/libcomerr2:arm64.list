@@ -1,0 +1,11 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libcomerr2
+/usr/share/doc/libcomerr2/copyright
+/usr/share/doc/libcomerr2/changelog.Debian.gz
+/lib
+/lib/aarch64-linux-gnu
+/lib/aarch64-linux-gnu/libcom_err.so.2.1
+/lib/aarch64-linux-gnu/libcom_err.so.2

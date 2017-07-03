@@ -1,0 +1,12 @@
+/.
+/lib
+/lib/aarch64-linux-gnu
+/lib/aarch64-linux-gnu/libprocps.so.4.0.0
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libprocps4
+/usr/share/doc/libprocps4/changelog.Debian.gz
+/usr/share/doc/libprocps4/NEWS.Debian.gz
+/usr/share/doc/libprocps4/copyright
+/lib/aarch64-linux-gnu/libprocps.so.4

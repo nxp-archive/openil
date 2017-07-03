@@ -1,0 +1,2 @@
+util-linux: init.d-script-possible-missing-stop etc/init.d/hwclock.sh 1
+util-linux: systemd-no-service-for-init-rcS-script hwclock.sh

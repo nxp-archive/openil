@@ -1,0 +1,29 @@
+#!/bin/sh
+set -e
+
+##########################################################################
+# This is a partial copy of uuid-runtime.postinst just to make sure      #
+# everyone gets their user renamed (even if they don't have uuid-runtime #
+# installed).  This package used to create the user in the first place,  #
+# but no longer uses it and all handling has been moved to uuid-runtime. #
+# This (entire file?) should be dropped after this code has shipped in a #
+# Debian Stable release (so we know everyone has been migrated).         #
+##########################################################################
+
+# upgrade existing libuuid user/group.
+if getent group libuuid >/dev/null && ! getent group uuidd >/dev/null ; then
+	groupmod --new-name uuidd libuuid
+fi
+if getent passwd libuuid >/dev/null && ! getent passwd uuidd >/dev/null ; then
+	# attempt to stop potentially running uuidd, otherwise usermod will fail.
+	invoke-rc.d --quiet uuidd stop || true
+
+	# rename user, change shell and set new homedir.
+	usermod --login uuidd --shell /bin/false --home /run/uuidd libuuid
+
+	# attemp cleanup of old home directory.
+	[ -d /var/lib/libuuid ] && \
+		rmdir --ignore-fail-on-non-empty /var/lib/libuuid || true
+fi
+
+

@@ -1,0 +1,18 @@
+The options -Z, --compress, and --uncompress all require that there be a
+'compress' utility installed on the system.  If there is no compress installed
+on your system, you will get errors if you try to use these options to tar.  
+
+Unfortunately, the algorithm used by compress is encumbered, and therefore 
+this utility is not part of Debian.
+
+The gunzip package can uncompress a file created with compress, but gzip can
+not create a file in 'compress' format.  Since the tar -Z option and friends
+end up calling 'compress' or 'compress -d', support for these options is not
+available in Debian.  However, at the time of this writing a package called 
+'ncompress' exists in non-free, and you can install it if the license terms 
+are acceptable to you.  
+
+Alternatively, if you don't really care what the format of the resulting file
+is, you could always create a 'compress' that is a symlink to gzip.  I refuse
+to do that in either the tar or gzip packages, however, since what gzip creates
+is a compressed file, but not a 'compress' format file...

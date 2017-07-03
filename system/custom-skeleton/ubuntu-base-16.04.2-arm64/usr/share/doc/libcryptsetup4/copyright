@@ -1,0 +1,59 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Contact: Milan Broz <mbroz@redhat.com>
+Source: http://code.google.com/p/cryptsetup
+
+Files: *
+Copyright: © 2004      Christophe Saout <christophe@saout.de>
+           © 2004-2008 Clemens Fruhwirth <clemens@endorphin.org>
+           © 2008-2010 Red Hat, Inc.
+           © 2008-2013 Milan Broz <gmazyland@gmail.com>
+License: GPL-2+
+
+Files: debian/*
+Copyright: © 2004-2005 Wesley W. Terpstra <terpstra@debian.org>
+           © 2005-2006 Michael Gebetsroither <michael.geb@gmx.at>
+           © 2006-2008 David Härdeman <david@hardeman.nu>
+           © 2005-2013 Jonas Meurer <jonas@freesources.org>
+License: GPL-2+
+
+Files: debian/askpass.c debian/passdev.c
+Copyright: © 2008 David Härdeman <david@hardeman.nu>
+License: GPL-2+
+
+Files: debian/README.openct
+Copyright: © 2008 Daniel Baumann <baumann@swiss-it.ch>
+License: GPL-2+
+
+Files: debian/README.opensc
+Copyright: © 2008 Benjamin Kiessling <benjaminkiessling@bttec.org>
+License: GPL-2+
+
+Files: debian/README.remote
+Copyright: © 2009 <debian@x.ray.net>
+License: GPL-2+
+
+Files: debian/scripts/cryptdisks_start
+Copyright: © 2007 Jon Dowland <jon@alcopop.org>
+License: GPL-2+
+
+Files: debian/scripts/luksformat
+Copyright: © 2005 Canonical Ltd.
+License: GPL-2+
+
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this package; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the complete text of the GNU General Public
+ License v2 can be found in `/usr/share/common-licenses/GPL-2'.

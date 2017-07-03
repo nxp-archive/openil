@@ -1,0 +1,85 @@
+#! /bin/sh
+set -e 
+
+# Files
+LG="/etc/locale.gen"
+EE="/etc/default/locale"
+
+# Sanitize environnement
+LC_ALL=C
+LANG=C
+
+if [ "$1" = configure ]; then
+    # Load debconf
+    . /usr/share/debconf/confmodule
+    db_version 2.0
+
+    db_get locales/default_environment_locale && DEFAULT_ENVIRONMENT="$RET"
+    db_get locales/locales_to_be_generated && SELECTED_LOCALES=$RET
+    SELECTED_LOCALES="$(echo $SELECTED_LOCALES | sed -e 's/, /\n/g')"
+
+    if [ "$SELECTED_LOCALES" = "All locales" ]; then
+        [ -e $LG ] && rm -f $LG
+        ln -s /usr/share/i18n/SUPPORTED $LG
+    else
+        [ -L $LG ] && [ "$(readlink $LG)" = "/usr/share/i18n/SUPPORTED" ] && rm -f $LG
+        if [ ! -e $LG ] ; then
+            cat > $LG << EOF
+# This file lists locales that you wish to have built. You can find a list
+# of valid supported locales at /usr/share/i18n/SUPPORTED, and you can add
+# user defined locales to /usr/local/share/i18n/SUPPORTED. If you change
+# this file, you need to rerun locale-gen.
+#
+
+EOF
+        fi
+
+        # Comment previous defined locales
+        sed -i -e 's/^ *[a-zA-Z]/# &/' $LG
+
+        # Get list of supported locales
+        if [ -f "/usr/local/share/i18n/SUPPORTED" ] ; then
+            SUPPORTED_LOCALES="$(sed -e '/^[a-zA-Z]/!d' -e 's/ *$//g' /usr/share/i18n/SUPPORTED /usr/local/share/i18n/SUPPORTED | sort -u)"
+        else
+            SUPPORTED_LOCALES="$(sed -e '/^[a-zA-Z]/!d' -e 's/ *$//g' /usr/share/i18n/SUPPORTED | sort -u)"
+        fi
+
+        # Make sure all locales exist in locales.gen
+        echo "$SUPPORTED_LOCALES" | while read locale ; do
+           if ! grep -q "^[# ]*$locale *\$" $LG; then 
+             echo "# $locale" >> $LG
+           fi
+        done
+
+        # Uncomment selected locales
+        echo "$SELECTED_LOCALES" | while read locale ; do
+            sed -i -e "0,/^[# ]*$locale *$/ s/^[# ]*$locale *$/$locale/" $LG
+        done
+    fi
+
+    # Update requested locales if locales-all is not installed
+    if dpkg-query -s locales-all >/dev/null 2>&1 ; then
+        echo "locales-all installed, skipping locales generation"
+    else
+        locale-gen
+    fi
+
+    if ! [ -e $EE ] || [ -n "$DEBCONF_RECONFIGURE" ] ; then
+        # Remove previous definitions
+        update-locale --no-checks LANG
+
+        # Set default LANG environment variable
+        if [ -n "$DEFAULT_ENVIRONMENT" ] && [ "$DEFAULT_ENVIRONMENT" != "None" ]; then
+            update-locale "LANG=$DEFAULT_ENVIRONMENT"
+        fi
+    fi
+    # Remove cruft from locales from Ubuntu << 16.04:
+    if dpkg --compare-versions "$2" lt 2.23; then
+        rm -f /var/lib/locales/supported.d/local
+        rm -rf /var/lib/belocs
+    fi
+fi
+
+
+
+exit 0

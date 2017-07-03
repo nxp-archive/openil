@@ -1,0 +1,8 @@
+ec5c2006505bb5e120f51860ad2c3c47  lib/lsb/init-functions
+32137f4b379dca403a353d8e295da266  lib/lsb/init-functions.d/01-upstart-lsb
+fee6191703e6f62be97ed68e9f5ff93b  lib/lsb/init-functions.d/20-left-info-blocks
+3c4ceea1be9b5b03739dd435a17c80a6  lib/lsb/init-functions.d/50-ubuntu-logging
+f9e08f607cac3fe2ef6912906b29ebcf  usr/share/doc/lsb-base/NEWS.Debian.gz
+66e4c2999e6889a96048fb42443f37a7  usr/share/doc/lsb-base/README.Debian.gz
+5e0d953724855bd0e35c843ec447322a  usr/share/doc/lsb-base/changelog.gz
+374e35ead7d93e8ebd2b3fad9abcbae1  usr/share/doc/lsb-base/copyright

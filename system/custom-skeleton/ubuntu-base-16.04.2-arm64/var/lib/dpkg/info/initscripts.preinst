@@ -1,0 +1,61 @@
+#! /bin/sh
+#
+# initscripts preinst
+#
+
+set -e
+
+# Remove a no-longer used conffile
+#
+# $1: conffile
+#
+# If the argument was not listed as a conffile, silently do nothing.
+# Adapted from code obtained from http://wiki.debian.org/DpkgConffileHandling
+eliminate_conffile() {
+	PKGNAME="initscripts"
+	CONFFILE="$1"
+
+	if [ -e "$CONFFILE" ]; then
+		CURRENT_MD5SUM="`md5sum \"$CONFFILE\" | sed -e \"s/ .*//\"`"
+		FACTORY_MD5SUM="`dpkg-query -W -f='${Conffiles}' $PKGNAME | sed -n -e \"\\\\' $CONFFILE'{s/ obsolete$//;s/.* //p}\"`"
+		if [ "$CURRENT_MD5SUM" != "$FACTORY_MD5SUM" ]; then
+			echo "Obsolete conffile $CONFFILE has been modified by you."
+			echo "Saving as $CONFFILE.dpkg-old ..."
+			mv -f "$CONFFILE" "$CONFFILE".dpkg-old
+		else
+			echo "Removing unmodified and obsolete conffile $CONFFILE ..."
+			rm -f "$CONFFILE"
+		fi
+	fi
+}
+
+case "$1" in
+  install|upgrade)
+	# mtab was removed in 2.88dsf-41+jessie1; the remaining two lines
+	# were merged into checkroot, which provides mtab for compatibility
+	if [ "$2" ] && dpkg --compare-versions "$2" lt "2.88dsf-41+jessie1" ; then
+	        eliminate_conffile "/etc/init.d/mtab.sh"
+	fi
+
+	#
+	# Move conflicting log _file_ if present
+	#
+	[ -f /var/log/fsck ] && mv -f /var/log/fsck /var/log/fsck.dpkg-old
+	;;
+  abort-upgrade)
+	exit 0
+	;;
+esac
+
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/bootlogd 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/stop-bootlogd-single 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/stop-bootlogd 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+
+
+:

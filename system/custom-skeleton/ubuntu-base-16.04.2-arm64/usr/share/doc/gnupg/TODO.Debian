@@ -1,0 +1,45 @@
+TODO
+
+* fixed in older releases and  probably even not relevant in 1.4.x anymore (in
+  braces the upstream tracker item number):
+  
+  #113897: "Oops: lock already hold by us" when using --fast-import (not 100% sure)
+
+  the following I'm not 100% sure:
+  #166794,
+  #172823: --search leads to segfault
+
+
+* Ubuntu patches:
+
+  debian/patches/61_use_agent_default.dpatch: we should decide if used as default
+
+* discuss
+
+  - if gpg should be put into /bin (#477671)
+
+  - if keyserver-options verbose should be default (#474569)
+
+  - why does gnupg depend on gpgv and can this perhaps be made less strong?
+
+general:
+
+
+==============================================================================
+
+
+* Close candidate (upstream rejected change):
+
+ #38857: gnupg: no way to copy a key
+ #61914: gnupg: confusing question in gpg key generation process (I cannot agree)
+ #93656: gnupg; No way to specify multiple keyservers? (#139)
+#162742: gnupg: Please handle "deprecated option honor-http-proxy"
+#173586: gnupg: Suggestion for a better error message
+#185782: `--batch --output existingfile' outputs nothing and exits 0
+#196681: gnupg: gpg says /dev/null@alea isn't a valid email address
+#290980: gnupg: 'gpg -q --verify' should be quiet on success (#919)
+#310805: gnupg: fully exportable armored homedir is completely impossible now!
+#318587: gnupg: should encrypt to all subkeys
+
+#300743: gnupg: Should not depend on libusb
+

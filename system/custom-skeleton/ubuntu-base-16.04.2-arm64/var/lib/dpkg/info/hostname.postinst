@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installinit
+if [ -x "/etc/init.d/hostname" ]; then
+	update-rc.d hostname defaults >/dev/null
+fi
+# End automatically added section
+# Automatically added by dh_installinit
+if [ -x "/etc/init.d/hostname.sh" ]; then
+	update-rc.d hostname.sh defaults >/dev/null
+fi
+# End automatically added section

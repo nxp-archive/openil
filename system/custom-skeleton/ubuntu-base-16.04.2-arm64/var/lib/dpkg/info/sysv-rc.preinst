@@ -1,0 +1,31 @@
+#! /bin/sh
+# preinst script for sysv-rc
+
+set -e
+
+# summary of how this script can be called:
+#        * <new-preinst> `install'
+#        * <new-preinst> `install' <old-version>
+#        * <new-preinst> `upgrade' <old-version>
+#        * <old-preinst> `abort-upgrade' <new-version>
+
+case "$1" in
+    upgrade)
+	# Remove the recorded update-rc.d
+	rm -f /var/lib/update-rc.d/*
+    	;;
+    install)
+    	;;
+
+    abort-upgrade)
+    	;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 0
+    ;;
+esac
+
+
+
+exit 0

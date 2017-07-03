@@ -1,0 +1,12 @@
+/.
+/lib
+/lib/aarch64-linux-gnu
+/lib/aarch64-linux-gnu/libusb-0.1.so.4.4.4
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libusb-0.1-4
+/usr/share/doc/libusb-0.1-4/README.Debian
+/usr/share/doc/libusb-0.1-4/copyright
+/usr/share/doc/libusb-0.1-4/changelog.Debian.gz
+/lib/aarch64-linux-gnu/libusb-0.1.so.4

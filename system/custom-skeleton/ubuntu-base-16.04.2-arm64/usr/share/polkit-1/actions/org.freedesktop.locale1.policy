@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+        "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+
+        <vendor>The systemd Project</vendor>
+        <vendor_url>http://www.freedesktop.org/wiki/Software/systemd</vendor_url>
+
+        <action id="org.freedesktop.locale1.set-locale">
+                <description>Set system locale</description>
+                <description xml:lang="be">Усталяваць сістэмную лакаль</description>
+                <description xml:lang="be@latin">Ustaliavać sistemnuju lakaĺ</description>
+                <description xml:lang="da">Sæt sprogindstillinger for systemet</description>
+                <description xml:lang="de">Die lokale Sprachumgebung festlegen</description>
+                <description xml:lang="el">Ορισμός τοπικών ρυθμίσεων συστήματος</description>
+                <description xml:lang="es">Establecer región del sistema</description>
+                <description xml:lang="fr">Définir la langue du système</description>
+                <description xml:lang="gl">Estabelecer a configuración rexional do sistema</description>
+                <description xml:lang="hu">Területi beállítás megadása</description>
+                <description xml:lang="it">Configura le impostazioni regionali di sistema</description>
+                <description xml:lang="ko">시스템 로캘 설정</description>
+                <description xml:lang="pl">Ustawienie lokalizacji systemu</description>
+                <description xml:lang="pt_BR">Definir configurações regionais do sistema</description>
+                <description xml:lang="ru">Настроить системную локаль</description>
+                <description xml:lang="sr">Поставите основни језик система</description>
+                <description xml:lang="sv">Ange systemlokal</description>
+                <description xml:lang="tr">Sistem yerelini ayarla</description>
+                <description xml:lang="uk">Вказати системну локаль</description>
+                <description xml:lang="zh_CN">设置系统区域和语言</description>
+                <description xml:lang="zh_TW">設定系統語系</description>
+                <message>Authentication is required to set the system locale.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўсталявання сістэмнай лакалі.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭstaliavannia sistemnaj lakali.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at sætte sprogindstillinger for systemet.</message>
+                <message xml:lang="de">Legitimierung ist zum Festlegen der systemweiten Spracheinstellungen erforderlich.</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για να ορίσετε τις τοπικές ρυθμίσεις του συστήματος.</message>
+                <message xml:lang="es">Se requiere autenticación para establecer la región del sistema</message>
+                <message xml:lang="fr">Authentification requise pour définir la langue du système.</message>
+                <message xml:lang="gl">Requírese autenticación para estabelecer a configuración rexional do sistema</message>
+                <message xml:lang="hu">Hitelesítés szükséges a rendszer területi beállításainak megadásához.</message>
+                <message xml:lang="it">Autenticazione richiesta per configurare le impostazioni regionali di sistema.</message>
+                <message xml:lang="ko">시스템 로캘을 설정하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby ustawić lokalizację systemu.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para definir as configurações regionais do sistema.</message>
+                <message xml:lang="ru">Чтобы настроить системную локаль, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте поставили основни језик система.</message>
+                <message xml:lang="sv">Autentisering krävs för att ange systemlokal.</message>
+                <message xml:lang="tr">Sistem yerelini ayarlamak kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб встановити системну локаль.</message>
+                <message xml:lang="zh_CN">设置系统区域和语言需要验证。</message>
+                <message xml:lang="zh_TW">設定系統語系需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+                <annotate key="org.freedesktop.policykit.imply">org.freedesktop.locale1.set-keyboard</annotate>
+        </action>
+
+        <action id="org.freedesktop.locale1.set-keyboard">
+                <description>Set system keyboard settings</description>
+                <description xml:lang="be">Усталяваць сістэмныя налады клавіятуры</description>
+                <description xml:lang="be@latin">Ustaliavać sistemnyja nalady klavijatury</description>
+                <description xml:lang="da">Sæt tastaturindstillinger for systemet.</description>
+                <description xml:lang="de">Tastatureinstellungen des Systems festlegen</description>
+                <description xml:lang="el">Ορισμός ρυθμίσεων πληκτρολογίου συστήματος</description>
+                <description xml:lang="es">Configurar teclado</description>
+                <description xml:lang="fr">Définir les paramètres de clavier du système</description>
+                <description xml:lang="gl">Estabelecer as preferencias do teclado do sistema</description>
+                <description xml:lang="hu">Rendszer billentyűzetbeállítások megadása</description>
+                <description xml:lang="it">Configura la tastiera di sistema</description>
+                <description xml:lang="ko">시스템 키보드 설정</description>
+                <description xml:lang="pl">Ustawienie klawiatury systemu</description>
+                <description xml:lang="pt_BR">Definir configurações de teclado do sistema</description>
+                <description xml:lang="ru">Настроить параметры клавиатуры</description>
+                <description xml:lang="sr">Поставите подешавање системске тастатуре</description>
+                <description xml:lang="sv">Ange systeminställningar för tangentbord</description>
+                <description xml:lang="tr">Sistem klavye ayarlarını ayarla</description>
+                <description xml:lang="uk">Вказати налаштування системної клавіатури</description>
+                <description xml:lang="zh_CN">设置系统键盘</description>
+                <description xml:lang="zh_TW">設定系統鍵盤設定</description>
+                <message>Authentication is required to set the system keyboard settings.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўсталявання сістэмных налад клавіятуры.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭstaliavannia sistemnych nalad klavijatury.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at sætte tastaturindstillinger for systemet.</message>
+                <message xml:lang="de">Legitimierung ist zum Festlegen der Tastatureinstellungen des Systems erforderlich.</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για να ορίσετε τις ρυθμίσεις πληκτρολογίου του συστήματος.</message>
+                <message xml:lang="es">Se requiere autenticación para configurar el teclado del sistema.</message>
+                <message xml:lang="fr">Authentification requise pour définir les paramètres de clavier du système.</message>
+                <message xml:lang="gl">Requírese autenticación para estabelecer as preferencias do teclado do sistema.</message>
+                <message xml:lang="hu">Hitelesítés szükséges a rendszer billentyűzetbeállításainak megadásához.</message>
+                <message xml:lang="it">Autenticazione richiesta per configurare la tastiera di sistema.</message>
+                <message xml:lang="ko">시스템 키보드를 설정하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby ustawić klawiaturę systemu.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para definir as configurações de teclado do sistema.</message>
+                <message xml:lang="ru">Чтобы настроить параметры клавиатуры, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте поставили подешавања системске тастатуре.</message>
+                <message xml:lang="sv">Autentisering krävs för att ange systeminställningar för tangentbord.</message>
+                <message xml:lang="tr">Sistem klavye ayarlarını ayarlamak kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб вказати налаштування системної клавіатури.</message>
+                <message xml:lang="zh_CN">设置系统键盘需要验证。</message>
+                <message xml:lang="zh_TW">設定系統鍵盤設定需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+</policyconfig>

@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Extract key information from the current to try to generate a test
+# suite script to demonstrate detected bugs.
+
+echo 'set +C'
+echo "cat <<'EOF' > \$insconf"
+grep -v '#' /etc/insserv.conf |grep -v '^$'
+echo "EOF"
+echo 'set -C'
+echo
+
+for f in /etc/init.d/*; do
+	name=$(basename $f)
+	case $name in
+	    README|rc|rcS|skeleton)
+	        ;;
+	    *)
+		echo "addscript $name <<'EOF'"
+		sed -n -r '/^### BEGIN INIT INFO/, /END INIT INFO/p' < $f
+		echo "EOF"
+		echo
+		;;
+	esac
+done
+
+echo 'cd $tmpdir/etc'
+echo 'mkdir rc0.d rc1.d rc2.d rc3.d rc4.d rc5.d rc6.d rcS.d'
+cd /etc
+for f in rc?.d/*; do
+	case $f in
+	    */README)
+	        ;;
+	    *)
+		echo ln -s $(readlink $f) $f
+		;;
+	esac
+done
+
+echo
+echo list_rclinks

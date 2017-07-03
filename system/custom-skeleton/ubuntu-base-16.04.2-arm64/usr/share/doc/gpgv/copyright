@@ -1,0 +1,74 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: GnuPG - The GNU Privacy Guard
+Upstream-Contact: Werner Koch <wk@gnupg.org>
+Source: http://www.gnupg.org/
+
+Files: *
+Copyright: 1998-2013 Free Software Foundation, Inc.
+           1997, 1998, 2013 Werner Koch
+License: GPL-3+ with OpenSSL exception
+
+Files: debian/*
+Copyright: 1998-2006 James Troup, 2008-2014 Daniel Leidert, Sune Vuorela, Thijs Kinkhorst.
+License: GPL-3+ with OpenSSL exception
+
+License: GPL-3+ with OpenSSL exception
+ GnuPG is free software; you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your
+ option) any later version.
+ .
+ GnuPG is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ for more details.
+ .
+ You should have received a copy of the GNU General Public License with
+ your Debian GNU system, in /usr/share/common-licenses/GPL-3, or with the
+ Debian GNU gnupg source package as the file COPYING.  If not, see
+ <http://www.gnu.org/licenses/> or write to the Free Software Foundation,
+ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+ .
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ `/usr/share/common-licenses/GPL-3'.
+ .
+ In addition, as a special exception, the Free Software Foundation
+ gives permission to link the code of the keyserver helper tools:
+ gpgkeys_ldap, gpgkeys_curl and gpgkeys_hkp with the OpenSSL project's
+ "OpenSSL" library (or with modified versions of it that use the same
+ license as the "OpenSSL" library), and distribute the linked
+ executables. You must obey the GNU General Public License in all
+ respects for all of the code used other than "OpenSSL". If you modify
+ this file, you may extend this exception to your version of the file,
+ but you are not obligated to do so. If you do not wish to do so,
+ delete this exception statement from your version.
+
+Files: doc/OpenPGP
+Copyright: 1998-2013 Free Software Foundation, Inc.
+           1997, 1998, 2013 Werner Koch
+           1998 The Internet Society
+License: RFC-Reference
+
+License: RFC-Reference
+ doc/OpenPGP merely cites and references IETF Draft
+ draft-ietf-openpgp-formats-07.txt. This is believed to be fair use;
+ but if not, it's covered by the source document's license under
+ the 'comment on' clause. The license statement follows.
+ .
+ This document and translations of it may be copied and furnished to
+ others, and derivative works that comment on or otherwise explain it
+ or assist in its implementation may be prepared, copied, published
+ and distributed, in whole or in part, without restriction of any
+ kind, provided that the above copyright notice and this paragraph
+ are included on all such copies and derivative works.  However, this
+ document itself may not be modified in any way, such as by removing
+ the copyright notice or references to the Internet Society or other
+ Internet organizations, except as needed for the purpose of
+ developing Internet standards in which case the procedures for
+ copyrights defined in the Internet Standards process must be
+ followed, or as required to translate it into languages other than
+ English.
+ .
+ The limited permissions granted above are perpetual and will not be
+ revoked by the Internet Society or its successors or assigns.

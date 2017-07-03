@@ -1,0 +1,12 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libcryptsetup4
+/usr/share/doc/libcryptsetup4/changelog.Debian.gz
+/usr/share/doc/libcryptsetup4/copyright
+/usr/share/doc/libcryptsetup4/NEWS.Debian.gz
+/lib
+/lib/aarch64-linux-gnu
+/lib/aarch64-linux-gnu/libcryptsetup.so.4.6.0
+/lib/aarch64-linux-gnu/libcryptsetup.so.4

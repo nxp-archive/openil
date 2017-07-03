@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+export LC_ALL=C
+
+install_from_default() {
+  if [ ! -f $2 ]; then
+    cp -p $1 $2
+  fi
+}
+
+if [ "$1" = "configure" ] && [ "$2" = "" ] ; then
+  install_from_default /usr/share/libc-bin/nsswitch.conf /etc/nsswitch.conf
+fi
+
+if [ "$1" = "triggered" ] || [ "$1" = "configure" ]; then
+  LDCONFIG_NOTRIGGER=y
+  export LDCONFIG_NOTRIGGER
+  ldconfig || ldconfig --verbose
+  exit 0
+fi
+
+
+
+exit 0
+

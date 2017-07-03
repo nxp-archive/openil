@@ -1,0 +1,26 @@
+initscripts: file-in-etc-not-marked-as-conffile /etc/init.d/skeleton
+initscripts: non-standard-toplevel-dir sys/
+initscripts: package-contains-empty-directory sys/
+initscripts: script-not-executable ./etc/init.d/skeleton
+initscripts: maintainer-script-calls-init-script-directly postrm:14
+initscripts: script-calls-init-script-directly ./etc/network/if-up.d/mountnfs:102
+initscripts: depends-on-essential-package-without-using-version recommends: e2fsprogs
+initscripts: no-upstream-changelog
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/bootlogs: required-start
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/killprocs: required-start
+initscripts: init.d-script-possible-missing-stop etc/init.d/urandom 1
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/checkfs.sh: required-start
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/motd: required-start
+initscripts: init.d-script-possible-missing-stop etc/init.d/umountnfs.sh 1
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/umountnfs.sh: required-stop
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/reboot: required-stop
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/mountall.sh: required-start
+initscripts: init.d-script-should-depend-on-virtual-facility etc/init.d/mountnfs-bootclean.sh mountnfs -> $remote_fs
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/checkroot.sh: required-start
+initscripts: init.d-script-possible-missing-stop etc/init.d/umountfs 1
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/umountfs: required-stop
+initscripts: init.d-script-should-depend-on-virtual-facility etc/init.d/mountall-bootclean.sh mountall -> $local_fs
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/mountnfs.sh: required-start
+initscripts: init.d-script-missing-dependency-on-remote_fs etc/init.d/halt: required-stop
+initscripts: init.d-script-possible-missing-stop etc/init.d/umountroot 1
+initscripts: unusual-interpreter etc/init.d/skeleton #!/lib/init/init-d-script

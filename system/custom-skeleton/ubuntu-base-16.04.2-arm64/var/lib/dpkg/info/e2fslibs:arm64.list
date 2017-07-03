@@ -1,0 +1,13 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/e2fslibs
+/usr/share/doc/e2fslibs/copyright
+/usr/share/doc/e2fslibs/changelog.Debian.gz
+/lib
+/lib/aarch64-linux-gnu
+/lib/aarch64-linux-gnu/libext2fs.so.2.4
+/lib/aarch64-linux-gnu/libe2p.so.2.3
+/lib/aarch64-linux-gnu/libe2p.so.2
+/lib/aarch64-linux-gnu/libext2fs.so.2

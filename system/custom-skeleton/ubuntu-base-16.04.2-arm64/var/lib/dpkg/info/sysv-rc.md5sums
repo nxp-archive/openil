@@ -1,0 +1,17 @@
+9192ac2265ca980a31d1553278680cc4  etc/init.d/README
+b8614bbe5876cdea2410ac2f94e0645b  etc/init.d/rc
+7862a970fca2cff93163ac9999619ad6  etc/init.d/rcS
+3fc185419358039e85ea7e231117b02b  etc/rc0.d/README
+04c254d6d998868d0db72e74f30b84d0  etc/rc1.d/README
+ac1446cd28de7387e63388ad0ce833f2  etc/rc2.d/README
+ac1446cd28de7387e63388ad0ce833f2  etc/rc3.d/README
+ac1446cd28de7387e63388ad0ce833f2  etc/rc4.d/README
+ac1446cd28de7387e63388ad0ce833f2  etc/rc5.d/README
+77bf501d287d0ed2527ec54743741369  etc/rc6.d/README
+a3c07be36eacceaef3a282f2d0c708bd  etc/rcS.d/README
+04d9158a3c2e593ba38da75f48c05c16  usr/share/doc/sysv-rc/NEWS.Debian.gz
+7cfaba64c6ba471c9ff083e0d5ed37fa  usr/share/doc/sysv-rc/README.Debian
+c0dd6a5a90350ce350019e1056e5a124  usr/share/doc/sysv-rc/README.runlevels.gz
+2fbdaddf7101401f5886287dec72718a  usr/share/doc/sysv-rc/copyright
+9fc9a898c18fde6754ecbeddb48d4379  usr/share/lintian/overrides/sysv-rc
+674029c40dbda6bff7e27cea0322bf0f  usr/share/sysv-rc/saveconfig

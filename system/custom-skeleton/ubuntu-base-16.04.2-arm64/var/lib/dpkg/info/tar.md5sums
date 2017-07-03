@@ -1,0 +1,14 @@
+862654855a37e79b88f48231ad7cb6d5  bin/tar
+ac6725ed329d518f81d3e363e131951c  usr/lib/mime/packages/tar
+8b4b29c0128502088dd73071e82c7b8c  usr/sbin/rmt-tar
+fd2fab77cf4da2288c11a4de2c0c7fe0  usr/sbin/tarcat
+020511595e8fb6a77b29032b3ec4ab10  usr/share/doc/tar/AUTHORS
+9ac525877a6449367ff556a2b6ccfc16  usr/share/doc/tar/NEWS.Debian.gz
+65a81a0bc1e4aad8cba855d2ebc42669  usr/share/doc/tar/NEWS.gz
+73e99daa2ed147051d5b56ced1c0d35c  usr/share/doc/tar/README.Debian
+84c8d6b7292c634c28aa6a7459100bc2  usr/share/doc/tar/THANKS.gz
+c4ff8116bf8a8bae91eb885fc9386219  usr/share/doc/tar/changelog.Debian.gz
+6cc9239a1f4b61c5ea9db23f92b2d20b  usr/share/doc/tar/copyright
+839366c963bacae6354538e3069a0b3b  usr/share/man/man1/tar.1.gz
+9376d82eb54e507863d32114dddd3de6  usr/share/man/man1/tarcat.1.gz
+0c3fccaff5ac48955683060e3ac1639b  usr/share/man/man8/rmt-tar.8.gz

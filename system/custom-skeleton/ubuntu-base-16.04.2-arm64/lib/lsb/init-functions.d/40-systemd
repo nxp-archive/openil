@@ -1,0 +1,89 @@
+# -*-Shell-script-*-
+# /lib/lsb/init-functions
+
+_use_systemctl=0
+if [ -d /run/systemd/system ]; then
+
+    prog=${0##*/}
+    service="${prog%.sh}.service"
+
+    # Don't try to run masked services. Don't check for errors, if
+    # this errors, we'll just call systemctl and possibly explode
+    # there.
+    state=$(systemctl -p LoadState show $service 2>/dev/null)
+    [ "$state" = "LoadState=masked" ] && exit 0
+
+    # Redirect SysV init scripts when executed by the user
+    if [ $PPID -ne 1 ] && [ -z "${init:-}" ] && [ -z "${_SYSTEMCTL_SKIP_REDIRECT:-}" ]; then
+        case $(readlink -f "$0") in
+            /etc/init.d/*)
+                _use_systemctl=1
+                # Some services can't reload through the .service file,
+                # but can through the init script.
+                if [ "$(systemctl -p CanReload show $service 2>/dev/null)" = "CanReload=no" ] && [ "${1:-}" = "reload" ]; then
+                    _use_systemctl=0
+                fi
+                ;;
+        esac
+    else
+        export _SYSTEMCTL_SKIP_REDIRECT="true"
+    fi
+fi
+
+systemctl_redirect () {
+    local s
+    local rc
+    local prog=${1##*/}
+    local command=$2
+
+    case "$command" in
+        start)
+            s="Starting $prog (via systemctl)"
+            ;;
+        stop)
+            s="Stopping $prog (via systemctl)"
+            ;;
+        reload|force-reload)
+            s="Reloading $prog configuration (via systemctl)"
+            ;;
+        restart)
+            s="Restarting $prog (via systemctl)"
+            ;;
+    esac
+
+    service="${prog%.sh}.service"
+
+    # avoid deadlocks during bootup and shutdown from units/hooks
+    # which call "invoke-rc.d service reload" and similar, since
+    # the synchronous wait plus systemd's normal behaviour of
+    # transactionally processing all dependencies first easily
+    # causes dependency loops
+    if ! OUT=$(systemctl is-system-running 2>/dev/null) && [ "$OUT" != "degraded" ]; then
+        sctl_args="--job-mode=ignore-dependencies"
+    fi
+
+    [ "$command" = status ] || log_daemon_msg "$s" "$service"
+    /bin/systemctl --no-pager $sctl_args $command "$service"
+    rc=$?
+    [ "$command" = status ] || log_end_msg $rc
+
+    return $rc
+}
+
+if [ "$_use_systemctl" = "1" ]; then
+    # Some init scripts use "set -e" and "set -u", we don't want that
+    # here
+    set +e
+    set +u
+
+    if  [ "x$1" = xstart -o \
+        "x$1" = xstop -o \
+        "x$1" = xrestart -o \
+        "x$1" = xreload -o \
+        "x$1" = xforce-reload -o \
+        "x$1" = xstatus ] ; then
+
+        systemctl_redirect $0 $1
+        exit $?
+    fi
+fi

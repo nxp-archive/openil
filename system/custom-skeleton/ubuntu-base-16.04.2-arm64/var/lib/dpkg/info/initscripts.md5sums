@@ -1,0 +1,10 @@
+a50abe354f8239e49870ee9c8ae4d6e1  etc/init.d/skeleton
+e8fb1c90e996b6cfec5850bf67c3d534  lib/init/vars.sh
+982a8ab75a85d43e66b4c883c27bfddd  sbin/fsck.nfs
+b08f1bc25f8fe46b451080a09cde29dc  usr/share/doc/initscripts/NEWS.Debian.gz
+c180312380a3cd7751d7639a2fc32410  usr/share/doc/initscripts/README.Debian
+0ffeeda1b62c9233d6621bc45e93eaf9  usr/share/doc/initscripts/copyright
+475ee284d8591e9266e006f7fa438acb  usr/share/lintian/overrides/initscripts
+9b40dd2f601a971ff2ff9a1b3dbad2f6  usr/share/man/man5/halt.5.gz
+c5f143fb68da69aec8c26506c51f856d  usr/share/man/man5/rcS.5.gz
+a9a4afb2d26656ab1255417643a0318d  usr/share/man/man8/fsck.nfs.8.gz

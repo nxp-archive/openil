@@ -1,0 +1,7 @@
+[Unit]
+Description=Shut down containers on SIGPWR
+ConditionVirtualization=container
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemctl --no-block poweroff

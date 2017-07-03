@@ -1,0 +1,165 @@
+#!/bin/sh
+# This script can be called in the following ways:
+#
+# Before the package is removed:
+#      <prerm> remove
+#
+# Before an upgrade:
+#      <old-prerm> upgrade <new-version>
+# if that fails:
+#      <new-prerm> failed-upgrade <old-version>
+#
+#
+# Before package is deconfigured while dependency is replaced due to conflict:
+#      <prerm> deconfigure in-favour <new-package> <version>
+#              removing <old-package> <version>
+#
+# Before the package is replaced due to conflict:
+#      <prerm> remove in-favour <new-package> <version>
+
+set -e
+
+ensure_no_triggers_noawait()
+{
+    admindir=${DPKG_ADMINDIR:-/var/lib/dpkg}
+    pkgadmindir=$admindir/info
+
+    trig_noawait=$(find "$pkgadmindir" -name "*.triggers" -type f | \
+                   xargs -r grep -El "^(interest|activate)-(no)?await" | \
+		   sed -e 's,^.*/\([^/.:]\+\)[^/]\+$,\1,')
+
+    # Abort if we cannot possibly downgrade
+    if [ -n "$trig_noawait" ]; then
+        cat <<- MSG
+	dpkg: error: You have packages using the "interest-noawait" and/or
+	"activate-noawait" trigger directives but the dpkg version that
+	you're trying to downgrade to doesn't support them. Aborting
+	downgrade.
+
+	List of affected packages:
+
+	$trig_noawait
+	MSG
+        exit 1
+    fi
+
+    bad_triggers_files=$(find "$admindir/triggers" -type f | \
+                         xargs -r grep -l "/noawait$" || true)
+    if [ -n "$bad_triggers_files" ]; then
+        cat <<- MSG
+	dpkg: error: Some internal trigger files unexpectedly reference
+	packages tagged with "/noawait" while their corresponding
+	infodb files doesn't seem to contain any "interest-noawait"
+	directive. Aborting the downgrade as those tags are not supported
+	by the version you're trying to downgrade to.
+
+	List of internal trigger files that are affected:
+
+	$bad_triggers_files
+	MSG
+	exit 1
+    fi
+}
+
+downgrade_multiarch_infodb()
+{
+    admindir=${DPKG_ADMINDIR:-/var/lib/dpkg}
+    pkgadmindir=$admindir/info
+    triggersdir=$admindir/triggers
+
+    coinst_pkgs="`ls "$pkgadmindir" | \
+        sed -n -e 's/^\([^:]\+:[^.]\+\)\..*$/\1/p' | sort -u | \
+        cut -d: -f1 | uniq -d`"
+
+    # Abort if we cannot possibly downgrade
+    if [ -n "$coinst_pkgs" ]; then
+        cat <<- MSG
+	dpkg: error: You have more than one architecture instance for some
+	installed 'Multi-Arch: same' packages, to be able to downgrade dpkg
+	you will need to have only one instance installed per package.
+
+	List of co-installed packages:
+
+	$coinst_pkgs
+	MSG
+        exit 1
+    fi
+
+    bad_dep_pkgs=$(dpkg-query -f '${Package}\t${Depends} ${Recommends} ${Suggests} ${Enhances} ${Conflicts} ${Replaces} ${Breaks}\n' -W | \
+        grep ":any" | cut -f1 | sort -u)
+    if [ -n "$bad_dep_pkgs" ]; then
+        cat <<- MSG
+	dpkg: error: Some installed packages have multiarch dependencies that
+	the old dpkg won't parse. You should get rid of them (or downgrade
+	them to versions without those dependencies) before proceeding with
+	dpkg's downgrade.
+
+	List of affected packages:
+
+	$bad_dep_pkgs
+	MSG
+        exit 1
+    fi
+
+    dep_fields='Depends|Recommends|Suggests|Enhances|Conflicts|Replaces|Breaks'
+    if grep -qE "^($dep_fields):.*:any" $admindir/available; then
+	cat <<- MSG
+	dpkg: error: Some available packages have multiarch dependencies that
+	the old dpkg won't parse. You should clear this file before proceeding
+	with dpkg's downgrade, with:
+
+	  # dpkg --clear-avail
+	MSG
+	exit 1
+    fi
+
+    file_triggers_pkgs="`sed -n -e 's/^[^ ]\+ \([^:]\+\):[^.]\+$/\1/p' \
+        $triggersdir/File| sort -u`"
+
+    if [ -n "$file_triggers_pkgs" ]; then
+	cat <<-MSG
+	dpkg: error: The triggers database contains arch-qualified package
+	names that the old dpkg won't parse. You should get rid of them (or
+	downgrade them to a non Multi-Arch: same version) before proceeding
+	with dpkg's downgrade.
+
+	List of affected packages:
+
+	$file_triggers_pkgs
+	MSG
+	exit 1
+    fi
+
+    echo "Downgrading the multiarch dpkg control files database ..."
+    ls $pkgadmindir | grep : | while read oldfile; do
+        # We first do a round of hardlinks to the new names, so that the db
+        # will never be unusable for either of the dpkg versions.
+        newfile=$(echo $oldfile | sed -e 's/:[^.]\+//')
+        ln -f "$pkgadmindir/$oldfile" "$pkgadmindir/$newfile"
+    done
+}
+
+case "$1" in
+    upgrade)
+        # Allow the downgrade only if no package is using the
+	# (interest|activate)-noawait trigger directives
+        if dpkg --compare-versions "$2" lt 1.16.1; then
+            ensure_no_triggers_noawait
+        fi
+        # Downgrade the multiarch db to a “monoarch” db layout
+        if dpkg --compare-versions "$2" lt 1.16.2; then
+            downgrade_multiarch_infodb
+        fi
+        ;;
+
+    remove|failed-upgrade|deconfigure)
+        ;;
+
+    *)
+        echo "$0 called with unknown argument '$1'" 1>&2
+        exit 1
+        ;;
+esac
+
+
+exit 0

@@ -1,0 +1,21 @@
+#! /bin/sh
+#
+# fsck.nfs
+#
+# Dummy fsck.nfs file that always returns success. We
+# need this for when the root file system is on NFS:
+# there is no way to find out if root is NFS mounted
+# and we really want to do a "fsck -a /".
+#
+
+while :
+do
+	case "$1" in
+		-*) shift ;;
+		*) break ;;
+	esac
+done
+
+echo "$1: NFS file system."
+
+exit 0

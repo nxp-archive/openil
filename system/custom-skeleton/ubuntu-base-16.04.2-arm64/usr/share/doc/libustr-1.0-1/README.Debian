@@ -1,0 +1,26 @@
+ustr in Debian
+--------------
+
+Ustr is now packaged without ustr-import script and sources. If you want
+embed Ustr into your project, please use the upstream code.
+
+Binary packages of ustr included in Debian distribution are without debug
+version of library, but if you want to get debug version, you can build
+additional debug packages yourself. You need to get source package probably
+using
+
+    apt-get source ustr
+
+and then use debian/control.wdbg instead of debian/control. Simply do
+
+    cp debian/control.wdbg debian/control
+
+Then you can build binary packages. You will get additional debug packages
+not included in Debian distribution e.g.:
+
+    libustr-debug-1.0-1-dbg_1.0.4-4_amd64.deb
+    libustr-debug-1.0-1_1.0.4-4_amd64.deb
+    libustr-debug-dev_1.0.4-4_amd64.deb
+
+
+ -- Václav Ovsík <vaclav.ovsik@i.cz>  Sun, 15 Mar 2015 01:34:26 +0100

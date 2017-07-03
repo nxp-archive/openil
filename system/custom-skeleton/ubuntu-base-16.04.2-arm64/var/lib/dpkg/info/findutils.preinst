@@ -1,0 +1,74 @@
+#!/bin/sh
+
+set -e
+
+# Inspired from
+# http://wiki.debian.org/DpkgConffileHandling
+# Move contents from dpkg-conffile to optional (not dpkg-managed) file
+mv_with_comment_conffile() {
+    PKGNAME="$1"
+    CONFFILE="$2"
+    OPTIONALCONFIG="$3"
+
+    if [ -e "$CONFFILE" ]; then
+        md5sum="`md5sum \"$CONFFILE\" | sed -e \"s/ .*//\"`"
+        old_md5sum="`dpkg-query -W -f='${Conffiles}' $PKGNAME | sed -n -e \"\\\\' $CONFFILE'{s/ obsolete$//;s/.* //p}\"`"
+        if [ "$md5sum" = "$old_md5sum" ]; then
+            echo "Removing obsolete conffile $CONFFILE ..."
+            rm -f "$CONFFILE"
+        else
+            if [ -e "$OPTIONALCONFIG" ] ; then
+            # $CONFFILE has been removed, but user has already generated 
+            # non-dpkgconffile OPTIONALCONFIG
+                echo "Obsolete conffile $CONFFILE has been modified by you."
+                echo "Saving as $CONFFILE.dpkg-bak ..."
+                mv "$CONFFILE" "$CONFFILE".dpkg-bak
+            else
+                echo generating "$OPTIONALCONFIG" from user modified "$CONFFILE"
+                { echo "# Generated from $CONFFILE when upgrading $PKGNAME" 
+                    cat "$CONFFILE" ; } \
+                    > "$OPTIONALCONFIG"
+                chmod --reference="$CONFFILE" "$OPTIONALCONFIG"
+                echo "Saving $CONFFILE as $CONFFILE.dpkg-bak ..."
+                mv "$CONFFILE" "$CONFFILE".dpkg-bak
+            fi
+        fi
+    fi
+}
+
+
+# Remove a no-longer used conffile
+# http://wiki.debian.org/DpkgConffileHandling
+rm_conffile() {
+  PKGNAME="$1"
+  CONFFILE="$2"
+
+  if [ -e "$CONFFILE" ]; then
+    md5sum="`md5sum \"$CONFFILE\" | sed -e \"s/ .*//\"`"
+    old_md5sum="`dpkg-query -W -f='${Conffiles}' $PKGNAME | sed -n -e \"\\\\' $CONFFILE'{s/ obsolete$//;s/.* //p}\"`"
+    if [ "$md5sum" != "$old_md5sum" ]; then
+      echo "Obsolete conffile $CONFFILE has been modified by you."
+      echo "Saving as $CONFFILE.dpkg-bak ..."
+      mv -f "$CONFFILE" "$CONFFILE".dpkg-bak
+    else
+      echo "Removing obsolete conffile $CONFFILE ..."
+      rm -f "$CONFFILE"
+    fi
+  fi
+}
+
+case "$1" in
+  install|upgrade)
+    if dpkg --compare-versions "$2" lt-nl "4.2.31-2"; then
+    # delete if unchanged, rename otherwise.
+      mv_with_comment_conffile findutils "/etc/updatedb.conf" \
+        /etc/updatedb.findutils.cron.local
+      rm_conffile findutils "/etc/cron.daily/find"
+    fi
+  ;;
+esac
+
+
+
+
+# vim:tabstop=2:expandtab:shiftwidth=2

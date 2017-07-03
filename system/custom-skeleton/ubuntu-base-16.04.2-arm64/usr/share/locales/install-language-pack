@@ -1,0 +1,19 @@
+#!/bin/sh -e
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <language code> <class> [<version>]"
+    exit 0
+fi
+
+# install locales for base packages (not for gnome/kde)
+if [ -z "$2" ]; then
+    # Update requested locales if locales-all is not installed
+    if dpkg-query -s locales-all >/dev/null 2>&1 ; then
+        echo "locales-all installed, skipping locales generation"
+    else
+        /usr/sbin/locale-gen --keep-existing "$1"
+    fi
+fi
+
+# ensure that .desktop caches are up to date
+dpkg-trigger gmenucache || true

@@ -1,0 +1,85 @@
+#!/bin/sh -e
+
+
+
+# don't stomp on non-Linux users
+if [ "$(uname -s)" != "Linux" ]
+then
+    exit 0
+fi
+
+cd /dev
+
+# don't stomp on devfs users
+if  [ -c .devfsd ]
+then
+    echo ".devfsd presence implies active DevFS.  Aborting postinst before touching /dev."
+    # use exit 0, not 1, since this isn't a failure, per se
+    exit 0
+fi
+
+MAKEDEV std consoleonly fd
+
+# ensure base tty set exists, since debootstrap no longer does
+for i in tty0 tty1 tty2 tty3 tty4 tty5 tty6 tty7 tty8 tty9; do
+	test -e /dev/$i || MAKEDEV $i
+done
+
+chmod g-r,o= /dev/tty[0-9]*
+
+test -e /dev/random || MAKEDEV random
+test -e /dev/urandom || MAKEDEV urandom
+test -e /dev/audio || MAKEDEV audio
+test -e /dev/agpgart || MAKEDEV agpgart
+
+[ ! -f /dev/mouse ] && [ -f /dev/sunmouse ] && ln -s sunmouse mouse
+
+# force update of fb devices if they already exist
+if [ -e /dev/fb0 ]
+then
+	MAKEDEV fb
+fi
+
+for A in sda16 sdb16 sdc16 sdd16 sde16 sdf16 sdg16 sdh16 \
+	 ada16 adb16 adc16 add16 ade16 adf16 adg16 adh16
+do
+	test -e /dev/$A && rm /dev/$A
+done
+
+for A in logibm psaux inportbm atibm jbm smouse logimouse psmouse \
+msmouse atimouse jmouse amigamouse atarimouse sunmouse amigamouse1
+do
+	test -e /dev/$A && chmod 600 /dev/$A
+done
+
+# fix security hole caused by group-write permissions on kmem
+test -e /dev/kmem && chown root:kmem /dev/kmem && chmod 0640 /dev/kmem
+
+LIST=""
+
+for TYPE in tty pty ; do
+	for LETTER in p q r s t u v w x y z a b c d e ; do
+		if [ -e /dev/$TYPE$LETTER"0" ]; then
+			MAJOR="`ls -l /dev/$TYPE$LETTER"0"|cut -c33-36`"
+			if [ "$MAJOR" = 4 ] ; then
+				LIST="$LIST $TYPE$LETTER"
+			fi
+		fi
+	done
+done
+
+if [ -n "$LIST" ]; then
+	cat > /etc/rc.boot/makedev << EOF
+#!/bin/sh
+
+echo "Creating new console devices"
+MAKEDEV $LIST
+
+rm /etc/rc.boot/makedev ; exit 0
+EOF
+
+chmod 755 /etc/rc.boot/makedev
+
+fi
+
+exit 0

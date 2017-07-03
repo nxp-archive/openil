@@ -1,0 +1,144 @@
+escape_char /
+comment_char %
+%
+% Uyghur Latin locale
+% Source:    http://en.wikipedia.org/wiki/Uyghur_language
+% Contact:   Eagle Burkut
+% Email:     eagle.burkut@gmail.com
+% Language:  ug
+% Territory: CN
+% Revision:  1.00
+% Date:      2012-03-17
+% Users:     general
+% Charset:   UTF-8
+% Distribution and use is free,
+% also for commercial purposes.
+
+LC_IDENTIFICATION
+title     "Uyghur Latin locale"
+source    "http://en.wikipedia.org/wiki/Uyghur_language"
+address   ""
+contact   "Eagle Burkut"
+email     "eagle.burkut@gmail.com"
+tel       ""
+fax       ""
+language  "Uyghur"
+territory "China"
+revision  "1.00"
+date      "2012-03-17"
+
+category "ug_CN@latin:2012";LC_IDENTIFICATION
+category "ug_CN@latin:2012";LC_CTYPE
+category "ug_CN@latin:2012";LC_COLLATE
+category "ug_CN@latin:2012";LC_TIME
+category "ug_CN@latin:2012";LC_NUMERIC
+category "ug_CN@latin:2012";LC_MONETARY
+category "ug_CN@latin:2012";LC_MESSAGES
+category "ug_CN@latin:2012";LC_PAPER
+category "ug_CN@latin:2012";LC_NAME
+category "ug_CN@latin:2012";LC_ADDRESS
+category "ug_CN@latin:2012";LC_TELEPHONE
+
+END LC_IDENTIFICATION
+
+LC_COLLATE
+copy "iso14651_t1"
+END LC_COLLATE
+
+LC_CTYPE
+copy "i18n"
+END LC_CTYPE
+
+LC_MONETARY
+copy "ug_CN"
+END LC_MONETARY
+
+LC_NUMERIC
+copy "ug_CN"
+END LC_NUMERIC
+
+LC_TELEPHONE
+copy "ug_CN"
+END LC_TELEPHONE
+
+LC_TIME
+
+abday "<U0059><U0065>";/
+      "<U0044><U00FC>";/
+      "<U0053><U0065>";/
+      "<U0043><U0068>";/
+      "<U0050><U0065>";/
+      "<U004A><U00FC>";/
+      "<U0053><U0068>"
+day   "<U0059><U0065><U006B><U0073><U0068><U0065><U006E><U0062><U0065>";/
+      "<U0044><U00FC><U0073><U0068><U0065><U006E><U0062><U0065>";/
+      "<U0053><U0065><U0079><U0073><U0068><U0065><U006E><U0062><U0065>";/
+      "<U0043><U0068><U0061><U0072><U0073><U0068><U0065><U006E><U0062><U0065>";/
+      "<U0050><U0065><U0079><U0073><U0068><U0065><U006E><U0062><U0065>";/
+      "<U004A><U00FC><U006D><U0065>";/
+      "<U0053><U0068><U0065><U006E><U0062><U0065>"
+abmon "<U0051><U0065>";/
+      "<U0048><U0075>";/
+      "<U004E><U006F>";/
+      "<U00DC><U006D>";/
+      "<U0042><U0061>";/
+      "<U0053><U0065>";/
+      "<U0043><U0068>";/
+      "<U0054><U006F>";/
+      "<U004D><U0069>";/
+      "<U004F><U007A>";/
+      "<U004F><U0071>";/
+      "<U004B><U00F6>"
+mon   "<U0051><U0065><U0068><U0072><U0069><U0074><U0061><U006E>";/
+      "<U0048><U0075><U0074>";/
+      "<U004E><U006F><U0072><U0075><U007A>";/
+      "<U00DC><U006D><U0069><U0064>";/
+      "<U0042><U0061><U0068><U0061><U0072>";/
+      "<U0053><U0065><U0070><U0065><U0072>";/
+      "<U0043><U0068><U0069><U006C><U006C><U0065>";/
+      "<U0054><U006F><U006D><U0075><U007A>";/
+      "<U004D><U0069><U007A><U0061><U006E>";/
+      "<U004F><U0067><U0068><U0075><U007A>";/
+      "<U004F><U0067><U0068><U006C><U0061><U0071>";/
+      "<U004B><U00F6><U006E><U0065><U006B>"
+
+% %a, %Y-%m-%d, %T (abday, YYYY-mm-dd, HH:MM:SS) (Ye, 2012-12-31, 23:08:59)
+d_t_fmt  "<U0025><U0061><U002C><U0020><U0025><U0059><U002D><U0025><U006D><U002D><U0025><U0064>/
+<U002C><U0020><U0025><U0054>"
+
+% %a, %Y-%m-%d (abday, YYYY-mm-dd) (Ye, 2012-12-31)
+d_fmt    "<U0025><U0061><U002C><U0020><U0025><U0059><U002D><U0025><U006D><U002D><U0025><U0064>"
+
+% %T (HH:MM:SS)
+t_fmt    "<U0025><U0054>"
+
+am_pm    "";""
+
+% %a, %Y-%m-%d, %T (abday, YYYY-mm-dd, HH:MM:SS) (Ye, 2012-12-31, 23:08:59)
+date_fmt "<U0025><U0061><U002C><U0020><U0025><U0059><U002D><U0025><U006D><U002D><U0025><U0064>/
+<U002C><U0020><U0025><U0054>"
+
+END LC_TIME
+
+LC_MESSAGES
+yesexpr "<U005E><U005B><U0079><U0059><U005D><U002E><U002A>"
+noexpr  "<U005E><U005B><U006E><U004E><U005D><U002E><U002A>"
+yesstr  "<U0059><U0065><U0073>"
+nostr   "<U004E><U006F>"
+END LC_MESSAGES
+
+LC_PAPER
+copy "ug_CN"
+END LC_PAPER
+
+LC_MEASUREMENT
+copy "ug_CN"
+END LC_MEASUREMENT
+
+LC_NAME % to be fixed
+copy "ug_CN"
+END LC_NAME
+
+LC_ADDRESS % to be fixed
+copy "ug_CN"
+END LC_ADDRESS

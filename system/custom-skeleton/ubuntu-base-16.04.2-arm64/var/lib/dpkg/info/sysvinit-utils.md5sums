@@ -1,0 +1,10 @@
+577bafcaef83802b9db334592475bf61  lib/init/init-d-script
+755e404b679ecbae7786c612f5765a19  sbin/fstab-decode
+7a484dca130ef2913a759e26617a55b7  sbin/killall5
+9122276dc0654a671a61927d57f3abf7  usr/share/doc/sysvinit-utils/NEWS.Debian.gz
+e461146794d417a593e67d69e54d1349  usr/share/doc/sysvinit-utils/changelog.Debian.gz
+c0c88c885a61973dd72de395303e740b  usr/share/doc/sysvinit-utils/copyright
+bc017ce1710c54a194c595715c913439  usr/share/man/man5/init-d-script.5.gz
+c172504e5212373615b90bd200c07278  usr/share/man/man8/fstab-decode.8.gz
+4ab6c03a792358b76634f981118e2e00  usr/share/man/man8/killall5.8.gz
+7d17d58c6afd49181f80c166b5961e99  usr/share/man/man8/pidof.8.gz

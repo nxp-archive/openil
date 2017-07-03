@@ -1,0 +1,49 @@
+For a long time I have wanted to switch from using PGP 2.x to using GPG
+(because it's Free).  But I didn't want to give up my trusty PGP key,
+which has a long history and has gathered a lot of signatures that
+I would have trouble getting again.
+
+Now that the RSA patent has expired, GPG comes with RSA support
+by default.  This means that it's actually possible to convert
+your PGP key to a GPG key, and use it normally with GPG.
+
+The steps are quite easy.  I wrote them down here, because I expect
+that a number of Debian maintainers are in the same situation
+and can benefit from this advice.
+
+Note that the GPG FAQ contains a section about the same thing,
+but it's aimed at maintaining compatibility with PGP 2.x.
+The procedure I describe here is designed solely to switch
+to GPG without giving up your PGP key.  It will not let you
+exchange encrypted mail with someone who still uses (only) PGP 2.x.
+But if you ever need to do that, you can pull out your old copy
+of PGP for that -- it's the same key!
+
+Here are the steps:
+
+  1. Back up your .pgp directory, and your .gnupg directory (if any).
+     Note: I started with an empty .gnupg directory for this.
+     If you already have a GPG ring with a set of keys, you'll
+     end up having two keys with probably the same userids.
+     That won't break anything, but it can be confusing and it
+     is easy to accidentally use the wrong key.
+
+  2. Import your secret and public keys into GPG.
+     Command:
+     gpg --import $HOME/.pgp/secring.pgp $HOME/.pgp/pubring.pgp
+     There doesn't seem to be a way to tell GPG to import only selected
+     keys from those files, so you may want to first use PGP to export
+     your keys to a small keyring.  (Do not use ASCII armor for that.)
+     I simply imported all the keys, because I wanted to convert to using
+     GPG for everything.
+
+  3. Check if everything worked.  Sign and encrypt a small file,
+     mail it to a friend, see if you can decrypt something mailed
+     to you, upload a Debian package, that sort of thing.
+
+Well, I hope this helps someone.  I wrote this down after exactly one
+experience with converting keys -- I'd love to have feedback from
+someone else who tried it.
+
+Richard Braakman
+with tips from Adam Rogoyski, Marco d'Itri, and Andrew Pimlott.

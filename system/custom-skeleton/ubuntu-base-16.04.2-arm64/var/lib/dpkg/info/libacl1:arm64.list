@@ -1,0 +1,11 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libacl1
+/usr/share/doc/libacl1/changelog.Debian.gz
+/usr/share/doc/libacl1/copyright
+/lib
+/lib/aarch64-linux-gnu
+/lib/aarch64-linux-gnu/libacl.so.1.1.0
+/lib/aarch64-linux-gnu/libacl.so.1

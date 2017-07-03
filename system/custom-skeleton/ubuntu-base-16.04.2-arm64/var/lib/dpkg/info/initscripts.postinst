@@ -1,0 +1,304 @@
+#! /bin/sh
+#
+# initscripts postinst
+#
+
+set -e
+
+. /lib/init/vars.sh
+
+# Set this as a variable to hide from lintian the fact that we're removing
+# it; otherwise, a wrong lintian check + ftp fatal autoreject prevents us
+# from uploading this legitimate code, even though the previous upload was
+# accepted without incident.
+devshm=/dev/shm
+
+case "$1" in
+  configure)
+	PREV_VER=$2
+	;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+	exit 0
+	;;
+esac
+
+umask 022
+
+compat_link () {
+	SRC=$1
+	DEST=$2
+
+	ssrc="$(stat -L --format="%d %i" "$SRC" 2>/dev/null || :)"
+	sdest="$(stat -L --format="%d %i" "$DEST" 2>/dev/null || :)"
+
+	if [ -n "$ssrc" ] && [ "$ssrc" != "$sdest" ]; then
+		echo "guest environment detected: Linking $DEST to $SRC"
+		(
+			if [ -e $DEST ]; then
+				if [ -L $DEST ]; then
+					echo "$DEST is already a symlink; not replacing with link to $SRC"
+					exit 0
+				elif [ -d $DEST ]; then
+					rmdir $DEST || exit 1
+				else
+					echo "$DEST isn't a directory or a symlink"
+					exit 1
+				fi
+			fi
+			ln -fs $SRC $DEST
+		) || {
+			echo "Can't symlink $DEST to $SRC; please fix manually."
+			return 1
+		}
+		if which restorecon >/dev/null 2>&1; then
+			restorecon "$DEST"
+		fi
+	fi
+
+	return 0
+}
+
+# In 2.88dsf-23 the "mountoverflowtmp" script was dropped entirely.
+if dpkg --compare-versions "$PREV_VER" lt-nl "2.88dsf-23" ; then
+        update-rc.d -f mountoverflowtmp remove >/dev/null
+fi
+# In 2.88dsf-41+jessie1 the "mtab.sh" script was dropped entirely.
+if dpkg --compare-versions "$PREV_VER" lt-nl "2.88dsf-41+jessie1" ; then
+        update-rc.d -f mtab.sh remove >/dev/null
+fi
+
+# Comment out obsolete options in rcS.
+if dpkg --compare-versions "$PREV_VER" lt-nl "2.88dsf-23" ; then
+    if [ -f /etc/default/rcS ]; then
+	sed -i \
+-e 's:^\(RAMRUN=.*\)$:#\1 # OBSOLETE; see /etc/default/tmpfs and tmpfs(5).:' \
+-e 's:^\(RAMLOCK=.*\)$:#\1 # OBSOLETE; see /etc/default/tmpfs and tmpfs(5).:' \
+-e ':^RAMSHM=:i# OBSOLETE; see /etc/default/tmpfs and tmpfs(5).' \
+-e ':^RAMTMP=:i# OBSOLETE; see /etc/default/tmpfs and tmpfs(5).' \
+-e 's:^\(EDITMOTD=.*\)$:#\1 # OBSOLETE.:' /etc/default/rcS
+    fi
+fi
+
+#
+# Links in runlevel S
+#
+if [ -x /etc/init.d/mountkernfs.sh ]; then
+update-rc.d mountkernfs.sh         defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/hostname.sh ]; then
+update-rc.d hostname.sh            defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/mountdevsubfs.sh ]; then
+update-rc.d mountdevsubfs.sh       defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/checkroot.sh ]; then
+update-rc.d checkroot.sh           defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/checkroot-bootclean.sh ]; then
+update-rc.d checkroot-bootclean.sh defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/checkfs.sh ]; then
+update-rc.d checkfs.sh             defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/mountall.sh ]; then
+update-rc.d mountall.sh            defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/mountall-bootclean.sh ]; then
+update-rc.d mountall-bootclean.sh  defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/mountnfs.sh ]; then
+update-rc.d mountnfs.sh            defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/mountnfs-bootclean.sh ]; then
+update-rc.d mountnfs-bootclean.sh  defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/bootmisc.sh ]; then
+update-rc.d bootmisc.sh            defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/urandom ]; then
+update-rc.d urandom                defaults >/dev/null || exit $?
+fi
+
+#
+# Links in runlevels other than S
+#
+if [ -x /etc/init.d/halt ]; then
+update-rc.d halt                   defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/reboot ]; then
+update-rc.d reboot                 defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/umountroot ]; then
+update-rc.d umountroot             defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/umountfs ]; then
+update-rc.d umountfs               defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/umountnfs.sh ]; then
+update-rc.d umountnfs.sh           defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/sendsigs ]; then
+update-rc.d sendsigs               defaults >/dev/null || exit $?
+fi
+
+if [ -x /etc/init.d/killprocs ]; then
+update-rc.d killprocs              defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/single ]; then
+update-rc.d single                 defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/ondemand ]; then
+update-rc.d ondemand               defaults >/dev/null || exit $?
+fi
+if [ -x /etc/init.d/rc.local ]; then
+update-rc.d rc.local               defaults >/dev/null || exit $?
+fi
+
+#
+# Remove scripts that were left behind by older glibc (<< 2.3.2.ds1-12)
+# versions. We have the same functionality in mount{kern,devsub}fs.sh
+#
+#
+# In 2.86.ds1-10 the "mountvirtfs" script was replaced by
+# mountkernfs.sh and mountdevsubfs.sh.  It was removed completely in
+# 2.86.ds1-16.
+#
+for F in mountkernfs devpts.sh mountvirtfs
+do
+	rm -f /etc/init.d/$F
+	update-rc.d $F remove >/dev/null
+done
+
+#
+# When installing for the first time or upgrading from a version
+# before or equal to 2.88dsf-14, a reboot is needed to make the /run
+# tmpfs available.  Flag this using notify-reboot-required.  /run is
+# available in some form before the reboot, so the need for a reboot
+# isn't particularly urgent.
+#
+if dpkg --compare-versions "$PREV_VER" le "2.88dsf-13.3" \
+ && [ -x /usr/share/update-notifier/notify-reboot-required ]; then
+	/usr/share/update-notifier/notify-reboot-required
+fi
+
+#
+# Create initial log files
+#
+[ "$PREV_VER" ] || chmod 755 /var/log/fsck || :
+for F in /var/log/dmesg /var/log/fsck/checkroot /var/log/fsck/checkfs
+do
+	if [ ! -f "$F" ] && touch "$F" >/dev/null 2>&1
+	then
+		echo "(Nothing has been logged yet.)" >| "$F"
+		chown root:adm "$F"
+		chmod 640 "$F"
+	fi
+done
+
+#
+# Create /dev/pts, /dev/shm directories
+#
+if [ "$(uname -s)" = Linux ]
+then
+	#
+	# Only create /dev/{pts,shm} if /dev is on the
+	# root file system. If some package has mounted a
+	# seperate /dev (ramfs from udev, devfs) it is
+	# responsible for the presence of those subdirs.
+	# (it is OK for these to fail under fakechroot)
+	#
+	if ! mountpoint -q /dev
+	then
+		# clean up /dev/shm -> /run/shm and /run/shm -> /dev/shm
+		# circular symlinks
+		if [ -L /dev/shm ] && [ "$(readlink /dev/shm)" = "/run/shm" ]; then
+			if [ -L /run/shm ] && [ "$(readlink /run/shm)" = "/dev/shm" ]; then
+				rm /run/shm
+				mkdir --mode=1777 /run/shm
+			fi
+		fi
+		[ -d /dev/pts ] || { mkdir --mode=755 /dev/pts ; chown root:root /dev/pts || [ "$FAKECHROOT" = true ]; }
+		[ -d /dev/shm ] || { mkdir --mode=1777 /dev/shm ; chown root:root /dev/shm || [ "$FAKECHROOT" = true ]; }
+	fi
+fi
+
+#
+# Install runsystem.sysv on Hurd.
+#
+if [ "$(uname -s)" = GNU ]
+then
+	get_runsystem() {
+	    update-alternatives --query runsystem \
+		| sed -n -e '/^Value:/s|.*\.||p'
+	}
+
+	current="$(get_runsystem)"
+	update-alternatives --quiet \
+		--install /etc/hurd/runsystem runsystem \
+		/etc/hurd/runsystem.sysv 10 \
+		--slave /sbin/halt halt /sbin/halt-sysv \
+		--slave /sbin/reboot reboot /sbin/reboot-sysv
+	new="$(get_runsystem)"
+
+	if [ "$current" != "$new" ]; then
+	    echo "Switching from runsystem.$current to runsystem.$new."
+	    echo
+	fi
+
+	echo "You can use update-alternatives --config runsystem to select"
+	echo "the runsystem to use."
+	echo
+	echo "You must use halt-hurd or reboot-hurd to halt or reboot the"
+	echo "system whenever you change the runsystem."
+fi
+
+# Ensure we have a random seed on first boot.
+if [ "$PREV_VER" = "" ]; then
+	if which invoke-rc.d >/dev/null 2>&1
+	then
+		invoke-rc.d urandom start || true
+	else
+		/etc/init.d/urandom start || true
+	fi
+fi
+
+#
+# Create /etc/rc.local on first time install and when upgrading from
+# versions before "2.86.ds1-16"
+#
+if dpkg --compare-versions "$PREV_VER" lt "2.86.ds1-16"
+then
+	if [ ! -e /etc/rc.local ]; then
+		cat << EOF > /etc/rc.local
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+exit 0
+EOF
+		# make sure it's enabled by default.
+		chmod 755 /etc/rc.local
+	fi
+fi
+
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/bootlogd 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/stop-bootlogd-single 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/stop-bootlogd 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+
+
+:

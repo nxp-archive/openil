@@ -1,0 +1,2 @@
+libcryptsetup 4 libcryptsetup4 (>= 2:1.6.6)
+udeb: libcryptsetup 4 libcryptsetup4-udeb (>= 2:1.6.6)

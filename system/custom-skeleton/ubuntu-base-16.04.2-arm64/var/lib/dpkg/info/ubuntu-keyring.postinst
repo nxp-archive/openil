@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# the keyring in /var that gets fetched by apt-key net-update
+# if it does not yet exist, copy it to avoid uneeded net copy
+KEYRINGDIR="/var/lib/apt/keyrings"
+KEYRING="${KEYRINGDIR}/ubuntu-archive-keyring.gpg"
+
+if ! test -d $KEYRINGDIR; then
+     mkdir -m 755 -p $KEYRINGDIR
+fi
+
+if ! test -f $KEYRING; then
+     cp /usr/share/keyrings/ubuntu-archive-keyring.gpg $KEYRING
+     touch $KEYRING
+fi
+
+# sensible default permissions if there is no keyring yet
+# (gpg will use 0600 otherwise and that will break release-upgrades later)
+ETC_KEYRING="/etc/apt/trusted.gpg"
+if [ ! -f $ETC_KEYRING ]; then
+    touch $ETC_KEYRING
+    chmod 0644 $ETC_KEYRING
+fi
+
+# during maverick we had keyrings created with mode 0600
+# but this will break tools like update-managers release-downloader
+# because it uses the trusted.gpg keyring to verify the signature (as user)
+if dpkg --compare-versions "$2" lt-nl "2010.+09.30"; then
+    chmod 0644 $ETC_KEYRING
+fi
+
+# make sure apt knows about the new keys
+if [ -x /usr/bin/apt-key ]; then
+    /usr/bin/apt-key update
+fi
+

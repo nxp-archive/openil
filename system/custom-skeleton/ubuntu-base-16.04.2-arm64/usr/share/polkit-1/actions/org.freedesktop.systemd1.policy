@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+        "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+
+        <vendor>The systemd Project</vendor>
+        <vendor_url>http://www.freedesktop.org/wiki/Software/systemd</vendor_url>
+
+        <action id="org.freedesktop.systemd1.reply-password">
+                <description>Send passphrase back to system</description>
+                <description xml:lang="be">Адправіць пароль назад сістэме</description>
+                <description xml:lang="be@latin">Adpravić paroĺ nazad sistemie</description>
+                <description xml:lang="da">Send adgangssætning tilbage til systemet</description>
+                <description xml:lang="de">Passphrase zurück an das System senden</description>
+                <description xml:lang="el">Αποστολή του συνθηματικού πίσω στο σύστημα</description>
+                <description xml:lang="es">Devolver contraseña al sistema</description>
+                <description xml:lang="fr">Renvoyer la phrase secrète au système</description>
+                <description xml:lang="gl">Enviar frase de paso de volta ao sistema</description>
+                <description xml:lang="hu">Jelmondat visszaküldése a rendszernek</description>
+                <description xml:lang="it">Inviare la frase segreta (passphrase) al sistema</description>
+                <description xml:lang="ko">시스템에 암호문 보내기</description>
+                <description xml:lang="pl">Wysłanie hasła z powrotem do systemu</description>
+                <description xml:lang="pt_BR">Enviar frase secreta de volta ao sistema</description>
+                <description xml:lang="ru">Отправить пароль системе</description>
+                <description xml:lang="sr">Пошаљите фразу ка систему</description>
+                <description xml:lang="sv">Skicka tillbaka lösenfras till system</description>
+                <description xml:lang="tr">Sisteme parolayı geri gönder</description>
+                <description xml:lang="uk">Надіслати пароль назад у систему</description>
+                <description xml:lang="zh_CN">将密码发回系统</description>
+                <description xml:lang="zh_TW">傳回密碼片語到系統</description>
+                <message>Authentication is required to send the entered passphrase back to the system.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для адпраўкі пароля назад сістэме.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia adpraŭki parolia nazad sistemie.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at sende adgangssætning tilbage til systemet.</message>
+                <message xml:lang="de">Legitimierung ist zum Senden des eingegebenen Kennworts zurück an das System notwendig.</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για αποστολή του εισερχόμενου συνθηματικού πίσω στο σύστημα.</message>
+                <message xml:lang="es">Se requiere autenticación para devolver la contraseña introducida al sistema.</message>
+                <message xml:lang="fr">Authentification requise pour renvoyer la phrase secrète au système.</message>
+                <message xml:lang="gl">Requírese autenticación para enviar a frase de paso escrita de volta ao sistema.</message>
+                <message xml:lang="hu">Hitelesítés szükséges a bevitt jelmondat visszaküldéséhez a rendszernek.</message>
+                <message xml:lang="it">Autenticazione richiesta per inviare la frase segreta (passphrase) al sistema.</message>
+                <message xml:lang="ko">시스템에 입력한 암호를 보내려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby wysłać podane hasło z powrotem do systemu.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para enviar a frase secreta informada de volta ao sistema.</message>
+                <message xml:lang="ru">Чтобы отправить пароль системе, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте послали фразу назад у систем.</message>
+                <message xml:lang="sv">Autentisering krävs för att skicka tillbaka den angivna lösenfrasen till systemet.</message>
+                <message xml:lang="tr">Sisteme parolayı geri göndermek kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб надіслати введений пароль назад у систему.</message>
+                <message xml:lang="zh_CN">将输入的密码发回系统需要验证。</message>
+                <message xml:lang="zh_TW">傳回已輸入的密碼片語到系統需要驗證。</message>
+                <defaults>
+                        <allow_any>no</allow_any>
+                        <allow_inactive>no</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+                <annotate key="org.freedesktop.policykit.exec.path">/lib/systemd/systemd-reply-password</annotate>
+        </action>
+
+        <action id="org.freedesktop.systemd1.manage-units">
+                <description>Manage system services or other units</description>
+                <description xml:lang="be">Кіраваць сэрвісамі і іншымі сістэмнымі адзінкамі</description>
+                <description xml:lang="be@latin">Kiravać servisami i inšymi sistemnymi adzinkami</description>
+                <description xml:lang="da">Håndtér system services eller andre enheder</description>
+                <description xml:lang="de">Systemdienste und andere Einheiten verwalten</description>
+                <description xml:lang="es">Administrar servicios del sistema u otras unidades</description>
+                <description xml:lang="fr">Gérer les services système ou les unités</description>
+                <description xml:lang="gl">Xestionar os servizos do sistema ou outras unidades</description>
+                <description xml:lang="hu">Rendszerszolgáltatások vagy más egységek kezelése</description>
+                <description xml:lang="it">Gestisci i servizi o le altre unità di sistema</description>
+                <description xml:lang="ko">시스템 서비스 또는 기타 유닛 관리</description>
+                <description xml:lang="pl">Zarządzanie usługami lub innymi jednostkami systemu</description>
+                <description xml:lang="ru">Управление системными службами и юнитами</description>
+                <description xml:lang="sr">Управљајте системским услугама и другим јединицама</description>
+                <description xml:lang="sv">Hantera systemtjänster eller andra enheter</description>
+                <description xml:lang="tr">Sistem servislerini veya diğer birimlerini yönet</description>
+                <description xml:lang="uk">Керувати системними службами й іншими одиницями</description>
+                <description xml:lang="zh_CN">管理系统服务或其它单元</description>
+                <description xml:lang="zh_TW">管理系統服務或其他單位</description>
+                <message>Authentication is required to manage system services or other units.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для кіравання сэрвісамі і іншымі сістэмнымі адзінкамі.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia kiravannia servisami i inšymi sistemnymi adzinkami.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at håndtere system services og andre enheder.</message>
+                <message xml:lang="de">Legitimierung ist notwendig für die Verwaltung von Systemdiensten und anderen Einheiten.</message>
+                <message xml:lang="es">Se requiere autenticación para administrar los servicios de sistema u otras unidades.</message>
+                <message xml:lang="fr">Authentification requise pour gérer les services système ou les unités.</message>
+                <message xml:lang="gl">Requírese autenticación para xestionar os servizos do sistema ou outras unidades</message>
+                <message xml:lang="hu">Hitelesítés szükséges a rendszerszolgáltatások vagy más egységek kezeléséhez.</message>
+                <message xml:lang="it">Autenticazione richiesta per gestire i servizi o le altre unità di sistema.</message>
+                <message xml:lang="ko">시스템 서비스 또는 기타 유닛을 관리하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby zarządzać usługami lub innymi jednostkami systemu.</message>
+                <message xml:lang="ru">Для управления системными службами и юнитами, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте управљали системским услугама или другим јединицама.</message>
+                <message xml:lang="sv">Autentisering krävs för att hantera systemtjänster eller andra enheter.</message>
+                <message xml:lang="tr">Sistem servislerini veya diğer birimlerini yönetmek kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб керувати системними службами й іншими одиницями.</message>
+                <message xml:lang="zh_CN">管理系统服务或其它单元需要验证。</message>
+                <message xml:lang="zh_TW">管理系統服務或其他單位需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin</allow_any>
+                        <allow_inactive>auth_admin</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+        <action id="org.freedesktop.systemd1.manage-unit-files">
+                <description>Manage system service or unit files</description>
+                <description xml:lang="be">Кіраваць файламі сэрвісаў і іншых сістэмных адзінак</description>
+                <description xml:lang="be@latin">Kiravać fajlami servisaŭ i inšych sistemnych adzinak</description>
+                <description xml:lang="da">Håndtér system services eller enhedsfiler</description>
+                <description xml:lang="de">Systemdienste und Einheitendateien verwalten</description>
+                <description xml:lang="es">Administrar servicio del sistema o archivos de unidad</description>
+                <description xml:lang="fr">Gérer le service système ou ses fichiers unités</description>
+                <description xml:lang="gl">Xestionar os servizos do sistema ou outros ficheiros</description>
+                <description xml:lang="hu">Rendszerszolgáltatás- vagy egységfájlok kezelése</description>
+                <description xml:lang="it">Gestisci i file dei servizi o delle unità di sistema</description>
+                <description xml:lang="ko">시스템 서비스 또는 유닛 파일 관리</description>
+                <description xml:lang="pl">Zarządzanie plikami usług lub jednostek systemu</description>
+                <description xml:lang="pt_BR">Gerenciar arquivos de unidades e serviços do sistema</description>
+                <description xml:lang="ru">Управление файлами конфигурации системных служб и юнитов</description>
+                <description xml:lang="sr">Управљајте системском услугом или јединичним датотекама</description>
+                <description xml:lang="sv">Hantera systemtjänster eller enhetsfiler</description>
+                <description xml:lang="tr">Sistem servislerini veya birim dosyalarını yönet</description>
+                <description xml:lang="uk">Керувати системними службами й файлами одиниць</description>
+                <description xml:lang="zh_CN">管理系统服务或单元文件</description>
+                <description xml:lang="zh_TW">管理系統服務或單位檔案</description>
+                <message>Authentication is required to manage system service or unit files.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для кіравання файламі сэрвісаў і іншых сістэмных адзінак.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia kiravannia fajlami servisaŭ i inšych sistemnych adzinak.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at håndtere system service eller enhedsfiler.</message>
+                <message xml:lang="de">Legitimierung ist notwendig für die Verwaltung von Systemdiensten und Einheitendateien.</message>
+                <message xml:lang="es">Se requiere autenticación para administrar el servicio de sistema o los archivos de unidad.</message>
+                <message xml:lang="fr">Authentification requise pour gérer le service système ou ses fichiers unités.</message>
+                <message xml:lang="gl">Requírese autenticación para xestionar os servizos do sistema ou outros ficheiros.</message>
+                <message xml:lang="hu">Hitelesítés szükséges a rendszerszolgáltatás- vagy egységfájlok kezeléséhez.</message>
+                <message xml:lang="it">Autenticazione richiesta per gestire i file dei servizi o delle unità di sistema.</message>
+                <message xml:lang="ko">시스템 서비스 또는 유닛 파일을 관리하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby zarządzać plikami usług lub jednostek systemu.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para gerenciar arquivos "unit" e "service" do sistema.</message>
+                <message xml:lang="ru">Для управления файлами конфигурации системных служб и юнитов, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте управљали системском услугом или јединичним датотекама.</message>
+                <message xml:lang="sv">Autentisering krävs för att hantera systemtjänster eller enhetsfiler.</message>
+                <message xml:lang="tr">Sistem servislerini veya birim dosyalarını yönetmek kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб керувати системними службами й файлами одиниць.</message>
+                <message xml:lang="zh_CN">管理系统服务或单元文件需要验证。</message>
+                <message xml:lang="zh_TW">管理系統服務或單位檔案需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin</allow_any>
+                        <allow_inactive>auth_admin</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+        <action id="org.freedesktop.systemd1.set-environment">
+                <description>Set or unset system and service manager environment variables</description>
+                <description xml:lang="be">Усталяваць або скінуць зменныя асяроддзя сістэмнага мэнэджэра</description>
+                <description xml:lang="be@latin">Ustaliavać abo skinuć zmiennyja asiaroddzia sistemnaha menedžera</description>
+                <description xml:lang="da">Sæt eller fjern system- og service-forvalter miljøvariabler</description>
+                <description xml:lang="de">Umgebungsvariablen der System- und Dienstverwaltung festlegen oder entfernen</description>
+                <description xml:lang="es">Administrar variables de entorno del sistema y del gestor de servicios</description>
+                <description xml:lang="fr">Définir ou supprimer des variables d'environnement du système ou du gestionnaire de services</description>
+                <description xml:lang="gl">Estabelecer ou desestabelecer as variables de ambiente do sistema ou do xestor de servizos</description>
+                <description xml:lang="hu">Rendszer- és szolgáltatáskezelő környezeti változóinak beállítása vagy törlése</description>
+                <description xml:lang="it">Configura le variabili d'ambiente per la gestione dei servizi e del sistema</description>
+                <description xml:lang="ko">시스템 및 서비스 관리자 환경 변수 설정 또는 설정 해제</description>
+                <description xml:lang="pl">Ustawienie lub usunięcie zmiennych środowiskowych menedżera systemu i usług</description>
+                <description xml:lang="ru">Настроить переменные окружения для системного менеджера</description>
+                <description xml:lang="sr">Мењајте променљиве окружења на систему и унутар управника услуга</description>
+                <description xml:lang="sv">Ställ in eller ta bort miljövariabler för system- och servicehanterare</description>
+                <description xml:lang="tr">Sistem ve servis yöneticisi ortam değişkenlerini ayarla ya da kaldır</description>
+                <description xml:lang="uk">Встановити або забрати змінну середовища з керування службами і системою</description>
+                <description xml:lang="zh_CN">设置或清除系统及服务管理器的环境变量</description>
+                <description xml:lang="zh_TW">設定或取消設定系統及服務管理員環境變量</description>
+                <message>Authentication is required to set or unset system and service manager environment variables.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўсталявання або скіду зменных асяроддзя сістэмнага мэнэджэра.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭstaliavannia abo skidu zmiennych asiaroddzia sistemnaha menedžera.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at sætte eller fjerne system- og service-forvalter miljøvariabler.</message>
+                <message xml:lang="de">Legitimierung ist notwendig für die System- und Dienstverwaltung.</message>
+                <message xml:lang="es">Se requiere autenticación para administrar las variables de entorno del sistema y del gestor de servicios.</message>
+                <message xml:lang="fr">Authentification requise pour définir ou supprimer des variables d'environnement du système ou du gestionnaire de services.</message>
+                <message xml:lang="gl">Requírese autenticación para estabelecer ou desestabelecer as variables de ambiente do sistema ou do xestor de servizos</message>
+                <message xml:lang="hu">Hitelesítés szükséges a rendszer- és szolgáltatáskezelő környezeti változóinak beállításához vagy törléséhez.</message>
+                <message xml:lang="it">Autenticazione richiesta per configurare le variabili d'ambiente per la gestione dei servizi e del sistema</message>
+                <message xml:lang="ko">시스템 및 서비스 관리자 환경 변수를 설정하거나 설정 해제하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby ustawić lub usunąć zmienne środowiskowe menedżera systemu i usług.</message>
+                <message xml:lang="ru">Чтобы настроить переменные окружения для системного менеджера, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте мењали променљиве окружења на систему и унутар управника услуга.</message>
+                <message xml:lang="sv">Autentisering krävs för att ställa in eller ta bort miljövariabler för system- och servicehanterare.</message>
+                <message xml:lang="tr">Sistem ve servis yöneticisi ortam değişkenlerini ayarlamak ya da kaldırmak kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб установити або забрати змінні середовища з керування службами і системою.</message>
+                <message xml:lang="zh_CN">设置或清除系统及服务管理器的环境变量需要验证。</message>
+                <message xml:lang="zh_TW">設定或取消設定系統及服務管理員環境變量時需要驗證</message>
+                <defaults>
+                        <allow_any>auth_admin</allow_any>
+                        <allow_inactive>auth_admin</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+        <action id="org.freedesktop.systemd1.reload-daemon">
+                <description>Reload the systemd state</description>
+                <description xml:lang="be">Перачытаць стан systemd</description>
+                <description xml:lang="be@latin">Pieračytać stan systemd</description>
+                <description xml:lang="da">Genindlæs systemd tilstand</description>
+                <description xml:lang="de">Den systemd-Zustand neu laden</description>
+                <description xml:lang="es">Recargar el estado de systemd</description>
+                <description xml:lang="fr">Recharger l'état de systemd</description>
+                <description xml:lang="gl">Recargar o estado de systemd</description>
+                <description xml:lang="hu">A systemd állapotának újratöltése</description>
+                <description xml:lang="it">Riavviare lo stato di systemd</description>
+                <description xml:lang="ko">systemd 상태 다시 불러오기</description>
+                <description xml:lang="pl">Ponowne wczytanie stanu systemd</description>
+                <description xml:lang="pt_BR">Recarregar o estado do sistema</description>
+                <description xml:lang="ru">Перечитать конфигурацию systemd</description>
+                <description xml:lang="sr">Поново учитајте стање систем-деа</description>
+                <description xml:lang="sv">Läs om tillståndet för systemd</description>
+                <description xml:lang="tr">systemd durumunu yeniden yükle</description>
+                <description xml:lang="uk">Перезапустити стан системи</description>
+                <description xml:lang="zh_CN">重新载入 systemd 状态</description>
+                <description xml:lang="zh_TW">重新載入 systemd 狀態</description>
+                <message>Authentication is required to reload the systemd state.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для перачытання стану systemd.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia pieračytannia stanu systemd.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at genindlæse systemd tilstanden.</message>
+                <message xml:lang="de">Legitimierung ist zum erneuten Laden des systemd-Zustands notwendig.</message>
+                <message xml:lang="es">Se requiere autenticación para recargar el estado de systemd.</message>
+                <message xml:lang="fr">Authentification requise pour recharger l'état de systemd</message>
+                <message xml:lang="gl">Requírese autenticación para recargar o estado de systemd.</message>
+                <message xml:lang="hu">Hitelesítés szükséges a systemd állapotának újratöltéséhez.</message>
+                <message xml:lang="it">Autenticazione richiesta per riavviare lo stato di sistemd.</message>
+                <message xml:lang="ko">systemd 상태를 다시 불러오려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby ponownie wczytać stan systemd.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para recarregar o estado do sistema.</message>
+                <message xml:lang="ru">Чтобы заставить systemd перечитать конфигурацию, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте поново учитали стање систем-деа.</message>
+                <message xml:lang="sv">Autentisering krävs för att läsa om tillståndet för systemd.</message>
+                <message xml:lang="tr">systemd durumunu yeniden yüklemek kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб перезапустити стан системи.</message>
+                <message xml:lang="zh_CN">重新载入 systemd 状态需要验证。</message>
+                <message xml:lang="zh_TW">重新載入 systemd 狀態需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin</allow_any>
+                        <allow_inactive>auth_admin</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+</policyconfig>

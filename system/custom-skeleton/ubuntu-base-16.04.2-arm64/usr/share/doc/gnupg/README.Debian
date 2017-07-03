@@ -1,0 +1,18 @@
+GnuPG for Debian
+================
+
+A comprehensive manual (the GNU Privacy Handbook) is included in the
+gnupg-doc package.  It can also be found online at
+<http://www.gnupg.org/documentation/guides.html>.
+
+Smart card readers
+------------------
+If udev, consolekit, and gnupg are installed, then locally logged-in
+users will be automatically granted permission to access any detected
+USB SmartCard reader devices.
+
+/lib/udev/rules.d/60-gnupg.rules lists the supported devices.  If yours
+is not listed there, you can try creating a copy of that file in
+/etc/udev/rules.d/ with your device’s information.  Wishlist bugs
+against the gnupg package about unsupported devices would be welcome.
+

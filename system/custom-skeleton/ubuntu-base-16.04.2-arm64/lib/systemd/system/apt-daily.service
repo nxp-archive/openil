@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily apt activities
+Documentation=man:apt(8)
+ConditionACPower=true
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/apt/apt.systemd.daily
+

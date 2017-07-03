@@ -1,0 +1,24 @@
+This package was debianized by Philipp Matthias Hahn <pmhahn@debian.org> on
+Wed, 21 Mar 2007 09:47:19 +0100.
+
+It was downloaded from http://people.redhat.com/sgrubb/audit/
+
+Upstream Author: Rik Faith
+                 Steve Grubb <sgrubb@redhat.com>
+
+Copyright: 2005-2008 Steve Grubb <sgrubb@redhat.com>
+
+License:
+
+The audit daemon is released as GPL'd code. The audit daemon's library
+libaudit.* is released under LGPL so that it may be linked with 3rd
+party software.
+
+The files in src/libev/ are Copyright (C) 2007,2008,2009 Marc Alexamder Lehmann
+
+The Debian packaging is copyright 2007-2011, Philipp Matthias Hahn <pmhahn@debian.org> and is licensed under the GPL.
+
+On Debian systems, refer to /usr/share/common-licenses/LGPL-2.1
+for the complete text of the GNU Lesser General Public License.
+On Debian systems, the complete text of the GNU General Public
+License can be found in /usr/share/common-licenses/GPL file.

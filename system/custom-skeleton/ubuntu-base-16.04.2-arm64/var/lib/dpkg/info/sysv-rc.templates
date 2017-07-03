@@ -1,0 +1,198 @@
+Template: sysv-rc/unable-to-convert
+Type: note
+Description: Unable to migrate to dependency-based boot system
+ Problems in the boot system exist which are preventing migration to
+ dependency-based boot sequencing:
+ .
+ ${PROBLEMATIC}
+ .
+ If the reported problem is a local modification, it needs to be fixed
+ manually.  These are typically due to obsolete conffiles being left
+ after a package has been removed, but not purged.  It is suggested
+ that these are removed by running:
+ .
+ ${SUGGESTION}
+ .
+ Package installation can not continue until the above problems have
+ been fixed.  To reattempt the migration process after these problems
+ have been fixed, run "dpkg --configure sysv-rc".
+Description-ca.UTF-8: No ha estat possible migrar al sistema d'arrencada basat en dependències
+ Existeixen els següents problemes en el sistema d'arrencada, que impedeixen la migració a la seqüència d'engegada basada en dependències:
+ .
+ ${PROBLEMATIC}
+ .
+ Si el problema comunicat és una modificació local, cal solucionar-ho manualment. Aquests problemes solen ser a causa de fitxers de configuració obsolets que no s'han eliminat després de la eliminació d'un paquet, sense haver-ho purgat. Es suggereix que s'eliminin executant:
+ .
+ ${SUGGESTION}
+ .
+ La instal·lació del paquet no pot continuar fins que no es solucionin els problemes llistats. Per tornar a intentar el proces de migració, una vegada solucionats els problemes, executeu «dpkg --configure sysv-rc».
+Description-cs.UTF-8: Nelze přejít na systém zavádění založený na závislostech
+ Problémy v zaváděcím systému, které brání v přechodu na systém zavádění založený na závislostech:
+ .
+ ${PROBLEMATIC}
+ .
+ Pokud je nahlášený problém lokální úpravou, je nutno jej opravit ručně. Typicky to bývají staré konfigurační soubory, které v systému zůstaly po odstranění balíku (ne vyčištění). Můžete je zkusit odstranit příkazem:
+ .
+ ${SUGGESTION}
+ .
+ Instalace balíku nemůže pokračovat, dokud nebudou zmíněné problémy vyřešeny. Po vyřešení problémů se můžete pokusit o nový přechod příkazem „dpkg --configure sysv-rc“.
+Description-da.UTF-8: Kunne ikke migrere til afhængighedsbaseret opstartssystem
+ Der findes problemer i opstartssystemet som forhindrer migrering til afhængighedsbaserede opstartssekvenser:
+ .
+ ${PROBLEMATIC}
+ .
+ Hvis de rapporterede problemer er lokale ændringer, skal de rettes manuelt. Problemet skyldes typisk forældede konfigurationsfiler efterladt efter at en pakke er blevet fjernet, men ikke afinstalleret. Det foreslås at disse fjernes ved at køre:
+ .
+ ${SUGGESTION}
+ .
+ Pakkeinstallation kan ikke fortsætte, før at de ovenstående problemer er blevet rettet. For at prøve migreringsprocessen igen efter at problemerne er blevet rettet, kør »dpkg-reconfigure sysv-rc«.
+Description-de.UTF-8: Es konnte nicht auf abhängigkeitsbasierte Systemstartreihenfolge umgestellt werden.
+ Im Startsystem gibt es Probleme, die eine Umstellung auf abhängigkeitsbasierte Systemstartreihenfolge verhindern:
+ .
+ ${PROBLEMATIC}
+ .
+ Falls das gemeldete Problem von einer lokalen Änderung rührt, muss es manuell behoben werden. Dies sind normalerweise veraltete Conffiles, die zurückgeblieben sind, als ein Paket gelöscht, aber nicht vollständig entfernt wurde. Es wird empfohlen, diese zu entfernen, indem Folgendes ausgeführt wird:
+ .
+ ${SUGGESTION}
+ .
+ Die Paketinstallation kann nicht fortgesetzt werden, bis obige Probleme behoben wurde. Um den Umstellungsprozess nach dem Lösen dieser Probleme erneut zu versuchen, führen Sie »dpkg --configure sysv-rc« aus.
+Description-es.UTF-8: No se ha podido migrar al sistema de arranque basado en dependencias
+ Existen los siguientes problemas en el sistema de arranque que impiden la migración a la secuencia de arranque basada en dependencias:
+ .
+ ${PROBLEMATIC}
+ .
+ Debe solucionar manualmente el problema reportado si se trata de una modificación local. Habitualmente estos problemas se deben a ficheros de configuración obsoletos que se mantienen tras haber borrado, pero no purgado, un paquete. Se sugiere eliminar éstos ejecutando:
+ .
+ ${SUGGESTION}
+ .
+ El paquete de instalación no puede continuar hasta que los problemas se hayan arreglado. Para reintentar el proceso de migración una vez estos problemas se hayan solucionado, ejecute «dpkg --configure sysv-rc».
+Description-fr.UTF-8: Impossible de migrer vers le nouveau systÃ¨me de dÃ©marrage basÃ© sur les dÃ©pendances
+ En raison de problÃ¨mes dans le systÃ¨me de dÃ©marrage, la migration vers la nouvelle sÃ©quence de dÃ©marrage basÃ©e sur les dÃ©pendances n'est pas possible.
+ .
+ ${PROBLEMATIC}
+ .
+ Si le problÃ¨me indiquÃ© est une modification locale, il est nÃ©cessaire de le corriger vous-mÃªme. Ces problÃ¨mes sont typiquement dÃ»s Ã  des fichiers de configuration obsolÃ¨tes laissÃ©s aprÃ¨s qu'un paquet ait Ã©tÃ© supprimÃ© ou purgÃ©. Il est suggÃ©rÃ© de les supprimer en exÃ©cutantÂ :
+ .
+ ${SUGGESTION}
+ .
+ L'installation du paquet ne peut pas continuer tant que les problÃ¨mes ci-dessus n'ont pas Ã©tÃ© rÃ©parÃ©s. Pour retenter le processus de migration, une fois que les problÃ¨mes ont Ã©tÃ© corrigÃ©s, vous pouvez exÃ©cuter la commande Â«Â dpkg-reconfigure sysv-rcÂ Â».
+Description-gl.UTF-8: Non foi posíbel migrar para o sistema baseado en dependencias
+ Hai problemas no sistema de arranque que fan que non se poida migrar para a secuencia baseada en dependencias:
+ .
+ ${PROBLEMATIC}
+ .
+ Se o problema mencionado é unha modificación local, debe ser arranxado manualmente. Estes problemas débense normalmente a ficheiros de configuración obsoletos deixados despois de que un paquete se eliminara, pero non se purgara. Suxíreselle que se borren estes ficheiros executando:
+ .
+ ${SUGGESTION}
+ .
+ A instalación do paquete non pode continuar ata que os problemas mencionados sexan arranxados. Para tentar de novo o proceso de migración tras arranxar os problemas execute «dpkg --configure sysv-rc».
+Description-ja.UTF-8: 依存関係ベースのブートシステムへの移行ができません
+ 起動システム中に問題があり、依存関係ベースのブートシーケンスへの移行作業を妨げています:
+ .
+ ${PROBLEMATIC}
+ .
+ 報告されている問題がローカルで変更したことによる場合は手作業で修正する必要があります。こういった問題はパッケージを完全削除ではなく削除したことにより古い設定ファイルが残っているときによく発生します。次のようにして古い設定ファイルを削除することを提案します:
+ .
+ ${SUGGESTION}
+ .
+ 上記の問題が修正されるまでパッケージのインストールを続けることはできません。問題修正後に移行作業を再度試みるには「dpkg-reconfigure sysv-rc」を実行してください。
+Description-nb.UTF-8: Kan ikke gå over til avhengighetsbasert oppstartsystem
+ Det finnes problemer i oppstartsystemet som hindrer en overgang til avhengighetsbasert oppstartrekkefølge:
+ .
+ ${PROBLEMATIC}
+ .
+ Hvis det rapporterte problemet er en lokal endring, så trengs det manuell reparasjon.  Disse kommer typisk av utdaterte conffiler som er etterlatt etter at en pakke har blitt fjernet men ikke renset ut.  Det foreslås at disse blir fjernet ved å kjøre:
+ .
+ ${SUGGESTION}
+ .
+ Pakkeinstallasjon kan ikke fortsett før de overnevnte problemene har blitt løst.  For å gjøre et nytt forsøk med overgangsprosessen etter at disse problemene er løst, kjør "dpkg-reconfigure sysv-rc".
+Description-nl.UTF-8: Niet mogelijk om te migreren naar de nieuwe opstartvolgorde
+ Er zijn problemen gevonden in het opstartsysteem die het migreren naar de nieuwe opstartvolgorde verhinderen:
+ .
+ ${PROBLEMATIC}
+ .
+ Als het gerapporteerde probleem een lokale wijziging is dient u dit handmatig op te lossen. Deze worden meestal veroorzaakt door verouderde conffiles die achter zijn gebleven nadat een pakket is verwijderd, maar niet gewist ('purge'). U wordt aangeraden deze te verwijderen door het uitvoeren van:
+ .
+ ${SUGGESTION}
+ .
+ De pakketinstallatie kan niet doorgaan totdat de bovenstaande problemen zijn opgelost. Na het oplossen van de problemen kunt u het migratieproces nogmaals proberen door "dpkg-reconfigure sysv-rc" uit te voeren.
+Description-no.UTF-8: Kan ikke gå over til avhengighetsbasert oppstartsystem
+ Det finnes problemer i oppstartsystemet som hindrer en overgang til avhengighetsbasert oppstartrekkefølge:
+ .
+ ${PROBLEMATIC}
+ .
+ Hvis det rapporterte problemet er en lokal endring, så trengs det manuell reparasjon.  Disse kommer typisk av utdaterte conffiler som er etterlatt etter at en pakke har blitt fjernet men ikke renset ut.  Det foreslås at disse blir fjernet ved å kjøre:
+ .
+ ${SUGGESTION}
+ .
+ Pakkeinstallasjon kan ikke fortsett før de overnevnte problemene har blitt løst.  For å gjøre et nytt forsøk med overgangsprosessen etter at disse problemene er løst, kjør "dpkg-reconfigure sysv-rc".
+Description-pl.UTF-8: Nie można zmienić systemu rozruchu na tryb oparty na zależnościach
+ Problemy w istniejącym systemie rozruchu uniemożliwiły migrację do trybu opartego na zależnościach:
+ .
+ ${PROBLEMATIC}
+ .
+ Jeśli zgłoszony problem wynika z lokalnej modyfikacji, musi być naprawiony ręcznie. Z reguły jest to skutek przestarzałych plików konfiguracyjnych, które pozostały po pakiecie, który został usunięty, lecz nie wyczyszczony. Zaleca się usunięcie ich, wykonując polecenie:
+ .
+ ${SUGGESTION}
+ .
+ Instalacja pakietu nie może być kontynuowana, dopóki powyższe problemy nie zostaną naprawione. Aby spróbować przeprowadzić migrację ponownie, po naprawieniu problemów, proszę wykonać polecenie "dpkg --configure sysv-rc".
+Description-pt.UTF-8: Incapaz de migrar para sistema de arranque baseado em dependências
+ Problemas no sistema de arranque que impedem a migração para sequência de arranque baseada em dependências de arranque:
+ .
+ ${PROBLEMATIC}
+ .
+ Se o problema relatado for uma modificação local, tem de ser corrigido manualmente. Tipicamente são devidos a ficheiros de configuração obsoletos que ficaram quando um pacote foi removido mas não purgado. É sugerido que estes sejam removidos ao correr:
+ .
+ ${SUGGESTION}
+ .
+ A instalação do pacote não pode continuar até os problemas acima terem sido corrigidos. Para tentar novamente o processo de migração após a resolução destes problemas, execute "dpkg-reconfigure sysv-rc".
+Description-pt_BR.UTF-8: Incapaz de migrar para o sistema de inicialização baseado em dependência
+ Existem problemas no sistema de inicialização que estão impedindo a migração para a sequência de inicialização baseada em dependência:
+ .
+ ${PROBLEMATIC}
+ .
+ Se o problema relatado é uma modificação local, ele deve ser corrigido manualmente. Tipicamente, esses problemas são devidos a arquivos de configuração obsoletos deixados depois de um pacote ter sido removido, mas não expurgado. É sugerido que esses arquivos sejam removidos executando:
+ .
+ ${SUGGESTION}
+ .
+ A instalação do pacote não pode continuar até que os problemas acima tenham sido corrigidos. Para tentar novamente o processo de migração depois desses problemas terem sido corrigidos, execute "dpkg --configure sysv-rc".
+Description-ru.UTF-8: Невозможно перейти на систему загрузки на основе зависимостей
+ В системе загрузки имеются проблемы, которые не дают осуществить переход на последовательность загрузки на основе зависимостей:
+ .
+ ${PROBLEMATIC}
+ .
+ Если описанная проблема возникла из-за локальных изменений, то необходимо ручное исправление. Обычно, это происходит из-за присутствия устаревших conffiles от удалённого, но не вычищенного пакета. Предлагаем вам удалять их с помощью команды:
+ .
+ ${SUGGESTION}
+ .
+ Установка пакета не будет продолжена, пока эти проблемы не будут решены. Чтобы попытаться выполнить переход ещё раз после устранения проблем, запустите «dpkg --configure sysv-rc».
+Description-sk.UTF-8: Nemožno prejsť na zavádzanie založené na závislosti
+ V systéme zavádzania existujú problémy, ktoré bránia prechodu na systém zavádzania založený na závislosti:
+ .
+ ${PROBLEMATIC}
+ .
+ Ak je hlásený problém lokálnou úpravou, musí byť opravený manuálne. Tieto prípady nastávajú najmä kvôli zastaraným konfiguračným súborom, ktoré ostali po odinštalovaní balíka bez vyčistenia (purge). Odporúčame ich odstránenie spustením:
+ .
+ ${SUGGESTION}
+ .
+ Inštalácia balíka nemôže pokračovať, kým tieto problémy nebudú odstránené. Na opätovné spustenie prechodu, po odstránení problémov, spusťte „dpkg-reconfigure sysv-rc”
+Description-sv.UTF-8: Kan inte gå över till beroendebaserat uppstartssystem
+ Det finns problem i uppstartssystemet som hindrar en övergång till beroendebaserat uppstartsordnande:
+ .
+ ${PROBLEMATIC}
+ .
+ Om det rapporterade problemet är en lokal förändring måste den justeras manuellt. Vanligen beror detta på utdaterade inställningsfiler som lämnats kvar efter att ett paket har tagits bort utan att rensa upp inställningar efter sig. Rådet är att raderas dessa genom att exekvera:
+ .
+ ${SUGGESTION}
+ .
+ Paketinstallationen kan inte fortsätta innan ovanstående problem har justerats. Om du vill göra ett nytt försök med övergången efter att problemen har rättats, kör "dpkg-reconfigure sysv-rc".
+Description-zh_CN.UTF-8: 无法迁移到基于依赖的引导系统
+ 引导系统中存在的阻止迁移到基于依赖的引导的问题有：
+ .
+ ${PROBLEMATIC}
+ .
+ 如果报告的问题是本地修改引起的，需要手动修复。通常是因为包被移除而不是清除造成的配置文件遗留。建议通过运行如下命令清除：
+ .
+ ${SUGGESTION}
+ .
+ 包安装无法继续，除非修复上述问题。修复上述问题之后，通过运行 "dpkg --configure sysv-rc" 重新尝试迁移。

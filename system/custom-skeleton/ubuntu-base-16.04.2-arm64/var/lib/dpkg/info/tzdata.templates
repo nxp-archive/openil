@@ -1,0 +1,967 @@
+Template: tzdata/Areas
+Type: select
+Choices: Africa, America, Antarctica, Australia, Arctic, Asia, Atlantic, Europe, Indian, Pacific, SystemV, US, Etc
+Choices-ca.UTF-8: Àfrica, Amèrica, Antàrtida, Austràlia, Àrtic, Àsia, Atlàntic, Europa, Índic, Pacífic, SystemV, US, Etc
+Choices-cs.UTF-8: Afrika, Amerika, Antarktida, Austrálie, Arktida, Asie, Atlantik, Evropa, Indický oceán, Pacifik, SystemV, US, Jiná
+Choices-da.UTF-8: Afrika, Amerika, Antarktis, Australien, Arktis, Asien, Atlanterhavstid, Europa, Indisk, Stillehavstid, SystemV, US, Etc
+Choices-de.UTF-8: Afrika, Amerika, Antarktis, Australien, Arktis, Asien, Atlantik, Europa, Indien, Pazifik, SystemV, US, Usw.
+Choices-en.UTF-8: Africa, America, Antarctica, Australia, Arctic Ocean, Asia, Atlantic Ocean, Europe, Indian Ocean, Pacific Ocean, System V timezones, US, None of the above
+Choices-es.UTF-8: África, América, Antártida, Australia, Ártico, Asia, Atlántico, Europa, India, Pacífico, SystemV, EEUU, Etc
+Choices-eu.UTF-8: Afrika, Amerika, Antartikoa, Australia, Artikoa, Asia, Atlantikoa, Europa, India, Pazifikoa, SystemV, AEB, Etab
+Choices-fr.UTF-8: Afrique, Amérique, Antarctique, Australie, Arctique, Asie, Atlantique, Europe, Océan Indien, Pacifique, Système V, US, Autre
+Choices-gl.UTF-8: África, América, Antártida, Australia, Ártico, Asia, Atlántico, Europa, Índico, Pacífico, SystemV, EEUU, Etc
+Choices-gu.UTF-8: આફ્રિકા, અમેરિકા, એન્ટાર્ટિકા, ઓસ્ટ્રેલિયા, આર્કટિક, એશિયા, એટલાન્ટિક, યુરોપ, ભારતીય, પેસેફિક, સિસ્ટમV, યુ.એસ., વગેરે
+Choices-he.UTF-8: אפריקה, אמריקה, אנטרקטיקה, אוסטרליה, החוג הארקטי, אסיה, אטלנטי, אירופה, הודי, פסיפיק (האוקיינוס השקט), SystemV, ארה"ב, עוד
+Choices-hu.UTF-8: Afrika, Amerika, Déli-sark, Ausztrália, Északi-sark, Ázsia, Atlanti, Európa, Indiai, Csendes-óceáni, SystemV, Egyesült Államok, Egyebek
+Choices-id.UTF-8: Afrika, Amerika, Antartika, Australia, Arktik, Asia, Atlantik, Eropa, India, Pasifik, Sistem V, US, ETC
+Choices-it.UTF-8: Africa, America, Antartide, Austrialia, Artide, Asia, Atlantico, Europa, Indiano, Pacifico, SystemV, Stati Uniti, Altre
+Choices-ja.UTF-8: アフリカ, アメリカ, 南極大陸, オーストラリア, 北極, アジア, 大西洋側, ヨーロッパ, インド地方, 太平洋側, SystemV, US, その他
+Choices-nl.UTF-8: Afrika, Amerika, Antarctica, Australië, Arctische Oceaan, Azië, Atlantische Oceaan, Europa, Indische Oceaan, Grote Oceaan, SystemV tijdzones, VS, Anders
+Choices-pl.UTF-8: Afryka, Ameryka, Antarktyda, Australia, Arktyka, Azja, Atlantyk, Europa, Ocean Indyjski, Pacyfik, (wg stref System V), USA, (wg stref GMT)
+Choices-pt.UTF-8: África, América, Antárctida, Austrália, Árctico, Ásia, Atlântico, Europa, Índico, Pacífico, SystemV, US, Etc
+Choices-pt_BR.UTF-8: África, América, Antárctica, Austrália, Ártico, Asia, Atlântico, Europa, Índia, Pacífico, SystemV, EUA, etc
+Choices-ru.UTF-8: Африка, Америка, Антарктида, Австралия, Арктика, Азия, Атлантика, Европа, Индийский регион, Тихоокеанский регион, В соответствии с SystemV, США, Другой
+Choices-sk.UTF-8: Afrika, Amerika, Antarktída, Austrália, Arktída, Ázia, Atlantický oceán, Európa, Indický oceán, Tichomorie, Konvencie SystemV, USA, ďalšie
+Choices-sv.UTF-8: Afrika, Amerika, Antarktis, Australien, Norra Ishavet, Asien, Atlanten, Europa, Indiska Oceanen, Stilla Havet, SystemV-tidszoner, US, Etc
+Choices-th.UTF-8: แอฟริกา, อเมริกา, แอนตาร์กติกา, ออสเตรเลีย, อาร์กติก, เอเชีย, แอตแลนติก, ยุโรป, มหาสมุทรอินเดีย, แปซิฟิก, SystemV, US, อื่นๆ
+Choices-tr.UTF-8: Afrika, Amerika, Antarktika, Avustralya, Kuzey Kutbu, Asya, Atlantik, Avrupa, Hindistan, Pasifik, SystemV, US, Diğer
+Description: Geographic area:
+ Please select the geographic area in which you live. Subsequent
+ configuration questions will narrow this down by presenting a list of
+ cities, representing the time zones in which they are located.
+Description-ca.UTF-8: Àrea geogràfica:
+ Si us plau, seleccioneu l'àrea geogràfica de residència. Les següents preguntes de configuració permetran aproximar encara més la selecció tot i mostrant una llista de ciutats que representen les zones horàries en les que es troben.
+Description-cs.UTF-8: Geografická oblast:
+ Vyberte prosím geografickou oblast, ve které se nacházíte. Následující otázky zobrazí seznam měst, která reprezentují časová pásma, ve kterých jsou města umístěna.
+Description-da.UTF-8: Geografisk område:
+ Vælg venligst det geografiske område du lever i. En række konfigurationsspørgsmål vil afgrænse dette ved at præsentere en række byer, der repræsenterer tidszonerne hvori de er placeret.
+Description-de.UTF-8: Geographisches Gebiet:
+ Bitte wählen Sie das geographische Gebiet aus, in dem Sie leben. Die folgenden Fragen werden dies durch eine Auswahl von Städten, die die Zeitzonen repräsentieren, in denen sie liegen, weiter einschränken.
+Description-en.UTF-8: Geographic area:
+ Please select the geographic area in which you live. Subsequent configuration questions will narrow this down by presenting a list of cities, representing the time zones in which they are located.
+Description-es.UTF-8: Área geográfica:
+ Por favor elija el área geográfica donde reside. Las siguientes preguntas de la configuración se ajustarán a ésta presentando una lista de ciudades, representando las zonas horarias en las que están localizadas.
+Description-eu.UTF-8: Eremu geografikoa
+ Hautatu bizi zaren area geografikoa. Konfigurazioko hurrengo galderek aukera hau zehaztuko dute kokaturik zauden eremuko hirien zerrenda aurkeztuz.
+Description-fr.UTF-8: Lieu géographique :
+ Veuillez choisir le lieu géographique où vous êtes situé(e). Les questions suivantes affineront ce choix en affichant une liste de villes qui représentent les fuseaux horaires où elles sont situées.
+Description-gl.UTF-8: Área xeográfica:
+ Escolla a área xeográfica na que reside. As seguintes preguntas de configuración han afinar máis a selección amosando unha lista de cidades que representan os fusos horarios nos que están situadas.
+Description-gu.UTF-8: ભૌગોલિક વિસ્તાર:
+ મહેરબાની કરી તમે જ્યાં રહેતા હોવ તે ભૌગોલિક વિસ્તાર પસંદ કરો. આગળનાં રુપરેખાંકન પ્રશ્નો શહેરોની યાદી બતાવીને, તમે જે જગ્યાએ છો તેનો સમય વિસ્તાર બતાવીને ટૂંકું બનાવશે.
+Description-he.UTF-8: אזור גיאוגרפי:
+ בחר בבקשה את האזור הגיאוגרפי שאתה חי בו. שאלות המשך יצמצמו את האפשרויות ע"י הצגת רשימת ערים המייצגות את אזורי הזמן שבהם הן נמצאות.
+Description-hu.UTF-8: Földrajzi terület:
+ Válaszd ki a földrajzi területet, ahol élsz. Ezt követően kiválaszthatod a várost és a városhoz tartozó időzónát.
+Description-id.UTF-8: Area Geografis:
+ Silakan pilih wilayah geografis tempat Anda berada. Beberapa pertanyaan selanjutnya akan mempersempit pilihan dengan menampilkan daftar kota, yang menggambarkan daerah waktu tempat kota tersebut berada.
+Description-it.UTF-8: Area geografica:
+ Scegliere l'area geografica in cui si vive. Successive domande restringeranno la lista presentando un elenco di città, che rappresentano i fusi orari nelle quali si trovano.
+Description-ja.UTF-8: 地理的領域:
+ あなたの居住する地理的領域を選んでください。続く設定質問で、位置する時間帯を表現する都市名のリストが表示されるので、これをより狭めていくことができます。
+Description-nl.UTF-8: Geografisch gebied:
+ Wat is het geografisch gebied waarin u leeft? In verder vragen krijgt u een lijst van steden te zien die de verschillende tijdzones in dit gebied representeren.
+Description-pl.UTF-8: Obszar geograficzny:
+ Proszę wybrać swój obszar geograficzny. Kolejne pytania konfiguracyjne zawężą go, prezentując listę miast reprezentujących strefy czasowe w których są położone.
+Description-pt.UTF-8: Área geográfica:
+ Por favor escolha a área geográfica onde vive. Seguidamente haverão mais perguntas de configuração que irão diminuir isto até uma lista de cidades que representam o fuso horário em que estão localizadas.
+Description-pt_BR.UTF-8: Área geográfica
+ Por favor, selecione a área geográfica na qual você vive. Perguntas de configuração subsequentes serão limitadas pela área geográfica selecionada, apresentando uma lista de cidades que representam os fusos horários nos quais elas estão localizadas.
+Description-ru.UTF-8: Географический район:
+ Выберите географический район, в котором вы живёте. Далее вам предложат подробный список городов, которые расположены в этом часовом поясе.
+Description-sk.UTF-8: Geografická oblasť:
+ Prosím, vyberte geografickú oblasť, kde žijete. Následné konfiguračné otázky zúžia výber a zobrazia vám iba zoznam miest reprezentujúcich časové pásma v ktorých sa nachádzajú.
+Description-sv.UTF-8: Geografiskt område:
+ Välj det geografiska område du bor i. Följande konfigurationsfrågor kommer att begränsa detta genom att presentera en lista med städer, som representerar de tidszoner i vilka de är placerade.
+Description-th.UTF-8: พื้นที่ภูมิศาสตร์
+ โปรดระบุพื้นที่ภูมิศาสตร์ที่คุณอยู่ คำถามถัดไปจะลดขอบเขตลงอีก โดยแสดงรายการชื่อเมืองที่เป็นตัวแทนเขตเวลาต่างๆ
+Description-tr.UTF-8: Coğrafi bölge:
+ Lütfen yaşadığınız coğrafi bölgeyi seçin. Sonraki yapılandırma soruları konumlandıkları saat dilimlerini temsil eden şehirlerin listesini sunarak bu seçiminizi daraltacak.
+
+Template: tzdata/Zones/Africa
+Type: select
+Choices: Abidjan, Accra, Addis_Ababa, Algiers, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Cairo, Casablanca, Ceuta, Conakry, Dakar, Dar_es_Salaam, Djibouti, Douala, El_Aaiun, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lome, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadishu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, Sao_Tome, Timbuktu, Tripoli, Tunis, Windhoek
+Choices-ca.UTF-8: Abidjan, Accra, Addis Abeba, Alger, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, El Caire, Casablanca, Ceuta, Conakry, Dakar, Dar es Salaam, Djibouti, Douala, El Aaiun, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lome, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadishu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, São Tomé, Timbuktu, Trípoli, Tunis, Windhoek
+Choices-cs.UTF-8: Abidžan, Akkra, Addis Abeba, Alžír, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Káhira, Casablanca, Ceuta, Conakry, Dakar, Dar es-Salaam, Djibouti, Douala, El Aaiun, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Chartům, Kigali, Kinshasa, Lagos, Libreville, Lomé, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadišu, Monrovia, Nairobi, N'Djamena, Niamey, Nouakchott, Ouagadougou, Porto Novo, Sao Tome, Timbuktu, Tripolis, Tunis, Windhoek
+Choices-da.UTF-8: Abidjan, Accra, Addis Ababa, Algier, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Kairo, Casablanca, Ceuta, Conakry, Dakar, Dar es Salaam, Djibouti, Douala, Laayoune, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lome, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadishu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, Sao Tome, Timbuktu, Tripoli, Tunis, Windhoek
+Choices-de.UTF-8: Abidjan, Accra, Addis Abeba, Algier, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Kairo, Casablanca, Ceuta, Conakry, Dakar, Dar es Salam, Dschibuti, Duala, El Ajun, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Khartum, Kigali, Kinshasa, Lagos, Libreville, Lomé, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadischu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, São Tomé, Timbuktu, Tripolis, Tunis, Windhoek
+Choices-en.UTF-8: Abidjan, Accra, Addis Ababa, Algiers, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Cairo, Casablanca, Ceuta, Conakry, Dakar, Dar es Salaam, Djibouti, Douala, El-Aaiún, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lome, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadishu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, Sao Tome, Timbuktu, Tripoli, Tunis, Windhoek
+Choices-es.UTF-8: Abiyán, Accra, Addis Ababa, Argel, Asmara, Bamako, Bangui, Banjul, Bissáu, Blantyre, Brazzaville, Bujumbura, El Cairo, Casablanca, Ceuta, Conakry, Dakar, Dar es Salaam, Yibuti, Duala, El Aaiun, Freetown, Gaborone, Harare, Johannesburgo, Yuba, Kampala, Jartum, Kigali, Kinshasa, Lagos, Libreville, Lomé, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadiscio, Monrovia, Nairobi, Ndjamena, Niamey, Nuakchott, Uagadugú, Puerto Nuevo, Santo Tomás, Tombuctú, Trípoli, Túnez, Windhoek
+Choices-eu.UTF-8: Abidjan, Accra, Addis Abeba, Alger, Asmara, Bamako, Bangi, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Kairo, Casablanca, Ceuta, Konakry, Dakar, Dar es Salaam, Djibuti, Douala, El Aaiun, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lome, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadishu, Monrovia, Nairobi, Ndjamena, Niamei, Nouakchott, Ouagadougou, Porto-Novo, Sao Tome, Timbuktu, Tripoli, Tunis, Windhoek
+Choices-fr.UTF-8: Abidjan, Accra, Addis Abeba, Alger, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Le Caire, Casablanca, Ceuta et Melilla, Conakry, Dakar, Dar es Salaam, Djibouti, Douala, El Aaiun, Freetown, Gaborone, Harare, Johannesbourg, Juba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lomé, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadiscio, Monrovia, Nairobi, N'Djamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, Sao-Tomé, Tombouctou, Tripoli, Tunis, Windhoek
+Choices-gl.UTF-8: Abidjan, Acra, Addis Abeba, Alxer, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, O Cairo, Casablanca, Ceuta, Conakry, Dakar, Dar es Salám, Djibouti, Duala, El Aaiún, Freetown, Gaborone, Harare, Johannesburgo, Juba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lome, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadiscio, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, São Tomé, Timbuktu, Tripoli, Tunes, Windhoek
+Choices-gu.UTF-8: અબિદજાન, અક્કારા, એડિસ અબાબા, અલ્જીઅર્સ, અસ્મેરા, બામાકો, બાન્ગુઇ, બાન્જુલ, બિસ્સાઉ, બ્લાન્ટાયર, બ્રાઝ્ઝવિલ્લે, બુજુમ્બુરા, કૈરો, કાસાબ્લાન્કા, સેયુટા, કોનાર્કી, ડકાર, દાર ઇ સલામ, જીબુટી, ડોઉલા, અલ આઇયુન, ફ્રીટાઉન, ગાબારોન, હરારે, જોહન્નિસબર્ગ, જુબા, કમ્પાલા, ખાર્ટુમ, કિગાલિ, કિન્સાસા, લાગોસ, લિબ્રેવિલ્લે, લોમ, લાઉન્ડા, લુબુમ્બાશી, લુકાસા, માલાબો, માપુટો, માસેરુ, મબાબાને, મોગાદિશુ, મોન્રોવિઆ, નૈરોબી, નડજામેના, નૈઆમે, નોઉક્ચોટ, ઓગાડોઉગોઉ, પોર્ટો-નોવો, સાઓ ટોમ, ટીમ્બકટુ, ટ્રીપોલી, ટ્યુનિસ, વિન્ડહોક
+Choices-he.UTF-8: אביג'אן, אקרה, אדיס אבבה, אלג'יר, אסמרה, במקו, בנגואי, בנג'ול, ביסאו, בלנטייר, ברזוויל, בוג'ומבורה, קהיר, קזבלנקה, סאוטה, קונאקרי, דקר, דאר א-סלאם, דג'יבוטי, דואואלה, אל-עיון, פריטאון, גאבורון, הארארה, יוהנסבורג, ג'ובה, קמפלה, חרטום, קיגאלי, קינשסה, לאגוס, ליברוויל, לומה, לואנדה, לובומבאשי, לוסקה, מלאבו, מפוטו, מסרו, מבבנה, מוגדישו, מונרוביה, ניירובי, נג'מנה, ניאמיי, נואקשוט, ואגאדוגו, פורטו נובו, סאו טומה, טימבוקטו, טריפולי, תוניס, וינדהוק
+Choices-hu.UTF-8: Abidjan, Accra, Addis_Ababa, Algiers, Aszmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Kairó, Casablanca, Ceuta, Conakry, Dakar, Dar_es_Salaam, Dzsibuti, Douala, El_Aaiun, Freetown, Gaborone, Harare, Johannesburg, Gyúba‎ (Dzsúba), Kampala, Khartoum, Kigali, Kinsasza, Lagos, Libreville, Lome, Luanda, Lubumbasi, Lusaka, Malabo, Maputo, Maszeru, Mbabane, Mogadishu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Kagadugu, Porto-Novo, Sao_Tome, Timbuktu, Tripoli, Tunisz, Windhoek
+Choices-id.UTF-8: Abidjan, Akra, Addis_Ababa, Algeria, Asmara, Barnako, Bangui, Banjul, Bisau, Blantyre, Brazzavila, Bujumbura, Kairo, Casablanca, Ceuta, Conakry, Dakar, Darus_Salam, Djibouti, Douala, Al-Aaiun, Freetown, Gaborona, Harare, Johannerburg, Juba, Kampala, Khartum, Kigali, Kinshasa, Lagos, Libravila, Loma, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadishu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchot, Ouagadougou, Porto-Novo, Sao_Toma, Timbuktu, Tripoli, Tunisia, Windhoek
+Choices-it.UTF-8: Abidjan, Accra, Addis Abeba, Algeri, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Il Cairo, Casablanca, Ceuta, Conakry, Dakar, Dar es Salaam, Gibuti, Douala, El Ayun, Freetown, Gaborone, Harare, Johannesburg, Giuba, Kampala, Khartum, Kigali, Kinshasa, Lagos, Libreville, Lomé, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadiscio, Monrovia, Nairobi, N'Djamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, São Tomé, Timbuctu, Tripoli, Tunisi, Windhoek
+Choices-ja.UTF-8: アビジャン, アクラ, アディスアベバ, アルジェー, アスマラ, バマコ, バンギ, バンジュル, ビサウ, ブランタイア, ブラザヴィル, ブジュンブラ, カイロ, カサブランカ, セウタ, コナクリ, ダカール, ダルエスサラーム, ジブチ, ドゥアーラ, エルアイウン, フリータウン, ハボローネ, ハラレ, ヨハネスバーグ, ジューバ, カンパラ, ハルツーム, キガリ, キンシャサ, ラゴス, リーブルヴィル, ロメ, ルアンダ, ルブンバシ, ルサカ, マラボ, マプート, マセル, ムババネ, モガディシュ, モンロヴィア, ナイロビ, ウンジャメナ, ニアメ, ヌアクショット, ワガドゥーグ, ポルトノヴォ, サオトメ, ティンブクトゥ, トリポリ, チュニス, ウィントフック
+Choices-nl.UTF-8: Abidjan, Accra, Addis Ababa, Algiers, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Caïro, Casablanca, Ceuta, Conakry, Dakar, Dar es Salaam, Djibouti, Douala, Al-Ajoen, Freetown, Gaborone, Harare, Johannesburg, Djoeba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lome, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadishu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, Sao Tomé, Timboektoe, Tripoli, Tunis, Windhoek
+Choices-pl.UTF-8: Abidżan, Akra, Addis Abeba, Algier, Asmara, Bamako, Bangi, Bandżul, Bissau, Blantyre, Brazzaville, Bużumbura, Kair, Casablanca, Ceuta, Konakry, Dakar, Dar es Salaam, Dżibuti, Duala, Al-Ujun, Freetown, Gaborone, Harare, Johannesburg, Dżuba, Kampala, Chartum, Kigali, Kinszasa, Lagos, Libreville, Lome, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadiszu, Monrovia, Nairobi, Ndżamena, Niamey, Nawakszut, Wagadugu, Porto-Novo, Sao Tome, Timbuktu, Trypolis, Tunis, Windhuk
+Choices-pt.UTF-8: Abijan, Acra, Adis Abeba, Argel, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Cairo, Casablanca, Ceuta, Conacri, Dacar, Dar es Salaam, Djibouti, Douala, El Aaiún, Freetown, Gaborone, Harare, Joanesburgo, Juba, Campala, Cartum, Kigali, Kinshasa, Lagos, Libreville, Lomé, Luanda, Lubumbashi, Lusaca, Malabo, Maputo, Maseru, Mbabane, Mogadíscio, Monróvia, Nairobi, N'Djamena, Niamey, Nouakchott, Uagadugo, Porto-Novo, São Tomé, Timbuktu, Trípoli, Tunis, Windhoek
+Choices-pt_BR.UTF-8: Abidjan, Accra, Addis_Ababa, Algiers, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Cairo, Casablanca, Ceuta, Conakry, Dakar, Dar_es_Salaam, Djibouti, Douala, El_Aaiun, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lome, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadishu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, Sao_Tomé, Timbuktu, Tripoli, Tunis, Windhoek
+Choices-ru.UTF-8: Абиджан, Аккра, Аддис-Абеба, Алжир, Асмэра, Бамако, Банги, Банжул, Бисау, Блантайр, Браззавиль, Бужумбура, Каир, Касабланка, Сеута, Конакри, Дакар, Дар-эс-Салам, Джибути, Дуала, Эль-Айюн, Фритаун, Габороне, Хараре, Йоханнесбург, Джуба, Кампала, Хартум, Кигали, Киншаса, Лагос, Либревиль, Ломе, Луанда, Лубумбаши, Лусака, Малабо, Мапуту, Масеру, Мбабане, Могадишу, Монровия, Найроби, Нджамена, Ниамей, Нуакшот, Уагадугу, Порто-Ново, Сан-Томе, Томбукту, Триполи, Тунис, Виндхук
+Choices-sk.UTF-8: Abidjan, Akkra, Addis Abeba, Alžír, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Káhira, Casablanca, Ceuta, Konakry, Dakar, Dar es Salám, Džibuti, Douala, El-Aaiún, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Chartúm, Kigali, Kinshasa, Lagos, Libreville, Lomé, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadišo, Monrovia, Nairobi, N'Djamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, Svätý Tomáš, Timbuktu, Tripolis, Tunis, Windhoek
+Choices-sv.UTF-8: Abidjan, Accra, Addis Abeba, Alger, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazzaville, Bujumbura, Kairo, Casablanca, Ceuta, Conakry, Dakar, Dar es-Salaam, Djibouti, Douala, Al-Ayun, Freetown, Gaborone, Harare, Johannesburg, Juba, Kampala, Khartoum, Kigali, Kinshasa, Lagos, Libreville, Lomé, Luanda, Lubumbashi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadishu, Monrovia, Nairobi, N'Djamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, São Tomé, Timbuktu, Tripoli, Tunis, Windhoek
+Choices-tr.UTF-8: Abidjan, Akra, Addis Ababa, Cezayir, Asmara, Bamako, Bangui, Banjul, Bissau, Blantyre, Brazavil, Bujumbura, Kahire, Kazablanka, Ceuta, Konakri, Dakar, Darüsselam, Cibuti, Duala, El Aaiun, Freetown, Gabaron, Harare, Johannesburg, Cuba, Kampala, Hartum, Kigali, Kinshasa, Lagos, Libreville, Lome, Luanda, Lubumbasi, Lusaka, Malabo, Maputo, Maseru, Mbabane, Mogadişu, Monrovia, Nairobi, Ndjamena, Niamey, Nouakchott, Ouagadougou, Porto-Novo, Sao Tome, Timbuktu, Trablusgarp, Tunus, Windhoek
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/America
+Type: select
+Choices: Adak, Anchorage, Anguilla, Antigua, Araguaina, Argentina/Buenos_Aires, Argentina/Catamarca, Argentina/Cordoba, Argentina/Jujuy, Argentina/La_Rioja, Argentina/Mendoza, Argentina/Rio_Gallegos, Argentina/Salta, Argentina/San_Juan, Argentina/San_Luis, Argentina/Tucuman, Argentina/Ushuaia, Aruba, Asuncion, Atikokan, Atka, Bahia, Bahia_Banderas, Barbados, Belem, Belize, Blanc-Sablon, Boa_Vista, Bogota, Boise, Cambridge_Bay, Campo_Grande, Cancun, Caracas, Cayenne, Cayman, Chicago, Chihuahua, Coral_Harbour, Costa_Rica, Creston, Cuiaba, Curacao, Danmarkshavn, Dawson, Dawson_Creek, Denver, Detroit, Dominica, Edmonton, Eirunepe, El_Salvador, Ensenada, Fort_Nelson, Fortaleza, Glace_Bay, Godthab, Goose_Bay, Grand_Turk, Grenada, Guadeloupe, Guatemala, Guayaquil, Guyana, Halifax, Havana, Hermosillo, Indiana/Indianapolis, Indiana/Knox, Indiana/Marengo, Indiana/Petersburg, Indiana/Tell_City, Indiana/Vevay, Indiana/Vincennes, Indiana/Winamac, Inuvik, Iqaluit, Jamaica, Juneau, Kentucky/Louisville, Kentucky/Monticello, Kralendijk, La_Paz, Lima, Los_Angeles, Lower_Princes, Maceio, Managua, Manaus, Marigot, Martinique, Matamoros, Mazatlan, Menominee, Merida, Metlakatla, Mexico_City, Miquelon, Moncton, Monterrey, Montevideo, Montreal, Montserrat, Nassau, New_York, Nipigon, Nome, Noronha, North_Dakota/Beulah, North_Dakota/Center, North_Dakota/New_Salem, Ojinaga, Panama, Pangnirtung, Paramaribo, Phoenix, Port-au-Prince, Port_of_Spain, Porto_Acre, Porto_Velho, Puerto_Rico, Rainy_River, Rankin_Inlet, Recife, Regina, Resolute, Rio_Branco, Santa_Isabel, Santarem, Santiago, Santo_Domingo, Sao_Paulo, Scoresbysund, Shiprock, Sitka, St_Barthelemy, St_Johns, St_Kitts, St_Lucia, St_Thomas, St_Vincent, Swift_Current, Tegucigalpa, Thule, Thunder_Bay, Tijuana, Toronto, Tortola, Vancouver, Virgin, Whitehorse, Winnipeg, Yakutat, Yellowknife
+Choices-fr.UTF-8: Adak, Anchorage, Anguilla, Antigua, Araguaina, Buenos Aires, Catamarca, Córdoba, Jujuy, La Rioja, Mendoza, Rio Gallegos, Salta, San Juan, San Luis, Tucuman, Ushuaia, Aruba, Asuncion, Atikokan, Atka, Bahia, Bahia_Banderas, La Barbade, Belém, Belize, Blanc-Sablon, Boa Vista, Bogota, Boise, Cambridge Bay, Campo Grande, Cancun, Caracas, Cayenne, Îles Caïman, Chicago, Chihuahua, Coral Harbour, Costa Rica, Creston, Cuiabá, Curaçao, Danmarkshavn, Dawson, Dawson Creek, Denver, Détroit, Dominique, Edmonton, Eirunepe, El Salvador, Ensenada, Fort Nelson, Fortaleza, Glace Bay, Godthab, Goose Bay, Grand_Turk, Grenade, Guadeloupe, Guatemala, Guayaquil, Guyana, Halifax, La Havane, Hermosillo, Indiana/Indianapolis, Indiana/Knox, Indiana/Marengo, Indiana/Petersburg, Indiana/Tell City, Indiana/Vevay, Indiana/Vincennes, Indiana/Winamac, Inuvik, Iqaluit, Jamaïque, Juneau, Kentucky/Louisville, Kentucky/Monticello, Kralendijk, La Paz, Lima, Los Angeles, Lower_Princes, Maceió, Managua, Manaus, Marigot, Martinique, Matamoros, Mazatlan, Menominee, Merida, Metlakatla, Mexico City, Miquelon, Moncton, Monterrey, Montevideo, Montréal, Montserrat, Nassau, New York, Nipigon, Nome, Noronha, Dakota du Nord/Beulah, Dakota du Nord/Centre, Dakota du Nord/New Salem, Ojinaga, Panama, Pangnirtung, Paramaribo, Phoenix, Port-au-Prince, Port d'Espagne, Porto Acre, Porto Velho, Porto-Rico, Rainy River, Rankin_Inlet, Recife, Regina, Resolute, Rio Branco, Santa_Isabel, Santarém, Santiago, Saint-Domingue, São Paulo, Scoresbysund, Shiprock, Sitka, Saint Barthélemy, Saint-Johns, Saint-Kitts, Sainte-Lucie, Saint-Thomas, Saint-Vincent, Swift_Current, Tegucigalpa, Thulé, Thunder Bay, Tijuana, Toronto, Tortola, Vancouver, Vierges (îles), Whitehorse, Winnipeg, Yakutat, Yellowknife
+Choices-ja.UTF-8: エイダック, アンカレジ, アングイラ, アンティグア, アラグアイナ, アルゼンチン/ブエノスアイレス, アルゼンチン/カタマルカ, アルゼンチン/コルドバ, アルゼンチン/フフイ, アルゼンチン/ラリオハ, アルゼンチン/メンドサ, アルゼンチン/リオガエゴス, アルゼンチン/サルタ, アルゼンチン/サンファン, アルゼンチン/サンルイス, アルゼンチン/トゥクマン, アルゼンチン/ウシュアイア, アルバ, アスンシオン, アティコカン, アトカ, バイア, バイアバンデラス, バルバドス, ベレン, ベリーズ, ブランサブロン, ボアヴィスタ, ボゴタ, ボイシ, ケンブリッジ湾, カンポグランデ, カンクン, カラカス, カイエンヌ, ケイマン, シカゴ, チワワ, コーラルハーバー, コスタリカ, クレストン, クヤバ, キュラソー, デンマークシャウン, ドーソン, ドーソン運河, デンヴァー, デトロイト, ドミニカ, エドモントン, エイルネペ, エルサルバドル, エンセナダ, フォートネルソン, フォルタレザ, グラッセ湾, ゴッドホープ, グース湾, グランドターク, グレナダ, グアドループ, グアテマラ, グアヤキル, ガイアナ, ハリファックス, ハバナ, エルモシヨ, インディアナ/インディアナポリス, インディアナ/ノックス, インディアナ/マレンゴ, インディアナ/ピーターズバーグ, インディアナ/テルシティ, インディアナ/ビベー, インディアナ/ヴィンセンズ, インディアナ/ウィナマック, イヌヴィック, イカルイット, ジャマイカ, ジュノー, ケンタッキー/ルーイヴィル, ケンタッキー/モンティセロ, クラレンディーク, ラパス, リマ, ロサンゼルス, ロワプリンセス, マセイオ, マナグア, マナウス, マリゴット, マルティニク, マタモロス, マサトラン, メノミニー, メリダ, メトラカトラ, メキシコシティ, ミクロン, マンクトン, モンテレー, モンテビデオ, モントリオール, モントセラト, ナッソー, ニューヨーク, ニピゴン, ノーム, ノロニャ, 北ダコタ/ベウラ, 北ダコタ/中央, 北ダコタ/ニューセイラム, オヒナガ, パナマ, パンナータング, パラマリボ, フェニックス, ポルトープランス, ポートオブスペイン, ポルトアクレ, ポルトヴェリエ, プエルトリコ, レイニーリバー, ランキン湾, レシフェ, レジャイナ, レソリュート, リオブランコ, サンタイサベル, サンタレン, サンチアゴ, セントドミニゴ, サンパウロ, スコレスビスン, シップロック, シトカ, セントバルテルミ, セントジョーンズ, セントキッツ, セントルチア, セントトーマス, セントビンセント, スイフトカレント, テグシガルパ, テューレ, サンダー湾, ティフアナ, トロント, トルトラ, バンクーバー, バージン, ホワイトホース, ウィニペグ, ヤクーツク, イエローナイフ
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/Antarctica
+Type: select
+Choices: Casey, Davis, DumontDUrville, Macquarie, Mawson, McMurdo, Palmer, Rothera, Syowa, Troll, Vostok
+Choices-fr.UTF-8: Base Casey, Base Davis, Base Dumont-d'Urville, Macquarie, Base Mawson, Base McMurdo, Base Palmer, Base Rothera, Base Syowa, Troll, Base Vostok
+Choices-ja.UTF-8: ケーシー, デーヴィス, デュモンデュルヴィル, マッコーリー, モーソン, マクムード, パーマー, ロデラ, 昭和基地, トロル, ヴォストーク
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/Australia
+Type: select
+Choices: Adelaide, Brisbane, Broken_Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord_Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-be.UTF-8: Адэлаіда, Брызбан, Броўкэн-Хіл, Канберра, Кур'е, Дарвін, Эўкла, Хобарт, Ліндаман, Лорд-Хоў, Мэльбурн, Пэрт, Сіднэй, Янкавіна
+Choices-bg.UTF-8: Аделаида, Бризбейн, Броукън Хил, Канбера, Кюри, Дарвин, Еукла, Хобарт, Линдеман, о-в Лорд Хоу, Мелбърн, Пърт, Сидни, Янковина
+Choices-ca.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-cs.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Ostrov lorda Howea, Melbourne, Perth, Sydney, Yancowinna
+Choices-da.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-de.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-en.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-es.UTF-8: Adelaida, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sídney, Yancowinna
+Choices-eu.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-fi.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-fr.UTF-8: Adelaïde, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Île Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-gl.UTF-8: Adelaide, Brisbane, Broken Hill, Camberra, Currie, Darwin, Eucla, Hobart, Lindeman, Illa de Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-gu.UTF-8: એડેલેઇડ, બ્રિસબેન, બ્રોકન હિલ, કેનબેરા, કુરી, ડાર્વિન, ઇયુક્લા, હોબાર્ટ, લિન્ડેમેન, લોર્ડ હોવે, મેલબોર્ન, પર્થ, સિડની, યાન્કોવિન્ના
+Choices-he.UTF-8: אדלייד, בריזביין, Broken Hill, קנברה, קורי, דרווין, Eucla, הובארט, Lindeman, אי הלורד האו, מלבורן, פרת', סידני, Yancowinna
+Choices-hr.UTF-8: Adelaide, Brisbane, Broken_Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord_Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-hu.UTF-8: Adelaide, Brisbane, Törött Domb, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe-sziget, Melbourne, Perth, Sydney, Yancowinna
+Choices-id.UTF-8: Adelaide, Brisbane, Broken_Hill, Canbera, Currie, Darwin, Eucla, Hobart, Lindeman, Pulau_Lord_Howe, Melbourne, Perth, Sydney, Yancowina
+Choices-it.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-ja.UTF-8: アデレード, ブリスベーン, ブロークンヒル, キャンベラ, カリー, ダーウィン, ユークラ, ホーバート, リンデマン, ロードハウ島, メルボルン, パース, シドニー, Yancowinna
+Choices-ku.UTF-8: Adelaide, Brisbane, Broken_Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord_Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-lt.UTF-8: Adelaidė, Brisbenas, Broken_Hilas, Kanbera, Keris, Darvinas, Jukla, Hobartas, Lindemanas, Lordo_Houvo_sala, Melburnas, Pertas, Sidnis, Jankovina
+Choices-ml.UTF-8: അഡലൈഡ്, ബ്രിസ്ബേന്‍, ബ്രോക്കണ്‍_ഹില്‍, കാന്‍ബറ, ക്യൂറി, ഡാര്‍വിന്‍, യൂക്‍ള, ഹോബാര്‍ട്ട്, ലിന്‍ഡെമാന്‍, ലോര്‍ഡ്_ഹോവ്, മെല്ബണ്‍, പെര്‍ത്ത്, സിഡ്നി, യാങ്കോവിന്ന
+Choices-nl.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-pl.UTF-8: Adelajda, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-pt.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-pt_BR.UTF-8: Adelaide, Brisbane, Broken_Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord_Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-ru.UTF-8: Аделаида, Брисбен, Брокен-Хилл, Канберра, Керри, Дарвин, Юкла, Хобарт, Линдеман, Лорд-Хау, Мельбурн, Перт, Сидней, Янковинна
+Choices-sk.UTF-8: Adelaide, Brisbane, Broken_Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Ostrov lorda Howa, Melbourne, Perth, Sydney, Yancowinna
+Choices-sq.UTF-8: Adelaide, Brisbane, Broken_Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord_Howe, Melbourne, Perth, Sydney, Yancowinna
+Choices-sv.UTF-8: Adelaide, Brisbane, Broken Hill, Canberra, Currie, Darwin, Eucla, Hobart, Lindeman, Lord Howeön, Melbourne, Perth, Sydney, Yancowinna
+Choices-tr.UTF-8: Adelaide, Brisbane, Broken Hill, Kanbera, Currie, Darwin, Eukla, Hobart, Lindeman, Lord Howe, Melbourne, Perth, Sidney, Yankovina
+Choices-vi.UTF-8: Adelaide (Nam), Brisbane (Bắc Đông), Broken Hill (ở sâu trong), Canberra (thủ đô), Currie, Darwin (Bắc), Eucla, Hobart (Đảo hướng Nam Đông), Lindeman (Các đảo nghỉ Bắc Đông), Lord Howe Island (Đảo hướng Đông), Melbourne (Nam Đông), Perth (Tây), Sydney (Đông), Yancowinna
+Choices-wo.UTF-8: Adelaide (Australie du Sud), Brisbane (Queensland - cas général), Broken Hill (Nouvelles-Galles du Sud - Yancowinna), Canberra, Currie, Darwin (territoire du Nord), Eucla, Hobart (Tasmanie), Lindeman (Queensland - îles Holiday), Île Lord Howe, Melbourne (Victoria), Perth (Australie de l'Ouest), Sydney (Nouvelles-Galles du Sud - cas général), Yancowinna
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/Arctic
+Type: select
+Choices: Longyearbyen
+Choices-be.UTF-8: Лонг'ерб'ен
+Choices-bg.UTF-8: Лонгиърбйен
+Choices-ca.UTF-8: Longyearbyen
+Choices-cs.UTF-8: Longyearbyen
+Choices-da.UTF-8: Longyearbyen
+Choices-de.UTF-8: Longyearbyen
+Choices-en.UTF-8: Longyearbyen
+Choices-es.UTF-8: Longyearbyen
+Choices-eu.UTF-8: Longyearbyen
+Choices-fi.UTF-8: Longyearbyen
+Choices-fr.UTF-8: Longyearbyen
+Choices-gl.UTF-8: Longyearbyen
+Choices-gu.UTF-8: લોન્ગયરબયેન
+Choices-he.UTF-8: לונגיירביאן
+Choices-hr.UTF-8: Longyearbyen
+Choices-hu.UTF-8: Longyearbyen
+Choices-id.UTF-8: Longyearbyen
+Choices-it.UTF-8: Longyearbyen
+Choices-ja.UTF-8: ロングイールビュアン
+Choices-ku.UTF-8: Longyearbyen
+Choices-lt.UTF-8: Longjyras
+Choices-ml.UTF-8: ലോങിയര്‍ബയന്‍
+Choices-nl.UTF-8: Longyearbyen
+Choices-pl.UTF-8: Longyearbyen
+Choices-pt.UTF-8: Longyearbyen
+Choices-pt_BR.UTF-8: Longyearbyen
+Choices-ru.UTF-8: Лонгийир
+Choices-sk.UTF-8: Longyearbyen
+Choices-sq.UTF-8: Longyearbyen
+Choices-sv.UTF-8: Longyearbyen
+Choices-th.UTF-8: ลองเยียร์เบียน
+Choices-tr.UTF-8: Longyearbyen
+Choices-vi.UTF-8: Longyearbyen
+Choices-wo.UTF-8: Longyearbyen
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/Asia
+Type: select
+Choices: Aden, Almaty, Amman, Anadyr, Aqtau, Aqtobe, Ashgabat, Atyrau, Baghdad, Bahrain, Baku, Bangkok, Barnaul, Beirut, Bishkek, Brunei, Chita, Choibalsan, Chongqing, Colombo, Damascus, Dhaka, Dili, Dubai, Dushanbe, Famagusta, Gaza, Harbin, Hebron, Ho_Chi_Minh, Hong_Kong, Hovd, Irkutsk, Istanbul, Jakarta, Jayapura, Jerusalem, Kabul, Kamchatka, Karachi, Kashgar, Kathmandu, Khandyga, Kolkata, Krasnoyarsk, Kuala_Lumpur, Kuching, Kuwait, Macau, Magadan, Makassar, Manila, Muscat, Nicosia, Novokuznetsk, Novosibirsk, Omsk, Oral, Phnom_Penh, Pontianak, Pyongyang, Qatar, Qyzylorda, Rangoon, Riyadh, Sakhalin, Samarkand, Seoul, Shanghai, Singapore, Srednekolymsk, Taipei, Tashkent, Tbilisi, Tehran, Tel_Aviv, Thimphu, Tokyo, Tomsk, Ujung_Pandang, Ulaanbaatar, Urumqi, Ust-Nera, Vientiane, Vladivostok, Yakutsk, Yangon, Yekaterinburg, Yerevan
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/Atlantic
+Type: select
+Choices: Azores, Bermuda, Canary, Cape_Verde, Faroe, Jan_Mayen, Madeira, Reykjavik, South_Georgia, St_Helena, Stanley
+Choices-be.UTF-8: Азоры, Бермуды, Канары, Капа-Вэрда, Фароэ, Ян-Маен, Мадэра, Рэйк'явік, Паўднёвая Джорджыя, Востраў Св. Алены, Стэнлі
+Choices-bg.UTF-8: Азорски о-ви, Бермуди, Канарски о-ви, Кабо Верде, Фарьорски о-ви, Ян Майен, Мадейра, Рейкявик, Южна Джорджия, Сейнт Хелена, Стенли
+Choices-ca.UTF-8: Açores, Bermudes, Canàries, Cap Verd, Fèroe, Jan Mayen, Madeira, Reykjavík, Georgia del Sud, St Helena, Stanley
+Choices-cs.UTF-8: Azory, Bermudy, Kanárské ostrovy, Kapverdy, Faerské ostrovy, Jan Mayen, Madeira, Rejkjavík, Jižní Georgie, Svatá Helena, Stanley
+Choices-da.UTF-8: Azores, Bermuda, Canary, Cape Verde, Faroe, Jan Mayen, Madeira, Reykjavik, South Georgia, Sankt Helena, Stanley
+Choices-de.UTF-8: Azoren, Bermuda, Kanaren, Kap Verde, Farör, Jan Mayen, Madeira, Reykjavík, South Georgia, St Helena, Stanley
+Choices-en.UTF-8: Azores, Bermuda, Canary, Cape Verde, Faroe, Jan Mayen, Madeira, Reykjavik, South Georgia, St. Helena, Stanley
+Choices-es.UTF-8: Azores, Bermudas, Canarias, Cabo Verde, Feroe, Jan Mayen, Madeira, Reikiavik, Georgia del Sur, Santa Elena, Stanley
+Choices-eu.UTF-8: Azores, Bermuda, Kanariak, Cape Verde, Faroe, Jan Mayen, Madeira, Reykjavik, Hego Georgia, St Helena, Stanley
+Choices-fi.UTF-8: Azorit, Bermuda, Kanariansaaret, Kap Verde, Färsaaret, Jan Mayen, Madeira, Reykjavík, Etelä-Georgia, St Helena, Stanley
+Choices-fr.UTF-8: Açores, Bermudes, Canaries, Cap-Vert, Faroe, Jan Mayen, Madère, Reykjavik, Géorgie du Sud, Sainte-Hélène, Stanley
+Choices-gl.UTF-8: Illas Azores, Illas Bermudas, Illas Canarias, Cabo Verde, Illas Faroes, Jan Mayen, Madeira, Reykjavik, Xeorxia do Sul, Santa Helena, Stanley
+Choices-gu.UTF-8: અઝોરેસ, બર્મુડા, કેનેરી, કેપ વર્દે, ફેરો, જાન માયેન, મેડેઇરા, રીકજાવિક, દક્ષિણ જર્યોજીઆ, સેન્ટ હેલેના, સ્ટેન્લી
+Choices-he.UTF-8: האיים האזוריים, ברמודה, האיים הקנריים, כף ורדה, איי פארו, יאן מאיין, מדיירה, רייקיאוויק, ג'ורג'יה הדרומית, סנט הלנה, סטנלי
+Choices-hr.UTF-8: Azori, Bermuda, Kanarski_otoci, Zelenortski_otoci, Farski_otoci, Jan_Mayen, Madeira, Reykjavik, South_Georgia, St_Helena, Stanley
+Choices-hu.UTF-8: Azori-szigetek, Bermuda, Canary, Cape_Verde, Faroe, Jan_Mayen, Madeira, Reykjavik, Dél_Georgia, St_Helena, Stanley
+Choices-id.UTF-8: Azores, Bermuda, Kanari, Teluk_Verde, Faroe, Jan_Mayen, Madeira, Reykjavik, Georgia_Selatan, Saint_Helena, Stanley
+Choices-it.UTF-8: Azzorre, Bermuda, Canarie, Capo Verde, Fær Øer, Jan Mayen, Madera, Reykjavik, Georgia del Sud, Sant'Elena, Stanley
+Choices-ja.UTF-8: アゾレス, バーミューダ, カナリヤ, ケープヴェルデ, フェロー諸島, ヤンマイエン, マデイラ, レイキャヴィク, サウスジョージア, セントヘレナ, スタンリー
+Choices-ku.UTF-8: Azores, Bermuda, Canary, Cape_Verde, Faroe, Jan_Mayen, Madeira, Reykjavik, South_Georgia, St_Helena, Stanley
+Choices-lt.UTF-8: Azorų_salos, Bermudai, Kanarai, Žaliasis_Kyšulys, Farerų_salos, Jan_Maienas, Maderas, Reikjavikas, Pietų_Džordžija, Šventos_Elenos_sala, Stenlis
+Choices-ml.UTF-8: അസോറെസ്, ബെര്‍മുഡ, കാനറി, കേപ്_വിര്‍ഡേ, ഫറവോ, ജന്‍_മായെന്‍, മഡെയ്‌ര, റെയ്ക്ജാവിക്, തെക്കന്‍_ജോര്‍ജിയ, സെയിന്റ്_ഹെലെന, സ്റ്റാന്‍ലി
+Choices-nl.UTF-8: Azoren, Bermuda, Canaria, Kaapverdië, Faroe, Jan Mayen, Madeira, Reykjavik, Zuid Georgia, St. Helena, Stanley
+Choices-pl.UTF-8: Azory, Bermudy, Wyspy Kanaryjskie, W. Zielonego Przylądka, Wyspy Owcze, Jan Mayen, Madera, Reykjavik, Georgia Południowa, W. Świętej Heleny, Stanley
+Choices-pt.UTF-8: Açores, Bermudas, Canárias, Cabo Verde, Faroe, Jan Mayen, Madeira, Reiquejavique, Geórgia do Sul, Santa Helena, Stanley
+Choices-pt_BR.UTF-8: Açores, Bermuda, Canárias, Cabo_Verde, Faroe, Jan_Mayen, Madeira, Reykjavik, Geórgia do Sul, St_Helena, Stanley
+Choices-ru.UTF-8: Азорские острова, Бермуды, Канары, Кабо-Верде, Фарерские острова, Ян-Майен, Мадейра, Рейкьявик, Южная Георгия, Остров Святой Елены, Стенли
+Choices-sk.UTF-8: Azory, Bermudy, Kanárske ostrovy, Kapverdy, Faerské ostrovy, Jan Mayen, Madeira, Reykjavík, Južná Georgia, Svätá Helena, Stanley
+Choices-sq.UTF-8: Azores, Bermuda, Canary, Cape_Verde, Faroe, Jan_Mayen, Madeira, Reykjavik, South_Georgia, St_Helena, Stanley
+Choices-sv.UTF-8: Azorerna, Bermuda, Kanarieöarna, Kap Verde, Färöarna, Jan Mayen, Madeira, Reykjavik, Sydgeorgien, Sankta Helena, Stanley
+Choices-tr.UTF-8: Azorlar, Bermuda, Kanarya, Yeşilburun, Faro, Jan Mayen, Madeyra, Reykavik, Güney Gürcistan, Sen Helen, Stanley
+Choices-vi.UTF-8: Azores, Be-mu-đa, Canary, Cape_Verde, Faroe, Jan_Mayen, Madeira, Reykjavik, South_Georgia, St_Helena, Stanley
+Choices-wo.UTF-8: Asoor, Bermuuda, Kanari, Kap_Weer, Faroe, Jan_Mayen, Madeira, Rekyaavik, South_Georgia, St_Helena, Stanley
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/Europe
+Type: select
+Choices: Amsterdam, Andorra, Astrakhan, Athens, Belfast, Belgrade, Berlin, Bratislava, Brussels, Bucharest, Budapest, Busingen, Chisinau, Copenhagen, Dublin, Gibraltar, Guernsey, Helsinki, Isle_of_Man, Istanbul, Jersey, Kaliningrad, Kiev, Kirov, Lisbon, Ljubljana, London, Luxembourg, Madrid, Malta, Mariehamn, Minsk, Monaco, Moscow, Nicosia, Oslo, Paris, Podgorica, Prague, Riga, Rome, Samara, San_Marino, Sarajevo, Saratov, Simferopol, Skopje, Sofia, Stockholm, Tallinn, Tirane, Tiraspol, Ulyanovsk, Uzhgorod, Vaduz, Vatican, Vienna, Vilnius, Volgograd, Warsaw, Zagreb, Zaporozhye, Zurich
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/Indian
+Type: select
+Choices: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldives, Mauritius, Mayotte, Reunion
+Choices-be.UTF-8: Антананарыву, Чагас, Востраў Раства, Какосавыя астравы, Каморы, Кэргелен, Магэ, Мальдывы, Маўрыцы, Маёт, Рэюньён
+Choices-bg.UTF-8: Антананариво, Чагос, о-в Рождество, о-ви Кокос, Коморски о-ви, Кергуелен, Махе, Малдивски о-ви, Мавриций, Майоте, Реюнион
+Choices-ca.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldives, Mauritius, Mayotte, Reunion
+Choices-cs.UTF-8: Antananarivo, Čagoské ostrovy, Vánoční ostrov, Kokosové ostrovy, Komory, Kergueleny, Mahé, Maldivy, Mauritius, Mayotte, Reunion
+Choices-da.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldiverne, Mauritius, Mayotte, Reunion
+Choices-de.UTF-8: Antananarivo, Chagos, Christmas, Kokos, Comoro, Kerguelen, Mahe, Malidiven, Mauritius, Mayotte, Réunion
+Choices-en.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldives, Mauritius, Mayotte, Reunion
+Choices-es.UTF-8: Antananarivo, Chagos, Isla de Navidad, Cocos, Comoro, Kerguelen, Mahe, Maldivas, Mauricio, Mayotte, Reunión
+Choices-eu.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldivak, Maurizio, Mayotte, Reunion
+Choices-fi.UTF-8: Antananarivo, Chagos, Joulusaari, Kookossaaret, Comoro, Kerguelen, Mahé, Malediivit, Mauritius, Mayotte, Réunion
+Choices-fr.UTF-8: Tananarive, Chagos, Christmas (île), Cocos (îles), Comores, Kerguelen, Mahé, Maldives, Île Maurice, Mayotte, Réunion
+Choices-gl.UTF-8: Antananarivo, Chagos, Illa de Nadal, Illas Cocos, Illas Comores, Kerguelen, Mahe, Illas Maldivas, Mauricio, Mayotte, Illa de Reunión
+Choices-gu.UTF-8: એન્ટાનાનારીવો, ચાગોસ, ક્રિસમસ, કોકોસ, કોમોરો, કેર્ગુએલેન, માહે, માલદિવ, મોરિશિઅસ, માયોટ્ટે, રીયુનિયન
+Choices-he.UTF-8: אנטננריבו, צ'גוס, אי חג המולד, איי קוקוס, קומורו, קרגלן, מאהה, האיים המלדיביים, מאוריציוס, מיוט, ראוניון
+Choices-hr.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldivi, Mauricijus, Mayotte, Reunion
+Choices-hu.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldív-szigetek, Mauritius, Mayotte, Reunion
+Choices-id.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldives, Mauritius, Mayotte, Reunion
+Choices-it.UTF-8: Antananarivo, Isole Chagos, Isola di Natale, Cocos, Comore, Isole Kerguelen, Mahé, Maldive, Mauritius, Mayotte, Riunione
+Choices-ja.UTF-8: アンタナナリヴォ, チャゴス, クリスマス, ココス, コモロ, ケルゲレン, マエ, モルジヴ, モーリシャス, マヨット, レユニオン
+Choices-ku.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldives, Mauritius, Mayotte, Reunion
+Choices-lt.UTF-8: Antananaryvas, Čagoso_archipelagas, Velykų_sala, Kokoso_salos, Komoro_salos, Ketgeleno_sala, Mahė, Maldyvai, Mauricijus, Mayoteas, Reunionas
+Choices-ml.UTF-8: അന്റനാനാറിവോ, ചാഗോസ്, ക്രിസ്തുമസ്, കൊകോസ്, കൊമോറോ, കെര്‍ഗുവേലന്‍, മാഹി, മാലിദ്വീപ്, മൌറീഷ്യസ്, മയോട്ടേ, റീയൂണിയന്‍
+Choices-nl.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldiven, Mauritius, Mayotte, Reunion
+Choices-pl.UTF-8: Antananarywa, Czagos, W. Bożego Narodzenia, Wyspa Kokosowa, Komory, Wyspy Kerguelena, Mahe, Malediwy, Mauritius, Majotta, Reunion
+Choices-pt.UTF-8: Antananarivo, Chagos, Ilha Natal, Cocos, Comoro, Kerguelen, Mahe, Maldivas, Maurício, Mayotte, Ilha Reunião
+Choices-pt_BR.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldives, Mauritius, Mayotte, Reunion
+Choices-ru.UTF-8: Антананариву, Чагос, Остров Рождества, Кокосовые острова, Коморские острова, Кергелен, Маэ, Мальдивы, Маврикий, Майотта, Реюньон
+Choices-sk.UTF-8: Antananarivo, Čagoské ostrovy, Vianočný ostrov, Kokosové ostrovy, Komorské ostrovy, Kergueleny, Mahé, Maldivy, Maurícius, Mayotte, Réunion
+Choices-sq.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldives, Mauritius, Mayotte, Reunion
+Choices-sv.UTF-8: Antananarivo, Chagosöarna, Christmas Island, Cocosöarna, Komorerna, Kerguelenöarna, Mahé, Maldiverna, Mauritius, Mayotte, Réunion
+Choices-tr.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Komoro, Kerguelen, Mahe, Maldivler, Mauritius, Mayotte, Reunion
+Choices-vi.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Comoro, Kerguelen, Mahe, Maldives, Mauritius, Mayotte, Reunion
+Choices-wo.UTF-8: Antananarivo, Chagos, Christmas, Cocos, Komoor, Kerguelen, Mahe, Maldiif, Mooris, Mayot, Reunion
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/Pacific
+Type: select
+Choices: Apia, Auckland, Bougainville, Chatham, Chuuk, Easter, Efate, Enderbury, Fakaofo, Fiji, Funafuti, Galapagos, Gambier, Guadalcanal, Guam, Honolulu, Johnston, Kiritimati, Kosrae, Kwajalein, Majuro, Marquesas, Midway, Nauru, Niue, Norfolk, Noumea, Pago_Pago, Palau, Pitcairn, Pohnpei, Ponape, Port_Moresby, Rarotonga, Saipan, Samoa, Tahiti, Tarawa, Tongatapu, Truk, Wake, Wallis, Yap
+Choices-fr.UTF-8: Apia, Auckland, Bougainville, îles Chatham, Chuuk, Île de Pâques, Efate, Enderbury (îles Phoenix), Fakaofo, Fidji, Funafuti, Îles Galapagos, Îles Gambier, Guadalcanal, Guam, Honolulu, Johnston, Kiritimati (îles Line), Kosrae, Kwajalein, Majuro, Îles Marquises, îles Midway, Nauru, Niue, Norfolk, Nouméa, Pago Pago, Palau, Pitcairn, Pohnpei, Ponape, Port-Moresby, Rarotonga, Saipan, Samoa, Tahiti, Tarawa (îles Gilbert), Tongatapu, Truk, Wake (île), Wallis, Yap
+Choices-ja.UTF-8: アピア, オークランド, ブーゲンヴィル, チャタム島, チューク諸島, イースター島, エファーテ, エンダーベリー, ファカオフォ, フィジー, フナフティ, ガラパゴス, ガンビア, ガダルカナル, グアム, ホノルル, ジョンストン, キリティマティ, コスラエ, クアジャリン, マジュロ, マルケサス, ミッドウェー, ナウル, ニウエ, ノーフォーク, ヌーメア, パゴパゴ, パラオ, ピトケアン島, ポンペイ島, ポナペ, ポルトモーズビー, ラロトンガ, サイパン, サモア, タヒチ, タラワ, トンガタプ, トラック, ウェーク, ヴァリス, ヤップ
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/SystemV
+Type: select
+Choices: AST4, AST4ADT, CST6, CST6CDT, EST5, EST5EDT, HST10, MST7, MST7MDT, PST8, PST8PDT, YST9, YST9YDT
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/US
+Type: select
+Choices: Alaska, Aleutian, Arizona, Central, Eastern, Hawaii, Indiana-Starke, Michigan, Mountain, Pacific, Pacific-New, Samoa
+Choices-ca.UTF-8: Alaska, Illes Aleutianes, Arizona, Central, Oriental, Hawaii, Indiana-Starke, Michigan, Muntanya, Pacífic, Pacific-New, Samoa
+Choices-cs.UTF-8: Aljaška, Aleuty, Arizona, Centrální, Východní, Havaj, Indiana-Starke, Michigan, Horské, Pacifik, Pacifik - nové, Samoa
+Choices-da.UTF-8: Alaska, Aleutian, Arizona, Central, Østlig, Hawaii, Indiana-Starke, Michigan, Mountain, Stillehavstid, Stillehavstid-ny, Samoa
+Choices-de.UTF-8: Alaska, Aleuten, Arizona, Zentral, Osten (Eastern), Hawaii, Indiana/Starke, Michigan, Gebirge (Mountain), Pazifik, Pazifik/Neu, Samoa
+Choices-en.UTF-8: Alaska, Aleutian, Arizona, Central, Eastern, Hawaii, Starke County (Indiana), Michigan, Mountain, Pacific Ocean, Pacific-New, Samoa
+Choices-es.UTF-8: Alaska, Aleutiana, Arizona, Central, Oriental, Hawaii, Indiana/Starke, Michigan, Montaña, Pacífico, Nuevo Pacífico, Samoa
+Choices-eu.UTF-8: Alaska, Aleutia, Arizona, Erdialdea, Ekialdea, Hawaii, Indiana-Starke, Michigan, Mendia, Pazifikoa, Pazifiko berria, Samoa
+Choices-fr.UTF-8: Alaska, Îles aléoutiennes, Arizona, Centre (Central), Est (Eastern), Hawaii, Indiana/Starke, Michigan, Rocheuses (Mountain), Pacifique, Pacifique, Samoa
+Choices-gl.UTF-8: Alasca, Aleutianas, Arizona, Central, Oriental, Hawai, Indiana-Starke, Michigan, Montañas, Pacífico, Pacífico-Novo, Samoa
+Choices-gu.UTF-8: અલાસ્કા, અલેટુઅન, એરિઝોના, મધ્ય, પૂર્વીય, હવાઈ, ઇન્ડિયાના-સ્ટારકે, મિશિગન, માઉન્ટેન, પેસેફિક, પેસેફિક-નવું, સમોઆ
+Choices-he.UTF-8: אלסקה, האיים האלאוטיים, אריזונה, סנטרל, מזרח, הוואי, אינדיאנה/סטארקה, מישיגן, אזור ההרים, פסיפיק (האוקיינוס השקט), פסיפיק (האוקיינוס השקט) - חדש, סמואה
+Choices-hu.UTF-8: Alaszka, Aleutian, Arizona, Közép, Keleti, Hawaii, Indiana-Starke, Michigan, Mountain, Csendes-óceáni, Csendes-óceáni - új, Szamoa
+Choices-id.UTF-8: Alaska, Aleutian, Arizona, Central, Eastern, Hawaii, Indiana-Starke, Michigan, Mountain, Pasifik, Pasifik-baru, Samoa
+Choices-it.UTF-8: Alaska, Isole Aleutine, Arizona, Centrale, Orientale, Hawaii, Indiana-Starke, Michigan, Mountain, Pacifico, Pacifico-Nuovo, Samoa
+Choices-ja.UTF-8: アラスカ, アリューシャン, アリゾナ, 中央, 東部, ハワイ, インディアナスターク, ミシガン, マウンテン, 太平洋側, 太平洋-新, サモア
+Choices-nl.UTF-8: Alaska, Aleoeten, Arizona, Central, Eastern, Hawaï, Indiana-Starke, Michigan, Mountain, Grote Oceaan, Pacific-Nieuw, Samoa
+Choices-pl.UTF-8: Alaskański, Aleucki, Arizoński, Centralny, Wschodni, Hawajski, Indiana-Starke, Michigan, Czas górski, Pacyfik, Pacific-New, Samoa
+Choices-pt.UTF-8: Alaska, Aleutian, Arizona, Central, Este, Hawaii, Indiana-Starke, Michigan, Montanha, Pacífico, Pacífico Novo, Samoa
+Choices-pt_BR.UTF-8: Alasca, Aleutian, Arizona, Central, Oriental, Havaí, Indiana-Starke, Michigan, Moutain, Pacífico, Novo Pacífico, Samoa
+Choices-ru.UTF-8: Аляска, Алеутские, Аризона, Центральное, Восточное, Гавайи, Индиана-Старк, Мичиган, Горное, Тихоокеанский регион, Тихоокеанское новое, Самоа
+Choices-sk.UTF-8: Aljaška, Aleuty, Arizona, Stredoamerické, Americké východné, Havaj, Indiana/Starke, Michigan, Americké horské, Tichomorie, Tichomorské nové, Samoa
+Choices-sv.UTF-8: Alaska, Aleuterna, Arizona, Central, Eastern, Hawaii, Starke (Indiana), Michigan, Mountain, Stilla Havet, Pacific-New, Samoa
+Choices-tr.UTF-8: Alaska, Aleut, Arizona, Merkez, Doğu, Hawaii, Indiana-Starke, Michigan, Mountain, Pasifik, Pasifik-Yeni, Samoa
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+
+Template: tzdata/Zones/Etc
+Type: select
+Choices: GMT, GMT+0, GMT+1, GMT+10, GMT+11, GMT+12, GMT+2, GMT+3, GMT+4, GMT+5, GMT+6, GMT+7, GMT+8, GMT+9, GMT-0, GMT-1, GMT-10, GMT-11, GMT-12, GMT-13, GMT-14, GMT-2, GMT-3, GMT-4, GMT-5, GMT-6, GMT-7, GMT-8, GMT-9, GMT0, Greenwich, UCT, UTC, Universal, Zulu
+Description: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-ca.UTF-8: Fus horari:
+ Si us plau, seleccioneu la ciutat o regió corresponent al vostre fus horari.
+Description-cs.UTF-8: Časové pásmo:
+ Zvolte prosím město nebo oblast odpovídající vašemu časovému pásmu.
+Description-da.UTF-8: Tidszone:
+ Vælg venligst den by eller region der svarer til din tidszone.
+Description-de.UTF-8: Zeitzone:
+ Bitte wählen Sie die Stadt oder Region aus, die zu Ihrer Zeitzone passt.
+Description-en.UTF-8: Time zone:
+ Please select the city or region corresponding to your time zone.
+Description-es.UTF-8: Zona horaria:
+ Por favor, elija la ciudad o región correspondiente a su zona horaria.
+Description-eu.UTF-8: Ordu zonaldea:
+ Hautatu zure ordu-zonari dagokion herri edo estatua.
+Description-fr.UTF-8: Fuseau horaire :
+ Veuillez choisir la ville ou la région correspondant à votre fuseau horaire.
+Description-gl.UTF-8: Fuso horario:
+ Escolla a cidade ou rexión que corresoponda ao seu fuso horario.
+Description-gu.UTF-8: સમય વિસ્તાર:
+ મહેરબાની કરી તમારા સમય વિસ્તારને અનુરુપ શહેર અથવા વિસ્તાર પસંદ કરો.
+Description-he.UTF-8: אזור זמן:
+ בחר בבקשה את העיר או האזור שמתאימים לאזור הזמן שלך.
+Description-hu.UTF-8: Időzóna:
+ Kérlek, válaszd ki a városnak/régiónak megfelelő időzónát:
+Description-id.UTF-8: Daerah Waktu:
+ Silakan pilih kota atau daerah waktu yang bersesuaian dengan daerah waktu Anda.
+Description-it.UTF-8: Fuso orario:
+ Selezionare la città o la regione corrispondente al proprio fuso orario.
+Description-ja.UTF-8: 時間帯:
+ あなたの時間帯に一致する都市または地域を選択してください。
+Description-nl.UTF-8: Tijdzone:
+ Wat is de stad of regio die overeenkomt met uw tijdzone?
+Description-pl.UTF-8: Strefa czasowa:
+ Proszę wybrać miasto lub region odpowiadający właściwej strefie czasowej.
+Description-pt.UTF-8: Fuso horário:
+ Por favor escolha a cidade ou região correspondente ao seu fuso horário.
+Description-pt_BR.UTF-8: Fuso horário:
+ Por favor, selecione a cidade ou região correspondente ao seu fuso horário.
+Description-ru.UTF-8: Часовой пояс:
+ Выберите город или область, соответствующий вашему часовому поясу.
+Description-sk.UTF-8: Časové pásmo:
+ Prosím, vyberte mesto alebo oblasť zodpovedajúce vášmu časovému pásmu.
+Description-sv.UTF-8: Tidszon:
+ Välj den stad eller region som motsvarar din tidszon.
+Description-th.UTF-8: เขตเวลา:
+ โปรดระบุเมืองหรือภูมิภาคที่ตรงกับเขตเวลาของคุณ
+Description-tr.UTF-8: Saat dilimi:
+ Lütfen saat diliminize karşılık gelen şehir ya da bölgeyi seçin.
+

@@ -1,0 +1,34 @@
+#!/bin/sh
+set -e
+
+update-alternatives --install /usr/bin/pager pager /bin/more 50 \
+	--slave /usr/share/man/man1/pager.1.gz pager.1.gz \
+	/usr/share/man/man1/more.1.gz
+update-alternatives --install /usr/bin/pager pager /usr/bin/pg 10 \
+	--slave /usr/share/man/man1/pager.1.gz pager.1.gz \
+	/usr/share/man/man1/pg.1.gz
+
+# hwclock works on all Linux architectures, except s390 (and s390x, of course).
+if [ "$(uname -s)" = "Linux" ]; then
+	model=$(uname -m)
+	if [ ${model%x} != "s390" ]; then
+		update-rc.d -f hwclock.sh remove >/dev/null 2>&1 || true
+		update-rc.d hwclock.sh defaults > /dev/null
+	fi
+fi
+
+# Automatically added by dh_installinit
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ]; then
+	if [ -x "/etc/init.d/hwclock-save" ]; then
+		update-rc.d hwclock-save defaults >/dev/null || exit $?
+	fi
+fi
+# End automatically added section
+# Automatically added by dh_installinit
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ]; then
+	if [ -x "/etc/init.d/hwclock" ]; then
+		update-rc.d hwclock defaults >/dev/null || exit $?
+	fi
+fi
+# End automatically added section
+

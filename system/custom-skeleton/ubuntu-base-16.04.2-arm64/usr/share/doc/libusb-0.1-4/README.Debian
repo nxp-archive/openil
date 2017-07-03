@@ -1,0 +1,31 @@
+libusb for Debian
+-----------------
+
+libusb uses a pseudo-filesystem known as 'usbdevfs` or 'usbfs` to access 
+the USB devices connected to your machine. This filesystem must be mounted
+under /proc/bus/usb for libusb to work.
+
+It could be done using the following command:
+	mount -t usbfs none /proc/bus/usb
+
+An alternative and more permanent method would be to add
+	none /proc/bus/usb usbfs defaults 0 0
+to your /etc/fstab file. It will mount the usbfs for you automatically at 
+boot time ; only root will be able to access the USB devices with this 
+setup.
+
+You can then issue `cat /proc/bus/usb/devices` to extract USB device 
+information, and user mode drivers can use usbfs to interact with USB 
+devices.
+
+Several mount options are available, that allow you to set the permissions 
+on the files created under /proc/bus/usb so that non-root users can use 
+libusb applications:
+ - devuid=xxx, devgid=xxx, devmode=xxx respectively set the uid, the gid
+   and the mode of the devices files, ie /proc/bus/usb/BBB/DDD
+ - busuid=xxx, busgid=xxx, devmode=xxx respectively set the uid, the gid 
+   and the mode of the bus files, ie /proc/bus/usb/BBB
+ - listuid=xxx, listgid=xxx, listmode=xxx respectively set the uid, the gid
+   and the mode of /proc/bus/usb/devices
+
+ -- Aurelien Jarno <aurel32@debian.org>, Sun, 21 Mar 2004 01:01:44 +0100

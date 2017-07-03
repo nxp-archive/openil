@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+        "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+
+        <vendor>The systemd Project</vendor>
+        <vendor_url>http://www.freedesktop.org/wiki/Software/systemd</vendor_url>
+
+        <action id="org.freedesktop.timedate1.set-time">
+                <description>Set system time</description>
+                <description xml:lang="be">Усталяваць сістэмны час</description>
+                <description xml:lang="be@latin">Ustaliavać sistemny čas</description>
+                <description xml:lang="da">Sæt tiden for systemet</description>
+                <description xml:lang="de">Die Systemzeit festlegen</description>
+                <description xml:lang="el">Ορισμός ώρας συστήματος</description>
+                <description xml:lang="es">Establecer fecha y hora del sistema</description>
+                <description xml:lang="fr">Définir l'heure du système</description>
+                <description xml:lang="gl">Estabelecer a hora do sistema</description>
+                <description xml:lang="hu">Rendszeridő beállítása</description>
+                <description xml:lang="it">Configura l'orario di sistema</description>
+                <description xml:lang="ko">시스템 시간 설정</description>
+                <description xml:lang="pl">Ustawienie czasu systemu</description>
+                <description xml:lang="pt_BR">Definir horário do sistema</description>
+                <description xml:lang="ru">Настроить системное время</description>
+                <description xml:lang="sr">Поставите системско време</description>
+                <description xml:lang="sv">Ange systemtid</description>
+                <description xml:lang="tr">Sistem zamanını ayarla</description>
+                <description xml:lang="uk">Вказати системний час</description>
+                <description xml:lang="zh_CN">设置系统时间</description>
+                <description xml:lang="zh_TW">設定系統時間</description>
+                <message>Authentication is required to set the system time.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўсталявання сістэмнага часу.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭstaliavannia sistemnaha času.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at sætte tiden for systemet.</message>
+                <message xml:lang="de">Legitimierung ist zum Festlegen der Systemzeit notwendig.</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για να ορίσετε την ώρα του συστήματος.</message>
+                <message xml:lang="es">Se requiere autenticación para establecer la fecha y hora del sistema.</message>
+                <message xml:lang="fr">Authentification requise pour définir l'heure du système.</message>
+                <message xml:lang="gl">Requírese autenticación para estabelecer a hora do sistema.</message>
+                <message xml:lang="hu">Hitelesítés szükséges a rendszeridő beállításához.</message>
+                <message xml:lang="it">Autenticazione richiesta per configurare l'orario di sistema.</message>
+                <message xml:lang="ko">시스템 시간을 설정하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby ustawić czas systemu.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para definir o horário do sistema.</message>
+                <message xml:lang="ru">Чтобы настроить системное время, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте поставили системско време.</message>
+                <message xml:lang="sv">Autentisering krävs för ange systemtiden.</message>
+                <message xml:lang="tr">Sistem zamanını ayarlamak kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб вказати системний час.</message>
+                <message xml:lang="zh_CN">设置系统时间需要验证。</message>
+                <message xml:lang="zh_TW">設定系統時間需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+                <annotate key="org.freedesktop.policykit.imply">org.freedesktop.timedate1.set-timezone org.freedesktop.timedate1.set-ntp</annotate>
+        </action>
+
+        <action id="org.freedesktop.timedate1.set-timezone">
+                <description>Set system timezone</description>
+                <description xml:lang="be">Усталяваць сістэмны часавы пояс</description>
+                <description xml:lang="be@latin">Ustaliavać sistemny časavy pojas</description>
+                <description xml:lang="da">Sæt tidszone for systemet</description>
+                <description xml:lang="de">Die Systemzeitzone festlegen</description>
+                <description xml:lang="el">Ορισμός ζώνης ώρας συστήματος</description>
+                <description xml:lang="es">Establecer la zona horaria del sistema</description>
+                <description xml:lang="fr">Définir le fuseau horaire du système</description>
+                <description xml:lang="gl">Estabelecer o fuso horario</description>
+                <description xml:lang="hu">Rendszer időzónájának beállítása</description>
+                <description xml:lang="it">Configura il fuso orario di sistema</description>
+                <description xml:lang="ko">시스템 시간대 설정</description>
+                <description xml:lang="pl">Ustawienie strefy czasowej systemu</description>
+                <description xml:lang="pt_BR">Definir fuso horário do sistema</description>
+                <description xml:lang="ru">Настроить часовой пояс</description>
+                <description xml:lang="sr">Поставите системску временску зону</description>
+                <description xml:lang="sv">Ange systemets tidszon</description>
+                <description xml:lang="tr">Sistem zaman dilimini ayarla</description>
+                <description xml:lang="uk">Вказати системний часовий пояс</description>
+                <description xml:lang="zh_CN">设置系统时区</description>
+                <description xml:lang="zh_TW">設定系統時區</description>
+                <message>Authentication is required to set the system timezone.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўсталявання сістэмнага часавога поясу.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭstaliavannia sistemnaha časavoha pojasu.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at sætte tidszonen for systemet.</message>
+                <message xml:lang="de">Legitimierung ist zum Festlegen der Systemzeitzone notwendig.</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για να ορίσετε την ώρα ζώνης του συστήματος.</message>
+                <message xml:lang="es">Se requiere autenticación para establecer la zona horaria del sistema.</message>
+                <message xml:lang="fr">Authentification requise pour définir le fuseau horaire du système.</message>
+                <message xml:lang="gl">Requírese autenticación para estabelecer o fuso horario do sistema.</message>
+                <message xml:lang="hu">Hitelesítés szükséges a rendszer időzónájának beállításához.</message>
+                <message xml:lang="it">Autenticazione richiesta per configurare il fuso orario di sistema.</message>
+                <message xml:lang="ko">시스템 시간대를 설정하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby ustawić strefę czasową systemu.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para definir o fuso horário do sistema.</message>
+                <message xml:lang="ru">Чтобы настроить часовой пояс, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте поставили системску временску зону.</message>
+                <message xml:lang="sv">Autentisering krävs för att ange systemets tidszon.</message>
+                <message xml:lang="tr">Sistem zaman dilimini ayarlamak kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб вказати системний часовий пояс.</message>
+                <message xml:lang="zh_CN">设置系统时区需要验证。</message>
+                <message xml:lang="zh_TW">設定系統時區需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+        <action id="org.freedesktop.timedate1.set-local-rtc">
+                <description>Set RTC to local timezone or UTC</description>
+                <description xml:lang="be">Усталяваць часавы пояс (мясцовы або UTC), у якім RTC захоўвае час</description>
+                <description xml:lang="be@latin">Ustaliavać časavy pojas (miascovy abo UTC), u jakim RTC zachoŭvaje čas</description>
+                <description xml:lang="da">Sæt RTC til lokal tidszone eller UTC</description>
+                <description xml:lang="de">Echtzeituhr auf lokale Zeitzone oder UTC setzen</description>
+                <description xml:lang="el">Ορισμός RTC στην τοπική ζώνη ώρας ή UTC</description>
+                <description xml:lang="es">Establecer reloj del sistema en formato de hora local/tiempo UTC</description>
+                <description xml:lang="fr">Positionner l'horloge matérielle à l'heure locale ou sur le temps universel coordonné (UTC)</description>
+                <description xml:lang="gl">Estabelecer o RTC ao fuso horario ou UTC</description>
+                <description xml:lang="hu">Az RTC beállítása helyi időzónára vagy UTC-re</description>
+                <description xml:lang="it">Configura l'orologio di sistema (RTC) al fuso orario locale o al tempo civile (UTC)</description>
+                <description xml:lang="ko">RTC를 로컬 시간대 또는 UTC로 설정</description>
+                <description xml:lang="pl">Ustawienie RTC na lokalną strefę czasową lub strefę UTC</description>
+                <description xml:lang="pt_BR">Definir o relógio do sistema (RTC) para fuso horário local ou UTC</description>
+                <description xml:lang="ru">Установить аппаратные часы по местному времени или по Гринвичу</description>
+                <description xml:lang="sr">Поставите RTC на локалну временску зону или UTC зону</description>
+                <description xml:lang="sv">Sätt realtidsklocka (RTC) till lokal tidszon eller koordinerad universell tid (UTC)</description>
+                <description xml:lang="tr">Gerçek zamanlı saat olarak yerel zaman dilimini veya UTC'yi ayarla</description>
+                <description xml:lang="uk">Вкажіть RTC для локального часового поясу або UTC</description>
+                <description xml:lang="zh_CN">设置硬件时钟使用本地时间或 UTC</description>
+                <description xml:lang="zh_TW">將 RTC 設定為本地時區或 UTC</description>
+                <message>Authentication is required to control whether the RTC stores the local or UTC time.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўсталявання часавога поясу (мясцовы або UTC), у якім захоўваецца час у RTC.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭstaliavannia časavoha pojasu (miascovy abo UTC), u jakim zachoŭvajecca čas u RTC.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at kontrollere hvorvidt RTC'en gemmer den lokale tid eller UTC tid.</message>
+                <message xml:lang="de">Legitimierung ist notwendig zum Festlegen, ob die Echtzeituhr auf lokale Zeitzone oder UTC eingestellt ist.</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για να ελέγξετε αν το RTC αποθηκεύει την τοπική ή την ώρα UTC.</message>
+                <message xml:lang="es">Se requiere autenticación para establecer el reloj del sistema en formato de hora local / tiempo UTC.</message>
+                <message xml:lang="fr">Authentification requise pour positionner l'horloge matérielle à l'heure locale ou sur le temps universel coordonné (UTC).</message>
+                <message xml:lang="gl">Requírese autenticación para controlar se o RTC almacena a hora local ou a UTC.</message>
+                <message xml:lang="hu">Hitelesítés szükséges az RTC beállításához a helyi időzóna vagy UTC tárolására.</message>
+                <message xml:lang="it">Autenticazione richiesta per verificare se l'orologio di sistema (RTC) è configurato all'orario locale o al tempo civile (UTC).</message>
+                <message xml:lang="ko">RTC를 로컬 시간 또는 UTC 시간으로 저장할 지 여부를 제어하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby kontrolować, czy RTC przechowuje czas lokalny lub czas UTC.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para controlar se o RTC deve, ou não, armazenar o horário local ou de UTC.</message>
+                <message xml:lang="ru">Чтобы контролировать, установлены аппаратные часы по местному времени или по Гринвичу, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте подесили да ли RTC чува локално или UTC време.</message>
+                <message xml:lang="sv">Autentisering krävs för att kunna kontrollera huruvida realtidsklockan (RTC) lagrar den lokala eller koordinerade universella tiden (UTC).</message>
+                <message xml:lang="tr">Gerçek zamanlı saat olarak yerel zaman dilimini veya UTC'yi ayarlamak kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб контролювати, чи RTC зберігає час, чи UTC.</message>
+                <message xml:lang="zh_CN">设置硬件时钟使用本地时间或 UTC 需要验证。</message>
+                <message xml:lang="zh_TW">控制 RTC 儲存本地或 UTC 時間需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+        <action id="org.freedesktop.timedate1.set-ntp">
+                <description>Turn network time synchronization on or off</description>
+                <description xml:lang="be">Уключыць або выключыць сінхранізацыю часу па сетцы</description>
+                <description xml:lang="be@latin">Ukliučyć abo vykliučyć sinchranizacyju času pa sietcy</description>
+                <description xml:lang="da">Slå synkronisering af netværkstid til eller fra</description>
+                <description xml:lang="de">Netzwerkzeitabgeich ein- oder ausschalten</description>
+                <description xml:lang="el">Ενεργοποίηση/Απενεργοποίηση συγχρονισμού ώρας δικτύου</description>
+                <description xml:lang="es">Activar/desactivar la sincronización de hora por red</description>
+                <description xml:lang="fr">Activer ou désactiver la synchronisation de l'heure avec le réseau</description>
+                <description xml:lang="gl">Activar ou desactivar a sincronización de hora por rede</description>
+                <description xml:lang="hu">Hálózati időszinkronizáció be- vagy kikapcsolása</description>
+                <description xml:lang="it">Abilita o meno la sincronizzazione dell'orario in rete</description>
+                <description xml:lang="ko">네트워크 시간 동기화 켜거나 끄기</description>
+                <description xml:lang="pl">Włączenie lub wyłączenie synchronizacji czasu przez sieć</description>
+                <description xml:lang="pt_BR">Ligar/desligar a sincronização do horário em rede</description>
+                <description xml:lang="ru">Включить или выключить синхронизацию времени по сети</description>
+                <description xml:lang="sr">Укључите или искључите усклађивање времена са мреже</description>
+                <description xml:lang="sv">Växla synkronisering av nätverkstid på och av</description>
+                <description xml:lang="tr">Ağ zaman eş zamanlamasını aç veya kapat</description>
+                <description xml:lang="uk">Увімкнути або вимкнути синхронізування через мережу</description>
+                <description xml:lang="zh_CN">打开或关闭网络时间同步</description>
+                <description xml:lang="zh_TW">打開或關閉網路時間同步</description>
+                <message>Authentication is required to control whether network time synchronization shall be enabled.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўключэння або выключэння сінхранізацыі часу па сетцы.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭkliučennia abo vykliučennia sinchranizacyi času pa sietcy.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at kontrollere hvorvidt synkronisering af netværkstid skal aktiveres</message>
+                <message xml:lang="de">Legitimierung ist zum Festlegen, ob Netzwerkzeitabgeich eingeschaltet sein soll, erforderlich.</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για να ελέγξετε αν ο συγχρονισμός ώρας δικτύου θα ενεργοποιηθεί.</message>
+                <message xml:lang="es">Se requiere autenticación para activar/desactivar la sincronización de hora por red.</message>
+                <message xml:lang="fr">Authentification requise pour activer ou désactiver la synchronisation de l'heure avec le réseau.</message>
+                <message xml:lang="gl">Requírese autenticación para controlar se a sincronización de hora por rede debería activarse.</message>
+                <message xml:lang="hu">Hitelesítés szükséges a hálózati időszinkronizáció engedélyezéséhez.</message>
+                <message xml:lang="it">Autenticazione richiesta per verificare se la sincronizzazione dell'orario in rete possa essere attivata.</message>
+                <message xml:lang="ko">네트워크 시간 동기화의 활성화 여부를 제어하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby kontrolować, czy włączyć synchronizację czasu przez sieć.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para controlar se deve ser habilitada, ou não, a sincronização de horário através de rede.</message>
+                <message xml:lang="ru">Чтобы включить или выключить синхронизацию времени по сети, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте подесили да ли се време усклађује са мреже.</message>
+                <message xml:lang="sv">Autentisering krävs för att kontrollera huruvida synkronisering av nätverkstid ska vara aktiverat.</message>
+                <message xml:lang="tr">Ağ zaman eş zamanlamasını kontrol etmek kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб контролювати, чи синхронізування часу через мережу запущено.</message>
+                <message xml:lang="zh_CN">设置是否启用网络时间同步需要验证。</message>
+                <message xml:lang="zh_TW">控制網路時間同步是否啟用需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+</policyconfig>

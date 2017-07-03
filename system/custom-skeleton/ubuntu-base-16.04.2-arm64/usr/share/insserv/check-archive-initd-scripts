@@ -1,0 +1,275 @@
+#!/usr/bin/perl
+#
+# Check the consistency of all init.d scripts in the archive.  Run
+# this on bellini.debian.org.
+
+use warnings;
+use strict;
+use File::Basename;
+
+my $warn = 1;
+
+my $basedir = "/org/lintian.debian.org/laboratory/binary";
+
+my @scripts = @ARGV;
+@scripts = <$basedir/*/init.d/*> unless (@scripts);
+
+my %scriptinfo;
+my %provides;
+
+my @virts = qw($local_fs $remote_fs $syslog $time $named
+               $portmap $network $all
+               $mail-transport-agent $x-font-server
+               $null $x-display-manager
+               );
+my @harddepheaders = qw(required-start required-stop);
+my @softdepheaders = qw(should-start
+                    should-stop x-start-before x-stop-after);
+my $lsbheaders = "Provides|Required-Start|Required-Stop|Default-Start|Default-Stop";
+my $optheaders = "x-start-before|x-stop-after|should-start|should-stop";
+
+for my $virt (@virts) {
+    $provides{$virt} = ['insserv/etc/insserv.conf'];
+}
+
+# Ignore obsolete scripts, as these are unlikely to cause problems.
+for my $old (qw(glibc evms raid2 ldm sdm)) {
+    $provides{$old} = ['obsolete'];
+}
+
+# First pass to load the database
+for my $initdscript (@scripts) {
+    next if $initdscript =~ m%/rc|/rcS|/README%;
+    my %lsbinfo = parse_lsb_header($initdscript);
+    $scriptinfo{$initdscript} = \%lsbinfo;
+    next unless ($lsbinfo{'found'});
+
+    my %checked;
+    for my $provide (split(/[ ,\t]+/, $lsbinfo{provides})) {
+        if (exists $provides{$provide}) {
+            push(@{$provides{$provide}}, $initdscript)
+        } else {
+            $provides{$provide} = [$initdscript];
+        }
+        $checked{$provide} = 1;
+    }
+}
+
+for my $provide (sort keys %provides) {
+    if (1 < scalar @{$provides{$provide}}) {
+        my %script;
+        map { $script{basename($_)} = 1; } @{$provides{$provide}};
+        if (1 < scalar keys %script) {
+            error(sprintf("scripts %s provide duplicate '%s'",
+                          join(",", short_name(@{$provides{$provide}})),
+                          $provide));
+        }
+    }
+}
+
+# Second pass, to see which dependencies are missing
+for my $initdscript (@scripts) {
+    next unless ($scriptinfo{$initdscript}->{'found'});
+    my $short = short_name($initdscript);
+    my %checked;
+    my @hardmissing = ();
+    for my $header (@harddepheaders) {
+        my $list = $scriptinfo{$initdscript}->{$header};
+        next unless defined $list;
+        for my $facility (split(/[ ,\t]+/, $list)) {
+            next if exists $checked{$facility};
+            $checked{$facility} = 1;
+            push(@hardmissing, $facility)
+                unless exists $provides{$facility};
+        }
+    }
+    error("script $short depend on non-existing provides: "
+          . join(" ", @hardmissing)) if (@hardmissing);
+    my @softmissing = ();
+    for my $header (@softdepheaders) {
+        my $list = $scriptinfo{$initdscript}->{$header};
+        next unless defined $list;
+        for my $facility (split(/[ ,\t]+/, $list)) {
+            next if exists $checked{$facility};
+            $checked{$facility} = 1;
+            push(@softmissing, $facility)
+                unless exists $provides{$facility};
+        }
+    }
+    warning("script $short relate to non-existing provides: "
+            . join(" ", @softmissing)) if (@softmissing);
+
+    if (exists $checked{'$syslog'}
+        && $scriptinfo{$initdscript}->{'default-start'} =~ m/s/i) {
+        error("script $short depend on \$syslog and start from rcS.d/");
+    }
+    if (!exists $checked{'$remote_fs'}
+        && !exists $checked{'$syslog'}
+        && $scriptinfo{$initdscript}->{'need_remote_fs'}
+        && $scriptinfo{$initdscript}->{'default-start'} =~ m/s/i) {
+        warning("script $short possibly missing dependency on \$remote_fs");
+    } elsif (!exists $checked{'$local_fs'}
+             && !exists $checked{'$remote_fs'}
+             && !exists $checked{'$syslog'}
+             && $scriptinfo{$initdscript}->{'need_local_fs'}
+             && $scriptinfo{$initdscript}->{'default-start'} =~ m/s/i) {
+        warning("script $short possibly missing dependency on \$local_fs");
+    }
+
+    if (!exists $checked{'$syslog'}
+        && $scriptinfo{$initdscript}->{'need_syslog'}) {
+        warning("script $short possibly missing dependency on \$syslog");
+    }
+
+    my %provided;
+    for my $provide (split(/[ ,\t]+/,
+                           $scriptinfo{$initdscript}->{provides})) {
+        $provided{$provide} = 1;
+        if ($provide =~ m/\$/) {
+            error("script $short provide virtual facility $provide");
+        }
+    }
+
+    my $basename = basename($initdscript, ".sh");
+    info("script $short does not provide its own name")
+        unless exists $provided{$basename};
+
+    # Detect common problems with runlevel settings.
+    my @startrl = sort split(/\s+/, lc($scriptinfo{$initdscript}->{'default-start'}));
+    my @stoprl = sort split(/\s+/, lc($scriptinfo{$initdscript}->{'default-stop'}));
+
+    unless ( @startrl || @stoprl) {
+        error("script $short do not start or stop in any runlevels");
+    }
+    # Scripts starting in rcS.d/ normally do not stop or only stop
+    # during hald and shutdown.
+    elsif ((array_equal(['s'], \@startrl) && array_equal([], \@stoprl))
+        || ( array_equal(['s'], \@startrl)
+             && array_equal(['0','6'], \@stoprl))) {
+        # OK
+    } else {
+        # Most scripts either start in rcS.d, or in runlevels 2-5
+        if (!array_equal(['2', '3', '4', '5'], \@startrl) &&
+            !array_equal(['s'], \@startrl) &&
+            (!array_equal([], \@startrl) && @stoprl)) {
+            # Some obvious errors (runlevels 2-5 are equivalent in Debian)
+            if (array_equal(['3', '5'], \@startrl)
+                || array_equal(['3', '4', '5'], \@startrl)) {
+                error("script $short have inconsistent start runlevels: ",
+                      join(" ", @startrl));
+            } else {
+                warning("script $short does not start in the usual runlevels: ",
+                        join(" ", @startrl));
+            }
+        }
+
+        # And most scripts stop in runlevel (1) runlevels (0, 1, 6),
+        # only starts or only stops in (0) or (6).
+        if (!array_equal(['0', '1', '6'], \@stoprl) &&
+            !array_equal(['1'], \@stoprl) &&
+            !array_equal(['0', '6'], \@stoprl) &&
+            !(array_equal(['0'], \@stoprl) && !@startrl) &&
+            !(array_equal(['6'], \@stoprl) && !@startrl) &&
+            !(array_equal([], \@stoprl) && @startrl)) {
+            warning("script $short does not stop in the usual runlevels: ",
+                    join(" ", @stoprl));
+        }
+    }
+}
+
+exit 0;
+
+sub parse_lsb_header {
+    my $initdscript = shift;
+    my $short = short_name($initdscript);
+    my %lsbinfo;
+    unless (open(INIT, "<", $initdscript)) {
+        error("script $short is unreadable");
+        return ();
+    }
+    my $inheader = 0;
+    while (<INIT>) {
+#        print;
+        chomp;
+        if (m/^\#\#\# BEGIN INIT INFO\s*$/) {
+            $lsbinfo{'found'} = 1;
+            $inheader = 1;
+        }
+        $inheader = 0 if (m/\#\#\# END INIT INFO$/);
+        if ($inheader
+            && m/^\# ($lsbheaders|$optheaders):\s*(\S?.*)$/i) {
+#            print "$1\n";
+            $lsbinfo{lc($1)} = $2;
+        }
+        s/\#.*$//; # Remove comments
+        $lsbinfo{'need_remote_fs'} = 1 if m%/usr/s?bin/%;
+        $lsbinfo{'need_local_fs'} = 1 if m%/var/%;
+
+        # Detect the use of tools resting in /usr/
+        $lsbinfo{'need_remote_fs'} = 1 if m%awk%;
+        $lsbinfo{'need_remote_fs'} = 1 if m%which%;
+    }
+    close(INIT);
+
+    # When running on bellini.debian.org, check if $syslog is needed
+    my $objdumpinfo = dirname($initdscript) . "/../objdump-info";
+    if ( -f $objdumpinfo) {
+        print "Checking for syslog symbol\n";
+        if (open(OBJDUMP, "<", $objdumpinfo)) {
+            while (<OBJDUMP>) {
+                $lsbinfo{'need_syslog'} = 1 if /GLIBC.* syslog/;
+            }
+            close OBJDUMP;
+        }
+    }
+
+    # Check that all the required headers are present
+    if (!$lsbinfo{'found'}) {
+        error("script $short is missing LSB header");
+    } else {
+        for my $key (split(/\|/, lc($lsbheaders))) {
+            if (!exists $lsbinfo{$key}) {
+                error("script $short missing LSB keyword '$key'");
+            }
+        }
+    }
+    return %lsbinfo
+}
+
+sub short_name {
+    my @scripts;
+    for my $script ( @_ ) {
+        my $copy = $script;
+        $copy =~ s%$basedir/%%g;
+        push @scripts, $copy;
+    }
+    if (wantarray) {
+        return @scripts;
+    } else {
+        return $scripts[0];
+    }
+}
+
+sub array_equal {
+    my ($a1, $a2) = @_;
+    return 0 if (scalar @{$a1} != scalar @{$a2});
+
+    my $i = 0;
+    while ($i < scalar @{$a1}) {
+        return 0 if $a1->[$i] ne $a2->[$i];
+        $i++;
+    }
+    return 1;
+}
+
+sub info {
+    print "info: @_\n";
+}
+
+sub warning {
+    print "warning: @_\n" if $warn;
+}
+
+sub error {
+    print "error: @_\n";
+}

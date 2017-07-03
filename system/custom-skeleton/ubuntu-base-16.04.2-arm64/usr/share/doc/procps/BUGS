@@ -1,0 +1,82 @@
+BUG REPORTS
+
+Please read this file before sending in a bug report or patch.
+
+Also, PLEASE read the documentation first.  90% of the mail I get
+complaining about procps-ng is due to the sender not having read the
+documentation!
+
+
+Where to send
+=============
+Send comments, bug reports, patches, etc., to procps@freelists.org
+
+
+What to send
+============
+It is much more useful to me if a program really crashes to recompile it
+with make "CFLAGS=-ggdb -O", run it with "gdb prog" and "run" and send
+me a stack trace ('bt' command).  That said, any bug report is still
+better than none.
+
+strace and ltrace output are very helpful:
+
+        strace -o output-file ps --blah
+        bzip2 output-file
+
+I also like "ps --info" output, even if there isn't a ps problem.
+
+Patches
+=======
+
+Get latest version of the source from upstream git.
+
+git clone git://gitorious.org/procps/procps.git
+
+and use 'git format-patch' format. It is fine to attach patches as
+compressed tar balls.  When you are about to send very large number
+of patches consider setting up your personal clone, and send a pull
+request.
+
+git request-pull commit-id \
+	git://gitorious.org/~yourlogin/procps/your-clone.git
+
+Gitorious merge requests
+========================
+Prefer sending pull request to mail list.  More people will notice a
+change being proposed, making potential discussion to capture wider
+point of view.  Using gitorious merge reguest in combination mail
+list announcement is fine.
+
+Kernel-Dependent Patches
+========================
+If you send me patches which are specific to *running* with a particular
+kernel version of /proc, please condition them with the runtime determined
+variable 'linux_version_code' from libproc/version.c.  It is the same
+number as the macro LINUX_VERSION_CODE for which the kernel /proc fs
+code was compiled.
+
+A macro is provide in libproc/version.h to construct the code from its
+components, e.g.
+  if (linux_version_code < LINUX_VERSION(2,5,41))
+     /* blah blah blah */
+A startup call to set_linux_version may also be necessary.
+
+Of course, if a bug is due to a change in kernel file formats, it would
+be best to first try to generalize the parsing, since the code is then
+more resilient against future change.
+
+Code Structure
+==============
+
+A goal is to encapsulate *all* parsing dependent on /proc
+file formats into the libproc library.  If the API is general enough
+it can hopefully stabilize and then /proc changes might only require
+updating libproc.so.  Beyond that having the set of utilities be simple
+command lines parsers and output formatters and encapsulating all kernel
+divergence in libproc is the way to go.
+
+Hence if you are submitting a new program or are fixing an old one, keep
+in mind that adding files to libproc which encapsulate such things is
+more desirable than patching the actual driver program.  (well, except
+to move it toward the API of the library).

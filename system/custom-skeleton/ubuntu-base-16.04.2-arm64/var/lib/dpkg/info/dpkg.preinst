@@ -1,0 +1,89 @@
+#!/bin/sh
+# This script can be called in the following ways:
+#
+# Before the package is installed:
+#	<new-preinst> install
+#
+# Before removed package is upgraded:
+#	<new-preinst> install <old-version>
+#
+# Before the package is upgraded:
+#	<new-preinst> upgrade <old-version>
+#
+#
+# If postrm fails during upgrade or fails on failed upgrade:
+#	<old-preinst> abort-upgrade <new-version>
+
+set -e
+
+# Handle upgrades from pre-conffile dpkg.cfg
+upgrade_dpkg_non_conffile()
+{
+    if [ -r /etc/dpkg/dpkg.cfg ]; then
+	dpkg_cfg_md5="535552ad5ee9145dbc7a34c264df4e59  /etc/dpkg/dpkg.cfg"
+	if echo "$dpkg_cfg_md5" | md5sum -c >/dev/null 2>&1; then
+	    echo "Removing non-modified dpkg.cfg to be replaced by a conffile ..."
+	    rm -f /etc/dpkg/dpkg.cfg
+	fi
+    fi
+}
+
+kill_bad_alternatives () {
+    local IFS=""
+    admindir=${DPKG_ADMINDIR:-/var/lib/dpkg}
+    ALTDIR="$admindir/alternatives"
+    for alt in $ALTDIR/*; do
+        if [ ! -f $alt ]; then
+            # In case it's been removed by the code below, or in case
+            # it's not a real file
+            continue
+        fi
+        {
+            read mode || continue
+            read mainlink || continue
+            while true; do
+                read slave || break
+                if [ "$slave" = "" ]; then
+                    break
+                fi
+                if [ -e "$ALTDIR/$slave" ]; then
+                    echo "Removing conflicting master alternative $slave (it is slave of $(basename $alt))..."
+                    rm -f "$ALTDIR/$slave"
+                fi
+                read slavelink || break
+            done
+        } <$alt
+    done
+}
+
+case "$1" in
+    install)
+	;;
+
+    upgrade)
+        # Cleanup bad alternatives that would choke with new
+        # update-alternatives (see #530633, #531611, #532739, #521760)
+        if dpkg --compare-versions "$2" lt 1.15.3; then
+            kill_bad_alternatives
+        fi
+
+	case "$2" in
+	    # Upgrade from pre-conffile dpkg.cfg
+	    1.9.21 | 1.10.* )
+		upgrade_dpkg_non_conffile
+		;;
+	esac
+	;;
+
+    abort-upgrade)
+	;;
+
+
+    *)
+	echo "$0 called with unknown argument '$1'" 1>&2
+	exit 1
+	;;
+esac
+
+
+exit 0

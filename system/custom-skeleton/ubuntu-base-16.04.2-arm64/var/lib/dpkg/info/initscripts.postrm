@@ -1,0 +1,86 @@
+#! /bin/sh
+#
+# initscripts postrm
+#
+
+set -e
+ 
+case "$1" in
+  purge)
+	#
+	# Remove abandoned conffiles
+	#
+	rm -f /etc/init.d/bootclean
+	rm -f /etc/init.d/bootclean.dpkg-old
+	rm -f /etc/init.d/bootclean.sh
+	rm -f /etc/init.d/bootclean.sh.dpkg-old
+	rm -f /etc/default/bootlogd
+	rm -f /etc/default/bootlogd.dpkg-old
+
+	#
+	# Remove configuration files
+	#
+	rm -f \
+		/etc/default/rcS \
+		/etc/motd.tail \
+		/etc/motd.static
+
+	#
+	# Remove state files
+	#
+	rm -f /var/lib/initscripts/nologin
+
+	#
+	# Remove run time state files
+	#
+	rm -f /var/run/motd
+
+	#
+	# Remove log files
+	#
+	rm -f \
+		/var/log/dmesg \
+		/var/log/boot \
+		/var/log/fsck/checkroot \
+		/var/log/fsck/checkfs
+
+	# Remove rc symlinks in the reverse dependency order they were
+	# inserted
+	update-rc.d rc.local               remove >/dev/null || exit $?
+	update-rc.d single                 remove >/dev/null || exit $?
+	update-rc.d killprocs              remove >/dev/null || exit $?
+	update-rc.d sendsigs               remove >/dev/null || exit $?
+	update-rc.d umountnfs.sh           remove >/dev/null || exit $?
+	update-rc.d umountfs               remove >/dev/null || exit $?
+	update-rc.d umountroot             remove >/dev/null || exit $?
+	update-rc.d reboot                 remove >/dev/null || exit $?
+	update-rc.d halt                   remove >/dev/null || exit $?
+	update-rc.d urandom                remove >/dev/null || exit $?
+	update-rc.d bootmisc.sh            remove >/dev/null || exit $?
+	update-rc.d mountnfs-bootclean.sh  remove >/dev/null || exit $?
+	update-rc.d mountnfs.sh            remove >/dev/null || exit $?
+	update-rc.d mountall-bootclean.sh  remove >/dev/null || exit $?
+	update-rc.d mountall.sh            remove >/dev/null || exit $?
+	update-rc.d checkfs.sh             remove >/dev/null || exit $?
+	update-rc.d checkroot-bootclean.sh remove >/dev/null || exit $?
+	update-rc.d checkroot.sh           remove >/dev/null || exit $?
+	update-rc.d mountdevsubfs.sh       remove >/dev/null || exit $?
+	update-rc.d hostname.sh            remove >/dev/null || exit $?
+	update-rc.d mountkernfs.sh         remove >/dev/null || exit $?
+
+	# Remove /dev/pts and /dev/shm ?
+	;;
+esac
+
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/stop-bootlogd 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/stop-bootlogd-single 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/bootlogd 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+
+
+:

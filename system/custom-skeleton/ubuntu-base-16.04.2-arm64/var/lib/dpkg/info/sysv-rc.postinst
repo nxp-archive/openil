@@ -1,0 +1,101 @@
+#!/bin/sh
+
+set -e
+
+now=`date +%Y%m%dT%H%M`
+logdir=/var/lib/insserv
+logfile="$logdir/run-$now.log"
+
+# Make sure insserv is in path
+PATH=/usr/lib/insserv:/sbin:$PATH
+
+# Based on code from dash postinst
+check_divert() {
+    package=insserv
+    div=$(dpkg-divert --list $2)
+    distrib=${4:-$2.distrib}
+    case "$1" in
+    false)
+        if [ -n "$div" ] && [ -z "${div%%*by $package}" ]; then
+	    mv $distrib $2
+	    dpkg-divert --package $package --remove $2
+	fi
+	;;
+    status) # Return true if the divert is in effect
+        if [ -n "$div" ] && [ -z "${div%%*by $package}" ]; then
+            :
+	else
+	    false
+	fi
+    esac
+}
+
+convert_rc_s_to_k() {
+  runlevel=$1
+  for link in $(cd $target/etc/rc$runlevel.d; ls S* || true); do
+      set `echo $link|sed "s%S\(..\)\(.*\)%\1 \2%"`
+      seq=$1
+      service=$2
+      mv $target/etc/rc$runlevel.d/$link $target/etc/rc$runlevel.d/K$seq$service
+  done
+}
+
+legacy_bootordering() {
+    for f in /etc/rc0.d/S* ; do
+	if [ -f $f ] ; then
+	    return 0
+	fi
+    done
+
+    return 1
+}
+
+activate_insserv() {
+    echo "info: Reordering boot system, log to $logfile" 1>&2
+    (
+	echo "info: Converting rc0.d/S* and rc6.d/S* to K*." 1>&2
+	convert_rc_s_to_k 0
+	convert_rc_s_to_k 6
+	echo "info: running insserv" 1>&2
+	insserv -v
+    ) > $logfile 2>&1 || return 1
+
+    return 0
+}
+
+case "$1" in
+    configure)
+	if check_divert status /usr/sbin/update-rc.d \
+	    /usr/sbin/update-rc.d-insserv ; then
+		check_divert false /usr/sbin/update-rc.d \
+			/usr/sbin/update-rc.d-insserv
+	fi
+
+	if dpkg --compare-versions "$2" lt "2.88dsf-41ubuntu13"; then
+	    rm -f /etc/init.d/.legacy-bootordering
+	fi
+
+	if legacy_bootordering ; then
+	    # Still using legacy ordering, try to convert
+	    if activate_insserv ; then
+		echo "success: Enabled dependency based boot system." 1>&2
+	    else
+		echo "error: Something failed while migrating." 1>&2
+		cat 1>&2 <<EOF
+
+error: Unable to migrate to dependency based boot sequencing.
+
+See http://wiki.debian.org/LSBInitScripts/DependencyBasedBoot for
+more information about dependency based boot sequencing. To
+reattempt the migration process run 'dpkg --configure sysv-rc'.
+
+EOF
+		exit 1;
+	    fi
+	fi
+	;;
+    *)
+	;;
+esac
+
+

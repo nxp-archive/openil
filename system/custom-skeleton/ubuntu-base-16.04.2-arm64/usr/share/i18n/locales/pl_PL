@@ -1,0 +1,266 @@
+comment_char %
+escape_char /
+%
+% Polish Language Locale for Poland
+% Source: RAP
+% Address: Sankt Jo/rgens Alle 8
+%    DK-1615 Ko/benhavn V, Danmark
+% Contact: Keld Simonsen
+% Email: Keld.Simonsen@dkuug.dk
+% Tel: +45 - 31226543
+% Fax: +45 - 31226543
+% Language: pl
+% Territory: PL
+% Revision: 4.4
+% Date: 1997-03-18
+% Application: general
+% Users: general
+% Charset: ISO-8859-2
+% Distribution and use is free, also
+% for commercial purposes.
+
+LC_IDENTIFICATION
+title      "Polish locale for Poland"
+source     "RAP"
+address    "Sankt Jo/rgens Alle 8, DK-1615 Ko/benhavn V, Danmark"
+contact    ""
+email      "bug-glibc-locales@gnu.org"
+tel        ""
+fax        ""
+language   "Polish"
+territory  "Poland"
+revision   "1.0"
+date       "2000-06-29"
+%
+category  "pl_PL:2000";LC_IDENTIFICATION
+category  "pl_PL:2000";LC_CTYPE
+category  "pl_PL:2000";LC_COLLATE
+category  "pl_PL:2000";LC_TIME
+category  "pl_PL:2000";LC_NUMERIC
+category  "pl_PL:2000";LC_MONETARY
+category  "pl_PL:2000";LC_MESSAGES
+category  "pl_PL:2000";LC_PAPER
+category  "pl_PL:2000";LC_NAME
+category  "pl_PL:2000";LC_ADDRESS
+category  "pl_PL:2000";LC_TELEPHONE
+category  "pl_PL:2000";LC_MEASUREMENT
+END LC_IDENTIFICATION
+
+LC_COLLATE
+copy "iso14651_t1"
+
+collating-symbol <aogonek>
+collating-symbol <cacute>
+collating-symbol <eogonek>
+collating-symbol <lstroke>
+collating-symbol <nacute>
+collating-symbol <oacute>
+collating-symbol <sacute>
+collating-symbol <zacute>
+collating-symbol <zdot>
+
+reorder-after <a>
+<aogonek>
+
+reorder-after <c>
+<cacute>
+
+reorder-after <e>
+<eogonek>
+
+reorder-after <l>
+<lstroke>
+
+reorder-after <n>
+<nacute>
+
+reorder-after <o>
+<oacute>
+
+reorder-after <s>
+<sacute>
+
+reorder-after <z>
+<zacute>
+<zdot>
+
+reorder-after <U00A0>
+<U0020> <U0020>;IGNORE;<U0020>;<U0020>
+reorder-after <U0061>
+<U0105> <aogonek>;<BAS>;<MIN>;IGNORE
+reorder-after <U0041>
+<U0104> <aogonek>;<BAS>;<CAP>;IGNORE
+
+reorder-after <U0063>
+<U0107> <cacute>;<BAS>;<MIN>;IGNORE
+reorder-after <U0043>
+<U0106> <cacute>;<BAS>;<CAP>;IGNORE
+
+reorder-after <U0065>
+<U0119> <eogonek>;<BAS>;<MIN>;IGNORE
+reorder-after <U0045>
+<U0118> <eogonek>;<BAS>;<CAP>;IGNORE
+
+reorder-after <U006C>
+<U0142> <lstroke>;<BAS>;<MIN>;IGNORE
+reorder-after <U004C>
+<U0141> <lstroke>;<BAS>;<CAP>;IGNORE
+
+reorder-after <U006E>
+<U0144> <nacute>;<BAS>;<MIN>;IGNORE
+reorder-after <U004E>
+<U0143> <nacute>;<BAS>;<CAP>;IGNORE
+
+reorder-after <U006F>
+<U00F3> <oacute>;<BAS>;<MIN>;IGNORE
+reorder-after <U004F>
+<U00D3> <oacute>;<BAS>;<CAP>;IGNORE
+
+reorder-after <U0073>
+<U015B> <sacute>;<BAS>;<MIN>;IGNORE
+reorder-after <U0053>
+<U015A> <sacute>;<BAS>;<CAP>;IGNORE
+
+reorder-after <U007A>
+<U017A> <zacute>;<BAS>;<MIN>;IGNORE
+<U017C> <zdot>;<BAS>;<MIN>;IGNORE
+reorder-after <U005A>
+<U0179> <zacute>;<BAS>;<CAP>;IGNORE
+<U017B> <zdot>;<BAS>;<CAP>;IGNORE
+
+reorder-end
+
+END LC_COLLATE
+
+LC_CTYPE
+copy "i18n"
+
+translit_start
+include  "translit_combining";""
+translit_end
+END LC_CTYPE
+
+LC_MESSAGES
+yesexpr "<U005E><U005B><U0054><U0074><U0059><U0079><U005D><U002E><U002A>"
+noexpr  "<U005E><U005B><U006E><U004E><U005D><U002E><U002A>"
+END LC_MESSAGES
+
+LC_MONETARY
+int_curr_symbol           "<U0050><U004C><U004E><U0020>"
+currency_symbol           "<U007A><U0142>"
+mon_decimal_point         "<U002C>"
+mon_thousands_sep         "<U002E>"
+mon_grouping              3;3
+positive_sign             ""
+negative_sign             "<U002D>"
+int_frac_digits           2
+frac_digits               2
+p_cs_precedes             0
+p_sep_by_space            1
+n_cs_precedes             0
+n_sep_by_space            1
+p_sign_posn               1
+n_sign_posn               1
+END LC_MONETARY
+
+LC_NUMERIC
+decimal_point             "<U002C>"
+thousands_sep             ""
+grouping                  0;0
+END LC_NUMERIC
+
+LC_TIME
+% The abday, abmon, and d_fmt information has been changed (back) to match
+% the preference expressed in the poll organized to get some concensus.
+% The results were not entirely clear on all easpects but the choices
+% here seem to have the most support.  For more details:
+%
+%   https://bugzilla.redhat.com/show_bug.cgi?id=242296
+%
+abday   "<U006E><U0069><U0065>";"<U0070><U006F><U006E>";/
+        "<U0077><U0074><U006F>";"<U015B><U0072><U006F>";/
+        "<U0063><U007A><U0077>";"<U0070><U0069><U0105>";/
+        "<U0073><U006F><U0062>"
+day     "<U006E><U0069><U0065><U0064><U007A><U0069><U0065><U006C><U0061>";/
+        "<U0070><U006F><U006E><U0069><U0065><U0064><U007A><U0069><U0061><U0142><U0065><U006B>";/
+        "<U0077><U0074><U006F><U0072><U0065><U006B>";/
+        "<U015B><U0072><U006F><U0064><U0061>";/
+        "<U0063><U007A><U0077><U0061><U0072><U0074><U0065><U006B>";/
+        "<U0070><U0069><U0105><U0074><U0065><U006B>";/
+        "<U0073><U006F><U0062><U006F><U0074><U0061>"
+abmon   "<U0073><U0074><U0079>";"<U006C><U0075><U0074>";/
+        "<U006D><U0061><U0072>";"<U006B><U0077><U0069>";/
+        "<U006D><U0061><U006A>";"<U0063><U007A><U0065>";/
+        "<U006C><U0069><U0070>";"<U0073><U0069><U0065>";/
+        "<U0077><U0072><U007A>";"<U0070><U0061><U017A>";/
+        "<U006C><U0069><U0073>";"<U0067><U0072><U0075>"
+mon     "<U0073><U0074><U0079><U0063><U007A><U0065><U0144>";/
+        "<U006C><U0075><U0074><U0079>";/
+        "<U006D><U0061><U0072><U007A><U0065><U0063>";/
+        "<U006B><U0077><U0069><U0065><U0063><U0069><U0065><U0144>";/
+        "<U006D><U0061><U006A>";/
+        "<U0063><U007A><U0065><U0072><U0077><U0069><U0065><U0063>";/
+        "<U006C><U0069><U0070><U0069><U0065><U0063>";/
+        "<U0073><U0069><U0065><U0072><U0070><U0069><U0065><U0144>";/
+        "<U0077><U0072><U007A><U0065><U0073><U0069><U0065><U0144>";/
+        "<U0070><U0061><U017A><U0064><U007A><U0069><U0065><U0072><U006E><U0069><U006B>";/
+        "<U006C><U0069><U0073><U0074><U006F><U0070><U0061><U0064>";/
+        "<U0067><U0072><U0075><U0064><U007A><U0069><U0065><U0144>"
+d_t_fmt "<U0025><U0061><U002C><U0020>/
+<U0025><U002D><U0064><U0020><U0025><U0062><U0020><U0025><U0059><U002C><U0020>/
+<U0025><U0054>"
+d_fmt   "<U0025><U0064><U002E><U0025><U006D><U002E><U0025><U0059>"
+t_fmt   "<U0025><U0054>"
+am_pm   "";""
+t_fmt_ampm ""
+date_fmt "<U0025><U0061><U002C><U0020>/
+<U0025><U002D><U0064><U0020><U0025><U0062><U0020><U0025><U0059><U002C><U0020>/
+<U0025><U0054><U0020><U0025><U005A>"
+week	7;19971130;4
+first_weekday	2
+first_workday	2
+END LC_TIME
+
+LC_PAPER
+% FIXME
+height   297
+% FIXME
+width    210
+END LC_PAPER
+
+LC_TELEPHONE
+tel_int_fmt    "<U002B><U0025><U0063><U0020><U0025><U0061><U0020><U0025>/
+<U006C>"
+int_prefix     "<U0034><U0038>"
+END LC_TELEPHONE
+
+LC_MEASUREMENT
+% metric
+measurement 1
+END LC_MEASUREMENT
+
+LC_NAME
+name_fmt    "<U0025><U0064><U0025><U0074><U0025><U0067><U0025><U0074>/
+<U0025><U006D><U0025><U0074><U0025><U0066>"
+END LC_NAME
+
+LC_ADDRESS
+postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
+<U0025><U0064><U0025><U004E><U0025><U0062><U0025><U004E><U0025><U0073>/
+<U0020><U0025><U0068><U0020><U0025><U0065><U0020><U0025><U0072><U0025>/
+<U004E><U0025><U007A><U0020><U0025><U0054><U0025>/
+<U004E><U0025><U0063><U0025><U004E>"
+country_ab2 "<U0050><U004C>"
+country_ab3 "<U0050><U004F><U004C>"
+country_num 616
+% PL
+country_car    "<U0050><U004C>"
+% polski
+lang_name    "<U0070><U006F><U006C><U0073><U006B><U0069>"
+% pl
+lang_ab      "<U0070><U006C>"
+% pol
+lang_term    "<U0070><U006F><U006C>"
+% pol
+lang_lib    "<U0070><U006F><U006C>"
+END LC_ADDRESS

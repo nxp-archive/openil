@@ -1,0 +1,25 @@
+Dependency based boot sequencing is the default in Debian. The
+insserv program is used by sysv-rc to order init.d scripts based on
+dependencies declared in the LSB information within the scripts
+themselves.
+
+To monitor the boot sequence, the bootchart2 project is a good choice and
+Debian packages are available.
+
+Background info on alternative boot systems in Debian is available
+from:
+<URL:http://alioth.debian.org/docman/view.php/30730/38/debconf2-initscripts-bkg.pdf>
+and more recently:
+<URL:https://lists.debian.org/debian-devel/2012/03/msg00452.html>
+
+Information on the LSB initscript comment convention is available from
+<URL:http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/iniscrptact.html>,
+<URL:http://wiki.debian.org/LSBInitScripts> and
+<URL:http://wiki.debian.org/LSBInitScripts/DependencyBasedBoot>.
+
+Information on an alternative approach to parallelism during boot is
+available from
+<URL:http://www-128.ibm.com/developerworks/linux/library/l-boot.html>.
+
+A tool to detect cycles is available from Adam Jensen using the git
+repository <URL:http://linuxguy.org/git/initcycle.git>.

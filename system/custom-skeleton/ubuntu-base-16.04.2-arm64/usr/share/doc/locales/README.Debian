@@ -1,0 +1,17 @@
+locales
+-------
+
+  * Starting with locales 2.7-3, users can provide their own locales in
+    addition to the ones provided by the package. They will be handled 
+    as other locales in the various scripts.
+
+    Each user defined locale has to be provided as a single file and 
+    placed in the /usr/local/share/i18n/locales/ directory. The list of
+    user defined locales should be placed, one by line, in the file
+    /usr/local/share/i18n/SUPPORTED. You can have a look to the locales
+    provided by the locales package in /usr/share/i18n/ for more details.
+
+    To enable the new locales, just run 'dpkg-reconfigure locales' and 
+    select the new locales.
+
+ -- Aurelien Jarno <aurel32@debian.org>  Thu 29 Nov 2007 18:54:12 +0100

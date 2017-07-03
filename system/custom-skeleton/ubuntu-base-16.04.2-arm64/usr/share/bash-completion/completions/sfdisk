@@ -1,0 +1,68 @@
+_sfdisk_module()
+{
+	local cur prev OPTS
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	case $prev in
+		'-n'|'-C'|'--cylinders'|'-H'|'--heads'|'-S'|'--sectors')
+			COMPREPLY=( $(compgen -W "number" -- $cur) )
+			return 0
+			;;
+		'--color')
+			COMPREPLY=( $(compgen -W "auto never always" -- $cur) )
+			return 0
+			;;
+		'-O'|'-I')
+			local IFS=$'\n'
+			compopt -o filenames
+			COMPREPLY=( $(compgen -f -- $cur) )
+			return 0
+			;;
+		'-h'|'--help'|'-v'|'--version')
+			return 0
+			;;
+	esac
+	case $cur in
+		'=')
+			cur=${cur#=}
+			;;
+		-*)
+			OPTS="
+				--activate
+				--dump
+				--json
+				--show-geometry
+				--list
+				--list-free
+				--show-size
+				--list-types
+				--verify
+				--part-label
+				--part-type
+				--part-uuid
+				--part-attrs
+				--append
+				--backup
+				--bytes
+				--force
+				--color
+				--partno
+				--no-act
+				--no-reread
+				--backup-file
+				--output
+				--quiet
+				--label
+				--label-nested
+				--help
+				--version
+			"
+			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+			return 0
+			;;
+	esac
+	COMPREPLY=( $(compgen -W "$(lsblk -pnro name)" -- $cur) )
+	return 0
+}
+complete -F _sfdisk_module sfdisk

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+        "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+
+        <vendor>The systemd Project</vendor>
+        <vendor_url>http://www.freedesktop.org/wiki/Software/systemd</vendor_url>
+
+        <action id="org.freedesktop.hostname1.set-hostname">
+                <description>Set host name</description>
+                <description xml:lang="be">Усталяваць імя вузла</description>
+                <description xml:lang="be@latin">Ustaliavać imia vuzla</description>
+                <description xml:lang="da">Sæt værtsnavn</description>
+                <description xml:lang="de">Rechnername festlegen</description>
+                <description xml:lang="el">Ορισμός ονόματος οικοδεσπότη</description>
+                <description xml:lang="es">Establecer nombre del equipo</description>
+                <description xml:lang="fr">Définir le nom d'hôte</description>
+                <description xml:lang="gl">Estabelecer o nome do equipo</description>
+                <description xml:lang="hu">Gépnév beállítása</description>
+                <description xml:lang="it">Configura il nome host</description>
+                <description xml:lang="ko">호스트 이름 설정</description>
+                <description xml:lang="pl">Ustawienie nazwy komputera</description>
+                <description xml:lang="pt_BR">Definir nome de máquina</description>
+                <description xml:lang="ru">Настроить имя компьютера</description>
+                <description xml:lang="sr">Поставите назив машине</description>
+                <description xml:lang="sv">Ange värdnamn</description>
+                <description xml:lang="tr">Makine adını ayarla</description>
+                <description xml:lang="uk">Встановити назву вузла</description>
+                <description xml:lang="zh_CN">设置主机名</description>
+                <description xml:lang="zh_TW">設定主機名稱</description>
+                <message>Authentication is required to set the local host name.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўсталявання імя вузла.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭstaliavannia imia vuzla.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at sætte værtsnavn.</message>
+                <message xml:lang="de">Legitimierung ist zum Festlegen des lokalen Rechnernamens notwendig</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για να ορίσετε τοπικά όνομα οικοδεσπότη.</message>
+                <message xml:lang="es">Se requiere autenticación para establecer el nombre de equipo local.</message>
+                <message xml:lang="fr">Authentification requise pour définir le nom d'hôte local.</message>
+                <message xml:lang="gl">Requírese autenticación para estabelecer o nome local do equiupo.</message>
+                <message xml:lang="hu">Hitelesítés szükséges a helyi gépnév beállításához.</message>
+                <message xml:lang="it">Autenticazione richiesta per configurare il nome host locale.</message>
+                <message xml:lang="ko">로컬 호스트 이름을 설정하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby ustawić nazwę lokalnego komputera.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para definir nome de máquina local.</message>
+                <message xml:lang="ru">Чтобы настроить имя компьютера, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте поставили назив машине.</message>
+                <message xml:lang="sv">Autentisering krävs för att ange lokalt värdnamn.</message>
+                <message xml:lang="tr">Yerel makine adını ayarlamak kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібне, щоб встановити назву локального вузла.</message>
+                <message xml:lang="zh_CN">设置本地主机名需要验证。</message>
+                <message xml:lang="zh_TW">設定主機名稱需要驗證。</message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+        <action id="org.freedesktop.hostname1.set-static-hostname">
+                <description>Set static host name</description>
+                <description xml:lang="be">Усталяваць статычнае імя вузла</description>
+                <description xml:lang="be@latin">Ustaliavać statyčnaje imia vuzla</description>
+                <description xml:lang="da">Sæt statisk værstnavn</description>
+                <description xml:lang="de">Statischen Rechnernamen festlegen</description>
+                <description xml:lang="el">Ορισμός στατικού ονόματος οικοδεσπότη</description>
+                <description xml:lang="es">Establecer nombre estático del equipo</description>
+                <description xml:lang="fr">Définir le nom d'hôte statique</description>
+                <description xml:lang="gl">Estabelecer o nome do equipo estático</description>
+                <description xml:lang="hu">Statikus gépnév beállítása</description>
+                <description xml:lang="it">Configura il nome host statico</description>
+                <description xml:lang="ko">정적 호스트 이름 설정</description>
+                <description xml:lang="pl">Ustawienie statycznej nazwy komputera</description>
+                <description xml:lang="pt_BR">Definir nome estático de máquina</description>
+                <description xml:lang="ru">Настроить статическое имя компьютера</description>
+                <description xml:lang="sr">Поставите статички назив машине</description>
+                <description xml:lang="sv">Ange statiskt värdnamn</description>
+                <description xml:lang="tr">Statik makine adı ayarla</description>
+                <description xml:lang="uk">Встановити статичну назву вузла</description>
+                <description xml:lang="zh_CN">设置静态主机名</description>
+                <description xml:lang="zh_TW">設定靜態主機名稱</description>
+                <message>Authentication is required to set the statically configured local host name, as well as the pretty host name.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўсталявання як статычнага так і прыгожага імя вузла.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭstaliavannia jak statyčnaha tak i pryhožaha imia vuzla.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at sætte det statisk konfigurerede lokale værtsnavn, lige så vel som det pæne værtsnavn.</message>
+                <message xml:lang="de">Authentifizierung ist erforderlich, um den statisch geänderten, lokalen Rechnernamen, sowie den beschönigten Rechnernamen festzulegen.</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για να ορίσετε το στατικά ρυθμισμένο όνομα τοπικού οικοδεσπότη, καθώς και το pretty όνομα οικοδεσπότη.</message>
+                <message xml:lang="es">Se requiere autenticación para establecer el nombre estático de equipo local, así como el nombre visible del equipo.</message>
+                <message xml:lang="fr">Authentification requise pour définir le nom d'hôte local de manière statique, tout comme le nom d'hôte familier.</message>
+                <message xml:lang="gl">Requírese autenticación para estabelecer de forma o nome do equipo local estabelecido de forma estática, así como o nome do equipo lexíbel por persoas.</message>
+                <message xml:lang="hu">Hitelesítés szükséges a statikusan megadott helyi gépnév, valamint a szép gépnév beállításához.</message>
+                <message xml:lang="it">Autenticazione richiesta per configurare staticamente il nome host locale e il nome host descrittivo.</message>
+                <message xml:lang="ko">로컬 호스트 이름을 모양새를 갖춘 호스트 이름 처럼  정적으로 설정하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby ustawić statycznie skonfigurowaną nazwę lokalnego komputera, a także jego ładną nazwę.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para definir o nome de máquina local configurado estaticamente, assim como o nome apresentável de máquina.</message>
+                <message xml:lang="ru">Чтобы настроить статическое имя компьютера, а также его «красивое» имя, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте поставили статички назив машине и да бисте поставили леп назив машине.</message>
+                <message xml:lang="sv">Autentisering krävs för att ange det statiskt konfigurerade lokala värdnamnet såväl som det stiliga värdnamnet.</message>
+                <message xml:lang="tr">Statik olarak yapılandırılmış konak makine adını ve yerel makine adını ayarlamak kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібне, щоб вказати статично налаштовану назву локального вузла, так само й форматовану.</message>
+                <message xml:lang="zh_TW">設定靜態設定的本機主機名稱時需要驗證，同時也需要漂亮的主機名稱</message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+                <annotate key="org.freedesktop.policykit.imply">org.freedesktop.hostname1.set-hostname org.freedesktop.hostname1.set-machine-info</annotate>
+        </action>
+
+        <action id="org.freedesktop.hostname1.set-machine-info">
+                <description>Set machine information</description>
+                <description xml:lang="be">Усталяваць інфармацыю аб машыне</description>
+                <description xml:lang="be@latin">Ustaliavać infarmacyju ab mašynie</description>
+                <description xml:lang="da">Sæt maskininformation.</description>
+                <description xml:lang="de">Maschinen-Information festlegen</description>
+                <description xml:lang="el">Ορισμός πληροφοριών μηχανής</description>
+                <description xml:lang="es">Establecer información del sistema</description>
+                <description xml:lang="fr">Définir les informations sur la machine</description>
+                <description xml:lang="gl">Estabelecer a información da máquina</description>
+                <description xml:lang="hu">Gépinformációk beállítása</description>
+                <description xml:lang="it">Configura le informazioni sulla macchina</description>
+                <description xml:lang="ko">머신 정보 설정</description>
+                <description xml:lang="pl">Ustawienie informacji o komputerze</description>
+                <description xml:lang="pt_BR">Definir informações da máquina</description>
+                <description xml:lang="ru">Настроить информацию о компьютере</description>
+                <description xml:lang="sr">Поставите податке о машини</description>
+                <description xml:lang="sv">Ange datorinformation</description>
+                <description xml:lang="tr">Makine bilgisini ayarla</description>
+                <description xml:lang="uk">Встановити інформацію про машину</description>
+                <description xml:lang="zh_CN">设置机器信息</description>
+                <description xml:lang="zh_TW">設定機器資訊</description>
+                <message>Authentication is required to set local machine information.</message>
+                <message xml:lang="be">Неабходна аўтэнтыфікацыя для ўсталявання інфармацыі аб лакальнай машыне.</message>
+                <message xml:lang="be@latin">Nieabchodna aŭtentyfikacyja dlia ŭstaliavannia infarmacyi ab lakaĺnaj mašynie.</message>
+                <message xml:lang="da">Autentificering er nødvendig for at sætte lokal maskininformation.</message>
+                <message xml:lang="de">Legitimierung ist zum Festlegen der lokalen Maschinen-Information erforderlich.</message>
+                <message xml:lang="el">Απαιτείται πιστοποίηση για να ορίσετε πληροφορίες τοπικής μηχανής.</message>
+                <message xml:lang="es">Se requiere autenticación para establecer la información de sistema local.</message>
+                <message xml:lang="fr">Authentification requise pour définir les informations sur la machine locale.</message>
+                <message xml:lang="gl">Requírese autenticación para estabelecer a información da máquina local</message>
+                <message xml:lang="hu">Hitelesítés szükséges a helyi gép információinak beállításához.</message>
+                <message xml:lang="it">Autenticazione richiesta per configurare le informazioni sulla macchina locale.</message>
+                <message xml:lang="ko">로컬 머신 정보를 설정하려면 인증이 필요합니다.</message>
+                <message xml:lang="pl">Wymagane jest uwierzytelnienie, aby ustawić informacje o lokalnym komputerze.</message>
+                <message xml:lang="pt_BR">É necessária autenticação para definir informações de máquina local.</message>
+                <message xml:lang="ru">Чтобы настроить информацию о компьютере, необходимо пройти аутентификацию.</message>
+                <message xml:lang="sr">Потребно је да се идентификујете да бисте поставили податке о локалној машини.</message>
+                <message xml:lang="sv">Autentisering krävs för att ange lokal datorinformation.</message>
+                <message xml:lang="tr">Yerel makine bilgisini ayarlamak kimlik doğrulaması gerektiriyor.</message>
+                <message xml:lang="uk">Засвідчення потрібно, щоб вказати локальну інформацію про машини.</message>
+                <message xml:lang="zh_CN">设置本地机器信息需要验证。</message>
+                <message xml:lang="zh_TW">設定機器資訊需要驗證</message>
+                <defaults>
+                        <allow_any>auth_admin_keep</allow_any>
+                        <allow_inactive>auth_admin_keep</allow_inactive>
+                        <allow_active>auth_admin_keep</allow_active>
+                </defaults>
+        </action>
+
+</policyconfig>

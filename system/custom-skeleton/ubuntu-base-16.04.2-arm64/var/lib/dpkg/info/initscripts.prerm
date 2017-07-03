@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/stop-bootlogd 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/stop-bootlogd-single 2.88dsf-42 initscripts -- "$@"
+# End automatically added section
+# Automatically added by dh_installdeb
+dpkg-maintscript-helper rm_conffile /etc/init.d/bootlogd 2.88dsf-42 initscripts -- "$@"
+# End automatically added section

@@ -1,0 +1,15 @@
+sendsigs process omission interface
+-----------------------------------
+
+Since initscripts package version 2.86.ds1-48, /etc/init.d/sendsigs is
+able to omit processes from being killed by killall5(8). Process id's
+listed in /run/sendsigs.omit, or any file in the /run/sendsigs.omit.d/
+directory will be omitted by sendsigs.
+
+The recommended practice for adding a process id for omission is to
+create a file in /run/sendsigs.omit.d/<package name> containing the
+process id that is to be omitted by sendsigs.
+
+This feature is only to be used for processes that need to be running
+when remote file systems are umounted, and that have current working
+directory set to a directory in the root file system.

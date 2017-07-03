@@ -1,0 +1,18 @@
+locales dependencies on glibc
+=============================
+
+  If at some point (in unstable) you get messages like:
+
+    The following packages have unmet dependencies:
+      locales: Depends: glibc-2.6-1 which is a virtual package.
+
+  then please check for example on [1] that the glibc of the _same_ version as
+  the `locales` package you are trying to upgrade is in state _installed_ for
+  your architecture, and for how long.
+
+  If it's not, it is very likely that the corresponding libc has not been
+  built _and_ uploaded to the mirrors for your architecture yet, and that the
+  dependencies will be fixed soon. Please wait for the package to be installed
+  for more than 24 hours before reporting a bug about `locales` dependencies.
+
+  [1] http://buildd.debian.org/~jeroen/status/package.php?p=glibc
