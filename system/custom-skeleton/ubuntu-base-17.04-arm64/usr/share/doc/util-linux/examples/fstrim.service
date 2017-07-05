@@ -1,6 +1,0 @@
-[Unit]
-Description=Discard unused blocks
-
-[Service]
-Type=oneshot
-ExecStart=/sbin/fstrim -av

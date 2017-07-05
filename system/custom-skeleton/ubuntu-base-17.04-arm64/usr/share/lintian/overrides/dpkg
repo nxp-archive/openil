@@ -1,5 +1,0 @@
-dpkg: redundant-origin-field
-dpkg: redundant-bugs-field
-dpkg: arch-dep-package-has-big-usr-share
-# False positives, we read from a file not from a tty
-dpkg: read-in-maintainer-script preinst:*

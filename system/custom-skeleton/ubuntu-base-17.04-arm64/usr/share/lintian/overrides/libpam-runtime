@@ -1,9 +1,0 @@
-# deliberate.
-libpam-runtime: no-debconf-config
-# this warning is just plain crack, there's no reason that using debconf
-# outside of a maintainer script implies an error.
-libpam-runtime: debconf-is-not-a-registry usr/sbin/pam-auth-update
-# this warning is wrong for debconf error templates
-libpam-runtime: postinst-uses-db-input
-# meh.
-libpam-runtime: using-first-person-in-templates libpam-runtime/you-had-no-auth
