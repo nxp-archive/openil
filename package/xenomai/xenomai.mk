@@ -6,28 +6,32 @@
 
 XENOMAI_VERSION = $(call qstrip,$(BR2_PACKAGE_XENOMAI_VERSION))
 ifeq ($(XENOMAI_VERSION),)
-XENOMAI_VERSION = 2.6.4
+XENOMAI_VERSION = next 
 else
 BR_NO_CHECK_HASH_FOR += $(XENOMAI_SOURCE)
 endif
 
-XENOMAI_SITE = https://xenomai.org/downloads/xenomai/stable
-XENOMAI_SOURCE = xenomai-$(XENOMAI_VERSION).tar.bz2
+XENOMAI_SITE = git://git.xenomai.org/xenomai-3.git 
 XENOMAI_LICENSE = headers: GPLv2+ with exception, libraries: LGPLv2.1+, kernel: GPLv2+, docs: GFDLv1.2+, ipipe patch and can driver: GPLv2
 # GFDL is not included but refers to gnu.org
 XENOMAI_LICENSE_FILES = debian/copyright include/COPYING src/skins/native/COPYING ksrc/nucleus/COPYING
-
 XENOMAI_INSTALL_STAGING = YES
 XENOMAI_INSTALL_TARGET_OPTS = DESTDIR=$(TARGET_DIR) install-user
 XENOMAI_INSTALL_STAGING_OPTS = DESTDIR=$(STAGING_DIR) install-user
 
-XENOMAI_CONF_OPTS += --includedir=/usr/include/xenomai/ --disable-doc-install --with-core=cobalt --enable-smp
+XENOMAI_CONF_OPTS += --includedir=/usr/include/xenomai/ --disable-doc-install --with-core=cobalt --enable-smp --enable-pshared --enable-tls --enable-lores-clock --enable-dlopen-libs --enable-clock-monotonic-raw 
 
 define XENOMAI_REMOVE_DEVFILES
 	for i in xeno-config xeno-info wrap-link.sh ; do \
 		rm -f $(TARGET_DIR)/usr/bin/$$i ; \
 	done
 endef
+
+define XENOMAI_CREATE_MISSING_FILES
+	cd $(@D)/ && ./scripts/bootstrap
+endef
+XENOMAI_POST_EXTRACT_HOOKS += XENOMAI_CREATE_MISSING_FILES
+
 
 XENOMAI_POST_INSTALL_TARGET_HOOKS += XENOMAI_REMOVE_DEVFILES
 
