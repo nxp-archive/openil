@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# sja1105        Configures the NXP SJA1105 TSN Switch
+#
+
+# Make sure the sja1105-tool program exists
+[ -f /usr/bin/sja1105-tool ] || exit 0
+
+start() {
+	printf "Starting SJA1105 TSN switch: "
+	staging_area=`cat /etc/sja1105/sja1105.conf | awk '/staging-area/ {print $3;}'`
+	if ! [[ -e $staging_area ]]; then
+		echo "Warning, no config present at \"$staging_area\", creating default"
+		mkdir -p "$(dirname $staging_area)"
+		sja1105-tool config default ls1021atsn
+	fi
+	sja1105-tool config upload
+	[[ $? ]] && echo "OK" || echo "FAIL"
+}
+stop() {
+	printf "Stopping SJA1105 TSN switch: "
+	sja1105-tool reset cold
+	[[ $? ]] && echo "OK" || echo "FAIL"
+}
+restart() {
+	start
+}
+status() {
+	echo "General status:"
+	sja1105-tool status general
+	echo "Port status:"
+	sja1105-tool status port
+}
+
+case "$1" in
+start)
+	start
+	;;
+stop)
+	stop
+	;;
+status)
+	status
+	;;
+restart|reload)
+	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
