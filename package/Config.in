@@ -814,6 +814,7 @@ menu "External python modules"
 	source "package/python-xlwt/Config.in"
 	source "package/python-zope-interface/Config.in"
 	source "package/python-libxml2/Config.in"
+	source "package/python-wand/Config.in"
 endmenu
 endif
 	source "package/ruby/Config.in"
@@ -1665,6 +1666,9 @@ endmenu
 
 menu "Security"
 	source "package/setools/Config.in"
+	source "package/optee_client/Config.in"
+	source "package/optee_os/Config.in"
+	source "package/optee_test/Config.in"
 endmenu
 
 menu "Shell and utilities"
