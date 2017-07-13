@@ -18,7 +18,7 @@ define SJA1105_TOOL_BUILD_CMDS
 endef
 
 define SJA1105_TOOL_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/sja1105-tool $(TARGET_DIR)/usr/bin
+	DESTDIR=$(TARGET_DIR) $(MAKE) -C $(@D) install-binaries install-configs;
 endef
 
 $(eval $(generic-package))
