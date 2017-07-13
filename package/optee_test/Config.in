@@ -1,0 +1,14 @@
+comment "optee_test works on arm platform"
+	depends on BR2_arm
+
+config BR2_PACKAGE_OPTEE_TEST
+	bool "optee_test"
+	select BR2_PACKAGE_OPTEE_CLIENT
+	select BR2_PACKAGE_OPTEE_OS
+	help
+	  The optee_test git contains the source code
+	  for the TEE sanity testsuite in Linux using
+	  the ARM(R) TrustZone(R) technology. It is
+	  distributed under the GPLv2 and BSD 2-clause
+	  open-source licenses. For a general overview
+	  of OP-TEE, please see the Notice.md file.
