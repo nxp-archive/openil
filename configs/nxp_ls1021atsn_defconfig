@@ -83,6 +83,9 @@ BR2_PACKAGE_DHCPCD=y
 # resize2fs package
 BR2_PACKAGE_E2FSPROGS_RESIZE2FS=y
 
+# For ping-pit-test on 3-board TSN demo
+BR2_PACKAGE_WIRESHARK=y
+
 # Add for NETCONF apps
 BR2_ROOTFS_OVERLAY="board/nxp/ls1021atsn/rootfs_overlay"
 BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
