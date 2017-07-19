@@ -1,0 +1,25 @@
+mmc read 0x82000000 0x1F280 0x100
+mmc read 0x82020000 0x1F380 0x100
+mmc read 0x82040000 0x1F480 0x100
+mmc read 0x83000000 0x1F580 0x4000
+mmc read 0x83800000 0x4880 0x200
+mmc read 0x8f000000 0x4A80 0x19000
+mmc read 0x82060000 0x1da80 0x100
+mmc read 0x82100000 0x1db80 0x500
+echo Validate uImage.bin
+esbc_validate 0x82000000
+echo Validate uImage.dtb
+esbc_validate 0x82020000
+echo Validate rootfs
+esbc_validate 0x82040000
+echo Validate tee.bin
+esbc_validate 0x82060000
+setenv fdt_high 0xffffffff
+setenv initrd_high 0xffffffff
+setenv eth1addr 00:1F:7B:63:35:E9
+setenv eth2addr 00:1F:7B:63:35:EA
+setenv ethact eTSEC1
+setenv ethaddr 00:1F:7B:63:35:E8
+setenv ethprime eTSEC1
+pri
+bootm 0x83000000 0x8f000000 0x83800000
