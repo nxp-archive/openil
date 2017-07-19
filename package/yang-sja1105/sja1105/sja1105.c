@@ -36,10 +36,10 @@ int transapi_version = 6;
 
 char *config_xml_list[] = {};
 
-const char conf_folder[]="/etc/sja1105";
-const char datastore_folder[]="/usr/local/etc/netopeer/sja1105/datastore.xml";
-const char command_name[]="sja1105-tool";
-const char tempxml[] = "/var/lib/libnetconf/config.xml";
+const char *conf_folder = "/etc/sja1105";
+const char *datastore_filename = "/usr/local/etc/netopeer/sja1105/datastore.xml";
+const char *tempxml = "/var/lib/libnetconf/config.xml";
+
 /* Signal to libnetconf that configuration data were modified by any callback.
  * 0 - data not modified
  * 1 - data have been modified
@@ -424,8 +424,8 @@ int write_to_datastore(char *file_name)
 	memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
 	sprintf(newnodes_file, "%s/%s", conf_folder, file_name);
 
-	if (access(datastore_folder, F_OK) == -1) {
-		nc_verb_error("datastore %s does not exist", datastore_folder);
+	if (access(datastore_filename, F_OK) == -1) {
+		nc_verb_error("datastore %s does not exist", datastore_filename);
 		pthread_mutex_unlock(&file_mutex);
 		return -1;
 	}
@@ -433,7 +433,7 @@ int write_to_datastore(char *file_name)
 	/* Init libxml */
 	xmlInitParser();
 
-	xmlDocPtr doc_datastore = xmlReadFile(datastore_folder, NULL, 0);
+	xmlDocPtr doc_datastore = xmlReadFile(datastore_filename, NULL, 0);
 	xmlDocPtr doc_newnodes = xmlReadFile(newnodes_file, NULL, 0);
 	xmlNodePtr root_datastore = xmlDocGetRootElement(doc_datastore);
 	xmlNodePtr root_newnodes = xmlDocGetRootElement(doc_newnodes);
@@ -507,7 +507,7 @@ int write_to_datastore(char *file_name)
 	xmlSetProp(node_candidate, (const xmlChar *)"modified", (const xmlChar *)"false");
 
 quiting:
-	xmlSaveFile(datastore_folder, doc_datastore);
+	xmlSaveFile(datastore_filename, doc_datastore);
 
 	xmlFreeDoc(doc_datastore);
 	xmlFreeDoc(doc_newnodes);
