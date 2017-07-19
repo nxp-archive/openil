@@ -7,335 +7,346 @@ module sja1105 {
 	}
 
 	container sja1105 {
-		container version {
-			leaf deviceId {
-				type string;
-				config false;
-				default "sja1105";
-			}
-			leaf revision {
-				type string;
-				config false;
-				default "0.1";
-			}
+		container ptp {
+			leaf pin_duration { type string; }
+			leaf pin_start { type string; }
+			leaf schedule_time { type string; }
+			leaf schedule_correction_period { type string; }
+			leaf ts_based_on_ptpclk { type string; }
+			leaf schedule_autostart { type string; }
+			leaf pin_toggle_autostart { type string; }
 		}
-		container vl-lookup-table {
-			leaf name {
-				type string;
+		container static {
+			container version {
+				leaf deviceId {
+					type string;
+					config false;
+					default "sja1105";
+				}
+				leaf revision {
+					type string;
+					config false;
+					default "0.1";
+				}
+			}
+			container vl-lookup-table {
+				leaf name {
+					type string;
+					config false;
+					default "vl-lookup-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf port { type string; }
+					leaf destports { type string; }
+					leaf iscritical { type string; }
+					leaf macaddr { type string; }
+					leaf vlanid { type string; }
+					leaf vlanprior { type string; }
+					leaf egrmirr { type string; }
+					leaf ingrmirr { type string; }
+					leaf vlid { type string; }
+				}
+			}
+			container vl-policing-table {
+				leaf name {
+					type string;
+					config false;
+					default "vl-policing-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf type { type string; }
+					leaf maxlen { type string; }
+					leaf sharindx { type string; }
+					leaf bag { type string; }
+					leaf jitter { type string; }
+				}
+			}
+			container vl-forwarding-table {
+				leaf name {
+					type string;
+					config false;
+					default "vl-forwarding-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf type { type string; }
+					leaf priority { type string; }
+					leaf partition { type string; }
+					leaf destports { type string; }
+				}
+			}
+			container vl-forwarding-params-table {
+				leaf name {
+					type string;
+					config false;
+					default "vl-forwarding-params-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf partspc { type string; }
+					leaf debugen { type string; }
+				}
+			}
+			container avb-params-table {
+				leaf name {
+					type string;
+					config false;
+					default "avb-params-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf destmeta { type string; }
+					leaf srcmeta { type string; }
+				}
+			}
+			container schedule-table {
+				leaf name {
+					type string;
+					config false;
+					default "schedule-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf winstindex { type string; }
+					leaf winend { type string; }
+					leaf winst { type string; }
+					leaf destports { type string; }
+					leaf setvalid { type string; }
+					leaf txen { type string; }
+					leaf resmedia_en { type string; }
+					leaf resmedia { type string; }
+					leaf vlindex { type string; }
+					leaf delta { type string; }
+				}
+			}
+			container schedule-entry-points-table {
+				leaf name {
+					type string;
+					config false;
+					default "schedule-entry-points-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf subschindx { type string; }
+					leaf delta { type string; }
+					leaf address { type string; }
+				}
+			}
+			container l2-address-lookup-table {
+				leaf name {
+					type string;
+					config false;
+					default "l2-address-lookup-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf vlanid { type string; }
+					leaf macaddr { type string; }
+					leaf destports { type string; }
+					leaf enfport { type string; }
+				}
+			}
+			container l2-policing-table {
+				leaf name {
+					type string;
+					config false;
+					default "l2-policing-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf sharindx { type string; }
+					leaf smax { type string; }
+					leaf rate { type string; }
+					leaf maxlen { type string; }
+					leaf partition { type string; }
+				}
+			}
+			container vlan-lookup-table {
+				leaf name {
+					type string;
+					config false;
+					default "vlan-lookup-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf ving_mirr { type string; }
+					leaf vegr_mirr { type string; }
+					leaf vmemb_port { type string; }
+					leaf vlan_bc { type string; }
+					leaf tag_port { type string; }
+					leaf vlanid { type string; }
+				}
+			}
+			container l2-forwarding-table {
+				leaf name {
+					type string;
+					config false;
+					default "l2-forwarding-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf bc_domain { type string; }
+					leaf reach_port { type string; }
+					leaf fl_domain { type string; }
+					leaf vlan_pmap { type string; }
+				}
+			}
+			container mac-configuration-table {
+				leaf name {
+					type string;
+					config false;
+					default "mac-configuration-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf top { type string; }
+					leaf base { type string; }
+					leaf enabled { type string; }
+					leaf ifg { type string; }
+					leaf speed { type string; }
+					leaf tp_delin { type string; }
+					leaf tp_delout { type string; }
+					leaf maxage { type string; }
+					leaf vlanprio { type string; }
+					leaf vlanid { type string; }
+					leaf ing_mirr { type string; }
+					leaf egr_mirr { type string; }
+					leaf drpnona664 { type string; }
+					leaf drpdtag { type string; }
+					leaf drpuntag { type string; }
+					leaf retag { type string; }
+					leaf dyn_learn { type string; }
+					leaf egress { type string; }
+					leaf ingress { type string; }
+				}
+			}
+			container schedule-parameters-table {
+				leaf name {
+					type string;
+					config false;
+					default "schedule-parameters-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf subscheind { type string; }
+				}
+			}
+			container schedule-entry-points-parameters-table {
+				leaf name {
+					type string;
+					config false;
+					default "schedule-entry-points-parameters-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf clksrc { type string; }
+					leaf actsubsch { type string; }
+				}
+			}
+			container l2-address-lookup-parameters-table {
+				leaf name {
+					type string;
+					config false;
+					default "l2-address-lookup-parameters-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf maxage { type string; }
+					leaf dyn_tbsz { type string; }
+					leaf poly { type string; }
+					leaf shared_learn { type string; }
+					leaf no_enf_hostprt { type string; }
+					leaf no_mgmt_learn { type string; }
+				}
+			}
+			container l2-forwarding-parameters-table {
+				leaf name {
+					type string;
+					config false;
+					default "l2-forwarding-parameters-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf max_dynp { type string; }
+					leaf part_spc { type string; }
+				}
+			}
+			container general-parameters-table {
+				leaf name {
+					type string;
+					config false;
+					default "general-parameters-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf vllupformat { type string; }
+					leaf mirr_ptacu { type string; }
+					leaf switchid { type string; }
+					leaf hostprio { type string; }
+					leaf mac_fltres1 { type string; }
+					leaf mac_fltres0 { type string; }
+					leaf mac_flt1 { type string; }
+					leaf mac_flt0 { type string; }
+					leaf incl_srcpt1 { type string; }
+					leaf incl_srcpt0 { type string; }
+					leaf send_meta1 { type string; }
+					leaf send_meta0 { type string; }
+					leaf casc_port { type string; }
+					leaf host_port { type string; }
+					leaf mirr_port { type string; }
+					leaf vlmarker { type string; }
+					leaf vlmask { type string; }
+					leaf tpid { type string; }
+					leaf ignore2stf { type string; }
+					leaf tpid2 { type string; }
+				}
+			}
+			container xmii-mode-parameters-table {
+				leaf name {
+					type string;
+					config false;
+					default "xmii-mode-parameters-table";
+				}
+				list entry {
+					key index;
+					leaf index { type uint32; }
+					leaf phy_mac { type string; }
+					leaf xmii_mode { type string; }
+				}
+			}
+			container config-files {
 				config false;
-				default "vl-lookup-table";
+				leaf-list configFile {
+					type string;
+					description
+					"list all the config xml files for tables";
+				}
 			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf port { type string; }
-				leaf destports { type string; }
-				leaf iscritical { type string; }
-				leaf macaddr { type string; }
-				leaf vlanid { type string; }
-				leaf vlanprior { type string; }
-				leaf egrmirr { type string; }
-				leaf ingrmirr { type string; }
-				leaf vlid { type string; }
-			}
-		}
-		container vl-policing-table {
-			leaf name {
-				type string;
+			container ports {
 				config false;
-				default "vl-policing-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf type { type string; }
-				leaf maxlen { type string; }
-				leaf sharindx { type string; }
-				leaf bag { type string; }
-				leaf jitter { type string; }
-			}
-		}
-		container vl-forwarding-table {
-			leaf name {
-				type string;
-				config false;
-				default "vl-forwarding-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf type { type string; }
-				leaf priority { type string; }
-				leaf partition { type string; }
-				leaf destports { type string; }
-			}
-		}
-		container vl-forwarding-params-table {
-			leaf name {
-				type string;
-				config false;
-				default "vl-forwarding-params-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf partspc { type string; }
-				leaf debugen { type string; }
-			}
-		}
-		container avb-params-table {
-			leaf name {
-				type string;
-				config false;
-				default "avb-params-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf destmeta { type string; }
-				leaf srcmeta { type string; }
-			}
-		}
-		container schedule-table {
-			leaf name {
-				type string;
-				config false;
-				default "schedule-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf winstindex { type string; }
-				leaf winend { type string; }
-				leaf winst { type string; }
-				leaf destports { type string; }
-				leaf setvalid { type string; }
-				leaf txen { type string; }
-				leaf resmedia_en { type string; }
-				leaf resmedia { type string; }
-				leaf vlindex { type string; }
-				leaf delta { type string; }
-			}
-		}
-		container schedule-entry-points-table {
-			leaf name {
-				type string;
-				config false;
-				default "schedule-entry-points-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf subschindx { type string; }
-				leaf delta { type string; }
-				leaf address { type string; }
-			}
-		}
-		container l2-address-lookup-table {
-			leaf name {
-				type string;
-				config false;
-				default "l2-address-lookup-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf vlanid { type string; }
-				leaf macaddr { type string; }
-				leaf destports { type string; }
-				leaf enfport { type string; }
-			}
-		}
-		container l2-policing-table {
-			leaf name {
-				type string;
-				config false;
-				default "l2-policing-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf sharindx { type string; }
-				leaf smax { type string; }
-				leaf rate { type string; }
-				leaf maxlen { type string; }
-				leaf partition { type string; }
-			}
-		}
-		container vlan-lookup-table {
-			leaf name {
-				type string;
-				config false;
-				default "vlan-lookup-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf ving_mirr { type string; }
-				leaf vegr_mirr { type string; }
-				leaf vmemb_port { type string; }
-				leaf vlan_bc { type string; }
-				leaf tag_port { type string; }
-				leaf vlanid { type string; }
-			}
-		}
-		container l2-forwarding-table {
-			leaf name {
-				type string;
-				config false;
-				default "l2-forwarding-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf bc_domain { type string; }
-				leaf reach_port { type string; }
-				leaf fl_domain { type string; }
-				leaf vlan_pmap { type string; }
-			}
-		}
-		container mac-configuration-table {
-			leaf name {
-				type string;
-				config false;
-				default "mac-configuration-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf top { type string; }
-				leaf base { type string; }
-				leaf enabled { type string; }
-				leaf ifg { type string; }
-				leaf speed { type string; }
-				leaf tp_delin { type string; }
-				leaf tp_delout { type string; }
-				leaf maxage { type string; }
-				leaf vlanprio { type string; }
-				leaf vlanid { type string; }
-				leaf ing_mirr { type string; }
-				leaf egr_mirr { type string; }
-				leaf drpnona664 { type string; }
-				leaf drpdtag { type string; }
-				leaf drpuntag { type string; }
-				leaf retag { type string; }
-				leaf dyn_learn { type string; }
-				leaf egress { type string; }
-				leaf ingress { type string; }
-			}
-		}
-		container schedule-parameters-table {
-			leaf name {
-				type string;
-				config false;
-				default "schedule-parameters-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf subscheind { type string; }
-			}
-		}
-		container schedule-entry-points-parameters-table {
-			leaf name {
-				type string;
-				config false;
-				default "schedule-entry-points-parameters-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf clksrc { type string; }
-				leaf actsubsch { type string; }
-			}
-		}
-		container l2-address-lookup-parameters-table {
-			leaf name {
-				type string;
-				config false;
-				default "l2-address-lookup-parameters-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf maxage { type string; }
-				leaf dyn_tbsz { type string; }
-				leaf poly { type string; }
-				leaf shared_learn { type string; }
-				leaf no_enf_hostprt { type string; }
-				leaf no_mgmt_learn { type string; }
-			}
-		}
-		container l2-forwarding-parameters-table {
-			leaf name {
-				type string;
-				config false;
-				default "l2-forwarding-parameters-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf max_dynp { type string; }
-				leaf part_spc { type string; }
-			}
-		}
-		container general-parameters-table {
-			leaf name {
-				type string;
-				config false;
-				default "general-parameters-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf vllupformat { type string; }
-				leaf mirr_ptacu { type string; }
-				leaf switchid { type string; }
-				leaf hostprio { type string; }
-				leaf mac_fltres1 { type string; }
-				leaf mac_fltres0 { type string; }
-				leaf mac_flt1 { type string; }
-				leaf mac_flt0 { type string; }
-				leaf incl_srcpt1 { type string; }
-				leaf incl_srcpt0 { type string; }
-				leaf send_meta1 { type string; }
-				leaf send_meta0 { type string; }
-				leaf casc_port { type string; }
-				leaf host_port { type string; }
-				leaf mirr_port { type string; }
-				leaf vlmarker { type string; }
-				leaf vlmask { type string; }
-				leaf tpid { type string; }
-				leaf ignore2stf { type string; }
-				leaf tpid2 { type string; }
-			}
-		}
-		container xmii-mode-parameters-table {
-			leaf name {
-				type string;
-				config false;
-				default "xmii-mode-parameters-table";
-			}
-			list entry {
-				key index;
-				leaf index { type uint32; }
-				leaf phy_mac { type string; }
-				leaf xmii_mode { type string; }
-			}
-		}
-		container config-files {
-			config false;
-			leaf-list configFile {
-				type string;
-				description
-				"list all the config xml files for tables";
-			}
-		}
-		container ports {
-			config false;
-			leaf-list port {
-				type string;
-				description "one port status";
+				leaf-list port {
+					type string;
+					description "one port status";
+				}
 			}
 		}
 	}
