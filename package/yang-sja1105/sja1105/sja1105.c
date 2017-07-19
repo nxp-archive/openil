@@ -91,6 +91,24 @@ char *sja1105_run_cmd(char *command_run)
 int write_to_datastore(char *file_name);
 int file_validate(char *file);
 
+void sja1105_log(NC_VERB_LEVEL level, const char* msg)
+{
+	switch (level) {
+	case NC_VERB_ERROR:
+		printf("[sja1105 error]: %s\n", msg);
+		break;
+	case NC_VERB_WARNING:
+		printf("[sja1105 warning]: %s\n", msg);
+		break;
+	case NC_VERB_VERBOSE:
+		printf("[sja1105 verbose]: %s\n", msg);
+		break;
+	case NC_VERB_DEBUG:
+		printf("[sja1105 debug]: %s\n", msg);
+		break;
+	}
+}
+
 /**
  * @brief Initialize plugin after loaded and before any other functions
  *        are called.
@@ -112,7 +130,10 @@ int file_validate(char *file);
  */
 int transapi_init(__attribute__((unused)) xmlDocPtr *running)
 {
-	nc_verb_verbose("transapi_init\n");
+	/* set message printing callback */
+	nc_callback_print(sja1105_log);
+	/* test it out */
+	nc_verb_verbose("transapi_init");
 	return EXIT_SUCCESS;
 }
 
@@ -183,7 +204,7 @@ xmlDocPtr get_state_data(__attribute__((unused)) xmlDocPtr model,
 	sprintf(command_line, "ls -l %s/* | grep .xml | awk '{print $9}'",
 	        netconf_file_dir);
 	if ((fp = popen(command_line, "r")) == NULL) {
-		printf("command fail: ls -l %s/*\n", netconf_file_dir);
+		nc_verb_error("command fail: ls -l %s/*", netconf_file_dir);
 		return(NULL);
 	}
 
@@ -217,7 +238,8 @@ xmlDocPtr get_state_data(__attribute__((unused)) xmlDocPtr model,
 		sprintf(command_line, "%s status ports %d", command_name, i);
 
 		if ((fp = popen(command_line, "r")) == NULL) {
-			printf("command fail: %s status ports %d\n", command_name, i);
+			nc_verb_error("command \"sja1105-tool status ports %d\""
+			              "failed", i);
 			return(NULL);
 		}
 		while (fgets(lbuf, 256, fp) != NULL) {
@@ -342,11 +364,11 @@ xmlNodePtr probe_datastore_node(xmlNodePtr datastore_node, char *node_name)
 	xmlNodePtr node = NULL;
 
 	if (datastore_node->type != XML_ELEMENT_NODE) {
-		fprintf(stderr, "Root node must be of element type!\n");
+		nc_verb_error("Root node must be of element type!");
 		goto out;
 	}
 	if (strcasecmp((char*) datastore_node->name, "datastores")) {
-		fprintf(stderr, "Root node must be named \"datastores\"!\n");
+		nc_verb_error("Root node must be named \"datastores\"!");
 		goto out;
 	}
 	for (node = datastore_node->children; node != NULL; node = node->next) {
@@ -366,7 +388,8 @@ int file_validate(char *file)
 	memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
 	sprintf(newnodes_file, "%s/%s", conf_folder, file);
 	if (access(newnodes_file, F_OK) == -1) {
-		printf("config file not exist, newnodes_file= %s\n", newnodes_file);
+		nc_verb_error("config file not exist, newnodes_file= %s",
+		              newnodes_file);
 		return -1;
 	}
 	return 0;
@@ -397,12 +420,12 @@ int write_to_datastore(char *file_name)
 		return -1;
 	}
 
-	nc_verb_verbose("write_to_datastore:\n");
+	nc_verb_verbose("write_to_datastore:");
 	memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
 	sprintf(newnodes_file, "%s/%s", conf_folder, file_name);
 
 	if (access(datastore_folder, F_OK) == -1) {
-		printf("datastore.xml not exist\n");
+		nc_verb_error("datastore %s does not exist", datastore_folder);
 		pthread_mutex_unlock(&file_mutex);
 		return -1;
 	}
@@ -417,20 +440,20 @@ int write_to_datastore(char *file_name)
 
 	xmlNodePtr node_running = probe_datastore_node(root_datastore, "running");
 	if (node_running == NULL) {
-		printf("Not found the running node\n");
+		nc_verb_error("Running config datastore node not found");
 		rc = -1;
 		goto quiting;
 	}
 
 	xmlNodePtr node_candidate = probe_datastore_node(root_datastore, "candidate");
 	if (node_candidate == NULL) {
-		printf("Not found the candidate node\n");
+		nc_verb_error("Candidate config datastore node not found");
 		rc = -1;
 		goto quiting;
 	}
 
 	if (strcasecmp((char*) root_newnodes->name, "sja1105")) {
-		fprintf(stderr, "Root node must be named \"sja1105\"!\n");
+		nc_verb_error("Root node must be named \"sja1105\"!");
 		rc = -1;
 		goto quiting;
 	}
@@ -441,7 +464,7 @@ int write_to_datastore(char *file_name)
 	/* start copy the node */
 	xmlNodePtr new_run = xmlAddChild(node_running, rootnode_running);
 	if (new_run == NULL) {
-		printf("error adding the sja1105 node\n");
+		nc_verb_error("error adding the sja1105 node");
 		goto quiting;
 	}
 
@@ -454,7 +477,7 @@ int write_to_datastore(char *file_name)
 		tempNode = tempNode->prev;
 		xmlUnlinkNode(tempNode1);
 		xmlFreeNode(tempNode1);
-		nc_verb_verbose("delete previous sja1105 running node\n");
+		nc_verb_verbose("delete previous sja1105 running node");
 	}
 
 	/* Add new sja1105 node to candidate node in datastore.xml */
@@ -465,7 +488,7 @@ int write_to_datastore(char *file_name)
 	/* start copy the node */
 	xmlNodePtr new_candi = xmlAddChild(node_candidate, rootnode_candidate);
 	if (new_candi == NULL) {
-		printf("error adding the sja1105 node\n");
+		nc_verb_error("error adding the sja1105 node");
 		goto quiting;
 	}
 
@@ -503,7 +526,6 @@ quiting:
 
 nc_reply *rpc_save_local_config(xmlNodePtr input)
 {
-	nc_verb_verbose("rpc_sja1105_config_save\n");
 	xmlNodePtr file_name_xml = get_rpc_node("configfile", input);
 	char *file_name;
 	struct nc_err* e = NULL;
@@ -511,6 +533,8 @@ nc_reply *rpc_save_local_config(xmlNodePtr input)
 	char cmd_file[256];
 	int ret;
 	char msg_err[256];
+
+	nc_verb_verbose("rpc_sja1105_config_save");
 
 	file_name = (char*)xmlNodeGetContent(file_name_xml);
 
@@ -537,7 +561,7 @@ nc_reply *rpc_save_local_config(xmlNodePtr input)
 
 	sja1105_run_cmd(command_full);
 
-	nc_verb_verbose("run command --- %s\n", command_full);
+	nc_verb_verbose("run command --- %s", command_full);
 
 	return nc_reply_ok();
 
@@ -549,7 +573,6 @@ error:
 
 nc_reply *rpc_load_local_config(xmlNodePtr input)
 {
-	nc_verb_verbose("rpc_sja1105_config_load\n");
 	xmlNodePtr file_name_xml = get_rpc_node("configfile", input);
 	char *file_name;
 	struct nc_err* e = NULL;
@@ -558,6 +581,8 @@ nc_reply *rpc_load_local_config(xmlNodePtr input)
 	char folder[256];
 	int ret;
 	char msg_err[256];
+
+	nc_verb_verbose("rpc_sja1105_config_load");
 
 	file_name = (char*)xmlNodeGetContent(file_name_xml);
 	sscanf(file_name, "%s", cmd_file);
@@ -583,7 +608,8 @@ nc_reply *rpc_load_local_config(xmlNodePtr input)
 	sprintf(folder, "%s/%s", conf_folder, cmd_file);
 
 	if (access(folder, F_OK) == -1) {
-		printf("config file not exist, command file = %s\n", folder);
+		nc_verb_error("config file does not exist, command file = %s",
+		              folder);
 		memset(msg_err, '\0', sizeof(msg_err));
 		strcpy(msg_err, "config file not exist in /etc/sja1105/");
 		goto error;
