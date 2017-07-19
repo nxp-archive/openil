@@ -110,7 +110,7 @@ int file_validate(char *file);
 
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
-int transapi_init(xmlDocPtr *running)
+int transapi_init(__attribute__((unused)) xmlDocPtr *running)
 {
 	nc_verb_verbose("transapi_init\n");
 	return EXIT_SUCCESS;
@@ -158,7 +158,9 @@ int save_to_temp_file(xmlNodePtr new_node)
  * @return              State data as libxml2 xmlDocPtr or NULL in case
  *                      of error.
  */
-xmlDocPtr get_state_data(xmlDocPtr model, xmlDocPtr running, struct nc_err **err)
+xmlDocPtr get_state_data(__attribute__((unused)) xmlDocPtr model,
+                         __attribute__((unused)) xmlDocPtr running,
+                         __attribute__((unused)) struct nc_err **err)
 {
 	nc_verb_verbose("get_state_data\n");
 	FILE *fp;
@@ -259,8 +261,11 @@ struct ns_pair namespace_mapping[] = {{"nxp", SJA1105_NETCONF_NS}, {NULL, NULL}}
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 /* !DO NOT ALTER FUNCTION SIGNATURE! */
-int callback_nxp_sja1105(void **data, XMLDIFF_OP op, xmlNodePtr old_node,
-                         xmlNodePtr new_node, struct nc_err **error)
+int callback_nxp_sja1105(__attribute__((unused)) void **data,
+                         XMLDIFF_OP op,
+                         __attribute__((unused)) xmlNodePtr old_node,
+                         xmlNodePtr new_node,
+                         __attribute__((unused)) struct nc_err **error)
 {
 	nc_verb_verbose("callback_nxp_sja1105\n");
 
@@ -602,7 +607,7 @@ error:
 	return nc_reply_error(e);
 }
 
-nc_reply *rpc_load_default(xmlNodePtr input)
+nc_reply *rpc_load_default(__attribute__((unused)) xmlNodePtr input)
 {
 	nc_verb_verbose("rpc_sja1105_config_default\n");
 	char command_full[] = "sja1105-tool config default -f ls1021atsn";
