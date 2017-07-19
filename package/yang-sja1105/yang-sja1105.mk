@@ -1,10 +1,10 @@
 ################################################################################
 #
-# yang module sja1105 
+# yang module sja1105
 #
 ################################################################################
 YANG_SJA1105_VERSION = 0.1
-YANG_SJA1105_SITE = package/yang-sja1105/sja1105 
+YANG_SJA1105_SITE = package/yang-sja1105/sja1105
 YANG_SJA1105_SITE_METHOD = local
 YANG_SJA1105_LICENSE = MIT
 YANG_SJA1105_LICENSE_FILES = COPYING
@@ -14,10 +14,14 @@ YANG_SJA1105_CONF_ENV += PYTHON_CONFIG="$(STAGING_DIR)/usr/bin/python-config"
 YANG_SJA1105_CONF_ENV += ac_cv_path_NETOPEER_MANAGER="$(HOST_DIR)/usr/bin/netopeer-manager.host"
 
 define YANG_SJA1105_CREATE_CONFIGURE
-	cd $(@D); $(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/lnctool --model ./sja1105.yang transapi --paths ./paths.txt; \
-	$(INSTALL) -D -m 0755 $(TOPDIR)/package/yang-sja1105/sja1105/sja1105.c $(BUILD_DIR)/yang-sja1105-$(YANG_SJA1105_VERSION)/;\
+	cd $(@D); \
+	$(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/lnctool --model ./sja1105.yang \
+	                                      transapi --paths ./paths.txt; \
+	$(INSTALL) -D -m 0755 $(TOPDIR)/package/yang-sja1105/sja1105/sja1105.c \
+	                    $(BUILD_DIR)/yang-sja1105-$(YANG_SJA1105_VERSION)/;\
 	cd $(TOPDIR); \
-	$(APPLY_PATCHES) $(@D) package/yang-sja1105/ 0001-yang-sja1105-modify-configure-file-pass-buildroot.patch; \
+	$(APPLY_PATCHES) $(@D) package/yang-sja1105/ \
+	         0001-yang-sja1105-modify-configure-file-pass-buildroot.patch; \
 	cd $(@D); \
 	$(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/autoreconf --force --install
 endef
@@ -34,7 +38,8 @@ endef
 
 define YANG_SJA1105_LNCTOOL_CREATE_FILES
 	cd $(@D); \
-	$(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/lnctool --model `pwd`/sja1105.yang --search-path `pwd` --output-dir `pwd` validation;
+	$(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/lnctool --model \
+	    `pwd`/sja1105.yang --search-path `pwd` --output-dir `pwd` validation;
 endef
 
 YANG_SJA1105_POST_BUILD_HOOKS +=YANG_SJA1105_LNCTOOL_CREATE_FILES
