@@ -235,7 +235,7 @@ xmlDocPtr get_state_data(__attribute__((unused)) xmlDocPtr model,
 
 		memset(full_status, 0, sizeof(full_status));
 		memset(command_line, 0, sizeof(command_line));
-		sprintf(command_line, "%s status ports %d", command_name, i);
+		sprintf(command_line, "sja1105-tool status ports %d", i);
 
 		if ((fp = popen(command_line, "r")) == NULL) {
 			nc_verb_error("command \"sja1105-tool status ports %d\""
@@ -556,8 +556,8 @@ nc_reply *rpc_save_local_config(xmlNodePtr input)
 	nc_verb_verbose("rpc_sja1105_config_save: preparing save file : %s\n",
 	                cmd_file);
 
-	sprintf(command_full, "%s config save %s/%s",
-	        command_name, conf_folder, cmd_file);
+	sprintf(command_full, "sja1105-tool config save %s/%s",
+	        conf_folder, cmd_file);
 
 	sja1105_run_cmd(command_full);
 
@@ -615,8 +615,8 @@ nc_reply *rpc_load_local_config(xmlNodePtr input)
 		goto error;
 	}
 
-	sprintf(command_full, "%s config load -f %s/%s",
-	        command_name, conf_folder, cmd_file);
+	sprintf(command_full, "sja1105-tool config load -f %s/%s",
+	        conf_folder, cmd_file);
 
 	sja1105_run_cmd(command_full);
 
