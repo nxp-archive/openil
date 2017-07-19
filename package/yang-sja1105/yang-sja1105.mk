@@ -12,6 +12,7 @@ YANG_SJA1105_DEPENDENCIES = libxml2 pyang libnetconf sja1105-tool
 YANG_SJA1105_CONF_ENV += PKG_CONFIG_PATH="$(STAGING_DIR)/usr/lib/pkgconfig"
 YANG_SJA1105_CONF_ENV += PYTHON_CONFIG="$(STAGING_DIR)/usr/bin/python-config"
 YANG_SJA1105_CONF_ENV += ac_cv_path_NETOPEER_MANAGER="$(HOST_DIR)/usr/bin/netopeer-manager.host"
+YANG_SJA1105_CONF_ENV += CFLAGS+="-Wextra -Wall -Wunused-function -Wunused-label -Werror"
 
 define YANG_SJA1105_CREATE_CONFIGURE
 	cd $(@D); \
