@@ -496,25 +496,6 @@ quiting:
 	return rc;
 }
 
-int sja1105_check_dir(char *file)
-{
-	char dir_copy[128];
-
-	memset(dir_copy, '\0', sizeof(dir_copy));
-	if (file == NULL)
-		return -1;
-
-	if (strlen(file) < strlen(conf_folder))
-		return -1;
-
-	strncpy(dir_copy, file, strlen(conf_folder));
-
-	if (strcmp(dir_copy, conf_folder))
-		return -1;
-
-	return 0;
-}
-
 nc_reply *rpc_save_local_config(xmlNodePtr input)
 {
 	nc_verb_verbose("rpc_sja1105_config_save\n");
