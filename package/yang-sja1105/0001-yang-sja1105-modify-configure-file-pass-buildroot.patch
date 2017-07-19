@@ -13,18 +13,6 @@ diff --git a/Makefile.in b/Makefile.in
 index bfc0f07..2d4bbcb 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -35,7 +35,10 @@ SRCS = @PROJECTNAME@.c
- OBJDIR = .obj
- LOBJS = $(SRCS:%.c=$(OBJDIR)/%.lo)
- 
--all: $(TARGET)
-+all: $(TARGET) $(PKGNAME)-init
-+
-+$(PKGNAME)-init: $(SRCS) $(PKGNAME)-init.c
-+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
- 
- $(TARGET): $(LOBJS)
- 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -avoid-version -module -shared -export-dynamic --mode=link -o $@ $^ -rpath $(libdir)
 @@ -49,18 +52,26 @@ $(OBJDIR)/%.lo: %.c
  install: $(TARGET)
  	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
