@@ -3,7 +3,7 @@
 # yang module sja1105
 #
 ################################################################################
-YANG_SJA1105_VERSION = 0.1
+YANG_SJA1105_VERSION = 0.3-rc1
 YANG_SJA1105_SITE = package/yang-sja1105/sja1105
 YANG_SJA1105_SITE_METHOD = local
 YANG_SJA1105_LICENSE = MIT
