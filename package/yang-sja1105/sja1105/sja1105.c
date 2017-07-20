@@ -288,9 +288,10 @@ int callback_nxp_sja1105(__attribute__((unused)) void **data,
                          xmlNodePtr new_node,
                          __attribute__((unused)) struct nc_err **error)
 {
-	nc_verb_verbose("callback_nxp_sja1105\n");
-
+	char command[256];
 	int rc;
+
+	nc_verb_verbose("callback_nxp_sja1105\n");
 
 	if (op & XMLDIFF_REM) {
 		nc_verb_verbose("callback_nxp_sja1105 op is REMOVE\n");
@@ -567,7 +568,6 @@ nc_reply *rpc_save_local_config(xmlNodePtr input)
 	nc_verb_verbose("run command --- %s", command_full);
 
 	return nc_reply_ok();
-
 error:
 	e = nc_err_new(NC_ERR_IN_USE);
 	nc_err_set(e, NC_ERR_PARAM_MSG, msg_err);
