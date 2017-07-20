@@ -295,6 +295,7 @@ int callback_nxp_sja1105(__attribute__((unused)) void **data,
 
 	if (op & XMLDIFF_REM) {
 		nc_verb_verbose("callback_nxp_sja1105 op is REMOVE\n");
+		config_modified = 0;
 		return EXIT_SUCCESS;
 	}
 
@@ -307,8 +308,10 @@ int callback_nxp_sja1105(__attribute__((unused)) void **data,
 
 		sprintf(command, "sja1105-tool config load -f %s", tempxml);
 		sja1105_run_cmd(command);
+		config_modified = 1;
 	} else {
 		nc_verb_verbose("unknown operation type\n");
+		config_modified = 0;
 	}
 	return EXIT_SUCCESS;
 }
@@ -626,6 +629,8 @@ nc_reply *rpc_load_local_config(xmlNodePtr input)
 		strcpy(msg_err, "run netconf xml file load failure");
 		goto error;
 	}
+	config_modified = 1;
+
 	return nc_reply_ok();
 error:
 	e = nc_err_new(NC_ERR_IN_USE);
@@ -649,6 +654,8 @@ nc_reply *rpc_load_default(__attribute__((unused)) xmlNodePtr input)
 		strcpy(msg_err, "run netconf xml file load failure");
 		goto default_error;
 	}
+	config_modified = 1;
+
 	return nc_reply_ok();
 
 default_error:
