@@ -671,6 +671,31 @@ struct transapi_rpc_callbacks rpc_clbks = {
 	}
 };
 
+int staging_area_callback(const char *filepath,
+                          __attribute__((unused)) xmlDocPtr *edit_config,
+                          __attribute__((unused)) int *exec)
+{
+	nc_verb_verbose("staging_area_callback: %s", filepath);
+	/* TODO:
+	 * 1. Check if the staging area was modified by previously
+	 *    calling one of these functions:
+	 *      * rpc_load_default()
+	 *      * rpc_load_local_config()
+	 *      * callback_nxp_sja1105() with (op & XMLDIFF_ADD) || (op & XMLDIFF_MOD)
+	 *    Do the check by setting a global flag in those functions and
+	 *    clearing it here.
+	 *    If the flag was already clear by the time staging_area_callback()
+	 *    is called, it means the staging area was modified externally
+	 *    (most probably sja1105-tool).
+	 * 2. Invoke a "sja1105-tool config save *tempxml" to extract the
+	 *    new staging area contents into a temporary XML file
+	 * 3. Run "write_to_datastore(tempxml)" or similar, to import the newly
+	 *    extracted configuration from the modified staging area into
+	 *    the NETCONF datastore.
+	 */
+	return 0;
+}
+
 /*
  * Structure transapi_file_callbacks provides mapping between specific files
  * (e.g. configuration file in /etc/) and the callback function executed when
@@ -693,7 +718,8 @@ struct transapi_rpc_callbacks rpc_clbks = {
  * }
  */
 struct transapi_file_callbacks file_clbks = {
-	.callbacks_count = 0,
-	.callbacks = {{NULL}}
+	.callbacks_count = 1,
+	.callbacks = {{.path = "/lib/firmware/sja1105.bin",
+	               .func = staging_area_callback}}
 };
 
