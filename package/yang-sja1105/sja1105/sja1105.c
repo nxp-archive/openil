@@ -147,23 +147,22 @@ void transapi_close(void)
 	return;
 }
 
-int save_to_temp_file(xmlNodePtr new_node)
+int xml_save_to_file(xmlNodePtr root, const char *filename)
 {
 	char command[256];
-	xmlDocPtr configfile = xmlNewDoc(BAD_CAST "1.0");
+	xmlDocPtr xml_doc = xmlNewDoc(BAD_CAST "1.0");
 
-	xmlDocSetRootElement(configfile, new_node);
-	xmlSaveFormatFileEnc(tempxml, configfile, "UTF-8", 1);
-	xmlFreeDoc(configfile);
+	xmlDocSetRootElement(xml_doc, root);
+	xmlSaveFormatFileEnc(filename, xml_doc, "UTF-8", 1);
+	xmlFreeDoc(xml_doc);
 	xmlCleanupParser();
-	xmlMemoryDump(); //debug memory for regression tests
 
 	memset(command, 0, sizeof(command));
-	sprintf(command, "sed -i '/wd:default/d' %s", tempxml);
+	sprintf(command, "sed -i '/wd:default/d' %s", filename);
 	sja1105_run_cmd(command);
 
 	memset(command, 0, sizeof(command));
-	sprintf(command, "sed -i '/version/d' %s", tempxml);
+	sprintf(command, "sed -i '/version/d' %s", filename);
 	sja1105_run_cmd(command);
 	return 0;
 }
@@ -299,10 +298,11 @@ int callback_nxp_sja1105(__attribute__((unused)) void **data,
 		return EXIT_SUCCESS;
 	}
 
-	if (((op & XMLDIFF_ADD) || (op & XMLDIFF_MOD)) && (new_node!= NULL)) {
-		char command[256];
-
-		rc = save_to_temp_file(new_node);
+	if (((op & XMLDIFF_ADD) || (op & XMLDIFF_MOD)) && (new_node != NULL)) {
+		/* new_node is the root of an XML configuration that we will
+		 * save to a temporary file and pass directly to sja1105-tool
+		 * for it to load */
+		rc = xml_save_to_file(new_node, tempxml);
 		if (rc < 0)
 			return -1;
 
