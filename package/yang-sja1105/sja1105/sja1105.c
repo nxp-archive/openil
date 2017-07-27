@@ -39,6 +39,7 @@ char *config_xml_list[] = {};
 const char *conf_folder = "/etc/sja1105";
 const char *datastore_filename = "/usr/local/etc/netopeer/sja1105/datastore.xml";
 const char *tempxml = "/var/lib/libnetconf/config.xml";
+const char *syncxml = "/var/lib/libnetconf/sync.xml";
 
 /* Signal to libnetconf that configuration data were modified by any callback.
  * 0 - data not modified
@@ -390,7 +391,7 @@ int file_validate(char *file)
 	char newnodes_file[512];
 
 	memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
-	sprintf(newnodes_file, "%s/%s", conf_folder, file);
+	sprintf(newnodes_file, "%s", file);
 	if (access(newnodes_file, F_OK) == -1) {
 		nc_verb_error("config file not exist, newnodes_file= %s",
 		              newnodes_file);
@@ -426,7 +427,7 @@ int write_to_datastore(char *file_name)
 
 	nc_verb_verbose("write_to_datastore:");
 	memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
-	sprintf(newnodes_file, "%s/%s", conf_folder, file_name);
+	sprintf(newnodes_file, "%s", file_name);
 
 	if (access(datastore_filename, F_OK) == -1) {
 		nc_verb_error("datastore %s does not exist", datastore_filename);
@@ -623,7 +624,7 @@ nc_reply *rpc_load_local_config(xmlNodePtr input)
 
 	sja1105_run_cmd(command_full);
 
-	ret = write_to_datastore(cmd_file);
+	ret = write_to_datastore(folder);
 	if (ret < 0) {
 		memset(msg_err, '\0', sizeof(msg_err));
 		strcpy(msg_err, "run netconf xml file load failure");
@@ -644,11 +645,14 @@ nc_reply *rpc_load_default(__attribute__((unused)) xmlNodePtr input)
 	char command_full[] = "sja1105-tool config default -f ls1021atsn";
 	int ret;
 	char msg_err[256];
+	char folder[256];
 	struct nc_err* e = NULL;
 
 	sja1105_run_cmd(command_full);
 
-	ret = write_to_datastore("standard.xml");
+	sprintf(folder, "%s/standard.xml", conf_folder);
+
+	ret = write_to_datastore(folder);
 	if (ret < 0) {
 		memset(msg_err, '\0', sizeof(msg_err));
 		strcpy(msg_err, "run netconf xml file load failure");
@@ -682,8 +686,13 @@ int staging_area_callback(const char *filepath,
                           __attribute__((unused)) xmlDocPtr *edit_config,
                           __attribute__((unused)) int *exec)
 {
+	char command_full[256];
+	char folder[256];
+
+	memset(command_full, 0, sizeof(command_full));
+	memset(folder, 0, sizeof(folder));
 	nc_verb_verbose("staging_area_callback: %s", filepath);
-	/* TODO:
+	/*
 	 * 1. Check if the staging area was modified by previously
 	 *    calling one of these functions:
 	 *      * rpc_load_default()
@@ -700,6 +709,25 @@ int staging_area_callback(const char *filepath,
 	 *    extracted configuration from the modified staging area into
 	 *    the NETCONF datastore.
 	 */
+
+	if (config_modified) {
+		/* netopeer callbacks modified the staging area */
+		config_modified = 0;
+		return 0;
+	}
+
+	nc_verb_verbose("staging_area_callback: detected external modification. syncing up the datastore with the new config\n");
+
+	sprintf(command_full, "sja1105-tool config save %s", syncxml);
+
+	sja1105_run_cmd(command_full);
+
+	strcpy(folder, syncxml);
+
+	write_to_datastore(folder);
+
+	config_modified = 0;
+
 	return 0;
 }
 
