@@ -58,6 +58,9 @@ BR2_PACKAGE_HOST_MTOOLS=y
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/nxp/ls1043ardb/post-image-64b-ubuntu.sh"
 BR2_ROOTFS_POST_SCRIPT_ARGS="$(LINUX_DIR) $(TOPDIR) $(UBOOT_DIR)"
 
+# Add ota overlay
+BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay"
+
 # extend the partition size
 BR2_TARGET_ROOTFS_EXT2_EXTRA_BLOCKS=102400
 BR2_TARGET_ROOTFS_EXT2_EXTRA_INODES=102400

@@ -1,0 +1,110 @@
+#!/bin/sh
+
+FILEPATH=/tmp
+URL=https://github.com/xiaoliangyang/yangxl/raw/master
+UPDATEFILE=update.json
+VERSIONFILE=version.json
+
+parse_json(){
+	sed 's/\"//g' $1 | grep $2: | sed 's/.*'$2':\([^,}]*\).*/\1/'
+}
+write_json(){
+	sed -i "/$2\":/ s/\(.*:\).*/\1$3/" $1
+}
+
+wget -P $FILEPATH --no-check-certificate $URL/$UPDATEFILE
+if [ ! -f $FILEPATH/$UPDATEFILE ];then
+	echo "get $UPDATEFILE failed"
+	exit
+fi
+
+updateStatus=$(parse_json $FILEPATH/$UPDATEFILE "updateStatus")
+updatePart=$(parse_json $FILEPATH/$UPDATEFILE "updatePart")
+
+if [ "$updateStatus"x != "yes"x ];then
+	exit
+fi
+
+case $updatePart in
+	"all")
+		partNum=1
+		imageName=firmware_sdcard.bin
+		;;
+	"u-boot")
+		partNum=2
+		imageName=u-boot.bin
+		;;
+	"kernel")
+		partNum=3
+		imageName=uImage
+		;;
+	"filesystem")
+		partNum=4
+		imageName=rootfs.ext4
+		;;
+	*)
+		partNum=0
+		exit
+		;;
+esac
+
+updateVersion=$(parse_json $FILEPATH/$UPDATEFILE "updateVersion")
+mount /dev/mmcblk0p1 /mnt
+if [ ! -f "/mnt/$VERSIONFILE" ];then
+	echo "file $VERSIONFILE does not exist"
+	exit
+fi
+
+nowVersion=$(parse_json /mnt/$VERSIONFILE $updatePart)
+boardName=$(parse_json /mnt/$VERSIONFILE "boardname")
+
+if [ $nowVersion \< $updateVersion ];then
+	echo "need update"
+else
+	echo "System is the newest version"
+	umount /dev/mmcblk0p1
+	exit
+fi
+
+if [ "$boardName" != "ls1021aiot" ];then
+	imageName=$(basename /mnt/*.itb)
+fi
+
+wget -P $FILEPATH --no-check-certificate $URL/$updateVersion/$boardName/$imageName
+if [ ! -f "$FILEPATH/$imageName" ];then
+	echo "get $imageName error"
+	exit
+fi
+
+write_json /mnt/$VERSIONFILE "updatePart" "\"$updatePart\""
+write_json /mnt/$VERSIONFILE "updateVersion" "\"$updateVersion\""
+echo 1$partNum > $FILEPATH/updateInfo.img
+dd if=$FILEPATH/updateInfo.img of=/dev/mmcblk0 bs=1K seek=2040 count=1
+rm -f $FILEPATH/updateInfo.img
+rm -f $FILEPATH/$UPDATEFILE
+
+if [ $partNum -ne 3 ];then
+	umount /dev/mmcblk0p1
+fi
+
+case $updatePart in
+	"all")
+		mount -o ro,remount /
+		dd if=$FILEPATH/$imageName of=/dev/mmcblk0 bs=1M
+		;;
+	"u-boot")
+		dd if=$FILEPATH/$imageName of=/dev/mmcblk0 bs=512 seek=8
+		rm -f $FILEPATH/$imageName
+		;;
+	"kernel")
+		mv /mnt/$imageName /mnt/${imageName}_old
+		mv $FILEPATH/$imageName /mnt/$imageName
+		umount /dev/mmcblk0p1
+		;;
+	"filesystem")
+		mount -o ro,remount /
+		dd if=$FILEPATH/$imageName of=/dev/mmcblk0p2 bs=1M
+		;;
+esac
+
+reboot -f

@@ -43,8 +43,12 @@ main()
 	# build the ramdisk rootfs
 	${MKIMAGE} -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
 
+	# define board name in version.json for ota feature
+	local BOARDNAME="ls1046ardb-64b"
+	sed -e "s/%PLATFORM%/${BOARDNAME}/" board/nxp/common/version.json > ${BINARIES_DIR}/version.json
+
 	# build the SDcard image
-	local FILES=""kernel-ls1046a-rdb.itb""
+	local FILES=""kernel-ls1046a-rdb.itb", "version.json""
 	local GENIMAGE_CFG="$(mktemp --suffix genimage.cfg)"
 	local GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 

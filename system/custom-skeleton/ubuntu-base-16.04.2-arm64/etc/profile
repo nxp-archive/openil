@@ -27,3 +27,4 @@ if [ -d /etc/profile.d ]; then
 fi
 
 resize2fs /dev/mmcblk0p2
+startupVersioncheck.sh

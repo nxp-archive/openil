@@ -14,3 +14,5 @@ loadaddr=0xa0000000
 stderr=serial
 stdin=serial
 stdout=serial
+bootfile_old=kernel-ls1043a-rdb-aarch32.itb_old
+rollbackboot=setenv bootargs root=/dev/ram0 rootwait rw earlycon=uart8250,0x21c0500 console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};bootm $loadaddr
