@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PTP4L_VERSION = OpenIL-linuxptp-201705
+PTP4L_VERSION = master 
 PTP4L_SITE = https://github.com/openil/linuxptp.git
 PTP4L_SITE_METHOD = git
 PTP4L_LICENSE = GPL2
