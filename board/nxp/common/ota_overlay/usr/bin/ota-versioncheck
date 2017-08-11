@@ -24,7 +24,7 @@ if [ "${updateStatus:0:2}"x == "33"x ];then
 	fi
 	umount /dev/mmcblk0p1
 elif [ "${updateStatus:0:2}"x == "34"x ];then
-	/usr/bin/rollback.sh
+	/usr/bin/ota-rollback &
 	exit
 elif [ "${updateStatus:0:1}"x != "2"x ];then
 	exit
