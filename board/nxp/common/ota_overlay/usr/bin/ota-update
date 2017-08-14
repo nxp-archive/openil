@@ -45,6 +45,9 @@ case $updatePart in
 	"kernel")
 		partNum=3
 		imageName=uImage
+		if [ "$boardName" != "ls1021aiot" ];then
+		     imageName=$(basename /mnt/*.itb)
+		fi
 		;;
 	"filesystem")
 		partNum=4
@@ -67,10 +70,6 @@ else
 	echo "System is the newest version"
 	umount /dev/mmcblk0p1
 	exit
-fi
-
-if [ "$boardName" != "ls1021aiot" ];then
-	imageName=$(basename /mnt/*.itb)
 fi
 
 wget -P $FILEPATH --no-check-certificate $URL/$updateVersion/$boardName/$imageName
