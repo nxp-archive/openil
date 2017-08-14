@@ -38,7 +38,7 @@ if [ "${updateStatus:0:2}"x == "33"x ];then
 fi
 
 mount /dev/mmcblk0p1 /mnt
-updatePart=$(parse_json /mnt/backup/$VERSIONFILE "updatePart")
-updateVersion=$(parse_json /mnt/backup/$VERSIONFILE "updateVersion")
-write_json /mnt/backup/$VERSIONFILE $updatePart "\"$updateVersion\""
+updatePart=$(parse_json /mnt/$VERSIONFILE "updatePart")
+updateVersion=$(parse_json /mnt/$VERSIONFILE "updateVersion")
+write_json /mnt/$VERSIONFILE $updatePart "\"$updateVersion\""
 umount /dev/mmcblk0p1
