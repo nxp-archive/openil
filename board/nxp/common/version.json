@@ -1,11 +1,11 @@
 {
 	"updatePart":"null",
 	"updateVersion":"null",
-	"all":"0.0.0",
-	"u-boot":"0.0.0",
-	"kernel":"0.0.0",
-	"filesystem":"0.0.0",
+	"all":"0.3.0",
+	"u-boot":"0.3.0",
+	"kernel":"0.3.0",
+	"filesystem":"0.3.0",
 	"boardname":"%PLATFORM%"
-	"URL":"https://github.com/nxp-ota-server/updateImages/raw/master"
+	"URL":"http://www.nxp.com/lgfiles/iiot/v0.3"
 }
 
