@@ -1,0 +1,113 @@
+From 6b0e08a920e5fc2fde6c7f9c4624e702aeccb0b0 Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Mon, 2 Oct 2017 17:30:02 +0300
+Subject: [PATCH] netopeer-cli: disable tests for compatibility with musl libc
+
+* musl detection was missing in config.sub
+* Tests use glibc-specific cookie_io_functions_t:
+  https://www.gnu.org/software/libc/manual/html_node/Streams-and-Cookies.html
+* test.c and test.h are now disabled no-questions-asked. May have been better to
+  act according to BR2_TOOLCHAIN_BUILDROOT_MUSL in netopeer-client.mk, and
+  __GLIBC__ and __UCLIBC__ macros in C code.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ cli/Makefile.in |  8 +++-----
+ cli/commands.c  | 25 +++++++++++++++++++++++--
+ cli/config.sub  |  4 ++--
+ 3 files changed, 28 insertions(+), 9 deletions(-)
+
+diff --git a/cli/Makefile.in b/cli/Makefile.in
+index ff1f34c..1b8b573 100644
+--- a/cli/Makefile.in
++++ b/cli/Makefile.in
+@@ -73,13 +73,11 @@ endif
+ SRCS =  main.c \
+ 	commands.c \
+ 	configuration.c \
+-	readinput.c \
+-	test.c
++	readinput.c
+ 
+ HDRS = 	commands.h \
+ 	configuration.h \
+-	readinput.h \
+-	test.h
++	readinput.h
+ 
+ OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
+ 
+diff --git a/cli/commands.c b/cli/commands.c
+index 2f40ef7..979fa36 100644
+--- a/cli/commands.c
++++ b/cli/commands.c
+@@ -72,7 +72,6 @@
+ #include "commands.h"
+ #include "configuration.h"
+ #include "readinput.h"
+-#include "test.h"
+ 
+ static const char rcsid[] __attribute__((used)) ="$Id: "__FILE__": "RCSID" $";
+ 
+@@ -1872,6 +1870,7 @@ void cmd_test_help(FILE* output) {
+ 	fprintf(output, "test <test_case.xml> [<other_test_cases.xml> ...]\n");
+ }
+ 
++#if 0
+ static struct np_test_capab* test_parse_capabs(xmlNodePtr node_list) {
+ 	xmlNodePtr model, capab, attr;
+ 	struct np_test_capab* ret = NULL, *ret_cur = NULL;
+@@ -2331,6 +2330,28 @@ int cmd_test(const char* arg, const char* UNUSED(old_input_file), FILE* output,
+ 
+ 	return EXIT_SUCCESS;
+ }
++#else
++static struct np_test_capab* test_parse_capabs(xmlNodePtr node_list) {
++	printf(stderr, "Testing capabilities not compiled!\n");
++	return NULL;
++}
++static struct np_test_var* test_parse_vars(xmlNodePtr node_list) {
++	printf(stderr, "Testing capabilities not compiled!\n");
++	return NULL;
++}
++static struct np_test_cmd* test_parse_cmds(xmlNodePtr node_list) {
++	printf(stderr, "Testing capabilities not compiled!\n");
++	return NULL;
++}
++static struct np_test* test_parse_tests(xmlNodePtr node_list) {
++	printf(stderr, "Testing capabilities not compiled!\n");
++	return NULL;
++}
++int cmd_test(const char* arg, const char* UNUSED(old_input_file), FILE* output, FILE* UNUSED(input)) {
++	printf(stderr, "Testing capabilities not compiled!\n");
++	return EXIT_FAILURE;
++}
++#endif
+ 
+ void cmd_auth_help(FILE* output) {
+ 	fprintf(output, "auth (--help | pref [(publickey | interactive | password) <preference>] | keys [add <key_path>] [remove <key_path>])\n");
+diff --git a/cli/config.sub b/cli/config.sub
+index 2a55a50..fe6e105 100755
+--- a/cli/config.sub
++++ b/cli/config.sub
+@@ -123,7 +123,7 @@ esac
+ # Here we must recognize all the valid KERNEL-OS combinations.
+ maybe_os=`echo $1 | sed 's/^\(.*\)-\([^-]*-[^-]*\)$/\2/'`
+ case $maybe_os in
+-  nto-qnx* | linux-gnu* | linux-dietlibc | linux-newlib* | linux-uclibc* | \
++  nto-qnx* | linux-gnu* | linux-musl* | linux-dietlibc | linux-newlib* | linux-uclibc* | \
+   uclinux-uclibc* | uclinux-gnu* | kfreebsd*-gnu* | knetbsd*-gnu* | netbsd*-gnu* | \
+   kopensolaris*-gnu* | \
+   storm-chaos* | os2-emx* | rtmk-nova*)
+@@ -1294,7 +1294,7 @@ case $os in
+ 	      | -udi* | -eabi* | -lites* | -ieee* | -go32* | -aux* \
+ 	      | -chorusos* | -chorusrdb* | -cegcc* \
+ 	      | -cygwin* | -pe* | -psos* | -moss* | -proelf* | -rtems* \
+-	      | -mingw32* | -linux-gnu* | -linux-newlib* | -linux-uclibc* \
++	      | -mingw32* | -linux-gnu* | -linux-musl* | -linux-newlib* | -linux-uclibc* \
+ 	      | -uxpv* | -beos* | -mpeix* | -udk* \
+ 	      | -interix* | -uwin* | -mks* | -rhapsody* | -darwin* | -opened* \
+ 	      | -openstep* | -oskit* | -conix* | -pw32* | -nonstopux* \
+-- 
+2.7.4
+

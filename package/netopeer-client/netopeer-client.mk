@@ -4,6 +4,7 @@
 #
 ################################################################################
 NETOPEER_CLIENT_VERSION = $(NETOPEER_VERSION)
+# Reuse the sources of netopeer.
 NETOPEER_CLIENT_SITE = $(BUILD_DIR)/netopeer-$(NETOPEER_VERSION)/cli
 NETOPEER_CLIENT_SITE_METHOD = local
 NETOPEER_CLIENT_LICENSE = MIT
