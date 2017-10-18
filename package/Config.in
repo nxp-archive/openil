@@ -2201,6 +2201,10 @@ endif
 
 endmenu
 
+menu "OPC UA tools"
+	source "package/libopen62541/Config.in"
+endmenu
+
 menu "Package managers"
 comment "-------------------------------------------------------"
 comment "Please note:                                           "
