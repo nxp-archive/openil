@@ -18,3 +18,6 @@ ramdiskaddr=0xa0000000
 ramdiskfile=rootfs.ext2.gz.uboot
 bootfile_old=uImage_old
 rollbackboot=setenv bootargs root=/dev/ram0 rootwait rw console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 $fdtaddr $fdtfile;fatload mmc 0:1 ${ramdiskaddr} ${ramdiskfile};bootm $loadaddr $ramdiskaddr $fdtaddr
+tftpboot=setenv bootargs root=/dev/ram0 rw console=ttyS0,115200; tftp $ramdiskaddr $ramdiskfile; tftp $loadaddr $bootfile; tftp $fdtaddr $fdtfile; bootm $loadaddr $ramdiskaddr $fdtaddr
+serverip=192.168.1.1
+ipaddr=192.168.1.100
