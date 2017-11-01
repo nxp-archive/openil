@@ -11,7 +11,6 @@ do
 done
 
 FILEPATH=/tmp
-URL=https://github.com/xiaoliangyang/yangxl/raw/master
 VERSIONFILE=version.json
 
 parse_json(){
@@ -27,6 +26,7 @@ if [ ! -f /mnt/$VERSIONFILE ];then
 	exit
 fi
 
+URL=$(parse_json /mnt/$VERSIONFILE "URL")
 updatePart=$(parse_json /mnt/$VERSIONFILE "updatePart")
 nowVersion=$(parse_json /mnt/$VERSIONFILE $updatePart)
 boardName=$(parse_json /mnt/$VERSIONFILE "boardname")

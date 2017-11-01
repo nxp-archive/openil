@@ -1,7 +1,6 @@
 #!/bin/sh
 
 FILEPATH=/tmp
-URL=https://github.com/xiaoliangyang/yangxl/raw/master
 UPDATEFILE=update.json
 VERSIONFILE=version.json
 
@@ -12,9 +11,18 @@ write_json(){
 	sed -i "/$2\":/ s/\(.*:\).*/\1$3/" $1
 }
 
+mount /dev/mmcblk0p1 /mnt
+if [ ! -f "/mnt/$VERSIONFILE" ];then
+	echo "file $VERSIONFILE does not exist"
+	exit
+fi
+
+URL=$(parse_json /mnt/$VERSIONFILE "URL")
+
 wget -P $FILEPATH --no-check-certificate $URL/$UPDATEFILE
 if [ ! -f $FILEPATH/$UPDATEFILE ];then
 	echo "get $UPDATEFILE failed"
+	umount /dev/mmcblk0p1
 	exit
 fi
 
@@ -49,11 +57,6 @@ case $updatePart in
 esac
 
 updateVersion=$(parse_json $FILEPATH/$UPDATEFILE "updateVersion")
-mount /dev/mmcblk0p1 /mnt
-if [ ! -f "/mnt/$VERSIONFILE" ];then
-	echo "file $VERSIONFILE does not exist"
-	exit
-fi
 
 nowVersion=$(parse_json /mnt/$VERSIONFILE $updatePart)
 boardName=$(parse_json /mnt/$VERSIONFILE "boardname")
@@ -87,6 +90,7 @@ if [ $partNum -ne 3 ];then
 	umount /dev/mmcblk0p1
 fi
 
+cp /sbin/reboot /tmp/
 case $updatePart in
 	"all")
 		mount -o ro,remount /
@@ -107,4 +111,4 @@ case $updatePart in
 		;;
 esac
 
-reboot -f
+/tmp/reboot -f

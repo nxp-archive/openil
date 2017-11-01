@@ -6,5 +6,6 @@
 	"kernel":"0.0.0",
 	"filesystem":"0.0.0",
 	"boardname":"%PLATFORM%"
+	"URL":"https://github.com/nxp-ota-server/updateImages/raw/master"
 }
 
