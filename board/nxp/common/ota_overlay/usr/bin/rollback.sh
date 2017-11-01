@@ -1,0 +1,59 @@
+#!/bin/sh
+
+echo "start rollback rootfs!!!!!!!!!!!!!!!!!!!!!!!"
+while true
+do
+	ping -c 3 -w 5 www.google.com  1>/dev/null 2>/dev/null
+	if [[ $? = 0 ]];then
+		echo "network connect well"
+		break
+	fi
+done
+
+FILEPATH=/tmp
+URL=https://github.com/xiaoliangyang/yangxl/raw/master
+VERSIONFILE=version.json
+
+parse_json(){
+	sed 's/\"//g' $1 | grep $2: | sed 's/.*'$2':\([^,}]*\).*/\1/'
+}
+write_json(){
+	sed -i "/$2\":/ s/\(.*:\).*/\1$3/" $1
+}
+
+mount /dev/mmcblk0p1 /mnt
+if [ ! -f /mnt/$VERSIONFILE ];then
+	echo "get $VERSIONFILE failed"
+	exit
+fi
+
+updatePart=$(parse_json /mnt/$VERSIONFILE "updatePart")
+nowVersion=$(parse_json /mnt/$VERSIONFILE $updatePart)
+boardName=$(parse_json /mnt/$VERSIONFILE "boardname")
+
+if [ "$updatePart"x == "all"x ];then
+	wget -P $FILEPATH --no-check-certificate $URL/$nowVersion/$boardName/firmware_sdcard.bin
+	if [ ! -f $FILEPATH/firmware_sdcard.bin ];then
+		echo "get image failed"
+		exit
+	fi
+	write_json /mnt/$VERSIONFILE "updateVersion" "\"$nowVersion\""
+	umount /dev/mmcblk0p1
+	dd if=$FILEPATH/firmware_sdcard.bin of=/dev/mmcblk0 bs=1M
+	echo 11 > $FILEPATH/updateInfo.img
+	dd if=$FILEPATH/updateInfo.img of=/dev/mmcblk0 bs=1K seek=2040 count=1
+	reboot -f
+
+elif [ "$updatePart"x == "filesystem"x ];then
+	wget -P $FILEPATH --no-check-certificate $URL/$nowVersion/$boardName/rootfs.ext4
+	if [ ! -f $FILEPATH/rootfs.ext4 ];then
+		echo "get image failed"
+		exit
+	fi
+	write_json /mnt/$VERSIONFILE "updateVersion" "\"$nowVersion\""
+	umount /dev/mmcblk0p1
+	dd if=$FILEPATH/rootfs.ext4 of=/dev/mmcblk0p2 bs=1M
+	echo 14 > $FILEPATH/updateInfo.img
+	dd if=$FILEPATH/updateInfo.img of=/dev/mmcblk0 bs=1K seek=2040 count=1
+	reboot -f
+fi
