@@ -1,5 +1,7 @@
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 
+resize2fs /dev/mmcblk0p2
+
 [ -f /etc/banner ] && cat /etc/banner
 
 if [ "$PS1" ]; then

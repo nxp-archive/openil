@@ -35,6 +35,7 @@ main()
 	echo ${2}
 	echo ${3}
 	echo ${4}
+	echo ${BR2_ROOTFS_PARTITION_SIZE}
 
 	rm -rf board/nxp/ls1043ardb/temp
 	mkdir board/nxp/ls1043ardb/temp
@@ -71,7 +72,7 @@ main()
 	local GENIMAGE_CFG="$(mktemp --suffix genimage.cfg)"
 	local GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 
-	sed -e "s/%FILES%/${FILES}/" \
+	sed -e "s/%FILES%/${FILES}/" -e "s/%PARTITION_SIZE%/${BR2_ROOTFS_PARTITION_SIZE}/" \
 		board/nxp/ls1043ardb/genimage.cfg.template > ${GENIMAGE_CFG}
 
 	rm -rf "${GENIMAGE_TMP}"
