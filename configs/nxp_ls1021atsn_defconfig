@@ -52,10 +52,11 @@ BR2_TARGET_GENERIC_GETTY=n
 BR2_PACKAGE_HOST_DOSFSTOOLS=y
 BR2_PACKAGE_HOST_GENIMAGE=y
 BR2_PACKAGE_HOST_MTOOLS=y
-BR2_ROOTFS_POST_IMAGE_SCRIPT="board/nxp/common/post-image.sh"
+BR2_ROOTFS_POST_IMAGE_SCRIPT="board/nxp/ls1021atsn/post-image.sh"
 
 # busybox setting
 BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="board/nxp/common/openil-busybox.config"
+BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
 
 # basic packages and tools
 BR2_PACKAGE_MTD=y
