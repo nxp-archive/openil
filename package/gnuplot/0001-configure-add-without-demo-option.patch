@@ -4,14 +4,16 @@ Originally written by Anthony Viallard
 <viallard@syscom-instruments.com>.
 
 [Vincent: adapt patch to 5.0.5 version]
+[Vladimir: adapt patch to 5.2.0 version]
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Signed-off-by: Vicente Olivert Riera <Vincent.Riera@imgtec.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-diff -rup a/configure.in b/configure.in
---- a/configure.in	2016-09-07 05:14:29.000000000 +0100
-+++ b/configure.in	2016-12-01 12:09:31.487464774 +0000
-@@ -818,6 +818,16 @@ if test "$with_cwdrc" = yes; then
+diff -rup a/configure.ac b/configure.ac
+--- a/configure.ac	2016-09-07 05:14:29.000000000 +0100
++++ b/configure.ac	2016-12-01 12:09:31.487464774 +0000
+@@ -754,6 +754,16 @@ if test "$with_cwdrc" = yes; then
                 [ Define if you want to read .gnuplot from current directory (SECURITY RISK!).])
  fi
  
@@ -28,7 +30,7 @@ diff -rup a/configure.in b/configure.in
  dnl Sort help/subtopic tables by row or column
  AC_ARG_WITH(row-help,dnl
  [  --with-row-help         format help and subtopic tables by row (default)
-@@ -1303,6 +1313,24 @@ fi
+@@ -1227,6 +1227,24 @@ fi
  dnl No configuration option for this one yet
  AC_DEFINE(MAX_PARALLEL_AXES,7, [Maximum number of parallel axes supported])
  
@@ -60,8 +62,8 @@ diff -rup a/Makefile.am b/Makefile.am
  ## Process this file with automake to produce Makefile.in -*-Makefile-*-
  AUTOMAKE_OPTIONS = foreign
  
--SUBDIRS = config m4 term src docs $(LISPDIR) man demo tutorial share
-+SUBDIRS = config m4 term src $(DOCSUBDIR) $(LISPDIR) man $(DEMOSUBDIR) tutorial share
+-SUBDIRS = config m4 term src docs man demo tutorial share
++SUBDIRS = config m4 term src $(DOCSUBDIR) man $(DEMOSUBDIR) tutorial share
  
  EXTRA_DIST = BUGS CodeStyle Copyright FAQ.pdf GNUmakefile INSTALL INSTALL.gnu \
  Makefile.maint PATCHLEVEL PGPKEYS PORTING README RELEASE_NOTES \
