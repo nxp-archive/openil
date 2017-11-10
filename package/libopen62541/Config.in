@@ -8,3 +8,16 @@ config BR2_PACKAGE_LIBOPEN62541
 	  communication into existing applications.
 
 	  http://open62541.org
+
+
+config BR2_PACKAGE_OPEN62541_EXAMPLES
+	depends on BR2_PACKAGE_LIBOPEN62541
+	bool "open62541-examples"
+	help
+	  open62541 is an open source and free implementation of OPC UA (OPC
+	  Unified Architecture). open62541 is a C-based library (linking with
+	  C++ projects is possible) with all necessary tools to implement
+	  dedicated OPC UA clients and servers, or to integrate OPC UA-based
+	  communication into existing applications.
+
+	  http://open62541.org
