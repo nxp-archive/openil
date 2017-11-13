@@ -8,7 +8,7 @@
 [Unit]
 Description=OpenIL init for systemd
 DefaultDependencies=no
-After=systemd-udevd.service network-pre.target systemd-sysusers.service systemd-sysctl.service network.target
+After=systemd-udevd.service network.target network-online.target dhcpcd.service
 
 [Service]
 Type=oneshot
