@@ -2,6 +2,5 @@
 
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 
-dhcpcd
 resize2fs /dev/mmcblk0p2
 ota-versioncheck
