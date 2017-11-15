@@ -62,7 +62,7 @@ BR2_PACKAGE_HOST_UBOOT_TOOLS=y
 BR2_PACKAGE_HOST_UBOOT_TOOLS_FIT_SUPPORT=y
 
 # Add ota overlay
-BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay"
+BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/busybox_init_overlay"
 
 # packages for xenomai
 BR2_PACKAGE_XENOMAI=y
