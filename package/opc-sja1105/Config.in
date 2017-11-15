@@ -1,0 +1,8 @@
+config BR2_PACKAGE_OPC_SJA1105
+bool "opc-sja1105"
+	select BR2_PACKAGE_SJA1105_TOOL
+	depends on BR2_PACKAGE_LIBOPEN62541
+help
+	Example OPC UA server application (using open62541) that exposes
+	per-port traffic counters of the SJA1105 TSN switch as objects in
+	its address space.
