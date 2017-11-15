@@ -1,3 +1,7 @@
+Reported here:
+
+  https://github.com/open62541/open62541/issues/1265
+
 diff -u -r a/CMakeLists.txt b/CMakeLists.txt
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
