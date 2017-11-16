@@ -233,10 +233,11 @@ static void addObjectTypes(UA_Server *server)
 }
 
 static void instantiateSwitchPort(UA_Server *server,
-                                  int index,
-                                  char *name,
+                                  int portIndex,
                                   char *chassisLabel)
 {
+	char name[256];
+	sprintf(name, "RGMII%d", portIndex);
 	UA_ObjectAttributes oAttr;
 	UA_ObjectAttributes_init(&oAttr);
 	oAttr.displayName = UA_LOCALIZEDTEXT("en_US", name);
@@ -248,7 +249,7 @@ static void instantiateSwitchPort(UA_Server *server,
 	/* typeDefinition */        EthPortTypeNode,
 	/* attr */                  oAttr,
 	/* instantiationCallback */ NULL,
-	/* outNewNodeId */          &EthPortNode[index]);
+	/* outNewNodeId */          &EthPortNode[portIndex]);
 
 	UA_VariableAttributes EthPortChassisLabel;
 	UA_VariableAttributes_init(&EthPortChassisLabel);
@@ -257,7 +258,7 @@ static void instantiateSwitchPort(UA_Server *server,
 	EthPortChassisLabel.displayName = UA_LOCALIZEDTEXT("en_US", "Chassis Label");
 	UA_Server_addVariableNode(  server,
 	/* requestedNewNodeId */    UA_NODEID_NULL,
-	/* parentNodeId */          EthPortNode[index],
+	/* parentNodeId */          EthPortNode[portIndex],
 	/* referenceTypeId */       UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
 	/* browseName */            UA_QUALIFIEDNAME(1, "ChassisLabel"),
 	/* typeDefinition */        UA_NODEID_NULL,
@@ -271,7 +272,7 @@ static void instantiateSwitchPort(UA_Server *server,
 	CountersAttr.displayName = UA_LOCALIZEDTEXT("en_US", "Traffic Counters");
 	UA_Server_addObjectNode(    server,
 	/* requestedNewNodeId */    UA_NODEID_NULL,
-	/* parentNodeId */          EthPortNode[index],
+	/* parentNodeId */          EthPortNode[portIndex],
 	/* referenceTypeId */       UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
 	/* browseName */            UA_QUALIFIEDNAME(1, "Counters"),
 	/* typeDefinition */        UA_NODEID_NULL,
@@ -279,22 +280,25 @@ static void instantiateSwitchPort(UA_Server *server,
 	/* instantiationCallback */ NULL,
 	/* outNewNodeId */          &CountersNode);
 
-	for (int i = 0; i < N_TOTAL_COUNTERS; i++) {
+	enum SJA1105PortCounter counter;
+	for (counter = 0; counter < N_TOTAL_COUNTERS; counter++) {
+		char displayName[256];
 		UA_UInt64 value = 0;
 		UA_VariableAttributes TrafficCounterAttr;
 		UA_VariableAttributes_init(&TrafficCounterAttr);
-		TrafficCounterAttr.displayName = UA_LOCALIZEDTEXT("en_US", CounterNames[i]);
-		TrafficCounterAttr.description = UA_LOCALIZEDTEXT("en_US", CounterDescriptions[i]);
+		sprintf(displayName, "%s ::: %s", chassisLabel, CounterNames[counter]);
+		TrafficCounterAttr.displayName = UA_LOCALIZEDTEXT("en_US", displayName);
+		TrafficCounterAttr.description = UA_LOCALIZEDTEXT("en_US", CounterDescriptions[counter]);
 		UA_Variant_setScalarCopy(&TrafficCounterAttr.value, &value, &UA_TYPES[UA_TYPES_UINT64]);
 		UA_Server_addVariableNode(  server,
 		/* requestedNewNodeId */    UA_NODEID_NULL,
 		/* parentNodeId */          CountersNode,
 		/* referenceTypeId */       UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
-		/* browseName */            UA_QUALIFIEDNAME(1, CounterNames[i]),
+		/* browseName */            UA_QUALIFIEDNAME(1, CounterNames[counter]),
 		/* typeDefinition */        UA_NODEID_NULL,
 		/* attr */                  TrafficCounterAttr,
 		/* instantiationCallback */ NULL,
-		/* outNewNodeId */          &EthPortCounterNode[index * 5 + i]);
+		/* outNewNodeId */          &EthPortCounterNode[N_TOTAL_COUNTERS * portIndex + counter]);
 	}
 }
 
@@ -313,11 +317,11 @@ static void instantiateSwitch(UA_Server *server)
 	/* instantiationCallback */ NULL,
 	/* outNewNodeId */          &TsnSwitchNode);
 
-	instantiateSwitchPort(server, 0, "RGMII0", "ETH5");
-	instantiateSwitchPort(server, 1, "RGMII1", "ETH2");
-	instantiateSwitchPort(server, 2, "RGMII2", "ETH3");
-	instantiateSwitchPort(server, 3, "RGMII3", "ETH4");
-	instantiateSwitchPort(server, 4, "RGMII4", "Internal (To LS1021)");
+	instantiateSwitchPort(server, 0, "ETH5");
+	instantiateSwitchPort(server, 1, "ETH2");
+	instantiateSwitchPort(server, 2, "ETH3");
+	instantiateSwitchPort(server, 3, "ETH4");
+	instantiateSwitchPort(server, 4, "Internal (To LS1021)");
 }
 
 static void onStop(int signal)
