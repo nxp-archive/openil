@@ -9,16 +9,6 @@
 int SJA1105_VERBOSE_CONDITION = 1;
 int SJA1105_DEBUG_CONDITION = 1;
 
-struct sja1105_spi_setup spi_setup = {
-	.device    = "/dev/spidev0.1",
-	.mode      = SPI_CPHA,
-	.bits      = 8,
-	.speed     = 10000000,
-	.delay     = 0,
-	.cs_change = 0,
-	.fd        = -1,
-};
-
 enum SJA1105PortCounter {
 	N_N664ERR = 0,
 	N_VLANERR,
@@ -95,55 +85,6 @@ char *CounterDescriptions[N_TOTAL_COUNTERS] = {
 	"",
 };
 
-/*
- *
-struct sja1105_port_status {
-	uint64_t n_runt;
-	uint64_t n_soferr;
-	uint64_t n_alignerr;
-	uint64_t n_miierr;
-	uint64_t typeerr;
-	uint64_t sizeerr;
-	uint64_t tctimeout;
-	uint64_t priorerr;
-	uint64_t nomaster;
-	uint64_t memov;
-	uint64_t memerr;
-	uint64_t invtyp;
-	uint64_t intcyov;
-	uint64_t domerr;
-	uint64_t pcfbagdrop;
-	uint64_t spcprior;
-	uint64_t ageprior;
-	uint64_t portdrop;
-	uint64_t lendrop;
-	uint64_t bagdrop;
-	uint64_t policeerr;
-	uint64_t drpnona664err;
-	uint64_t spcerr;
-	uint64_t agedrp;
-	uint64_t n_n664err;
-	uint64_t n_vlanerr;
-	uint64_t n_unreleased;
-	uint64_t n_sizerr;
-	uint64_t n_crcerr;
-	uint64_t n_vlnotfound;
-	uint64_t n_bepolerr;
-	uint64_t n_polerr;
-	uint64_t n_rxfrmsh;
-	uint64_t n_rxfrm;
-	uint64_t n_rxbytesh;
-	uint64_t n_rxbyte;
-	uint64_t n_txfrmsh;
-	uint64_t n_txfrm;
-	uint64_t n_txbytesh;
-	uint64_t n_txbyte;
-	uint64_t n_qfull;
-	uint64_t n_part_drop;
-	uint64_t n_egr_disabled;
-	uint64_t n_not_reach;
-};
-*/
 
 UA_Boolean running = true;
 
@@ -331,15 +272,77 @@ static void onStop(int signal)
 	running = false;
 }
 
-static void testCallback(UA_Server *server, void *data)
+static uint64_t getSJA1105Counter(struct sja1105_port_status *status,
+                                  enum SJA1105PortCounter counter)
 {
-	UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "testcallback");
+	switch (counter) {
+	case N_N664ERR:      return status->n_n664err;
+	case N_VLANERR:      return status->n_vlanerr;
+	case N_UNRELEASED:   return status->n_unreleased;
+	case N_SIZERR:       return status->n_sizerr;
+	case N_CRCERR:       return status->n_crcerr;
+	case N_VLNOTFOUND:   return status->n_vlnotfound;
+	case N_BEPOLERR:     return status->n_bepolerr;
+	case N_POLERR:       return status->n_polerr;
+	case N_RXFRM:        return status->n_rxfrm;
+	case N_RXBYTE:       return status->n_rxbyte;
+	case N_TXFRM:        return status->n_txfrm;
+	case N_TXBYTE:       return status->n_txbyte;
+	case N_QFULL:        return status->n_qfull;
+	case N_PARTDROP:     return status->n_part_drop;
+	case N_EGR_DISABLED: return status->n_egr_disabled;
+	case N_NOT_REACH:    return status->n_not_reach;
+	default:             return -1;
+	}
+}
+
+static void onRepeatedJob(UA_Server *server, void *data)
+{
+	struct sja1105_spi_setup *spi_setup;
+	struct sja1105_port_status status;
+
+	UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+	            "Reading SJA1105 traffic counters");
+
+	spi_setup = (struct sja1105_spi_setup*) data;
+
+	for (int port = 0; port < 5; port++) {
+		if (sja1105_port_status_get(spi_setup, &status, port) < 0) {
+			UA_LOG_ERROR(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+			             "sja1105_port_status_get failed");
+				onStop(-1);
+				return;
+		}
+		enum SJA1105PortCounter counter;
+		for (counter = 0; counter < N_TOTAL_COUNTERS; counter++) {
+			uint64_t value = getSJA1105Counter(&status, counter);
+			UA_Variant variant;
+			UA_Variant_setScalarCopy(&variant, &value, &UA_TYPES[UA_TYPES_UINT64]);
+			UA_Server_writeValue(server, EthPortCounterNode[N_TOTAL_COUNTERS * port + counter], variant);
+		}
+	}
 }
 
 int main(void)
 {
+	struct sja1105_spi_setup spi_setup = {
+		.device    = "/dev/spidev0.1",
+		.mode      = SPI_CPHA,
+		.bits      = 8,
+		.speed     = 10000000,
+		.delay     = 0,
+		.cs_change = 0,
+		.fd        = -1,
+	};
+
 	signal(SIGINT,  onStop);
 	signal(SIGTERM, onStop);
+
+	if (sja1105_spi_configure(&spi_setup) < 0) {
+		UA_LOG_ERROR(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+		             "spi_configure failed");
+		return -1;
+	}
 
 	UA_ServerConfig config = UA_ServerConfig_standard;
 	UA_ServerNetworkLayer nl =
@@ -351,9 +354,14 @@ int main(void)
 	addObjectTypes(server);
 	instantiateSwitch(server);
 	/* add a repeated job to the server */
-	UA_Job job = {.type = UA_JOBTYPE_METHODCALL,
-	.job.methodCall = {.method = testCallback, .data = NULL} };
-	UA_Server_addRepeatedJob(server, job, 2000, NULL); /* call every 2 sec */
+	UA_Job job = {
+		.type = UA_JOBTYPE_METHODCALL,
+		.job.methodCall = {
+			.method = onRepeatedJob,
+			.data = &spi_setup
+		}
+	};
+	UA_Server_addRepeatedJob(server, job, 1000, NULL);
 
 	UA_Server_run(server, &running);
 	UA_Server_delete(server);
