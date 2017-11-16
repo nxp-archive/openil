@@ -12,14 +12,14 @@ main()
 
 	# build the itb image
 	cp board/nxp/ls1012ardb/kernel-ls1012a-rdb.its ${2}/
-	cp output/images/fsl-ls1012a-rdb-sdk.dtb ${2}/
+	cp output/images/fsl-ls1012a-rdb.dtb ${2}/
 	cp ${BINARIES_DIR}/rootfs.ext2.gz ${2}/fsl-image-core-ls1012ardb.rootfs.ext2.gz
 	cd ${2}/
 	mkimage -f kernel-ls1012a-rdb.its kernel-ls1012a-rdb.itb
 	cd ${3}
 	cp ${2}/kernel-ls1012a-rdb.itb ${BINARIES_DIR}/
 	rm ${2}/fsl-image-core-ls1012ardb.rootfs.ext2.gz
-	rm ${2}/fsl-ls1012a-rdb-sdk.dtb
+	rm ${2}/fsl-ls1012a-rdb.dtb
 	rm ${2}/kernel-ls1012a-rdb.itb
 	rm ${2}/kernel-ls1012a-rdb.its
 
