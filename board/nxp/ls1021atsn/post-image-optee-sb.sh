@@ -39,7 +39,7 @@ main()
 
 	# build the itb image
 	cp board/nxp/ls1021atsn/kernel-ls1021a-tsn.its ${2}/
-	cp output/images/ls1021a-tsn.dtb ${2}/
+	cp ${BINARIES_DIR}/ls1021a-tsn.dtb ${2}/
 	cp ${BINARIES_DIR}/rootfs.ext2.gz ${2}/
 	cd ${2}/
 	mkimage -f kernel-ls1021a-tsn.its kernel-ls1021a-tsn.itb
