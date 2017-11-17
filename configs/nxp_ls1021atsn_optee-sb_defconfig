@@ -58,6 +58,10 @@ BR2_ROOTFS_POST_SCRIPT_ARGS="$(LINUX_DIR) $(TOPDIR)"
 # busybox setting
 BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="board/nxp/common/openil-busybox.config"
 
+# uboot-tools for mkimage
+BR2_PACKAGE_HOST_UBOOT_TOOLS=y
+BR2_PACKAGE_HOST_UBOOT_TOOLS_FIT_SUPPORT=y
+
 # basic packages and tools
 BR2_PACKAGE_MTD=y
 BR2_PACKAGE_MTD_MTD_DEBUG=y
