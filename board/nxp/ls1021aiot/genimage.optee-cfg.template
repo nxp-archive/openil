@@ -35,7 +35,7 @@ image sdcard.img {
   partition tee {
     in-partition-table = "no"
     image = "tee.bin"
-    offset = 1280K
+    offset = 8M
   }
 
   partition boot {
