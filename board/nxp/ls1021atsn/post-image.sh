@@ -30,8 +30,7 @@ linux_image()
 
 main()
 {
-	local MKIMAGE=${HOST_DIR}/usr/bin/mkimage
-	${MKIMAGE} -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
+	mkimage -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
 
 	# define board name in version.json for ota feature
 	local BOARDNAME="ls1021atsn"

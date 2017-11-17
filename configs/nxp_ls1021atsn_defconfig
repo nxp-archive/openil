@@ -58,6 +58,10 @@ BR2_ROOTFS_POST_IMAGE_SCRIPT="board/nxp/ls1021atsn/post-image.sh"
 BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="board/nxp/common/openil-busybox.config"
 BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
 
+# uboot-tools for mkimage
+BR2_PACKAGE_HOST_UBOOT_TOOLS=y
+BR2_PACKAGE_HOST_UBOOT_TOOLS_FIT_SUPPORT=y
+
 # basic packages and tools
 BR2_PACKAGE_MTD=y
 BR2_PACKAGE_MTD_MTD_DEBUG=y

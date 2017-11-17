@@ -70,6 +70,10 @@ BR2_TARGET_ROOTFS_EXT2_EXTRA_INODES=102400
 # busybox setting disable
 BR2_PACKAGE_BUSYBOX=n
 
+# uboot-tools for mkimage
+BR2_PACKAGE_HOST_UBOOT_TOOLS=y
+BR2_PACKAGE_HOST_UBOOT_TOOLS_FIT_SUPPORT=y
+
 # Add ota overlay
 BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/systemd_init_overlay"
 
