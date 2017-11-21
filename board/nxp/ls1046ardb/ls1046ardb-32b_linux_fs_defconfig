@@ -50,7 +50,7 @@ BR2_TARGET_ROOTFS_EXT2_EXTRA_INODES=102400
 # packages for fman and fmc
 BR2_PACKAGE_FMLIB=y
 BR2_PACKAGE_FMUCODE=y
-BR2_PACKAGE_FMUCODE_BIN="fsl_fman_ucode_ls1046_r1.1_108_4_9.bin"
+BR2_PACKAGE_FMUCODE_BIN="fsl_fman_ucode_ls1046_r1.0_108_4_9.bin"
 BR2_PACKAGE_FMC=y
 
 # busybox setting
