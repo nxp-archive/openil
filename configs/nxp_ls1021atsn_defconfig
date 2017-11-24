@@ -55,6 +55,9 @@ BR2_PACKAGE_HOST_GENIMAGE=y
 BR2_PACKAGE_HOST_MTOOLS=y
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/nxp/ls1021atsn/post-image.sh"
 
+# linux partition size
+BR2_ROOTFS_PARTITION_SIZE="500M"
+
 # busybox setting
 BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="board/nxp/common/openil-busybox.config"
 BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
