@@ -36,7 +36,7 @@ image sdcard.img {
     partition-type = 0xC
     bootable = "true"
     image = "boot.vfat"
-    offset = 128MB
+    offset = 16M
   }
 
   partition rootfs {
