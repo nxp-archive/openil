@@ -8,7 +8,11 @@ auto eth2
 iface eth2 inet static
 	address 172.15.0.1
 	netmask 255.255.255.0
-	network 172.15.0.0
+
+auto eth1
+iface eth1 inet dhcp
 
 auto eth0
-iface eth0 inet dhcp
+iface eth0 inet static
+	address 192.168.15.1
+	netmask 255.255.255.0
