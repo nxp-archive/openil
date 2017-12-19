@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-OPENVPN_VERSION = 2.3.12
+OPENVPN_VERSION = 2.4.3
 OPENVPN_SOURCE = openvpn-$(OPENVPN_VERSION).tar.xz
 OPENVPN_SITE = http://swupdate.openvpn.net/community/releases
 OPENVPN_DEPENDENCIES = host-pkgconf openssl
@@ -22,8 +22,7 @@ OPENVPN_CONF_ENV = IFCONFIG=/sbin/ifconfig \
 ifeq ($(BR2_PACKAGE_OPENVPN_SMALL),y)
 OPENVPN_CONF_OPTS += \
 	--enable-small \
-	--disable-plugins \
-	--disable-eurephia
+	--disable-plugins
 endif
 
 # BusyBox 1.21+ places the ip applet in the "correct" place
@@ -36,16 +35,16 @@ else
 OPENVPN_CONF_ENV += IPROUTE=/sbin/ip
 endif
 
+ifeq ($(BR2_PACKAGE_OPENVPN_LZ4),y)
+OPENVPN_DEPENDENCIES += lz4
+else
+OPENVPN_CONF_OPTS += --disable-lz4
+endif
+
 ifeq ($(BR2_PACKAGE_OPENVPN_LZO),y)
 OPENVPN_DEPENDENCIES += lzo
 else
 OPENVPN_CONF_OPTS += --disable-lzo
-endif
-
-ifeq ($(BR2_PACKAGE_OPENVPN_PWSAVE),y)
-OPENVPN_CONF_OPTS += --enable-password-save
-else
-OPENVPN_CONF_OPTS += --disable-password-save
 endif
 
 define OPENVPN_INSTALL_TARGET_CMDS

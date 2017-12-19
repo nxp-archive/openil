@@ -35,18 +35,18 @@ image sdcard.img {
   partition u-boot-environment {
     in-partition-table = "no"
     image = "uboot-env.bin"
-    offset = 2M
+    offset = 3M
   }
 
   partition ppa {
     in-partition-table = "no"
     image = "ppa.itb"
-    offset = 5M
+    offset = 4M
   }
 
   partition boot {
     in-partition-table = "no"
     image = "kernel-ls1012a-rdb.itb"
-    offset = 10M
+    offset = 16M
   }
 }

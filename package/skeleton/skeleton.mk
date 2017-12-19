@@ -14,9 +14,15 @@ SKELETON_ADD_TOOLCHAIN_DEPENDENCY = NO
 SKELETON_INSTALL_STAGING = YES
 
 ifeq ($(BR2_ROOTFS_SKELETON_CUSTOM),y)
-
+ifneq ($(BR2_ROOTFS_SKELETON_CUSTOM_SITE),)
+SKELETON_SITE = $(call qstrip,$(BR2_ROOTFS_SKELETON_CUSTOM_SITE))
+SKELETON_SOURCE = $(call qstrip,$(BR2_ROOTFS_SKELETON_CUSTOM_SOURCE))
+SKELETON_SITE_METHOD = $(call qstrip,$(BR2_ROOTFS_SKELETON_CUSTOM_SITE_METHOD))
+SKELETON_EXTRACT = $(call qstrip,$(BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT))
+SKELETON_PATH = $(BUILD_DIR)/skeleton/custom
+else
 SKELETON_PATH = $(call qstrip,$(BR2_ROOTFS_SKELETON_CUSTOM_PATH))
-
+endif
 ifeq ($(BR_BUILDING),y)
 ifeq ($(SKELETON_PATH),)
 $(error No path specified for the custom skeleton)
@@ -63,6 +69,24 @@ else # ! custom skeleton
 SKELETON_PATH = system/skeleton
 
 endif # ! custom skeleton
+
+export SKELETON_DIRE = $(SKELETON_PATH)
+
+define SKELETON_EXTRACT_CMDS
+	if [ $(BR2_ROOTFS_SKELETON_CUSTOM_SITE) != "" ]; then \
+		rm -rf $(@D)/custom; \
+		mkdir $(@D)/custom; \
+		if [ $(BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT_IGNORE_ERROR) = y ]; then \
+			cd $(@D)/custom && $(SKELETON_EXTRACT) $(DL_DIR)/$(SKELETON_SOURCE) || true; \
+		else \
+			cd $(@D)/custom && $(SKELETON_EXTRACT) $(DL_DIR)/$(SKELETON_SOURCE); \
+		fi \
+	fi
+
+	@$(foreach s, $(call qstrip,$(BR2_ROOTFS_POST_CUSTOM_SKELETON_SCRIPT)), \
+		$(call MESSAGE,"Executing post-custom-skeleton script $(s)"); \
+		$(EXTRA_ENV) $(s) $(SKELETON_PATH) $(call qstrip,$(BR2_ROOTFS_POST_CUSTOM_SKELETON_SCRIPT))$(sep))
+endef
 
 # This function handles the merged or non-merged /usr cases
 ifeq ($(BR2_ROOTFS_MERGED_USR),y)
@@ -203,9 +227,11 @@ define SKELETON_BIN_SH
 	rm -f $(TARGET_DIR)/bin/sh
 endef
 else
+ifneq ($(SKELETON_TARGET_GENERIC_BIN_SH),)
 define SKELETON_BIN_SH
 	ln -sf $(SKELETON_TARGET_GENERIC_BIN_SH) $(TARGET_DIR)/bin/sh
 endef
+endif
 endif
 TARGET_FINALIZE_HOOKS += SKELETON_BIN_SH
 

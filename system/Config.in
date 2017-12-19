@@ -22,6 +22,58 @@ config BR2_ROOTFS_SKELETON_CUSTOM_PATH
 	help
 	  Path to custom target skeleton.
 
+menu "Custom skeleton via network"
+config BR2_ROOTFS_SKELETON_CUSTOM_SITE
+	string "custom target skeleton site"
+	help
+	  Site where the custom target skeleton can be obtained
+	  via network.
+
+config BR2_ROOTFS_SKELETON_CUSTOM_SOURCE
+	string "name of custom target skeleton"
+	help
+	  The file name of the custom target skeleton.
+
+config BR2_ROOTFS_SKELETON_CUSTOM_SITE_METHOD
+	string "method obtain custom target skeleton from the site"
+	default "wget"
+	help
+	  How to obtain the custom target skeleton via network.
+
+config BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT
+	string "how to extract the custom target skeleton"
+	default "tar zxvf"
+	help
+	  How to extract the custom target skeleton.
+	  The custom skeleton will be extracted to the directory:
+	  output/build/skeleton/custom/
+
+config BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT_IGNORE_ERROR
+	bool "ignore the extract error"
+	help
+	  Sometimes the extract will return error which is nothing
+	  else matters. Fox example, some filesystem will make link
+	  to the host directory (but it is useless for the target)
+	  and it will be fail due to the permission. The error will
+	  stop the compilation.
+
+endmenu
+
+config BR2_ROOTFS_POST_CUSTOM_SKELETON_SCRIPT
+	string "Custom scripts to run before using custom skeleton"
+	default ""
+	help
+	  Specify a space-separated list of scripts to be run after the download
+	  and unzip has finished and before OpenIL starts using the custom skeleton.
+
+	  This gives users the opportunity to do board/skeleton specific configuration,
+	  add-ons and the like, so the generated files can be used directly
+	  without further processing.
+
+	  These scripts are called with the unzipped custom skeleton directory name
+	  as first argument. Make sure the exit code of those scripts are 0, otherwise
+	  make will stop after calling them.
+
 # dummy config so merged /usr workarounds can also be activated for
 # custom rootfs skeleton
 config BR2_ROOTFS_MERGED_USR
@@ -158,7 +210,7 @@ config BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV
 
 config BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV
 	bool "Dynamic using devtmpfs + eudev"
-	depends on BR2_USE_WCHAR
+	depends on BR2_USE_WCHAR # eudev
 	depends on !BR2_STATIC_LIBS
 	depends on BR2_USE_MMU # eudev
 	select BR2_PACKAGE_EUDEV
@@ -298,7 +350,6 @@ endchoice # /bin/sh
 
 config BR2_SYSTEM_BIN_SH
 	string
-	default "busybox" if BR2_SYSTEM_BIN_SH_BUSYBOX
 	default "bash"    if BR2_SYSTEM_BIN_SH_BASH
 	default "dash"    if BR2_SYSTEM_BIN_SH_DASH
 	default "mksh"    if BR2_SYSTEM_BIN_SH_MKSH
@@ -372,7 +423,7 @@ config BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW
 config BR2_SYSTEM_DHCP
 	string "Network interface to configure through DHCP"
 	default ""
-	depends on !BR2_PACKAGE_SYSTEMD_NETWORKD && (BR2_PACKAGE_BUSYBOX || BR2_PACKAGE_IFUPDOWN)
+	depends on BR2_PACKAGE_BUSYBOX || BR2_PACKAGE_IFUPDOWN || BR2_PACKAGE_SYSTEMD_NETWORKD
 	help
 	  Enter here the name of the network interface (E.G. eth0) to
 	  automatically configure through DHCP at bootup.
@@ -382,11 +433,8 @@ config BR2_SYSTEM_DHCP
 	  For more complicated network setups use an overlay to overwrite
 	  /etc/network/interfaces or add a networkd configuration file.
 
-comment "automatic network configuration via DHCP is not compatible with networkd"
-	depends on BR2_PACKAGE_SYSTEMD_NETWORKD
-
-comment "automatic network configuration via DHCP needs ifupdown or busybox"
-	depends on !(BR2_PACKAGE_BUSYBOX || BR2_PACKAGE_IFUPDOWN)
+comment "automatic network configuration via DHCP needs ifupdown or busybox or networkd"
+	depends on !(BR2_PACKAGE_BUSYBOX || BR2_PACKAGE_IFUPDOWN || BR2_PACKAGE_SYSTEMD_NETWORKD)
 
 endif # BR2_ROOTFS_SKELETON_DEFAULT
 

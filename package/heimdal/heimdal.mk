@@ -4,16 +4,18 @@
 #
 ################################################################################
 
-HEIMDAL_VERSION = 1.6rc2
-HEIMDAL_SITE = http://www.h5l.org/dist/src
+HEIMDAL_VERSION = 7.4.0
+HEIMDAL_SITE = https://github.com/heimdal/heimdal/releases/download/heimdal-$(HEIMDAL_VERSION)
 HOST_HEIMDAL_DEPENDENCIES = host-e2fsprogs host-ncurses host-pkgconf
 HEIMDAL_INSTALL_STAGING = YES
+HEIMDAL_MAKE = $(MAKE1)
 # static because of -fPIC issues with e2fsprogs on x86_64 host
 HOST_HEIMDAL_CONF_OPTS = \
 	--disable-shared \
 	--enable-static \
 	--without-openldap \
 	--without-capng \
+	--with-db-type-preference= \
 	--without-sqlite3 \
 	--without-libintl \
 	--without-openssl \
@@ -24,11 +26,8 @@ HOST_HEIMDAL_CONF_OPTS = \
 	--without-x \
 	--disable-heimdal-documentation
 HOST_HEIMDAL_CONF_ENV = MAKEINFO=true
-HEIMDAL_MAKE = $(MAKE1)
 HEIMDAL_LICENSE = BSD-3c
 HEIMDAL_LICENSE_FILES = LICENSE
-# 0002-kadm5-fix-race-in-Makefile-with-kadm5_err.h.patch
-HEIMDAL_AUTORECONF = YES
 
 # We need asn1_compile in the PATH for samba4
 define HOST_HEIMDAL_MAKE_SYMLINK

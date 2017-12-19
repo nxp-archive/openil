@@ -4,19 +4,20 @@
 #
 ################################################################################
 
-PPA_VERSION = fsl-sdk-v2.0-1703
-PPA_SITE = git://git.freescale.com/ppc/sdk/ppa-generic.git
-PPA_LICENSE = Freescale-EULA
-PPA_LICENSE_FILES = EULA
+PPA_VERSION = LSDK-17.09
+PPA_SITE = https://github.com/qoriq-open-source/ppa-generic.git
+PPA_SITE_METHOD = git
+PPA_LICENSE = BSD 3-clause "New" or "Revised" License
+PPA_LICENSE_FILES = license.txt
+PPA_DEPENDENCIES = host-uboot-tools
 
-# export ARMV8_TOOLS_DIR="$(dir ${TARGET_CROSS})";\
-# export ARMV8_TOOLS_PREFIX="$(notdir ${TARGET_CROSS})";\
-#
+PPA_PLATFORM = $(call qstrip,$(BR2_PACKAGE_PPA_PLATFORM))
 
 define PPA_BUILD_CMDS
 	export PATH=${PATH}:$(dir ${TARGET_CROSS});\
 	export CROSS_COMPILE="${TARGET_CROSS}";\
 	cd $(@D)/ppa/ && ./build rdb-fit all
+	cp -f $(@D)/ppa/soc-$(PPA_PLATFORM)/build/obj/ppa.itb $(BINARIES_DIR)/
 endef
 
 $(eval $(generic-package))

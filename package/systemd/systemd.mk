@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SYSTEMD_VERSION = 231
+SYSTEMD_VERSION = 232
 SYSTEMD_SITE = $(call github,systemd,systemd,v$(SYSTEMD_VERSION))
 SYSTEMD_LICENSE = LGPLv2.1+, GPLv2+ (udev), Public Domain (few source files, see README)
 SYSTEMD_LICENSE_FILES = LICENSE.GPL2 LICENSE.LGPL2.1 README
@@ -30,7 +30,6 @@ SYSTEMD_CONF_OPTS += \
 	--enable-blkid \
 	--enable-static=no \
 	--disable-manpages \
-	--disable-selinux \
 	--disable-pam \
 	--disable-ima \
 	--disable-libcryptsetup \
@@ -44,10 +43,16 @@ SYSTEMD_CONF_OPTS += \
 
 SYSTEMD_CFLAGS = $(TARGET_CFLAGS) -fno-lto
 
-# Override path to kmod, used in kmod-static-nodes.service
+# Override paths to a few utilities needed at runtime, to
+# avoid finding those we would install in $(HOST_DIR).
 SYSTEMD_CONF_ENV = \
 	CFLAGS="$(SYSTEMD_CFLAGS)" \
-	ac_cv_path_KMOD=/usr/bin/kmod
+	ac_cv_path_KILL=/usr/bin/kill \
+	ac_cv_path_KMOD=/usr/bin/kmod \
+	ac_cv_path_KEXEC=/usr/sbin/kexec \
+	ac_cv_path_SULOGIN=/usr/sbin/sulogin \
+	ac_cv_path_MOUNT_PATH=/usr/bin/mount \
+	ac_cv_path_UMOUNT_PATH=/usr/bin/umount
 
 define SYSTEMD_RUN_INTLTOOLIZE
 	cd $(@D) && $(HOST_DIR)/usr/bin/intltoolize --force --automake
@@ -153,6 +158,13 @@ else
 SYSTEMD_CONF_OPTS += --disable-microhttpd --disable-qrencode
 endif
 
+ifeq ($(BR2_PACKAGE_LIBSELINUX),y)
+SYSTEMD_DEPENDENCIES += libselinux
+SYSTEMD_CONF_OPTS += --enable-selinux
+else
+SYSTEMD_CONF_OPTS += --disable-selinux
+endif
+
 ifeq ($(BR2_PACKAGE_SYSTEMD_HWDB),y)
 SYSTEMD_CONF_OPTS += --enable-hwdb
 else
@@ -173,8 +185,14 @@ endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_QUOTACHECK),y)
 SYSTEMD_CONF_OPTS += --enable-quotacheck
+SYSTEMD_CONF_ENV += \
+	ac_cv_path_QUOTAON=/usr/sbin/quotaon \
+	ac_cv_path_QUOTACHECK=/usr/sbin/quotacheck
 else
 SYSTEMD_CONF_OPTS += --disable-quotacheck
+SYSTEMD_CONF_ENV += \
+	ac_cv_path_QUOTAON=/.missing \
+	ac_cv_path_QUOTACHECK=/.missing
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_TMPFILES),y)
@@ -275,6 +293,14 @@ define SYSTEMD_INSTALL_RESOLVCONF_HOOK
 	ln -sf ../run/systemd/resolve/resolv.conf \
 		$(TARGET_DIR)/etc/resolv.conf
 endef
+SYSTEMD_NETWORKD_DHCP_IFACE = $(call qstrip,$(BR2_SYSTEM_DHCP))
+ifneq ($(SYSTEMD_NETWORKD_DHCP_IFACE),)
+define SYSTEMD_INSTALL_NETWORK_CONFS
+	sed s/SYSTEMD_NETWORKD_DHCP_IFACE/$(SYSTEMD_NETWORKD_DHCP_IFACE)/ \
+		package/systemd/dhcp.network > \
+		$(TARGET_DIR)/etc/systemd/network/dhcp.network
+endef
+endif
 else
 SYSTEMD_CONF_OPTS += --disable-networkd
 define SYSTEMD_INSTALL_SERVICE_NETWORK
@@ -377,6 +403,7 @@ define SYSTEMD_INSTALL_INIT_SYSTEMD
 	$(SYSTEMD_INSTALL_SERVICE_TTY)
 	$(SYSTEMD_INSTALL_SERVICE_NETWORK)
 	$(SYSTEMD_INSTALL_SERVICE_TIMESYNC)
+	$(SYSTEMD_INSTALL_NETWORK_CONFS)
 endef
 
 $(eval $(autotools-package))

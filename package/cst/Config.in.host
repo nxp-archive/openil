@@ -20,19 +20,3 @@ config BR2_PACKAGE_HOST_CST
 	  1. uni_pbi (create_hdr_pbi)
 	  2. uni_sign (create_hdr_isbc and create_hdr_esbc)
 	  3. uni_cfsign (creat_hdr_cf)
-
-if BR2_PACKAGE_HOST_CST
-
-comment "core hold-off"
-
-config BR2_PACKAGE_HOST_CST_CORE_HOLDOFF
-	bool "secure boot core hold-off"
-	help
-	  For secure boot, the core should be hold-off
-	  if there are no keys in silicon and should be
-	  programmed.
-	  If the keys have been programmed into the silicon
-	  permanently, the core can bootup normally and
-	  the hold-off should be disabled.
-
-endif

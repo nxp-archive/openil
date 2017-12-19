@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-SUDO_VERSION = 1.8.15
+SUDO_VERSION = 1.8.19p2
 SUDO_SITE = http://www.sudo.ws/sudo/dist
-SUDO_LICENSE = ISC BSD-3c
+SUDO_LICENSE = ISC, BSD-3c
 SUDO_LICENSE_FILES = doc/LICENSE
 # This is to avoid sudo's make install from chown()ing files which fails
 SUDO_INSTALL_TARGET_OPTS = INSTALL_OWNER="" DESTDIR="$(TARGET_DIR)" install
@@ -28,6 +28,27 @@ SUDO_CONF_OPTS += --with-pam
 SUDO_POST_INSTALL_TARGET_HOOKS += SUDO_INSTALL_PAM_CONF
 else
 SUDO_CONF_OPTS += --without-pam
+endif
+
+ifeq ($(BR2_PACKAGE_ZLIB),y)
+SUDO_CONF_OPTS += --enable-zlib
+SUDO_DEPENDENCIES += zlib
+else
+SUDO_CONF_OPTS += --disable-zlib
+endif
+
+ifeq ($(BR2_PACKAGE_OPENLDAP),y)
+SUDO_DEPENDENCIES += openldap
+SUDO_CONF_OPTS += --with-ldap
+# If we are building sudo statically and openldap was linked with openssl, then
+# when we link sudo with openldap we need to specify the openssl libs, otherwise
+# it will fail with "undefined reference" errors.
+ifeq ($(BR2_STATIC_LIBS)$(BR2_PACKAGE_OPENSSL),yy)
+SUDO_DEPENDENCIES += host-pkgconf
+SUDO_CONF_ENV = LIBS="`$(PKG_CONFIG_HOST_BINARY) --libs libssl libcrypto`"
+endif
+else
+SUDO_CONF_OPTS += --without-ldap
 endif
 
 # mksigname/mksiglist needs to run on build host to generate source files

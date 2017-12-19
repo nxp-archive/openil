@@ -4,9 +4,11 @@
 #
 ################################################################################
 
-DBUS_VERSION = 1.10.12
+DBUS_VERSION = 1.10.16
 DBUS_SITE = http://dbus.freedesktop.org/releases/dbus
 DBUS_LICENSE = AFLv2.1 or GPLv2+ (library, tools), GPLv2+ (tools)
+# 0001-config-loader-expat-Tell-Expat-not-to-defend-against.patch
+DBUS_AUTORECONF = YES
 DBUS_LICENSE_FILES = COPYING
 DBUS_INSTALL_STAGING = YES
 
@@ -82,7 +84,7 @@ define DBUS_REMOVE_VAR_LIB_DBUS
 	rm -rf $(TARGET_DIR)/var/lib/dbus
 endef
 
-DBUS_POST_BUILD_HOOKS += DBUS_REMOVE_VAR_LIB_DBUS
+DBUS_PRE_INSTALL_TARGET_HOOKS += DBUS_REMOVE_VAR_LIB_DBUS
 
 define DBUS_REMOVE_DEVFILES
 	rm -rf $(TARGET_DIR)/usr/lib/dbus-1.0

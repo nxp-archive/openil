@@ -1,6 +1,6 @@
 #
 
-mainmenu "OpenIL $BR2_VERSION Configuration"
+mainmenu "OpenIL $BR2_OPENIL_VERSION Configuration"
 
 config BR2_HAVE_DOT_CONFIG
 	bool
@@ -9,6 +9,10 @@ config BR2_HAVE_DOT_CONFIG
 config BR2_VERSION
 	string
 	option env="BR2_VERSION_FULL"
+
+config BR2_OPENIL_VERSION
+	string
+	option env="BR2_OPENIL_VERSION_FULL"
 
 config BR2_HOSTARCH
 	string
@@ -57,6 +61,11 @@ config BR2_HOST_GCC_AT_LEAST_6
 	default y if BR2_HOST_GCC_VERSION = "6"
 	select BR2_HOST_GCC_AT_LEAST_5
 
+config BR2_HOST_GCC_AT_LEAST_7
+	bool
+	default y if BR2_HOST_GCC_VERSION = "7"
+	select BR2_HOST_GCC_AT_LEAST_6
+
 # Hidden boolean selected by packages in need of Java in order to build
 # (example: xbmc)
 config BR2_NEEDS_HOST_JAVA
@@ -82,6 +91,11 @@ config BR2_HOSTARCH_NEEDS_IA32_LIBS
 # binaries with the host compiler, even on 64 bits build machines (e.g
 # bootloaders).
 config BR2_HOSTARCH_NEEDS_IA32_COMPILER
+	bool
+
+# Hidden boolean selected by packages that need the host to have an
+# UTF8 locale.
+config BR2_NEEDS_HOST_UTF8_LOCALE
 	bool
 
 source "arch/Config.in"
@@ -152,6 +166,13 @@ config BR2_XZCAT
 	help
 	  Command to be used to extract a xz'ed file to stdout.
 	  Default is "xzcat"
+
+config BR2_LZCAT
+	string "lzcat command"
+	default "lzip -d -c"
+	help
+	  Command to be used to extract a lzip'ed file to stdout.
+	  Default is "lzip -d -c"
 
 config BR2_TAR_OPTIONS
 	string "Tar options"
@@ -524,6 +545,8 @@ config BR2_GOOGLE_BREAKPAD_ENABLE
 	bool "Enable google-breakpad support"
 	select BR2_PACKAGE_GOOGLE_BREAKPAD
 	depends on BR2_INSTALL_LIBSTDCPP
+	depends on BR2_HOST_GCC_AT_LEAST_4_8 # C++11
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_8 # C++11
 	depends on BR2_USE_WCHAR
 	depends on BR2_TOOLCHAIN_HAS_THREADS
 	depends on (BR2_TOOLCHAIN_USES_GLIBC || BR2_TOOLCHAIN_USES_UCLIBC)
@@ -706,6 +729,12 @@ config BR2_REPRODUCIBLE
 	  from the build process. For a given Buildroot configuration,
 	  this allows to generate exactly identical binaries from one
 	  build to the other, including on different machines.
+
+	  The current implementation is restricted to builds with the
+	  same output directory. Many (absolute) paths are recorded in
+	  intermediary files, and it is very likely that some of these
+	  paths leak into the target rootfs. If you build with the
+	  same O=... path, however, the result is identical.
 
 	  This is labeled as an experimental feature, as not all
 	  packages behave properly to ensure reproducibility.

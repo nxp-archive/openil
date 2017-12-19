@@ -29,14 +29,14 @@ image sdcard.img {
   partition u-boot-environment {
     in-partition-table = "no"
     image = "uboot-env.bin"
-    offset = 1M
+    offset = 3M
   }
 
   partition boot {
     partition-type = 0xC
     bootable = "true"
     image = "boot.vfat"
-    offset = 8M
+    offset = 16M
   }
 
   partition rootfs {
