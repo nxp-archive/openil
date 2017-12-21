@@ -28,9 +28,9 @@ example ls1021atsn from NXP:
 5) find the complete image 'sdcard.img' in output/images
 
 OpenIL supported NXP platforms:
-	- LS1012ARDB-32B
-	- LS1043ARDB-32B
-	- LS1046ARDB-32B
+	- LS1012ARDB
+	- LS1043ARDB
+	- LS1046ARDB
 	- LS1021ATSN
 	- LS1021AIOT
 
