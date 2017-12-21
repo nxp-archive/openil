@@ -87,7 +87,7 @@ all:
 
 # Set and export the version string
 export BR2_VERSION := 2017.02.6
-export BR2_OPENIL_VERSION := 2017.09
+export BR2_OPENIL_VERSION := 2017.12
 # Actual time the release is cut (for reproducible builds)
 BR2_VERSION_EPOCH = 1506285000
 
