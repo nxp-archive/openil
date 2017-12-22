@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SJA1105_PTP_VERSION = master
+SJA1105_PTP_VERSION = OpenIL-linuxptp-201712
 SJA1105_PTP_SITE = https://github.com/openil/linuxptp.git
 SJA1105_PTP_SITE_METHOD = git
 SJA1105_PTP_LICENSE = GPL2
