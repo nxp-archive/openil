@@ -43,52 +43,52 @@
 
 void help()
 {
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Usage: iomem <mode>[-port][<:|*>[<length>]][?|!] \\\n");
-	fprintf(stderr, "		<addr> [ <data>[/<mask>] [...] ]\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Read modes:\n");
-	fprintf(stderr, "	r8\n");
-	fprintf(stderr, "	r16 r16le r16be\n");
-	fprintf(stderr, "	r32 r32le r32be\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Write modes:\n");
-	fprintf(stderr, "	w8\n");
-	fprintf(stderr, "	w16 w16le w16be\n");
-	fprintf(stderr, "	w32 w32le w32be\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Poll modes:\n");
-	fprintf(stderr, "	p8\n");
-	fprintf(stderr, "	p16 p16le p16be\n");
-	fprintf(stderr, "	p32 p32le p32be\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Shell modes:\n");
-	fprintf(stderr, "	s8\n");
-	fprintf(stderr, "	s16 s16le s16be\n");
-	fprintf(stderr, "	s32 s32le s32be\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Adding the '-port' suffix to the mode causes iomem to\n");
-	fprintf(stderr, "access i/o ports instead of physical memory addresses.\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Length with a ':' seperator refers to a linear memory\n");
-	fprintf(stderr, "while length with a '*' seperator refers to a FIFO port.\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "The '?' modifier makes the output less verbose so it can\n");
-	fprintf(stderr, "be parsed easier from a shell script.\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "The '!' modifier supresses all output, example given for\n");
-	fprintf(stderr, "i/o performance tests.\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "The poll modes are polling the specified io memory word\n");
-	fprintf(stderr, "until it matches any of the data/mask pairs passed on the\n");
-	fprintf(stderr, "command line.\n");
-	fprintf(stderr, "\n");
-	fprintf(stderr, "The shell mode open up a simple command line interface.\n");
-	fprintf(stderr, "Commands can be just a memory address to perform a single\n");
-	fprintf(stderr, "word read or an <addr>=<data> pair to perform a single word\n");
-	fprintf(stderr, "write. All addresses are relative to the address passed as\n");
-	fprintf(stderr, "command line argument.\n");
-	fprintf(stderr, "\n");
+	fprintf(stderr, "\n"
+	"Usage: iomem <mode>[-port][<:|*>[<length>]][?|!] \\\n"
+	"             <addr> [ <data>[/<mask>] [...] ]\n"
+	"\n"
+	"Read modes:\n"
+	"	r8\n"
+	"	r16 r16le r16be\n"
+	"	r32 r32le r32be\n"
+	"\n"
+	"Write modes:\n"
+	"	w8\n"
+	"	w16 w16le w16be\n"
+	"	w32 w32le w32be\n"
+	"\n"
+	"Poll modes:\n"
+	"	p8\n"
+	"	p16 p16le p16be\n"
+	"	p32 p32le p32be\n"
+	"\n"
+	"Shell modes:\n"
+	"	s8\n"
+	"	s16 s16le s16be\n"
+	"	s32 s32le s32be\n"
+	"\n"
+	"Adding the '-port' suffix to the mode causes iomem to\n"
+	"access i/o ports instead of physical memory addresses.\n"
+	"\n"
+	"Length with a ':' seperator refers to a linear memory\n"
+	"while length with a '*' seperator refers to a FIFO port.\n"
+	"\n"
+	"The '?' modifier makes the output less verbose so it can\n"
+	"be parsed easier from a shell script.\n"
+	"\n"
+	"The '!' modifier supresses all output, example given for\n"
+	"i/o performance tests.\n"
+	"\n"
+	"The poll modes are polling the specified io memory word\n"
+	"until it matches any of the data/mask pairs passed on the\n"
+	"command line.\n"
+	"\n"
+	"The shell mode open up a simple command line interface.\n"
+	"Commands can be just a memory address to perform a single\n"
+	"word read or an <addr>=<data> pair to perform a single word\n"
+	"write. All addresses are relative to the address passed as\n"
+	"command line argument.\n"
+	"\n");
 	exit(1);
 }
 
@@ -139,13 +139,10 @@ int main(int argc, char **argv)
 
 		if (mode[0] != 'r' && mode[0] != 'w' && mode[0] != 'p' && mode[0] != 's')
 			help();
-
 		if (mode[0] == 'w')
 			we = 1;
-
 		if (mode[0] == 'p')
 			pe = 1;
-
 		if (mode[0] == 's')
 			se = 1;
 
@@ -153,29 +150,28 @@ int main(int argc, char **argv)
 
 		if (!strncmp(mode, "8", 1)) {
 			mode++;
-			size=1;
+			size = 1;
 		} else
 		if (!strncmp(mode, "16", 2)) {
-			mode+=2;
-			size=2;
+			mode += 2;
+			size  = 2;
 		} else
 		if (!strncmp(mode, "32", 2)) {
-			mode+=2;
-			size=4;
+			mode += 2;
+			size  = 4;
 		} else
 			help();
 
 		if (size > 1) {
 			if (!strncmp(mode, "le", 2)) {
-				mode+=2;
-				endian='l';
+				mode  += 2;
+				endian = 'l';
 			} else
 			if (!strncmp(mode, "be", 2)) {
-				mode+=2;
-				endian='b';
+				mode  += 2;
+				endian = 'b';
 			}
 		}
-
 		if (!strncmp(mode, "-port", 5)) {
 			port_mode = 1;
 			mode += 5;
@@ -202,12 +198,10 @@ int main(int argc, char **argv)
 			verbose = 0;
 			mode++;
 		}
-
 		if (*mode == '!') {
 			perftest = 1;
 			mode++;
 		}
-
 		if (*mode)
 			help();
 	}
@@ -438,10 +432,22 @@ poll_found_match:;
 			if (verbose)
 			{
 				if (size == 1 && data >= 32 && data <= 126)
-					printf("[%04x] 0x%08llx: 0x%0*llx%s (%s) [ASCII=%c]", i, addr, size*2, data, endian ? endian == 'l' ? " LE" : " BE" : "", we ? "written" : "read", (char)data);
+					printf("[%04x] 0x%08llx: 0x%0*llx%s (%s) [ASCII=%c]",
+					       i,
+					       addr,
+					       size*2,
+					       data,
+					       endian ? endian == 'l' ? " LE" : " BE" : "",
+					       we ? "written" : "read",
+					       (char)data);
 				else
-					printf("[%04x] 0x%08llx: 0x%0*llx%s (%s)", i, addr, size*2, data, endian ? endian == 'l' ? " LE" : " BE" : "", we ? "written" : "read");
-
+					printf("[%04x] 0x%08llx: 0x%0*llx%s (%s)",
+					       i,
+					       addr,
+					       size*2,
+					       data,
+					       endian ? endian == 'l' ? " LE" : " BE" : "",
+					       we ? "written" : "read");
 				if (pe)
 					printf(" <after %llums>\n", waitcycles*25);
 				else
