@@ -10,7 +10,7 @@ SJA1105_TOOL_SITE_METHOD = git
 SJA1105_TOOL_INSTALL_STAGING = YES
 SJA1105_TOOL_LICENSE = BSD-3c
 SJA1105_TOOL_LICENSE_FILES = COPYING
-SJA1105_TOOL_DEPENDENCIES = libxml2
+SJA1105_TOOL_DEPENDENCIES = libxml2 iomem
 
 # By first "uninstalling" sja1105-tool and libsja1105.so from the
 # build system's sysroot we make sure that sja1105-tool will correctly
