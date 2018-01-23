@@ -1,4 +1,15 @@
 config BR2_PACKAGE_SJA1105_TOOL
 bool "sja1105-tool"
 help
-	this is comment that support NXP sja1105-tool
+	The sja1105-tool is a Linux userspace application for configuring the
+	NXP SJA1105 Automotive Ethernet L2 switch. The tool supports:
+
+	 * Importing a configuration for the SJA1105 switch from an XML file
+	 * Exporting the current SJA1105 configuration as an XML file
+	 * Uploading the current SJA1105 configuration to the switch through
+	   its SPI interface
+	 * Inspecting the current SJA1105 configuration
+	 * On-the-fly modification of the current SJA1105 configuration through
+	   command line or scripting interface
+
+	https://github.com/openil/sja1105-tool
