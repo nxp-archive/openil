@@ -23,7 +23,9 @@
  *  the word sizes are not defined by any C-Standard document!
  */
 
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -35,6 +37,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <stdint.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -95,7 +98,7 @@ int get_this_endian()
 	return ((unsigned char*)(&probe))[0] ? 'l' : 'b';
 }
 
-unsigned long endian_swap(unsigned long v, int size)
+uint32_t endian_swap(uint32_t v, int size)
 {
 	if (size >= 4)
 		v = ((v&0x0000ffff) << 16) | ((v&0xffff0000) >> 16);
@@ -108,21 +111,23 @@ int main(int argc, char **argv)
 {
 	int host_endian = get_this_endian();
 	int endian = 0, size = 0, length = 1, we = 0, pe = 0, se = 0;
-	unsigned long addr = 0, data = 0, mask = 0, waitcycles = 0;
-	unsigned long *databuf = 0;
-	unsigned long *maskbuf = 0;
+	unsigned long long addr = 0, data = 0, mask = 0, waitcycles = 0;
+	uint32_t *databuf = 0;
+	uint32_t *maskbuf = 0;
 	int fifo_mode = 0, i, j;
 	int port_mode = 0;
 	int verbose = 1;
 	int perftest = 0;
 
 	/* a 'short' must be 16 bits wide */
-	if (sizeof(unsigned short) != 2)
+	if (sizeof(unsigned short) != 2) {
 		abort();
+	}
 
 	/* a 'long' must be 32 bits wide */
-	if (sizeof(unsigned long) != 4)
+	if (sizeof(uint32_t) != 4) {
 		abort();
+	}
 
 	/* expect at least a mode and an address */
 	if (argc < 3)
@@ -206,12 +211,12 @@ int main(int argc, char **argv)
 		if (*mode)
 			help();
 	}
-	
+
 	/* read address and data */
 	{
 		char *endptr;
 
-		addr = strtoul(argv[2], &endptr, 0);
+		addr = strtoull(argv[2], &endptr, 0);
 		if (*endptr || !*argv[2])
 			help();
 
@@ -222,8 +227,8 @@ int main(int argc, char **argv)
 			if (dargs <= 0 || dargs > length)
 				help();
 
-			databuf = malloc(sizeof(unsigned long) * length);
-			maskbuf = malloc(sizeof(unsigned long) * length);
+			databuf = malloc(sizeof(uint32_t) * length);
+			maskbuf = malloc(sizeof(uint32_t) * length);
 
 			for (i=0; i<length; i++) {
 				databuf[i] = strtoul(argv[3+i%dargs], &endptr, 0);
@@ -249,9 +254,9 @@ int main(int argc, char **argv)
 	}
 
 	/* hack for shell mode */
-	unsigned long se_base_addr = addr;
+	unsigned long long se_base_addr = addr;
 	if (se) {
-		static unsigned long shell_databuf, shell_maskbuf;
+		static uint32_t shell_databuf, shell_maskbuf;
 		databuf = &shell_databuf;
 		maskbuf = &shell_maskbuf;
 next_shell_command:;
@@ -269,7 +274,7 @@ shell_syntax_error:
 		char *endptr;
 		if (!addr_str || !addr_str[0])
 			goto shell_syntax_error;
-		addr = se_base_addr + strtoul(addr_str, &endptr, 0);
+		addr = se_base_addr + strtoull(addr_str, &endptr, 0);
 		if (*endptr)
 			goto shell_syntax_error;
 		if (data_str) {
@@ -287,10 +292,10 @@ shell_syntax_error:
 	}
 
 	/* calculate offsets to page and within page */
-	unsigned long psize = getpagesize();
-	unsigned long off_inpage = addr % psize;
-	unsigned long off_topage = addr - off_inpage;
-	unsigned long mapsize = off_inpage+length*size;
+	uint32_t psize = getpagesize();
+	unsigned long long off_inpage = addr % psize;
+	unsigned long long off_topage = addr - off_inpage;
+	unsigned long long mapsize = off_inpage+length*size;
 
 	/* map it into logical memory */
 	void *mapping = 0;
@@ -359,7 +364,7 @@ poll_retry:
 				data = data16;
 			} else
 			if (size == 4) {
-				unsigned long data32 = 0;
+				uint32_t data32 = 0;
 				if (~mask) {
 					lseek64(fd, (off64_t)addr, SEEK_SET);
 					if (read(fd, &data32, 4) != 4) {
@@ -398,7 +403,7 @@ poll_retry:
 					data = *mapping16;
 			} else
 			if (size == 4) {
-				unsigned long *mapping32 = mapping + off_inpage;
+				uint32_t *mapping32 = mapping + off_inpage;
 				if (we)
 					*mapping32 = mask == ~0U ? data :
 							(data = (*mapping32 & ~mask) | (data & mask));
@@ -433,17 +438,17 @@ poll_found_match:;
 			if (verbose)
 			{
 				if (size == 1 && data >= 32 && data <= 126)
-					printf("[%04x] 0x%08lx: 0x%0*lx%s (%s) [ASCII=%c]", i, addr, size*2, data, endian ? endian == 'l' ? " LE" : " BE" : "", we ? "written" : "read", (char)data);
+					printf("[%04x] 0x%08llx: 0x%0*llx%s (%s) [ASCII=%c]", i, addr, size*2, data, endian ? endian == 'l' ? " LE" : " BE" : "", we ? "written" : "read", (char)data);
 				else
-					printf("[%04x] 0x%08lx: 0x%0*lx%s (%s)", i, addr, size*2, data, endian ? endian == 'l' ? " LE" : " BE" : "", we ? "written" : "read");
+					printf("[%04x] 0x%08llx: 0x%0*llx%s (%s)", i, addr, size*2, data, endian ? endian == 'l' ? " LE" : " BE" : "", we ? "written" : "read");
 
 				if (pe)
-					printf(" <after %ldms>\n", waitcycles*25);
+					printf(" <after %llums>\n", waitcycles*25);
 				else
 					printf("\n");
 			}
 			else
-				printf("0x%0*lx\n", size*2, data);
+				printf("0x%0*llx\n", size*2, data);
 		}
 
 		/* increment address if we aren't in fifo mode*/
