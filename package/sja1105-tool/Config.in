@@ -1,5 +1,6 @@
 config BR2_PACKAGE_SJA1105_TOOL
 bool "sja1105-tool"
+select BR2_PACKAGE_IOMEM
 help
 	The sja1105-tool is a Linux userspace application for configuring the
 	NXP SJA1105 Automotive Ethernet L2 switch. The tool supports:
