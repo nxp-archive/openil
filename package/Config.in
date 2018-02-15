@@ -1847,6 +1847,7 @@ endmenu
 menu "OPC UA tools"
 	source "package/libopen62541/Config.in"
 	source "package/opc-sja1105/Config.in"
+	source "package/opc-motor-status/Config.in"
 endmenu
 menu "Fman ucode"
 	source "package/fmucode/Config.in"

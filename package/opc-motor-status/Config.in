@@ -1,0 +1,8 @@
+config BR2_PACKAGE_OPC_MOTOR_STATUS
+bool "opc-motor-status"
+	depends on BR2_PACKAGE_LIBOPEN62541
+	select BR2_PACKAGE_JSMN
+help
+	Example OPC UA server application (using open62541) that relays
+	JSON-encoded UDP packets received from an NXP i.MX RT motor control
+	board, and exposes their contents into read-only OPC nodes.
