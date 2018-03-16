@@ -82,6 +82,9 @@ BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/systemd_init_o
 BR2_PACKAGE_BM_UBOOT=y
 BR2_PACKAGE_BM_UBOOT_DEFCONFIG="ls1021aiot_baremetal_defconfig"
 
+# icc package for baremetal
+BR2_PACKAGE_ICC=y
+
 # basic packages and tools
 BR2_PACKAGE_NET_TOOLS=y
 BR2_PACKAGE_IPUTILS=y
