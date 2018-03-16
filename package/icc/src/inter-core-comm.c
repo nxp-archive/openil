@@ -333,18 +333,22 @@ void icc_show(void)
 {
 	int i;
 
+	printf("all cores: reserved_share_memory_base: 0x%lx; size: %d\n",
+		CONFIG_SYS_DDR_SDRAM_SHARE_RESERVE_BASE,
+		CONFIG_SYS_DDR_SDRAM_SHARE_RESERVE_SIZE);
+	printf("\n");
 	printf("mycoreid: %d; ICC_SGI: %d; share_memory_size: %d\n",
 		mycoreid, ICC_SGI, ICC_CORE_MEM_SPACE);
 	printf("block_unit_size: %d; block number: %d; block_idx: %d\n",
 		ICC_BLOCK_UNIT_SIZE, ICC_CORE_BLOCK_COUNT, block_idx);
 
 	for (i = 0; i < CONFIG_MAX_CPUS; i++) {
-		printf ("\n");
-		printf ("#ring %d base: %p; dest_core: %d; SGI: %d\n",
-			i, ring[i], ring[i]->dest_coreid, ring[i]->interrupt);
-		printf ("desc_num: %d; desc_base: %p; head: %d; tail: %d\n",
-			ring[i]->desc_num, ring[i]->desc, ring[i]->desc_head, ring[i]->desc_tail);
-		printf ("busy_counts: %ld; interrupt_counts: %ld\n",
+		printf("\n");
+		printf("#ring %d base: %p; dest_core: %d; SGI: %d\n",
+		       i, ring[i], ring[i]->dest_coreid, ring[i]->interrupt);
+		printf("desc_num: %d; desc_base: %p; head: %d; tail: %d\n",
+		       ring[i]->desc_num, ring[i]->desc, ring[i]->desc_head, ring[i]->desc_tail);
+		printf("busy_counts: %ld; interrupt_counts: %ld\n",
 			ring[i]->busy_counts, ring[i]->interrupt_counts);
 	}
 }
