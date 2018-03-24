@@ -59,6 +59,8 @@ void *share_base;
  */
 
 #define ICC_SGI 8
+#define DEVICE_BM     "/dev/ipi_bm"
+#define SIG_BM 50
 
 struct icc_desc {
 	unsigned long block_addr;	/* block address */
@@ -135,7 +137,7 @@ void icc_set_sgi(int core_mask, unsigned int hw_irq);
  * return: 0:success, -1:failed
  */
 int icc_irq_register(int src_coreid, void (*irq_handle)(int, unsigned long, unsigned int));
-
+int icc_irq_release(void);
 /* 
  * Send the data in the block to a core or multi-core.
  * This will trigger the SGI interrupt
