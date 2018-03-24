@@ -27,6 +27,7 @@ int memfd;
 void usage(char *name)
 {
 	printf("icc show				- Show all icc rings status at this core\n");
+	printf("icc get					- Waiting to receive icc at this core\n");
 	printf("icc perf <core_mask> <counts>		- ICC performance to cores <core_mask> with <counts> bytes\n");
 	printf("icc send <core_mask> <data> <counts>	- Send <counts> <data> to cores <core_mask>\n");
 	printf("icc irq <core_mask> <irq>		- Send SGI <irq> ID[0 - 15] to <core_mask>\n");
@@ -37,6 +38,30 @@ void usage(char *name)
 static void do_icc_show(void)
 {
 	icc_show();
+}
+
+static void do_icc_irq_handle(int src_coreid, unsigned long block, unsigned int counts)
+{
+	if ((*(char *)ICC_PHY2VIRT(block)) != 0x5a)
+		printf("Get the ICC from core %d; block: 0x%lx, bytes: %d, value: 0x%x\n",
+			src_coreid, block, counts, (*(char *)ICC_PHY2VIRT(block)));
+}
+
+static void do_icc_irq_register(void)
+{
+	int coreid = CONFIG_MAX_CPUS;
+
+	if (icc_irq_register(coreid, do_icc_irq_handle))
+		printf("ICC register irq handler failed, src_coreid: %d, max_cores: %d\n",
+			coreid, CONFIG_MAX_CPUS);
+}
+
+static void do_icc_receive(void)
+{
+	do_icc_irq_register();
+	while(1) {
+		usleep(1000);
+	}
 }
 
 static int do_icc_perf(int argc, char * const argv[])
@@ -384,6 +409,10 @@ int main(int argc, char **argv)
 	if (argc == 2) {
 		if (strncmp(argv[1], "show", 4) == 0) {
 			do_icc_show();
+			goto exit;
+		}
+		if (strncmp(argv[1], "get", 3) == 0) {
+			do_icc_receive();
 			goto exit;
 		}
 	}

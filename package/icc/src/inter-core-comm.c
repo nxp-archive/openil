@@ -13,6 +13,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "inter-core-comm.h"
 
@@ -20,6 +21,7 @@ struct icc_ring *ring[CONFIG_MAX_CPUS];
 int blocks[ICC_CORE_BLOCK_COUNT];
 unsigned int block_idx;
 void *g_icc_irq_cb[CONFIG_MAX_CPUS] = {NULL};
+int fd;
 
 #define block2index(x) ((x - ICC_CORE_BLOCK_BASE_PHY(mycoreid)) / ICC_BLOCK_UNIT_SIZE)
 #define index2block(x) (ICC_CORE_BLOCK_BASE_PHY(mycoreid) + (x * ICC_BLOCK_UNIT_SIZE))
@@ -239,24 +241,7 @@ static void icc_ring_init(int coreid)
 	}
 }
 
-int icc_irq_register(int src_coreid, void (*irq_handle)(int, unsigned long, unsigned int))
-{
-	int i;
-
-	if ((src_coreid > CONFIG_MAX_CPUS) || (src_coreid == mycoreid))
-		return -1;
-	else if (src_coreid == CONFIG_MAX_CPUS) {
-		for (i = 0; i < CONFIG_MAX_CPUS; i++) {
-			g_icc_irq_cb[i] = (void *)irq_handle;
-		}
-		g_icc_irq_cb[mycoreid] = NULL;
-	} else
-		g_icc_irq_cb[src_coreid] = (void *)irq_handle;
-
-	return 0;
-}
-
-static void icc_irq_handler(int hw_irq, int src_coreid)
+static void icc_irq_handler(int n, siginfo_t *info, void *unused)
 {
 	struct icc_ring *ring;
 	struct icc_desc *desc;
@@ -265,6 +250,10 @@ static void icc_irq_handler(int hw_irq, int src_coreid)
 	unsigned int byte_count;
 	int i, valid;
 	void (*irq_handle)(int, unsigned long, unsigned int);
+	int hw_irq, src_coreid;
+
+	hw_irq = info->si_int >> 16;
+	src_coreid = info->si_int & 0xffff;
 
 	if (hw_irq != ICC_SGI) {
 		printf("Get the wrong SGI number: %d, expect: %d\n", hw_irq, ICC_SGI);
@@ -297,13 +286,44 @@ static void icc_irq_handler(int hw_irq, int src_coreid)
 	}
 }
 
-static int icc_irq_init(int hw_irq)
+int icc_irq_register(int src_coreid, void (*irq_handle)(int, unsigned long, unsigned int))
 {
-	if (hw_irq > 15) {
-		printf("Error hw_irq %d! ICC uses SGI interrupt [0 - 15]\n", hw_irq);
+	int i;
+	char buf[10];
+	struct sigaction sig;
+
+	if ((src_coreid > CONFIG_MAX_CPUS) || (src_coreid == mycoreid))
+		return -1;
+	else if (src_coreid == CONFIG_MAX_CPUS) {
+		for (i = 0; i < CONFIG_MAX_CPUS; i++) {
+			g_icc_irq_cb[i] = (void *)irq_handle;
+		}
+		g_icc_irq_cb[mycoreid] = NULL;
+	} else
+		g_icc_irq_cb[src_coreid] = (void *)irq_handle;
+
+	sig.sa_sigaction = icc_irq_handler;
+	sig.sa_flags = SA_SIGINFO;
+	sigaction(SIG_BM, &sig, NULL);
+
+	fd = open(DEVICE_BM, O_WRONLY);
+	if(fd < 0) {
+		perror("open");
 		return -1;
 	}
-/*	gic_irq_register(hw_irq, icc_irq_handler); */
+
+	sprintf(buf, "%i", getpid());
+	if (write(fd, buf, strlen(buf) + 1) < 0) {
+		perror("fwrite");
+		return -1;
+	}
+
+	return 0;
+}
+
+int icc_irq_release(void)
+{
+	close(fd);
 	return 0;
 }
 
@@ -319,12 +339,6 @@ int icc_init(void)
 	}
 
 	icc_ring_init(mycoreid);
-
-	ret = icc_irq_init(ICC_SGI);
-	if (ret) {
-		printf("Core%d Irq %d register error!\n", mycoreid, ICC_SGI);
-		return ret;
-	}
 
 	return 0;
 }
