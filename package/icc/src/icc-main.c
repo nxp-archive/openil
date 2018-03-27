@@ -69,7 +69,7 @@ static int do_icc_perf(int argc, char * const argv[])
 	unsigned long core_mask, dest_core;
 	unsigned long block;
 	char *endp;
-	unsigned long counts, bytes;
+	unsigned long long counts, bytes;
 	unsigned long data;
 	struct timespec time_start={0},time_end={0};
 	unsigned long long nstime;
@@ -154,7 +154,7 @@ static int do_icc_perf(int argc, char * const argv[])
 	clock_gettime(CLOCK_REALTIME, &time_end);
 	nstime = time_end.tv_nsec-time_start.tv_nsec;
 
-	printf("ICC performance: %ld bytes to 0x%x cores in %lld us with %ld KB/s\n",
+	printf("ICC performance: %lld bytes to 0x%x cores in %lld us with %lld KB/s\n",
 		counts, dest_core, nstime/1000, (counts * 1000000)/nstime);
 
 	printf("\n");
