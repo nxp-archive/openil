@@ -1,0 +1,45 @@
+This patch fixes Makefile errors such as:
+"cp: cannot create regular file '.../output/target/usr/lib/libnetconf.so.0.10.0': File exists".
+
+diff -u -r a/Makefile.in b/Makefile.in
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -264,6 +264,6 @@
+ 	    dev-tools/lnctool/lnctool.in dev-tools/lnctool/rnglib/* dev-tools/lnctool/xslt/* dev-tools/lnctool/generator/*\
+ 	    install-sh config.sub config.guess Doxyfile.in doc/img/*.png models/*; do \
+ 	    [ -d $(NAME)-$(VERSION)/$$(dirname $$i) ] || (mkdir -p $(NAME)-$(VERSION)/$$(dirname $$i)); \
+-		cp $$i $(NAME)-$(VERSION)/$$i; \
++		cp -f $$i $(NAME)-$(VERSION)/$$i; \
+ 	done;
+ 	@rm -rf $(RPMDIR)/SOURCES/; \
+@@ -278,6 +278,6 @@
+ 	@mkdir $(TARBALLPYAPIDIR);
+ 	for i in python/netconf.h python/netconf.c python/session.c python/setup.py; do \
+-		cp $$i $(TARBALLPYAPIDIR)/$$(basename $$i); \
++		cp -f $$i $(TARBALLPYAPIDIR)/$$(basename $$i); \
+ 	done;
+ 	@[ -d "$(RPMDIR)/SOURCES/" ] || (mkdir -p $(RPMDIR)/SOURCES/);
+ 	tar -c -z -f $(RPMDIR)/SOURCES/$(TARBALLPYAPIDIR)-$(RELEASE).tar.gz $(TARBALLPYAPIDIR); \
+@@ -305,6 +305,6 @@
+ install-bin:
+ 	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
+-	$(LIBTOOL) --mode=install cp $(NAME).la $(DESTDIR)/$(libdir)
++	$(LIBTOOL) --mode=install cp -f $(NAME).la $(DESTDIR)/$(libdir)
+ 	$(LIBTOOL) --mode=finish $(DESTDIR)/$(libdir)
+ 	@if test "`id -u`" = "0"; then $(LDCONFIG); fi
+ 	[ -d "$(NC_WORKINGDIR_PATH)" ] || \
+@@ -346,5 +346,5 @@
+ 	[ -d $(DESTDIR)/$(datadir)/$(NAME)/templates ] || \
+ 		(mkdir -p $(DESTDIR)/$(datadir)/$(NAME)/templates);
+-	$(LIBTOOL) --mode=install cp $(NAME).la $(DESTDIR)/$(libdir); \
++	$(LIBTOOL) --mode=install cp -f $(NAME).la $(DESTDIR)/$(libdir); \
+ 	for i in $(HDRS_PUBL_ROOT); do \
+ 		$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)/$(includedir)/$$(basename $$i); \
+@@ -366,5 +366,5 @@
+ 		(mkdir -p $(DESTDIR)/$(datadir)/$(NAME)/doxygen; \
+ 		chmod -R 755 $(DESTDIR)/$(datadir)/$(NAME))
+-	cp -r $(DOXYGEN_DIR)/* $(DESTDIR)/$(datadir)/$(NAME)/doxygen/;
++	cp -rf $(DOXYGEN_DIR)/* $(DESTDIR)/$(datadir)/$(NAME)/doxygen/;
+ 
+ .PHONY: install-pyapi
+---
