@@ -1,6 +1,17 @@
 config BR2_PACKAGE_NETOPEER
-bool "netopeer-server"
-help
-	this is comment that support netopeer-server 
+	bool "netopeer-server"
+	select BR2_PACKAGE_PYANG
+	select BR2_PACKAGE_LIBNETCONF
+	help
+	  Netopeer is a set of NETCONF tools built on the libnetconf library.
+	  It allows operators to connect to their NETCONF-enabled devices as
+	  well as developers to allow control their devices via NETCONF. More
+	  information about NETCONF protocol can be found at NETCONF WG.
 
-	  https://github.com/CESNET
+	  With the experiences from Netopeer, we have moved our activities to
+	  work on next generation of this NETCONF toolset based on libyang
+	  library. Netopeer2 is mature enough to be used as a replacement of
+	  the original Netopeer tools. Therefore, the Netopeer is no more
+	  developed neither maintained.
+
+	  https://github.com/CESNET/netopeer
