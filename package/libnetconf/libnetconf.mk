@@ -11,8 +11,8 @@ LIBNETCONF_INSTALL_STAGING = YES
 LIBNETCONF_LICENSE = MIT
 LIBNETCONF_LICENSE_FILES = COPYING
 LIBNETCONF_CONF_OPTS += --with-rpm
-HOST_LIBNETCONF_DEPENDENCIES = host-pkgconf pyang
-LIBNETCONF_DEPENDENCIES = libxml2 openssl libgcrypt libssh libxslt ncurses readline dbus pyang python-libxml2 host-python host-h-python-libxml2 host-libxslt
+HOST_LIBNETCONF_DEPENDENCIES = host-pkgconf host-pyang
+LIBNETCONF_DEPENDENCIES = libxml2 openssl libgcrypt libssh libxslt ncurses readline dbus host-pyang python-libxml2 host-python host-h-python-libxml2 host-libxslt
 LIBNETCONF_CONF_ENV += PKG_CONFIG=$(HOST_DIR)/usr/bin/pkg-config
 LIBNETCONF_CONF_ENV += enable_validation=no
 
