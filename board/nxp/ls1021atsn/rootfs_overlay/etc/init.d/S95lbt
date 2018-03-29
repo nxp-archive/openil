@@ -1,0 +1,84 @@
+#!/bin/sh
+
+set -e -u
+
+DAEMON="/usr/lib/node_modules/lbt/server.js"
+PIDFILE="/var/run/lbt.pid"
+LOGFILE="/var/log/lbt.log"
+NICE_NAME="Latency and Bandwidth Tester"
+PORT="8000"
+
+# Sanity checks
+test -f ${DAEMON} || exit 0
+fail_msg="FAIL. See ${LOGFILE} for details."
+rc=0
+
+# Returns the PID of the process listening on ${PORT}
+# and puts it into variable ${pid}.
+get_pid_listening() {
+	printf "Checking for programs listening on port ${PORT}... "
+	# Sample output of ss:
+	#     State    Recv-Q Send-Q  Local Address:Port   Peer Address:Port
+	#     LISTEN   0      128     :::8000              :::*                users:(("node",pid=630,fd=11))
+	try=0
+	pid=""
+	while [ ${try} -lt 5 ]; do
+		# By splitting the awk tokens by commas, we try to match "pid=630" with expr
+		expr=$(ss -lptn "sport = :${PORT}" | awk -F, '/pid=/ { print $2; }')
+		if ! [ -z "${expr}" ]; then
+			break;
+		fi
+		sleep 1
+		printf "$((5 - try))... "
+		try=$((try + 1))
+	done
+	# Bad, but also effective
+	eval ${expr}
+	echo ""
+}
+
+start() {
+	get_pid_listening
+	[ -z "${pid:+x}" ] || { echo "${NICE_NAME} already started: PID ${pid}"; rc=1; return; }
+
+	printf "Starting ${NICE_NAME}: "
+	start-stop-daemon \
+		--start \
+		--pidfile ${PIDFILE} \
+		--make-pidfile \
+		--background \
+		--startas /bin/sh -- -c "exec ${DAEMON} > ${LOGFILE} 2&>1"
+	[ $? = 0 ] || { rc=$?; echo "${fail_msg}"; return; }
+
+	get_pid_listening
+	pidfile_pid=$(cat ${PIDFILE})
+	[ ${pid:=-1} -eq ${pidfile_pid:=-1} ] && { echo "PID: ${pid}"; echo "OK"; } || echo "${fail_msg}"
+}
+
+stop() {
+	get_pid_listening
+	[ -z "${pid:+x}" ] && { echo "${NICE_NAME} not running."; rc=1; return; }
+	printf "Stopping OPC Motor Status: "
+	start-stop-daemon \
+		--stop \
+		--pidfile ${PIDFILE}
+	[ $? = 0 ] || { rc=$?; echo "${fail_msg}"; return; }
+
+	get_pid_listening
+	[ -z "${pid:+x}" ] && { echo "OK"; rm -f ${PIDFILE}; }
+}
+
+case "$1" in
+	start)  start ;;
+	stop)   stop  ;;
+	restart | force-reload)
+		stop
+		start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|force-reload|status}"
+		exit 1
+		;;
+esac
+
+exit ${rc}
