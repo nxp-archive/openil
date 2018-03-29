@@ -1,0 +1,10 @@
+config BR2_PACKAGE_SJA1105_TOOL_HELPERS
+bool "sja1105-tool-helpers"
+depends on BR2_PACKAGE_SJA1105_TOOL
+select BR2_PACKAGE_BASH
+select BR2_PACKAGE_JQ
+help
+	  This package provides a set of wrapper scripts over sja1105-tool
+	  that make it easier to configure the 802.1Qbv engine.
+
+	  https://github.com/openil/sja1105-tool/tree/master/src/helpers

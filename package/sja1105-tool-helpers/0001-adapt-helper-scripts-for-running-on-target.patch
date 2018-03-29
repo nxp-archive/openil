@@ -1,0 +1,93 @@
+From affa24a010fc9dde8f94889323e2e0c8cd971a3a Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Fri, 16 Feb 2018 14:26:55 +0200
+Subject: [PATCH] adapt helper scripts for running on target
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ src/helpers/README.md        | 20 --------------------
+ src/helpers/bin/sja1105-tool | 13 -------------
+ src/helpers/setup.sh         | 24 ------------------------
+ 3 files changed, 57 deletions(-)
+ delete mode 100644 src/helpers/README.md
+ delete mode 100755 src/helpers/bin/sja1105-tool
+ delete mode 100755 src/helpers/setup.sh
+
+diff --git a/src/helpers/README.md b/src/helpers/README.md
+deleted file mode 100644
+index 5c46b8b..0000000
+--- a/src/helpers/README.md
++++ /dev/null
+@@ -1,20 +0,0 @@
+-LS1021ATSN Configuration Helpers
+-================================
+-
+-This directory provides a set of wrapper scripts over `sja1105-tool`
+-that make it easier to configure the 802.1Qbv engine.
+-For this purpose, sja1105-tool is intended to be run as a host
+-application, just for generating a configuration in XML format.
+-This can be then transferred (SSH, NETCONF etc) to the development board
+-and loaded by the `sja1105-tool` running on the target.
+-
+-Instructions
+-------------
+-
+-```bash
+-[host] $ source envsetup
+-[host] $ ./setup.sh
+-[host] $ ./configs/3-board-demo.sh --board 1
+-[host] $ scp ./configs/3-board-demo-board1.xml root@172.15.0.1:.
+-[target] $ sja1105-tool config load -f 3-board-demo-board1.xml
+-```
+diff --git a/src/helpers/bin/sja1105-tool b/src/helpers/bin/sja1105-tool
+deleted file mode 100755
+index 2639100..0000000
+--- a/src/helpers/bin/sja1105-tool
++++ /dev/null
+@@ -1,13 +0,0 @@
+-#!/bin/bash
+-
+-set -e -u -o pipefail
+-
+-# Wrapper around sja1105-tool-x86_64 and libsja1105.so,
+-# both compiled for use on host.
+-
+-[ -z "${TOPDIR+x}" ] && { echo "Please source envsetup before running this script."; exit 1; }
+-
+-LD_LIBRARY_PATH=${TOPDIR}/_build/usr/lib \
+-exec ${TOPDIR}/_build/usr/bin/sja1105-tool \
+-	--config-file "${TOPDIR}/_build/etc/sja1105/sja1105.conf" \
+-	"$@"
+diff --git a/src/helpers/setup.sh b/src/helpers/setup.sh
+deleted file mode 100755
+index 6146253..0000000
+--- a/src/helpers/setup.sh
++++ /dev/null
+@@ -1,24 +0,0 @@
+-#!/bin/bash
+-
+-set -e -u -o pipefail
+-
+-[ -z "${TOPDIR+x}" ] && { echo "Please source envsetup before running this script."; exit 1; }
+-
+-SJA1105_TOPDIR=$(realpath "${TOPDIR}/../..")
+-BUILD_DIR=$(realpath "${TOPDIR}/_build")
+-if [ -d ${BUILD_DIR} ]; then
+-	echo "sja1105-tool already built, exiting"
+-	exit
+-fi
+-make -C ${SJA1105_TOPDIR} clean
+-DESTDIR=${BUILD_DIR} make -C ${SJA1105_TOPDIR} -j $(nproc) \
+-	install-binaries \
+-	install-configs \
+-	install-manpages \
+-|| { echo "Build failed, cleaning up"; rm -rf ${BUILD_DIR}; exit 1; }
+-
+-# Fix up staging area path
+-sed -i "s%staging_area.*%staging_area = ${TOPDIR}/sja1105.bin%" \
+-	${BUILD_DIR}/etc/sja1105/sja1105.conf
+-# Remove unnecessary init script
+-rm -rf ${BUILD_DIR}/etc/init.d
+-- 
+2.7.4
+

@@ -1841,6 +1841,7 @@ menu "Netconf Supporting"
 endmenu
 menu "Time-Sensitive Networking tools"
 	source "package/sja1105-tool/Config.in"
+	source "package/sja1105-tool-helpers/Config.in"
 endmenu
 menu "OPC UA tools"
 	source "package/libopen62541/Config.in"
