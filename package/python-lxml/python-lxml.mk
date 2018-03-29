@@ -29,3 +29,4 @@ PYTHON_LXML_BUILD_OPTS = \
 	--with-xml2-config=$(STAGING_DIR)/usr/bin/xml2-config
 
 $(eval $(python-package))
+$(eval $(host-python-package))
