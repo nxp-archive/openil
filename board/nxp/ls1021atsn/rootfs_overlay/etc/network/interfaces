@@ -8,6 +8,8 @@ auto eth2
 iface eth2 inet static
 	address 172.15.0.1
 	netmask 255.255.255.0
+	up   /usr/bin/vlan-setup start 172.15.100.1/24
+	down /usr/bin/vlan-setup stop
 
 auto eth1
 iface eth1 inet dhcp

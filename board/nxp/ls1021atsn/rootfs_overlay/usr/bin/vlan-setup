@@ -2,12 +2,12 @@
 #
 # vlan        Configures 802.1Q VLAN tagging on the interface connected to the SJA1105 TSN Switch
 #
-IPADDR="172.15.100.1/24"
 
 start() {
+	ipaddr="${1}"
 	printf "Creating VLAN-tagged interface: "
 	ip link add link eth2 name eth2.100 type vlan id 100 egress 0:0 1:1 2:2 3:3 4:4 5:5 6:6 7:7
-	ip addr add "${IPADDR}" dev eth2.100
+	ip addr add "${ipaddr}" dev eth2.100
 	ip link set dev eth2.100 up
 	[[ $? ]] && echo "OK" || echo "FAIL"
 	printf "Adding iptables rules: "
@@ -34,7 +34,7 @@ status() {
 
 case "$1" in
   start)
-	start
+	start "$2"
 	;;
   stop)
 	stop
