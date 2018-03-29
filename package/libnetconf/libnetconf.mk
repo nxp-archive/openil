@@ -12,7 +12,8 @@ LIBNETCONF_LICENSE = MIT
 LIBNETCONF_LICENSE_FILES = COPYING
 LIBNETCONF_CONF_OPTS += --with-rpm
 HOST_LIBNETCONF_DEPENDENCIES = host-pkgconf host-pyang
-LIBNETCONF_DEPENDENCIES = libxml2 openssl libgcrypt libssh libxslt ncurses readline dbus host-pyang python-libxml2 host-python host-h-python-libxml2 host-libxslt libcurl
+LIBNETCONF_DEPENDENCIES  = openssl libgcrypt libssh libxslt ncurses readline
+LIBNETCONF_DEPENDENCIES += dbus host-pyang host-h-python-libxml2 libcurl
 LIBNETCONF_CONF_ENV += PKG_CONFIG=$(HOST_DIR)/usr/bin/pkg-config
 LIBNETCONF_CONF_ENV += enable_validation=no
 
