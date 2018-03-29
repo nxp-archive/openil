@@ -1,4 +1,39 @@
 config BR2_PACKAGE_PYANG
-bool "pyang"
-help
-	this is comment that support pyang
+	select BR2_PACKAGE_PYTHON_LXML
+	bool "pyang"
+	help
+	  YANG (RFC 7950) is a data modeling language for NETCONF (RFC 6241),
+	  developed by the IETF NETMOD WG.
+
+	  pyang is a YANG validator, transformator and code generator,
+	  written in python. It can be used to validate YANG modules for
+	  correctness, to transform YANG modules into other formats, and to
+	  generate code from the modules.
+	  Compatibility
+
+	  pyang is compatible with the following IETF RFCs:
+
+	      RFC 6020
+	      RFC 6087
+	      RFC 6110
+	      RFC 6643
+	      RFC 7950
+	      RFC 7952
+
+	  Features
+
+	    - Validate YANG modules.
+	    - Convert YANG modules to YIN, and YIN to YANG.
+	    - Translate YANG data models to DSDL schemas, which can be used for
+	      validating various XML instance documents. See InstanceValidation.
+	    - Translate YANG data models to XSD.
+	    - Generate UML diagrams from YANG models. See UMLOutput
+	      for an example.
+	    - Generate compact tree representation of YANG models for quick
+	      visualization. See TreeOutput for an example.
+	    - Generate a skeleton XML instance document from the data model.
+	    - Schema-aware translation of instance documents encoded in XML
+	      to JSON and vice-versa. See XmlJson.
+	    - Plugin framework for simple development of other outputs, such
+	      as code generation.
+
