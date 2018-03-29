@@ -91,3 +91,6 @@ BR2_PACKAGE_OPENSSL=y
 
 # wget package
 BR2_PACKAGE_WGET=y
+
+# Text editors
+BR2_PACKAGE_NANO=y

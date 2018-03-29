@@ -118,3 +118,6 @@ BR2_PACKAGE_DHCPCD=y
 
 # resize2fs package
 BR2_PACKAGE_E2FSPROGS_RESIZE2FS=y
+
+# Text editors
+BR2_PACKAGE_NANO=y

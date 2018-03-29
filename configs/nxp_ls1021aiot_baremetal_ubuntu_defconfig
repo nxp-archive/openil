@@ -96,3 +96,6 @@ BR2_PACKAGE_PTP4L=y
 
 # dhcpd package
 BR2_PACKAGE_DHCPCD=y
+
+# Text editors
+BR2_PACKAGE_NANO=y

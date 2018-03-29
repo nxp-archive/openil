@@ -91,3 +91,6 @@ BR2_PACKAGE_DHCPCD=y
 
 # optee packages
 BR2_PACKAGE_OPTEE_TEST=y
+
+# Text editors
+BR2_PACKAGE_NANO=y
