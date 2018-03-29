@@ -21,7 +21,6 @@ define LIBNETCONF_INSTALL_STAGING_CMDS
 	sed -i '1c\#!$(HOST_DIR)/usr/bin/python'  $(HOST_DIR)/usr/bin/lnctool
 	$(INSTALL) -D -m 0755 $(@D)/.libs/libnetconf.so* $(STAGING_DIR)/usr/lib/
 	$(INSTALL) -D -m 0755 $(@D)/headers/*.h $(STAGING_DIR)/usr/include
-	mkdir -p $(STAGING_DIR)/usr/include/libnetconf
 	$(INSTALL) -D -m 0755 $(@D)/src/*.h $(STAGING_DIR)/usr/include/libnetconf/
 	$(INSTALL) -D -m 0755 $(@D)/src/datastore/custom/datastore_custom.h $(STAGING_DIR)/usr/include/libnetconf/
 	$(INSTALL) -D -m 0755 $(@D)/libnetconf.pc $(STAGING_DIR)/usr/lib/pkgconfig/
