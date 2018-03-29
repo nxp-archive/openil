@@ -1,7 +1,38 @@
 config BR2_PACKAGE_LIBNETCONF
-bool "libnetconf"
-	select BR2_PACKAGE_HOST_PYTHON_LIBXML2
-help
-	this is comment that support libnetconf
+	bool "libnetconf"
+	select BR2_PACKAGE_OPENSSL
+	select BR2_PACKAGE_LIBGCRYPT
+	select BR2_PACKAGE_LIBSSH
+	select BR2_PACKAGE_LIBXSLT
+	select BR2_PACKAGE_NCURSES
+	select BR2_PACKAGE_READLINE
+	select BR2_PACKAGE_DBUS
+	select BR2_PACKAGE_HOST-PYANG
+	select BR2_PACKAGE_PYTHON-LIBXML2
+	select BR2_PACKAGE_H-PYTHON-LIBXML2
+	select BR2_PACKAGE_LIBCURL
 
-	  https://github.com/CESNET
+	help
+	  libnetconf is a NETCONF library in C intended for building NETCONF
+	  clients and servers. It provides basic functions to connect NETCONF
+	  client and server to each other via SSH, to send and receive NETCONF
+	  messages and to store and work with the configuration data in a
+	  datastore.
+
+	  With the experiences from libnetconf, we have moved our activities
+	  to work on next generation of this library based on libyang library.
+	  libnetconf2 is mature enough to be used as a replacement of the
+	  original libnetconf. Therefore, the libnetconf is no more developed
+	  neither maintained. Note, that while libnetconf2 does not include
+	  NETCONF datastore implementation, this particular functionality can
+	  be implemented via sysrepo project. Similarly, the NETCONF
+	  server/client implementation Netopeer is deprecated and replaced by
+	  Netopeer2 which can be also used as a reference tool using
+	  libnetconf2 functions.
+
+	  libnetconf was developed by the Tools for Monitoring and
+	  Configuration department of CESNET. It implements the NETCONF
+	  protocol introduced by IETF - more information about NETCONF
+	  protocol can be found at NETCONF WG.
+
+	  https://github.com/CESNET/libnetconf
