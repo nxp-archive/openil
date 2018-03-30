@@ -1858,4 +1858,7 @@ endmenu
 menu "ppa firmware"
 	source "package/ppa/Config.in"
 endmenu
+menu "Baremetal"
+	source "package/bm-uboot/Config.in"
+endmenu
 endmenu
