@@ -1,5 +1,5 @@
 baudrate=115200
-bootcmd=setenv bootargs root=/dev/mmcblk0p2 rootwait rw console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 $fdtaddr $fdtfile;bootm $loadaddr - $fdtaddr
+bootcmd=setenv bootargs root=/dev/mmcblk0p2 rootwait rw console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 ${fdtaddr} ${fdtfile};bootm ${loadaddr} - ${fdtaddr}
 bootdelay=3
 bootfile=uImage
 eth1addr=00:1F:7B:63:35:E9

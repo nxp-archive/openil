@@ -1,5 +1,7 @@
 config BR2_PACKAGE_PPA
 	bool "ppa"
+	select BR2_PACKAGE_HOST_UBOOT_TOOLS
+	select BR2_PACKAGE_HOST_UBOOT_TOOLS_FIT_SUPPORT
 	help
 	Primary Protected Application (PPA), a resident EL3 firmware.
 
@@ -16,9 +18,21 @@ config BR2_PACKAGE_PPA
 	Devices Supported:
 		LS1012A
 		LS1028A
-		LS1043A, incl v1.1
+		LS1043A
 		LS1046A
 		LS1088A
-		LS2080A/2085A
+		LS2080A
 		LS2088A
-		UA
+		LA1575
+		LA17XX
+		LX2169
+
+if BR2_PACKAGE_PPA
+config BR2_PACKAGE_PPA_PLATFORM
+	string
+	default "ls1012" if BR2_TARGET_UBOOT_BOARDNAME="ls1012ardb_qspi"
+	default "ls1043" if BR2_TARGET_UBOOT_BOARDNAME="ls1043ardb_sdcard"
+	default "ls1046" if BR2_TARGET_UBOOT_BOARDNAME="ls1046ardb_sdcard"
+	default "ls1046" if BR2_TARGET_UBOOT_BOARDNAME="ls1046ardb_qspi"
+	default "ls1046" if BR2_TARGET_UBOOT_BOARDNAME="ls1046ardb_qspi_SECURE_BOOT"
+endif

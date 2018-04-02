@@ -29,26 +29,26 @@ image sdcard.img {
   partition u-boot-environment {
     in-partition-table = "no"
     image = "uboot-env.bin"
-    offset = 1M
-  }
-
-  partition fman-ucode {
-    in-partition-table = "no"
-    image = "fsl_fman_ucode_ls1043_r1.0_108_4_5.bin"
-    offset = 1040K
+    offset = 3M
   }
 
   partition ppa {
     in-partition-table = "no"
     image = "ppa.itb"
-    offset = 5M
+    offset = 4M
+  }
+
+  partition fman-ucode {
+    in-partition-table = "no"
+    image = "fmucode.bin"
+    offset = 9M
   }
 
   partition boot {
     partition-type = 0xC
     bootable = "true"
     image = "boot.vfat"
-    offset = 8M
+    offset = 16M
   }
 
   partition rootfs {

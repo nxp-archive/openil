@@ -9,13 +9,10 @@ fdtcontroladdr=bfc78348
 hwconfig=fsl_ddr:bank_intlv=auto
 initrd_high=0xffffffffffffffff
 ipaddr=192.168.1.3
-kernel_addr=0x100000
 kernel_load=0xa0000000
 kernel_size=0x2800000
-kernel_start=0xa00000
+kernel_start=0x1000000
 loadaddr=0x80100000
-ramdisk_addr=0x800000
-ramdisk_size=0x2000000
 scsidevs=0
 serverip=192.168.1.1
 stderr=serial

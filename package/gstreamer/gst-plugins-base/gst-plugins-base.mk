@@ -14,9 +14,9 @@ GST_PLUGINS_BASE_LICENSE_FILES = COPYING COPYING.LIB
 # freetype is only used by examples, but if it is not found
 # and the host has a freetype-config script, then the host
 # include dirs are added to the search path causing trouble
-GST_PLUGINS_BASE_CONF_ENV =
-		FT2_CONFIG=/bin/false \
-		ac_cv_header_stdint_t="stdint.h"
+GST_PLUGINS_BASE_CONF_ENV = \
+	FT2_CONFIG=/bin/false \
+	ac_cv_header_stdint_t="stdint.h"
 
 GST_PLUGINS_BASE_CONF_OPTS = \
 	--disable-examples \
@@ -111,6 +111,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_BASE_PLUGIN_SUBPARSE),y)
 GST_PLUGINS_BASE_CONF_OPTS += --enable-subparse
+GST_PLUGINS_BASE_DEPENDENCIES += libxml2
 else
 GST_PLUGINS_BASE_CONF_OPTS += --disable-subparse
 endif

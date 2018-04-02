@@ -6,13 +6,13 @@
 
 XENOMAI_VERSION = $(call qstrip,$(BR2_PACKAGE_XENOMAI_VERSION))
 ifeq ($(XENOMAI_VERSION),)
-XENOMAI_VERSION = next 
+XENOMAI_VERSION = next
 else
 BR_NO_CHECK_HASH_FOR += $(XENOMAI_SOURCE)
 endif
 
-XENOMAI_SITE = git://git.xenomai.org/xenomai-3.git 
-XENOMAI_LICENSE = headers: GPLv2+ with exception, libraries: LGPLv2.1+, kernel: GPLv2+, docs: GFDLv1.2+, ipipe patch and can driver: GPLv2
+XENOMAI_SITE = git://git.xenomai.org/xenomai-3.git
+XENOMAI_LICENSE = GPLv2+ with exception (headers), LGPLv2.1+ (libraries), GPLv2+ (kernel), GFDLv1.2+ (docs), GPLv2 (ipipe patch, can driver)
 # GFDL is not included but refers to gnu.org
 XENOMAI_LICENSE_FILES = debian/copyright include/COPYING src/skins/native/COPYING ksrc/nucleus/COPYING
 XENOMAI_INSTALL_STAGING = YES
@@ -31,7 +31,6 @@ define XENOMAI_CREATE_MISSING_FILES
 	cd $(@D)/ && ./scripts/bootstrap
 endef
 XENOMAI_POST_EXTRACT_HOOKS += XENOMAI_CREATE_MISSING_FILES
-
 
 XENOMAI_POST_INSTALL_TARGET_HOOKS += XENOMAI_REMOVE_DEVFILES
 
