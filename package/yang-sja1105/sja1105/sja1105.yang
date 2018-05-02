@@ -80,11 +80,11 @@ module sja1105 {
 					leaf destports { type string; }
 				}
 			}
-			container vl-forwarding-params-table {
+			container vl-forwarding-parameters-table {
 				leaf name {
 					type string;
 					config false;
-					default "vl-forwarding-params-table";
+					default "vl-forwarding-parameters-table";
 				}
 				list entry {
 					key index;
@@ -93,11 +93,11 @@ module sja1105 {
 					leaf debugen { type string; }
 				}
 			}
-			container avb-params-table {
+			container avb-parameters-table {
 				leaf name {
 					type string;
 					config false;
-					default "avb-params-table";
+					default "avb-parameters-table";
 				}
 				list entry {
 					key index;
