@@ -7,15 +7,6 @@ module sja1105 {
 	}
 
 	container sja1105 {
-		container ptp {
-			leaf pin_duration { type string; }
-			leaf pin_start { type string; }
-			leaf schedule_time { type string; }
-			leaf schedule_correction_period { type string; }
-			leaf ts_based_on_ptpclk { type string; }
-			leaf schedule_autostart { type string; }
-			leaf pin_toggle_autostart { type string; }
-		}
 		container static {
 			container version {
 				leaf deviceId {
