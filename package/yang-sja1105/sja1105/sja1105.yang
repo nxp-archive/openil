@@ -3,7 +3,7 @@ module sja1105 {
 	prefix "nxp";
 
 	revision 2017-07-19 {
-		description "OpenIL-v0.3-rc1";
+		description "OpenIL-v1.1.1";
 	}
 
 	container sja1105 {
@@ -17,7 +17,7 @@ module sja1105 {
 				leaf revision {
 					type string;
 					config false;
-					default "0.3-rc1";
+					default "1.1.1";
 				}
 			}
 			container vl-lookup-table {
