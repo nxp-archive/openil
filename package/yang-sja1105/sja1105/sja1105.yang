@@ -7,19 +7,10 @@ module sja1105 {
 	}
 
 	container sja1105 {
+		leaf device-id {
+			type string;
+		}
 		container static {
-			container version {
-				leaf deviceId {
-					type string;
-					config false;
-					default "sja1105";
-				}
-				leaf revision {
-					type string;
-					config false;
-					default "1.1.1";
-				}
-			}
 			container vl-lookup-table {
 				leaf name {
 					type string;

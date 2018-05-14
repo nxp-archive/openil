@@ -15,42 +15,41 @@
 #include <libnetconf_xml.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <sja1105/errors.h>
 
 #define SJA1105_NETCONF_NS "http://nxp.com/ns/yang/tsn/sja1105"
 #define TOTAL_PORTS 5
 
-typedef enum {
-	REG_UINT64 = 0,
-	REG_ARRAY = 1
-} reg_type;
-
-struct reg_desp {
-	char name[128];
-	int exist;
-	reg_type type;
-	char value[256];
-};
-
 /* transAPI version which must be compatible with libnetconf */
 int transapi_version = 6;
 
-char *config_xml_list[] = {};
-
-const char *conf_folder = "/etc/sja1105";
-const char *datastore_filename = "/usr/local/etc/netopeer/sja1105/datastore.xml";
-const char *tempxml = "/var/lib/libnetconf/config.xml";
-const char *syncxml = "/var/lib/libnetconf/sync.xml";
+/* The user needs to make sure that the STAGING_AREA definition in here
+ * is in sync with the "staging_area" from sja1105-tool.conf.
+ */
+#define CONF_FOLDER        "/etc/sja1105"
+#define DATASTORE_FILENAME "/usr/local/etc/netopeer/sja1105/datastore.xml"
+#define TEMPXML            "/var/lib/libnetconf/config.xml"
+#define STAGING_AREA       "/lib/firmware/sja1105.bin"
+#define SJA1105_TOOL_CONF  "/usr/local/etc/netopeer/sja1105/sja1105-tool.conf"
 
 /* Signal to libnetconf that configuration data were modified by any callback.
  * 0 - data not modified
- * 1 - data have been modified
+ * 1 - data has been modified
  */
 int config_modified = 0;
+int staging_area_modified = 0;
+int last_datastore_works = 0;
 
-pthread_mutex_t file_mutex;
-
-const char netconf_file_dir[] = "/etc/sja1105/";
-
+/* Avoid performing concurrent modifications on the datastore in
+ * modify_datastore_externally_from_sja1105_xml().
+ * TODO: Not enough?! The mutex should also protect
+ * from libnetconf access to it.
+ */
+pthread_mutex_t datastore_mutex;
+/* Make the staging_area_callback() wait until
+ * sja1105_tool_subprocess() completes.
+ */
+pthread_mutex_t staging_area_mutex;
 
 /*
  * Determines the callbacks order.
@@ -75,28 +74,88 @@ const TRANSAPI_CLBCKS_ORDER_TYPE callbacks_order = TRANSAPI_CLBCKS_ORDER_DEFAULT
  */
 NC_EDIT_ERROPT_TYPE erropt = NC_EDIT_ERROPT_NOTSET;
 
-char *sja1105_run_cmd(char *command_run)
+int subprocess(const char *cmdline,
+               void (*output_line_callback)(char *line, void *priv),
+               void *priv)
 {
-	FILE * fp;
-	char buffer[1024];
-	char *rc;
+	char  line[BUFSIZ];
+	FILE *fp;
+	int   rc;
 
-	fp = popen(command_run, "r");
-	rc = fgets(buffer, sizeof(buffer), fp);
-	pclose(fp);
+	fp = popen(cmdline, "r");
 
-	nc_verb_verbose("running command %s done!\n", command_run);
+	if (output_line_callback) {
+		while (fgets(line, BUFSIZ, fp) != NULL) {
+			/* Massage the line a little bit before handing
+			 * it out to the callback */
+			rc = strlen(line) - 1;
+			if (line[rc] == '\n') {
+				line[rc] = '\0';
+			}
+			output_line_callback(line, priv);
+		}
+	}
+	rc = WEXITSTATUS(pclose(fp));
+	nc_verb_verbose("%s: \"%s\" returned code %d", __func__, cmdline, rc);
 	return rc;
 }
 
-int write_to_datastore(char *file_name);
-int file_validate(char *file);
+void sja1105_tool_output_callback(char *line, __attribute__((unused)) void *priv)
+{
+	printf("[sja1105-tool]: \"%s\"\n", line);
+}
+
+int sja1105_tool_subprocess(const char *object, const char *verb, const char *args)
+{
+	char cmdline[BUFSIZ];
+	int  command_is_susceptible_of_modifying_staging_area;
+	int  rc;
+
+	command_is_susceptible_of_modifying_staging_area =
+		(strcmp(object, "config") == 0) &&
+		((strncmp(verb, "load", strlen("load")) == 0) ||
+		 (strncmp(verb, "new", strlen("new")) == 0) ||
+		 (strncmp(verb, "modify", strlen("modify")) == 0) ||
+		 (strncmp(verb, "default", strlen("default")) == 0));
+
+	if (command_is_susceptible_of_modifying_staging_area) {
+		/* Take the mutex before the subprocess call.
+		 * Otherwise don't - the staging_area_callback also
+		 * invokes sja1105_tool_subprocess, but with "save"
+		 * - this doesn't modify the staging area but just
+		 * exports it to XML.
+		 * Without this condition, the code will result in a
+		 * deadlock, because staging_area_callback already has
+		 * the lock held.
+		 */
+		nc_verb_verbose("%s: staging_area_mutex try lock", __func__);
+		pthread_mutex_lock(&staging_area_mutex);
+		nc_verb_verbose("%s: staging_area_mutex took lock", __func__);
+	}
+
+	snprintf(cmdline, BUFSIZ,
+	         "sja1105-tool -c " SJA1105_TOOL_CONF " %s %s %s",
+	         object, verb, args);
+	rc = subprocess(cmdline, sja1105_tool_output_callback, NULL);
+
+	/* Let staging_area_callback know it's us - it'll call. */
+	if (command_is_susceptible_of_modifying_staging_area) {
+		staging_area_modified = (rc == SJA1105_ERR_OK ||
+		                         rc == SJA1105_ERR_HW_NOT_RESPONDING_STAGING_AREA_DIRTY ||
+		                         rc == SJA1105_ERR_UPLOAD_FAILED_HW_LEFT_FLOATING_STAGING_AREA_DIRTY);
+		nc_verb_verbose("%s: staging_area_modified %d",
+		                __func__, staging_area_modified);
+		pthread_mutex_unlock(&staging_area_mutex);
+		nc_verb_verbose("%s: staging_area_mutex unlock", __func__);
+	}
+	return rc;
+}
 
 void sja1105_log(NC_VERB_LEVEL level, const char* msg)
 {
 	switch (level) {
 	case NC_VERB_ERROR:
-		printf("[sja1105 error]: %s\n", msg);
+		printf("[sja1105   error]: %s\n", msg);
 		break;
 	case NC_VERB_WARNING:
 		printf("[sja1105 warning]: %s\n", msg);
@@ -105,9 +164,144 @@ void sja1105_log(NC_VERB_LEVEL level, const char* msg)
 		printf("[sja1105 verbose]: %s\n", msg);
 		break;
 	case NC_VERB_DEBUG:
-		printf("[sja1105 debug]: %s\n", msg);
+		printf("[sja1105   debug]: %s\n", msg);
 		break;
 	}
+}
+
+static int sja1105_tool_apply_from_datastore(xmlNodePtr datastore_node)
+{
+	xmlDocPtr xml_doc;
+	char cmdline[BUFSIZ];
+	int rc;
+
+	/* Create an xml doc from the datastore node
+	 * and save it to TEMPXML
+	 */
+	xml_doc = xmlNewDoc(BAD_CAST "1.0");
+	xmlDocSetRootElement(xml_doc, xmlCopyNodeList(datastore_node));
+	xmlSaveFormatFileEnc(TEMPXML, xml_doc, "UTF-8", 1);
+	xmlFreeDoc(xml_doc);
+	/* XXX: Fixup some elements from the datastore nodes
+	 * that sja1105-tool just doesn't understand.
+	 */
+	snprintf(cmdline, BUFSIZ,
+	         "sed -i -e '/wd:default/d' -e '/version/d' %s",
+	         TEMPXML);
+	rc = subprocess(cmdline, NULL, NULL);
+	if (rc != EXIT_SUCCESS) {
+		nc_verb_error("sed subprocess failed");
+		rc = EXIT_FAILURE;
+		goto out;
+	}
+	/* Load the newly created and fixed-up TEMPXML into the
+	 * sja1105-tool staging area, and into the hardware (-f)
+	 */
+	rc = sja1105_tool_subprocess("config", "load -f", TEMPXML);
+	if (rc != SJA1105_ERR_OK) {
+		nc_verb_error("sja1105_tool_subprocess failed");
+		rc = EXIT_FAILURE;
+		goto out;
+	}
+out:
+	return rc;
+}
+
+static int populate_datastore_from_sja1105_xml(xmlNodePtr datastore_node,
+                                               const char *sja1105_xml)
+{
+	int rc = EXIT_SUCCESS;
+
+	/* Get a pointer to the sja1105-tool xml in root_sja1105_tool */
+	xmlDocPtr  doc_sja1105_tool  = xmlReadFile(sja1105_xml, NULL, 0);
+	xmlNodePtr root_sja1105_tool = xmlDocGetRootElement(doc_sja1105_tool);
+	xmlNodePtr cur;
+
+	if (strcasecmp((const char*) root_sja1105_tool->name, "sja1105")) {
+		nc_verb_error("Root node must be named \"sja1105\"!");
+		rc = EXIT_FAILURE;
+		goto out;
+	}
+
+	/* Remove existing candidate/running subtree from
+	 * the datastore, if it exists (since we are replacing
+	 * it with a new subtree).
+	 */
+	for (cur = datastore_node->children; cur != NULL; cur = cur->next) {
+		xmlUnlinkNode(cur);
+		xmlFreeNodeList(cur);
+	}
+
+	/* add new sja1105 node to datastore_node */
+	xmlNodePtr new_config = xmlCopyNodeList(root_sja1105_tool);
+	xmlNodePtr result = xmlAddChild(datastore_node, new_config);
+	if (result == NULL) {
+		nc_verb_error("error adding the sja1105 node");
+		rc = EXIT_FAILURE;
+		goto out;
+	}
+out:
+	xmlFreeDoc(doc_sja1105_tool);
+	return rc;
+}
+
+xmlNodePtr probe_datastore_node(xmlNodePtr datastore_node, const char *node_name)
+{
+	xmlNodePtr node = NULL;
+
+	if (datastore_node->type != XML_ELEMENT_NODE) {
+		nc_verb_error("Root node must be of element type!");
+		goto out;
+	}
+	if (strcasecmp((char*) datastore_node->name, "datastores")) {
+		nc_verb_error("Root node must be named \"datastores\"!");
+		goto out;
+	}
+	for (node = datastore_node->children; node != NULL; node = node->next) {
+		if (!strcmp((char*)node->name, node_name)) {
+			nc_verb_verbose("found the %s node!", node_name);
+			return node;
+		}
+	}
+out:
+	return NULL;
+}
+
+/*
+ * libnetconf/transapi.h says about struct transapi_file_callbacks:
+ *
+ *       xmlDocPtr *edit_config[out] - (...) The data are supposed
+ *       to be enclosed in \<config/\> root element.
+ *
+ * That's what we do here.
+ */
+static int config_doc_from_staging_area(xmlDocPtr *doc_datastore)
+{
+	int rc = EXIT_SUCCESS;
+	xmlNodePtr root;
+	xmlNsPtr ns;
+
+	/* Create the datastore skeleton */
+	*doc_datastore = xmlNewDoc(BAD_CAST "1.0");
+	root = xmlNewNode(NULL, BAD_CAST "config");
+	xmlDocSetRootElement(*doc_datastore, root);
+	ns = xmlNewNs(root, BAD_CAST "urn:cesnet:tmc:datastores:file", NULL);
+	xmlSetNs(root, ns);
+
+	/* Turn the staging area into a temporary XML */
+	rc = sja1105_tool_subprocess("config", "save", TEMPXML);
+	if (rc != SJA1105_ERR_OK) {
+		nc_verb_error("subprocess failed");
+		goto out;
+	}
+	/* Copy the temporary xml to the datastore running config */
+	rc = populate_datastore_from_sja1105_xml(root, TEMPXML);
+	if (rc != EXIT_SUCCESS) {
+		nc_verb_error("populate_datastore_from_sja1105_xml failed");
+		goto out;
+	}
+out:
+	return rc;
 }
 
 /**
@@ -133,8 +327,32 @@ int transapi_init(__attribute__((unused)) xmlDocPtr *running)
 {
 	/* set message printing callback */
 	nc_callback_print(sja1105_log);
-	/* test it out */
-	nc_verb_verbose("transapi_init");
+	/* Init libxml */
+	xmlInitParser();
+	/* Init pthread mutex on datastore */
+	pthread_mutex_init(&datastore_mutex, NULL);
+	pthread_mutex_init(&staging_area_mutex, NULL);
+
+	/* TODO: Attempt to load the staging area (if one exists)
+	 * into the initial running config (*running_node).
+	 * Do not fail if we can't (it may simply not exist).
+	 *
+	 * Code currently commented out because the netopeer server
+	 * doesn't seem to want to read the XML document in *running
+	 * properly (perhaps the format is wrong?).
+	 */
+#if 0
+	int rc;
+
+	/* Turn the staging area into a temporary XML */
+	rc = sja1105_tool_subprocess("config", "save", TEMPXML);
+	if (rc != SJA1105_ERR_OK) {
+		nc_verb_error("subprocess failed");
+		goto out;
+	}
+	*running = xmlReadFile(TEMPXML, NULL, 0);
+out:
+#endif
 	return EXIT_SUCCESS;
 }
 
@@ -144,28 +362,87 @@ int transapi_init(__attribute__((unused)) xmlDocPtr *running)
  */
 void transapi_close(void)
 {
-	pthread_mutex_destroy(&file_mutex);
+	xmlCleanupParser();
+	pthread_mutex_destroy(&datastore_mutex);
+	pthread_mutex_destroy(&staging_area_mutex);
 	return;
 }
 
-int xml_save_to_file(xmlNodePtr root, const char *filename)
+enum port_counter_type {
+	SJA1105_PORT_MAC_DIAGNOSTICS_COUNTER = 0,
+	SJA1105_PORT_MAC_DIAGNOSTICS_FLAG,
+	SJA1105_PORT_HIGH_LEVEL_COUNTER,
+	SJA1105_PORT_INVALID_COUNTER,
+};
+
+struct sja1105_tool_status_ports_output_priv {
+	enum port_counter_type last_seen_type;
+	xmlNodePtr port_node;
+	xmlNodePtr port_counters_node;
+};
+
+void sja1105_tool_status_ports_output_callback(char *line, void *priv_ptr)
 {
-	char command[256];
-	xmlDocPtr xml_doc = xmlNewDoc(BAD_CAST "1.0");
+	struct sja1105_tool_status_ports_output_priv *priv =
+	                (struct sja1105_tool_status_ports_output_priv*) priv_ptr;
+	const char *port_counter_name;
+	const char *port_counter_value;
+	const char *port_index;
+	char *saveptr;
 
-	xmlDocSetRootElement(xml_doc, root);
-	xmlSaveFormatFileEnc(filename, xml_doc, "UTF-8", 1);
-	xmlFreeDoc(xml_doc);
-	xmlCleanupParser();
-
-	memset(command, 0, sizeof(command));
-	sprintf(command, "sed -i '/wd:default/d' %s", filename);
-	sja1105_run_cmd(command);
-
-	memset(command, 0, sizeof(command));
-	sprintf(command, "sed -i '/version/d' %s", filename);
-	sja1105_run_cmd(command);
-	return 0;
+	if (strstr(line, "Port ") != NULL) {
+		port_index = strtok_r(line, " ", &saveptr);
+		/* Discard first word, which we know is "Port" */
+		port_index = strtok_r(NULL, " ", &saveptr);
+		xmlNewChild(priv->port_node,
+		            /* namespace */ NULL,
+		            BAD_CAST "index",
+		            BAD_CAST port_index);
+	} else if (strstr(line, "MAC-Level Diagnostic Counters") != NULL) {
+		priv->last_seen_type = SJA1105_PORT_MAC_DIAGNOSTICS_COUNTER;
+		priv->port_counters_node =
+		      xmlNewChild(priv->port_node,
+		                  /* namespace */ NULL,
+		                  BAD_CAST "mac-level-diagnostic-counters",
+		                  /* content */ NULL);
+	} else if (strstr(line, "MAC-Level Diagnostic Flags") != NULL) {
+		priv->last_seen_type = SJA1105_PORT_MAC_DIAGNOSTICS_FLAG;
+		priv->port_counters_node =
+		      xmlNewChild(priv->port_node,
+		                  /* namespace */ NULL,
+		                  BAD_CAST "mac-level-diagnostic-flags",
+		                  /* content */ NULL);
+	} else if (strstr(line, "High-Level Diagnostic Counters") != NULL) {
+		priv->last_seen_type = SJA1105_PORT_HIGH_LEVEL_COUNTER;
+		priv->port_counters_node =
+		      xmlNewChild(priv->port_node,
+		                  /* namespace */ NULL,
+		                  BAD_CAST "high-level-diagnostic-counters",
+		                  /* content */ NULL);
+	} else {
+		if (priv->last_seen_type == SJA1105_PORT_INVALID_COUNTER) {
+			/* Most probably junk */
+			return;
+		}
+		port_counter_name = strtok_r(line, " ", &saveptr);
+		if (port_counter_name == NULL) {
+			/* Most probably an empty line */
+			return;
+		};
+		port_counter_value = strtok_r(NULL, " ", &saveptr);
+		if (port_counter_value == NULL) {
+			nc_verb_error("%s: discarding line with single word: \"%s\"",
+			              __func__, port_counter_name);
+			return;
+		}
+		/* Finally, a regular line such as
+		 * "N_TXFRM         0"
+		 */
+		xmlNewChild(priv->port_counters_node,
+		            /* namespace */ NULL,
+		            BAD_CAST port_counter_name,
+		            BAD_CAST port_counter_value);
+	}
 }
 
 /**
@@ -181,77 +458,51 @@ int xml_save_to_file(xmlNodePtr root, const char *filename)
  */
 xmlDocPtr get_state_data(__attribute__((unused)) xmlDocPtr model,
                          __attribute__((unused)) xmlDocPtr running,
-                         __attribute__((unused)) struct nc_err **err)
+                         struct nc_err **error)
 {
-	nc_verb_verbose("get_state_data\n");
-	FILE *fp;
-	char cmd_xml_list[256];
-	char command_line[256];
+	struct sja1105_tool_status_ports_output_priv priv;
+	char cmdline[BUFSIZ];
 	xmlDocPtr doc = NULL;
 	xmlNodePtr root;
 	xmlNsPtr ns;
+	int rc;
 	int i;
 
 	doc = xmlNewDoc(BAD_CAST "1.0");
-	xmlDocSetRootElement(doc, root = xmlNewDocNode(doc, NULL, BAD_CAST
-	                                               "sja1105", NULL));
+	root = xmlNewDocNode(doc, NULL, BAD_CAST "sja1105", NULL);
+	xmlDocSetRootElement(doc, root);
 	ns = xmlNewNs(root, BAD_CAST SJA1105_NETCONF_NS, NULL);
 	xmlSetNs(root, ns);
 
-	xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "config-files");
-	xmlAddChild(root, node);
+	xmlNodePtr node_port_status = xmlNewChild(root,
+	                                          /* namespace */ NULL,
+	                                          BAD_CAST "port-status",
+	                                          /* content */ NULL);
 
-	sprintf(command_line, "ls -l %s/* | grep .xml | awk '{print $9}'",
-	        netconf_file_dir);
-	if ((fp = popen(command_line, "r")) == NULL) {
-		nc_verb_error("command fail: ls -l %s/*", netconf_file_dir);
-		return(NULL);
-	}
+	for (i = 0; i < TOTAL_PORTS; i++) {
+		/* Prepare the private structure for the line callback function
+		 * that will scrape the output of "sja1105 status port $i".
+		 * That function will also populate the xml document subtree
+		 * under priv.port_node.
+		 */
+		priv.last_seen_type = SJA1105_PORT_INVALID_COUNTER;
+		priv.port_counters_node = NULL;
+		priv.port_node = xmlNewChild(node_port_status,
+		                             /* namespace */ NULL,
+		                             BAD_CAST "port",
+		                             /* content */ NULL);
 
-	while (fgets(cmd_xml_list, 256, fp) != NULL) {
-		nc_verb_verbose("found: %s\n", cmd_xml_list);
-		char file_name[128];
-		char temp[128];
-		int len;
-
-		memset(temp, 0, sizeof(temp));
-		memset(file_name, 0, sizeof(file_name));
-		strcpy(temp, cmd_xml_list + strlen(netconf_file_dir) + 1);
-		len = strlen(temp) - 1;
-		strncpy(file_name, temp, len);
-		xmlNewChild(node, root->ns, BAD_CAST "configFile", BAD_CAST file_name);
-	}
-
-	pclose(fp);
-
-	xmlNodePtr node_ports = xmlNewNode(NULL, BAD_CAST "ports");
-	xmlAddChild(root, node_ports);
-
-	for (i = 0; i < TOTAL_PORTS; i++)
-	{
-		char lbuf[256];
-		char full_status[4096];
-		int len = 0;
-
-		memset(full_status, 0, sizeof(full_status));
-		memset(command_line, 0, sizeof(command_line));
-		sprintf(command_line, "sja1105-tool status ports %d", i);
-
-		if ((fp = popen(command_line, "r")) == NULL) {
-			nc_verb_error("command \"sja1105-tool status ports %d\""
-			              "failed", i);
-			return(NULL);
+		snprintf(cmdline, BUFSIZ, "sja1105-tool status port %d", i);
+		rc = subprocess(cmdline, sja1105_tool_status_ports_output_callback, &priv);
+		if (rc != EXIT_SUCCESS) {
+			nc_verb_error("subprocess returned code %d", rc);
+			*error = nc_err_new(NC_ERR_OP_FAILED);
+			nc_err_set(*error, NC_ERR_PARAM_MSG,
+			           "Failed to get output from sja1105-tool.");
+			goto out;
 		}
-		while (fgets(lbuf, 256, fp) != NULL) {
-			int llen;
-
-			llen = strlen(lbuf);
-			strncpy(full_status + len, lbuf, llen);
-			len += llen;
-			full_status[len++] = '\t';
-		}
-		xmlNewChild(node_ports, root->ns, BAD_CAST "port", BAD_CAST full_status);
 	}
+out:
 	return(doc);
 }
 
@@ -285,37 +536,76 @@ struct ns_pair namespace_mapping[] = {{"nxp", SJA1105_NETCONF_NS}, {NULL, NULL}}
 /* !DO NOT ALTER FUNCTION SIGNATURE! */
 int callback_nxp_sja1105(__attribute__((unused)) void **data,
                          XMLDIFF_OP op,
-                         __attribute__((unused)) xmlNodePtr old_node,
+                         xmlNodePtr old_node,
                          xmlNodePtr new_node,
-                         __attribute__((unused)) struct nc_err **error)
+                         struct nc_err **error)
 {
-	char command[256];
-	int rc;
+	int rc = EXIT_SUCCESS;
 
-	nc_verb_verbose("callback_nxp_sja1105\n");
+	/* We don't intend to touch the datastore here */
+	config_modified = 0;
 
-	if (op & XMLDIFF_REM) {
-		nc_verb_verbose("callback_nxp_sja1105 op is REMOVE\n");
-		config_modified = 0;
-		return EXIT_SUCCESS;
-	}
+	nc_verb_verbose("%s called", __func__);
 
 	if (((op & XMLDIFF_ADD) || (op & XMLDIFF_MOD)) && (new_node != NULL)) {
 		/* new_node is the root of an XML configuration that we will
 		 * save to a temporary file and pass directly to sja1105-tool
 		 * for it to load */
-		rc = xml_save_to_file(new_node, tempxml);
-		if (rc < 0)
-			return -1;
-
-		sprintf(command, "sja1105-tool config load -f %s", tempxml);
-		sja1105_run_cmd(command);
-		config_modified = 1;
+		rc = sja1105_tool_apply_from_datastore(new_node);
+		if (rc == EXIT_FAILURE) {
+			nc_verb_warning("Failed to apply new datastore, "
+			                "attempting recovery from old datastore");
+			goto out;
+			if (last_datastore_works == 0 || old_node == NULL) {
+				*error = nc_err_new(NC_ERR_OP_FAILED);
+				nc_err_set(*error, NC_ERR_PARAM_MSG,
+				           "No recovery possible, hardware left in invalid state!");
+				goto out;
+			}
+			/* Regardless of whether we manage to pull a recovery,
+			 * this datastore (the next "last") does not work.
+			 */
+			rc = sja1105_tool_apply_from_datastore(old_node);
+			if (rc != EXIT_SUCCESS) {
+				nc_verb_error("Failed to recover sja1105-tool: "
+				              "loading old datastore returned %d", rc);
+				*error = nc_err_new(NC_ERR_OP_FAILED);
+				nc_err_set(*error, NC_ERR_PARAM_MSG,
+				           "Failed to recover from old datastore configuration.");
+				last_datastore_works = 0;
+				goto out;
+			}
+			nc_verb_warning("Recovered sja1105-tool staging area "
+			                "to last known working datastore");
+			*error = nc_err_new(NC_ERR_OP_FAILED);
+			nc_err_set(*error, NC_ERR_PARAM_MSG,
+			           "Failed to apply new datastore configuration (recovered successfully).");
+			/* Recovered well, but callback was still a failure */
+			rc = EXIT_FAILURE;
+		}
+		/* If we're telling the netconf server that this callback was
+		 * a failure, it will revert this new_node to the old_node (which
+		 * will still be old_node next time).
+		 * Therefore, if we could recover from old_node now, we should be
+		 * able to recover from it next time too.
+		 */
+		last_datastore_works = 1;
+	} else if (op & XMLDIFF_REM) {
+		/* What to do, what to do?
+		 * The datastore is empty => user requested the hardware
+		 * to be left in an invalid state. Don't allow that to happen.
+		 */
+		nc_verb_verbose("%s: op is REMOVE", __func__);
+		*error = nc_err_new(NC_ERR_OP_FAILED);
+		nc_err_set(*error, NC_ERR_PARAM_MSG,
+		           "Not allowed to remove configuration data,"
+		           "as it would leave the hardware in an invalid state.");
+		return EXIT_FAILURE;
 	} else {
-		nc_verb_verbose("unknown operation type\n");
-		config_modified = 0;
+		nc_verb_verbose("%s: unknown operation type", __func__);
 	}
-	return EXIT_SUCCESS;
+out:
+	return rc;
 }
 
 /*
@@ -364,167 +654,82 @@ xmlNodePtr get_rpc_node(const char *name, const xmlNodePtr node)
  * To retrieve each argument, preferably use get_rpc_node().
  */
 
-xmlNodePtr probe_datastore_node(xmlNodePtr datastore_node, char *node_name)
-{
-	xmlNodePtr node = NULL;
-
-	if (datastore_node->type != XML_ELEMENT_NODE) {
-		nc_verb_error("Root node must be of element type!");
-		goto out;
-	}
-	if (strcasecmp((char*) datastore_node->name, "datastores")) {
-		nc_verb_error("Root node must be named \"datastores\"!");
-		goto out;
-	}
-	for (node = datastore_node->children; node != NULL; node = node->next) {
-		if (!strcmp((char*)node->name, node_name)) {
-			nc_verb_verbose("found the %s node!\n", node_name);
-			return node;
-		}
-	}
-out:
-	return NULL;
-}
-
-int file_validate(char *file)
-{
-	char newnodes_file[512];
-
-	memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
-	sprintf(newnodes_file, "%s", file);
-	if (access(newnodes_file, F_OK) == -1) {
-		nc_verb_error("config file not exist, newnodes_file= %s",
-		              newnodes_file);
-		return -1;
-	}
-	return 0;
-}
-
-int file_check(char *file)
+static int file_has_xml_extension(const char *file)
 {
 	char head[128], extend[128];
 
 	sscanf(file, "%[^.].%s", head, extend);
-
 	if (strcmp(extend, "xml"))
-		return -1;
-
-	return 0;
+		return EXIT_FAILURE;
+	return EXIT_SUCCESS;
 }
 
-int write_to_datastore(char *file_name)
+/* file_name - the path to the input (temporary) xml to be
+ *             saved to the datastore xml
+ */
+static int modify_datastore_externally_from_sja1105_xml(const char *sja1105_xml)
 {
-	char newnodes_file[512];
 	int rc = 0;
 
-	if(file_validate(file_name))
-		return -1;
+	if (access(sja1105_xml, F_OK) != EXIT_SUCCESS) {
+		nc_verb_error("sja1105-tool xml %s does not exist", sja1105_xml);
+		return EXIT_FAILURE;
+	}
 
-	if (pthread_mutex_trylock(&file_mutex) != 0) {
+	if (pthread_mutex_trylock(&datastore_mutex) != 0) {
 		/* file is still editing */
-		return -1;
+		return EXIT_FAILURE;
 	}
 
-	nc_verb_verbose("write_to_datastore:");
-	memset(newnodes_file, '\0', sizeof(newnodes_file) - 1);
-	sprintf(newnodes_file, "%s", file_name);
+	nc_verb_verbose("%s:", __func__);
 
-	if (access(datastore_filename, F_OK) == -1) {
-		nc_verb_error("datastore %s does not exist", datastore_filename);
-		pthread_mutex_unlock(&file_mutex);
-		return -1;
+	if (access(DATASTORE_FILENAME, F_OK) != EXIT_SUCCESS) {
+		nc_verb_error("datastore %s does not exist", DATASTORE_FILENAME);
+		pthread_mutex_unlock(&datastore_mutex);
+		return EXIT_FAILURE;
 	}
 
-	/* Init libxml */
-	xmlInitParser();
-
-	xmlDocPtr doc_datastore = xmlReadFile(datastore_filename, NULL, 0);
-	xmlDocPtr doc_newnodes = xmlReadFile(newnodes_file, NULL, 0);
+	/* Get a pointer to the datastore xml in root_datastore */
+	xmlDocPtr  doc_datastore = xmlReadFile(DATASTORE_FILENAME, NULL, 0);
 	xmlNodePtr root_datastore = xmlDocGetRootElement(doc_datastore);
-	xmlNodePtr root_newnodes = xmlDocGetRootElement(doc_newnodes);
 
-	xmlNodePtr node_running = probe_datastore_node(root_datastore, "running");
-	if (node_running == NULL) {
-		nc_verb_error("Running config datastore node not found");
-		rc = -1;
-		goto quiting;
+	/* Get datastore running and candidate nodes */
+	xmlNodePtr running_node =
+	           probe_datastore_node(root_datastore, "running");
+	if (running_node == NULL) {
+		nc_verb_error("datastore running config node not found");
+		rc = EXIT_FAILURE;
+		goto out;
+	}
+	xmlNodePtr candidate_node =
+	           probe_datastore_node(root_datastore, "candidate");
+	if (candidate_node == NULL) {
+		nc_verb_error("datastore candidate config node not found");
+		rc = EXIT_FAILURE;
+		goto out;
 	}
 
-	xmlNodePtr node_candidate = probe_datastore_node(root_datastore, "candidate");
-	if (node_candidate == NULL) {
-		nc_verb_error("Candidate config datastore node not found");
-		rc = -1;
-		goto quiting;
+	rc = populate_datastore_from_sja1105_xml(running_node, TEMPXML);
+	if (rc != EXIT_SUCCESS) {
+		nc_verb_error("Failed to append %s to %s running node",
+		              sja1105_xml, DATASTORE_FILENAME);
+		goto out;
 	}
-
-	if (strcasecmp((char*) root_newnodes->name, "sja1105")) {
-		nc_verb_error("Root node must be named \"sja1105\"!");
-		rc = -1;
-		goto quiting;
+	rc = populate_datastore_from_sja1105_xml(candidate_node, TEMPXML);
+	if (rc != EXIT_SUCCESS) {
+		nc_verb_error("Failed to append %s to %s candidate node",
+		              sja1105_xml, DATASTORE_FILENAME);
+		goto out;
 	}
+	xmlSetProp(candidate_node, BAD_CAST "modified", BAD_CAST "true");
+	/* Let the netopeer server know we modified the datastore */
+	config_modified = 1;
 
-	/* add new sja1105 node to running node in datastore.xml */
-	xmlNodePtr rootnode_running = xmlCopyNodeList(root_newnodes);
-
-	/* start copy the node */
-	xmlNodePtr new_run = xmlAddChild(node_running, rootnode_running);
-	if (new_run == NULL) {
-		nc_verb_error("error adding the sja1105 node");
-		goto quiting;
-	}
-
-	/* there is already running node */
-	xmlNodePtr tempNode = new_run->prev;
-
-	while (tempNode != NULL) {
-		xmlNodePtr tempNode1;
-		tempNode1 = tempNode;
-		tempNode = tempNode->prev;
-		xmlUnlinkNode(tempNode1);
-		xmlFreeNode(tempNode1);
-		nc_verb_verbose("delete previous sja1105 running node");
-	}
-
-	/* Add new sja1105 node to candidate node in datastore.xml */
-	xmlNodePtr rootnode_candidate = xmlCopyNodeList(root_newnodes);
-
-	xmlSetProp(node_candidate, (const xmlChar *)"modified", (const xmlChar *)"true");
-
-	/* start copy the node */
-	xmlNodePtr new_candi = xmlAddChild(node_candidate, rootnode_candidate);
-	if (new_candi == NULL) {
-		nc_verb_error("error adding the sja1105 node");
-		goto quiting;
-	}
-
-	/* there is already running node */
-	tempNode = new_candi->prev;
-
-	while (tempNode != NULL) {
-		xmlNodePtr tempNode1;
-		tempNode1 = tempNode;
-		tempNode = tempNode->prev;
-		xmlUnlinkNode(tempNode1);
-		xmlFreeNode(tempNode1);
-		nc_verb_verbose("delete previous sja1105 candidate node\n");
-	}
-
-	xmlSetProp(node_candidate, (const xmlChar *)"modified", (const xmlChar *)"false");
-
-quiting:
-	xmlSaveFile(datastore_filename, doc_datastore);
+out:
+	xmlSaveFile(DATASTORE_FILENAME, doc_datastore);
 
 	xmlFreeDoc(doc_datastore);
-	xmlFreeDoc(doc_newnodes);
-
-	/* Shutdown libxml */
-	xmlCleanupParser();
-
-	/*
-	 * this is to debug memory for regression tests
-	 */
-	xmlMemoryDump();
-	pthread_mutex_unlock(&file_mutex);
+	pthread_mutex_unlock(&datastore_mutex);
 
 	return rc;
 }
@@ -534,12 +739,11 @@ nc_reply *rpc_save_local_config(xmlNodePtr input)
 	xmlNodePtr file_name_xml = get_rpc_node("configfile", input);
 	char *file_name;
 	struct nc_err* e = NULL;
-	char command_full[256];
-	char cmd_file[256];
-	int ret;
-	char msg_err[256];
+	char dest_filename[BUFSIZ];
+	char cmd_file[BUFSIZ];
+	int  rc;
 
-	nc_verb_verbose("rpc_sja1105_config_save");
+	nc_verb_verbose("%s", __func__);
 
 	file_name = (char*)xmlNodeGetContent(file_name_xml);
 
@@ -552,26 +756,25 @@ nc_reply *rpc_save_local_config(xmlNodePtr input)
 	if (cmd_file[strlen(cmd_file) - 1] == '\"')
 		cmd_file[strlen(cmd_file) - 1] = '\0';
 
-	ret = file_check(cmd_file);
-	if (ret < 0) {
-		memset(msg_err, '\0', sizeof(msg_err));
-		strcpy(msg_err, "file validate failure, input a name with .xml extension!");
+	rc = file_has_xml_extension(cmd_file);
+	if (rc != EXIT_SUCCESS) {
 		goto error;
 	}
-	nc_verb_verbose("rpc_sja1105_config_save: preparing save file : %s\n",
-	                cmd_file);
+	nc_verb_verbose("%s: preparing save file: %s",
+	                __func__, cmd_file);
 
-	sprintf(command_full, "sja1105-tool config save %s/%s",
-	        conf_folder, cmd_file);
+	snprintf(dest_filename, BUFSIZ, CONF_FOLDER "/%s", cmd_file);
 
-	sja1105_run_cmd(command_full);
-
-	nc_verb_verbose("run command --- %s", command_full);
+	rc = sja1105_tool_subprocess("config", "save", dest_filename);
+	if (rc != SJA1105_ERR_OK) {
+		nc_verb_error("subprocess failed");
+		goto error;
+	}
 
 	return nc_reply_ok();
 error:
 	e = nc_err_new(NC_ERR_IN_USE);
-	nc_err_set(e, NC_ERR_PARAM_MSG, msg_err);
+	nc_err_set(e, NC_ERR_PARAM_MSG, "file validate failure, input a name with .xml extension!");
 	return nc_reply_error(e);
 }
 
@@ -580,13 +783,12 @@ nc_reply *rpc_load_local_config(xmlNodePtr input)
 	xmlNodePtr file_name_xml = get_rpc_node("configfile", input);
 	char *file_name;
 	struct nc_err* e = NULL;
-	char command_full[256];
-	char cmd_file[256];
-	char folder[256];
-	int ret;
-	char msg_err[256];
+	const char *msg_err = NULL;
+	char cmd_file[BUFSIZ];
+	char filename[BUFSIZ];
+	int  rc;
 
-	nc_verb_verbose("rpc_sja1105_config_load");
+	nc_verb_verbose("%s", __func__);
 
 	file_name = (char*)xmlNodeGetContent(file_name_xml);
 	sscanf(file_name, "%s", cmd_file);
@@ -597,40 +799,34 @@ nc_reply *rpc_load_local_config(xmlNodePtr input)
 	if (cmd_file[strlen(cmd_file) - 1] == '\"')
 		cmd_file[strlen(cmd_file) - 1] = '\0';
 
-	nc_verb_verbose("intend to load file %s\n", cmd_file);
+	snprintf(filename, BUFSIZ, CONF_FOLDER "/%s", cmd_file);
 
-	ret = file_validate(cmd_file);
-	if (ret < 0) {
-		memset(msg_err, '\0', sizeof(msg_err));
-		strcpy(msg_err, "file validate failure, file not exist!");
+	rc = access(filename, F_OK);
+	if (rc != EXIT_SUCCESS) {
+		msg_err = "File does not exist!";
 		goto error;
 	}
 
-	nc_verb_verbose("rpc_sja1105_config_load: preparing load file: %s\n",
-	                cmd_file);
+	nc_verb_verbose("%s: preparing load file: %s",
+	                __func__, filename);
 
-	sprintf(folder, "%s/%s", conf_folder, cmd_file);
-
-	if (access(folder, F_OK) == -1) {
-		nc_verb_error("config file does not exist, command file = %s",
-		              folder);
-		memset(msg_err, '\0', sizeof(msg_err));
-		strcpy(msg_err, "config file not exist in /etc/sja1105/");
+	if (access(filename, F_OK) != EXIT_SUCCESS) {
+		msg_err = "Config file does not exist in /etc/sja1105/";
+		nc_verb_error("%s, command file = %s", msg_err, filename);
 		goto error;
 	}
 
-	sprintf(command_full, "sja1105-tool config load -f %s/%s",
-	        conf_folder, cmd_file);
-
-	sja1105_run_cmd(command_full);
-
-	ret = write_to_datastore(folder);
-	if (ret < 0) {
-		memset(msg_err, '\0', sizeof(msg_err));
-		strcpy(msg_err, "run netconf xml file load failure");
+	rc = sja1105_tool_subprocess("config", "load -f", filename);
+	if (rc != SJA1105_ERR_OK) {
+		nc_verb_error("subprocess failed");
 		goto error;
 	}
-	config_modified = 1;
+
+	rc = modify_datastore_externally_from_sja1105_xml(filename);
+	if (rc != EXIT_SUCCESS) {
+		msg_err = "run netconf xml file load failure";
+		goto error;
+	}
 
 	return nc_reply_ok();
 error:
@@ -641,24 +837,32 @@ error:
 
 nc_reply *rpc_load_default(__attribute__((unused)) xmlNodePtr input)
 {
-	nc_verb_verbose("rpc_sja1105_config_default\n");
-	char command_full[] = "sja1105-tool config default -f ls1021atsn";
-	int ret;
-	char msg_err[256];
-	char folder[256];
+	nc_verb_verbose("%s", __func__);
 	struct nc_err* e = NULL;
+	const char *msg_err = NULL;
+	int  rc;
 
-	sja1105_run_cmd(command_full);
-
-	sprintf(folder, "%s/standard.xml", conf_folder);
-
-	ret = write_to_datastore(folder);
-	if (ret < 0) {
-		memset(msg_err, '\0', sizeof(msg_err));
-		strcpy(msg_err, "run netconf xml file load failure");
+	rc = sja1105_tool_subprocess("config", "default -f", "ls1021atsn");
+	if (rc != SJA1105_ERR_OK) {
+		nc_verb_error("subprocess failed");
 		goto default_error;
 	}
-	config_modified = 1;
+	rc = sja1105_tool_subprocess("config", "save", CONF_FOLDER "/standard.xml");
+	if (rc != SJA1105_ERR_OK) {
+		nc_verb_error("subprocess failed");
+		goto default_error;
+	}
+	if (rc != EXIT_SUCCESS) {
+		nc_verb_error("subprocess failed");
+		goto default_error;
+	}
+
+	/* Sync datastore with sja1105-tool */
+	rc = modify_datastore_externally_from_sja1105_xml(CONF_FOLDER "/standard.xml");
+	if (rc != EXIT_SUCCESS) {
+		msg_err = "run netconf xml file load failure";
+		goto default_error;
+	}
 
 	return nc_reply_ok();
 
@@ -676,24 +880,19 @@ default_error:
 struct transapi_rpc_callbacks rpc_clbks = {
 	.callbacks_count = 3,
 	.callbacks = {
-		{.name="save-local-config", .func=rpc_save_local_config},
-		{.name="load-local-config", .func=rpc_load_local_config},
-		{.name="load-default", .func=rpc_load_default}
+		{ .name="save-local-config", .func = rpc_save_local_config },
+		{ .name="load-local-config", .func = rpc_load_local_config },
+		{ .name="load-default",      .func = rpc_load_default }
 	}
 };
 
 int staging_area_callback(const char *filepath,
-                          __attribute__((unused)) xmlDocPtr *edit_config,
-                          __attribute__((unused)) int *exec)
+                          xmlDocPtr *doc_datastore,
+                          int *execflag)
 {
-	char command_full[256];
-	char folder[256];
+	int rc = 0;
 
-	memset(command_full, 0, sizeof(command_full));
-	memset(folder, 0, sizeof(folder));
-	nc_verb_verbose("staging_area_callback: %s", filepath);
-	/*
-	 * 1. Check if the staging area was modified by previously
+	/* 1. Check if the staging area was modified by previously
 	 *    calling one of these functions:
 	 *      * rpc_load_default()
 	 *      * rpc_load_local_config()
@@ -703,32 +902,41 @@ int staging_area_callback(const char *filepath,
 	 *    If the flag was already clear by the time staging_area_callback()
 	 *    is called, it means the staging area was modified externally
 	 *    (most probably sja1105-tool).
-	 * 2. Invoke a "sja1105-tool config save *tempxml" to extract the
-	 *    new staging area contents into a temporary XML file
-	 * 3. Run "write_to_datastore(tempxml)" or similar, to import the newly
-	 *    extracted configuration from the modified staging area into
-	 *    the NETCONF datastore.
 	 */
-
-	if (config_modified) {
-		/* netopeer callbacks modified the staging area */
-		config_modified = 0;
-		return 0;
+	if (strcmp(filepath, STAGING_AREA) != 0) {
+		nc_verb_error("%s called for invalid file %s!",
+		              __func__, filepath);
+		goto out_invalid;
 	}
 
-	nc_verb_verbose("staging_area_callback: detected external modification. syncing up the datastore with the new config\n");
+	nc_verb_verbose("%s: staging_area_mutex try lock", __func__);
+	pthread_mutex_lock(&staging_area_mutex);
+	nc_verb_verbose("%s: staging_area_mutex took lock", __func__);
 
-	sprintf(command_full, "sja1105-tool config save %s", syncxml);
+	if (staging_area_modified) {
+		/* We are guilty as charged, wasn't modified externally */
+		goto out;
+	}
 
-	sja1105_run_cmd(command_full);
+	nc_verb_verbose("%s: detected external modification to staging area. "
+	                "Syncing up the datastore with the new config",
+	                __func__);
 
-	strcpy(folder, syncxml);
+	/* 2. Import the externally modified sja1105-tool staging area,
+	 *    first into a temporary XML, then into the datastore
+	 *    running config node.
+	 */
+	rc = config_doc_from_staging_area(doc_datastore);
+	*execflag = 1;
+	/* Let the netopeer server know we modified the datastore */
+	config_modified = 1;
 
-	write_to_datastore(folder);
-
-	config_modified = 0;
-
-	return 0;
+out:
+	staging_area_modified = 0;
+	pthread_mutex_unlock(&staging_area_mutex);
+	nc_verb_verbose("%s: staging_area_mutex unlock", __func__);
+out_invalid:
+	return rc;
 }
 
 /*
@@ -754,7 +962,8 @@ int staging_area_callback(const char *filepath,
  */
 struct transapi_file_callbacks file_clbks = {
 	.callbacks_count = 1,
-	.callbacks = {{.path = "/lib/firmware/sja1105.bin",
-	               .func = staging_area_callback}}
+	.callbacks = {
+		{ .path = STAGING_AREA, .func = staging_area_callback },
+	}
 };
 
