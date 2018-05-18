@@ -2,6 +2,7 @@
 BR2_arm=y
 BR2_cortex_a7=y
 BR2_ARM_FPU_NEON=y
+BR2_TARGET_LS1021A=y
 
 # Filesystem
 BR2_TARGET_ROOTFS_EXT2=y

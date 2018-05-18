@@ -164,7 +164,7 @@ static int do_icc_perf(int argc, char * const argv[])
 
 static int do_icc_send(int argc, char * const argv[])
 {
-	unsigned long core_mask, dest_core;
+	unsigned long core_mask, dest_core = 0;
 	unsigned long block;
 	unsigned long counts, bytes;
 	unsigned long data;

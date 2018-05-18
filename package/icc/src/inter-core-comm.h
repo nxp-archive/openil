@@ -6,15 +6,24 @@
 #ifndef _ARM_INTER_CORE_COMM_H
 #define _ARM_INTER_CORE_COMM_H
 
+#ifdef BR2_TARGET_LS1043A /* used for rev1.1 */
+#define GICD_BASE			0x1410000
+#define GICD_SIZE			0x10000
+#else
 #define GICD_BASE			0x1401000
 #define GICD_SIZE			0x1000
+#endif
 #define GIC_DIST_SOFTINT	0xf00
 
 int mycoreid;
 void *gic_base;
 void *share_base;
 
+#ifdef BR2_TARGET_LS1021A
 #define CONFIG_MAX_CPUS 2
+#else
+#define CONFIG_MAX_CPUS 4
+#endif
 #define CONFIG_SYS_DDR_SDRAM_BASE       0x80000000UL
 #define CONFIG_SYS_DDR_SDRAM_SLAVE_SIZE        (256 * 1024 * 1024)
 #define CONFIG_SYS_DDR_SDRAM_MASTER_SIZE       (512 * 1024 * 1024)
