@@ -2,7 +2,6 @@
 BR2_arm=y
 BR2_cortex_a7=y
 BR2_ARM_FPU_NEON=y
-BR2_TARGET_LS1021A=y
 
 # Filesystem
 BR2_TARGET_ROOTFS_EXT2=y
@@ -77,6 +76,7 @@ BR2_PACKAGE_BM_UBOOT_DEFCONFIG="ls1021aiot_baremetal_defconfig"
 
 # icc package for baremetal
 BR2_PACKAGE_ICC=y
+BR2_PACKAGE_ICC_MAX_CPUS=2
 
 # basic packages and tools
 BR2_PACKAGE_MTD=y

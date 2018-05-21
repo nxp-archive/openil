@@ -1,6 +1,5 @@
 # Architecture
 BR2_aarch64=y
-BR2_TARGET_LS1046A=y
 
 # Filesystem
 BR2_TARGET_ROOTFS_EXT2=y
@@ -74,6 +73,7 @@ BR2_PACKAGE_BM_UBOOT_DEFCONFIG="ls1046ardb_baremetal_defconfig"
 
 # icc package for baremetal
 BR2_PACKAGE_ICC=y
+BR2_PACKAGE_ICC_MAX_CPUS=4
 
 # ppa firmware
 BR2_PACKAGE_PPA=y
