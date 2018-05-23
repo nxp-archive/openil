@@ -73,6 +73,7 @@ BR2_PACKAGE_BM_UBOOT_DEFCONFIG="ls1046ardb_baremetal_defconfig"
 
 # icc package for baremetal
 BR2_PACKAGE_ICC=y
+BR2_PACKAGE_ICC_GIC_OFFSET_ALIGN=y
 BR2_PACKAGE_ICC_MAX_CPUS=4
 
 # ppa firmware
