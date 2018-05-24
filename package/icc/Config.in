@@ -12,5 +12,6 @@ help
 
 config BR2_PACKAGE_ICC_MAX_CPUS
 int "Max cpus on platform"
+default 2
 help
 	Set the number of cpus on platform.
