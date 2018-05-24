@@ -15,6 +15,9 @@ SJA1105_OUTPUT=$(STAGING_DIR)/usr
 SJA1105_PTP_SYNC_SET=y
 endif
 
+# SJA1105 Transparent Clock support is provided by the sja1105-ptp package
+# (same ptp4l sources, but compiled with the SJA1105_PTP_TC flag).
+
 PTP4L_MAKE_OPTS = \
 	CC="$(TARGET_CC)" \
 	CROSS_COMPILE="$(TARGET_CROSS)" \
@@ -30,7 +33,6 @@ endef
 define PTP4L_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/ptp4l $(TARGET_DIR)/usr/sbin/ptp4l
 	cp -dpfr $(@D)/ptp4l_default.cfg $(TARGET_DIR)/etc/
-	cp -dpfr $(@D)/sja1105-ptp-tc.sh $(TARGET_DIR)/usr/sbin/sja1105-ptp-free-tc.sh
 endef
 
 $(eval $(generic-package))
