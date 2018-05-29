@@ -1,0 +1,23 @@
+baudrate=115200
+bootcmd=setenv bootargs root=/dev/mmcblk0p2 rootwait rw console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 ${fdtaddr} ${fdtfile};bootm ${loadaddr} - ${fdtaddr}
+bootdelay=3
+bootfile=uImage
+eth1addr=00:04:9f:ef:07:07
+eth2addr=00:04:9f:ef:08:08
+ethact=eTSEC2
+ethaddr=00:04:9f:ef:06:06
+ethprime=eTSEC1
+fdt_high=0xffffffff
+fdtaddr=0x8f000000
+fdtcontroladdr=beeefe44
+fdtfile=ls1021a-twr.dtb
+initrd_high=0xffffffff
+loadaddr=0x80008000
+scsidevs=0
+ramdiskaddr=0xa0000000
+ramdiskfile=rootfs.ext2.gz.uboot
+bootfile_old=uImage_old
+bootimage=bootimage-ls1021a-twr.itb
+tftpboot=setenv bootargs "root=/dev/ram0 rw console=ttyS0,115200 ramdisk_size=1024000"; tftp $loadaddr $bootimage; bootm $loadaddr:kernel $loadaddr:ramdisk $loadaddr:fdt
+serverip=192.168.1.1
+ipaddr=192.168.1.100
