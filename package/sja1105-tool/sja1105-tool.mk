@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SJA1105_TOOL_VERSION = OpenIL-sja1105-tool-201712
+SJA1105_TOOL_VERSION = master
 SJA1105_TOOL_SITE = https://github.com/openil/sja1105-tool.git
 SJA1105_TOOL_SITE_METHOD = git
 SJA1105_TOOL_INSTALL_STAGING = YES
