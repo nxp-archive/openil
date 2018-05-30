@@ -231,7 +231,8 @@ static int do_icc_send(int argc, char * const argv[])
 				(counts - bytes));
 			continue;
 		} else {
-			memset((void *)ICC_PHY2VIRT(block), data, bytes);
+			memset((void *)ICC_PHY2VIRT(block), data,
+				bytes / 8 * 8);
 			ret = icc_set_block(dest_core, bytes, block);
 			if (ret) {
 				printf("The ring is full! sent %ld bytes\n",
