@@ -579,6 +579,9 @@ menu "Mono libraries/modules"
 endmenu
 endif
 	source "package/nodejs/Config.in"
+if BR2_PACKAGE_NODEJS
+	source "package/nodejs-lbt/Config.in"
+endif
 	source "package/perl/Config.in"
 if BR2_PACKAGE_PERL
 menu "Perl libraries/modules"

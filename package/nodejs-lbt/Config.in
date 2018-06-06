@@ -1,0 +1,8 @@
+config BR2_PACKAGE_NODEJS_LBT
+	bool "nodejs-lbt"
+	depends on BR2_PACKAGE_NODEJS
+	select BR2_PACKAGE_PERL_FEEDGNUPLOT
+	select BR2_PACKAGE_PRL
+	help
+	  Latency and Bandwidth Tester is a web application for generating and
+	  plotting iPerf and ping traffic, used for the NXP LS1021A-TSN demos.

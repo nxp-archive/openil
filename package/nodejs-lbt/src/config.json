@@ -1,0 +1,25 @@
+{
+	"listenPort": 8000,
+	"sshPrivateKey": "/etc/ssh/ssh_host_rsa_key",
+	"ping": {
+		"plotStyle": "lineGraph",
+		"xlabel": "Time (seconds)",
+		"ylabel": "PIT (ms)",
+		"xmin": "0",
+		"ymin": "0",
+		"xlen": "60",
+		"binwidth": "0.01",
+		"measurement": "pit",
+		"measurementInterface": "eth2",
+		"title": "Ping Packet Inter-arrival Time"
+	},
+	"iperf": {
+		"plotStyle": "lineGraph",
+		"xmin": "0",
+		"ymin": "0",
+		"xlen": "60",
+		"xlabel": "Time (seconds)",
+		"ylabel": "Bandwidth (Mbps)",
+		"title": "iPerf3 Bandwidth"
+	}
+}
