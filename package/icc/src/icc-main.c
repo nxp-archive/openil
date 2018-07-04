@@ -21,8 +21,9 @@
 #include "inter-core-comm.h"
 
 #define MEMDEVICE "/dev/mem"
+#define SHD_MEMDEVICE "/dev/ipi_bm"
 
-int memfd;
+int memfd, shd_memfd;
 
 void usage(char *name)
 {
@@ -114,6 +115,12 @@ static int do_icc_perf(int argc, char * const argv[])
 				(counts - bytes));
 			continue;
 		} else {
+			/* Process data to delay a few time to send data */
+			data = 0x5a;
+			data /= 3;
+			data *= 3;
+			memset((void *)ICC_PHY2VIRT(block), data,
+				ICC_BLOCK_UNIT_SIZE);
 			ret = icc_set_block(dest_core, ICC_BLOCK_UNIT_SIZE, block);
 			if (ret) {
 				icc_block_free(block);
@@ -233,6 +240,8 @@ static int do_icc_send(int argc, char * const argv[])
 		} else {
 			memset((void *)ICC_PHY2VIRT(block), data,
 				bytes / 8 * 8);
+			for (int i = bytes / 8 * 8; i < bytes; i++)
+				*((char *)ICC_PHY2VIRT(block) + i) = data;
 			ret = icc_set_block(dest_core, bytes, block);
 			if (ret) {
 				printf("The ring is full! sent %ld bytes\n",
@@ -376,8 +385,14 @@ int main(int argc, char **argv)
 	}
 	
 	memfd = open(MEMDEVICE, O_RDWR | O_SYNC);
+	shd_memfd = open(SHD_MEMDEVICE, O_RDWR | O_SYNC);
 	if (memfd < 0) {
 		fprintf(stderr, "Couldn't open file %s\n", MEMDEVICE);
+		goto exit;
+	}
+
+	if (shd_memfd < 0) {
+		fprintf(stderr, "Couldn't open file %s\n", SHD_MEMDEVICE);
 		goto exit;
 	}
 
@@ -393,7 +408,7 @@ int main(int argc, char **argv)
 	/* map share memory physical memory space into process memory space */
 	share_base = (void *)mmap(NULL, CONFIG_SYS_DDR_SDRAM_SHARE_SIZE,
 				PROT_WRITE | PROT_READ, MAP_SHARED,
-				memfd, share_addr);
+				shd_memfd, share_addr);
 
 	if (share_base == (void *) -1) {
 		perror("mmap");
@@ -449,5 +464,6 @@ int main(int argc, char **argv)
 	usage(argv[0]);
 exit:
 	close(memfd);
+	close(shd_memfd);
 	return 0;
 }
