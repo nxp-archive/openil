@@ -49,7 +49,7 @@ BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="OpenIL-linux-201805"
 BR2_LINUX_KERNEL_DEFCONFIG="multi_v7"
 BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(LINUX_DIR)/arch/arm/configs/multi_v7_lpae.config $(LINUX_DIR)/arch/arm/configs/lsdk.config board/nxp/common/linux-4_9-wifi.config board/nxp/common/linux-4_9-docker.config board/nxp/common/linux-4_9-baremetal.config"
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
-BR2_LINUX_KERNEL_INTREE_DTS_NAME="ls1021a-iot"
+BR2_LINUX_KERNEL_INTREE_DTS_NAME="ls1021a-iot-bm"
 BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_UIMAGE_LOADADDR="0x80008000"
 # Serial port config
