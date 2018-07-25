@@ -13,7 +13,14 @@ IGH_ETHERCAT_LICENSE_FILES = COPYING COPYING.LESSER
 IGH_ETHERCAT_INSTALL_STAGING = YES
 
 IGH_ETHERCAT_CONF_OPTS = \
-	--with-linux-dir=$(LINUX_DIR)
+	--with-linux-dir=$(LINUX_DIR) --enable-generic
+
+define IGH_ETHERCAT_INSTALL_TARGET_CMDS
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) DESTDIR=$(TARGET_DIR) install
+	if [ -f $(@D)/examples/user/ec_user_example ] ; then \
+		cp $(@D)/examples/user/ec_user_example $(TARGET_DIR)/usr/bin/ ; \
+	fi
+endef
 
 IGH_ETHERCAT_CONF_OPTS += $(if $(BR2_PACKAGE_IGH_ETHERCAT_8139TOO),--enable-8139too,--disable-8139too)
 IGH_ETHERCAT_CONF_OPTS += $(if $(BR2_PACKAGE_IGH_ETHERCAT_E100),--enable-e100,--disable-e100)

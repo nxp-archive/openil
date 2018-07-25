@@ -1,0 +1,62 @@
+From 27f6787dc0f2dfd0cbaf68b608d86d3c1ee44420 Mon Sep 17 00:00:00 2001
+From: XianyuWei <xianyu.wei@nxp.com>
+Date: Wed, 25 Jul 2018 10:33:58 +0800
+Subject: [PATCH 3/3] Fixed error that the EtherCat can not load the modules.
+
+Because the openil does not have the modinfo command,
+an error stops when the startup script is executed.
+Remove comman that use the modinfo.
+
+Signed-off-by: XianyuWei <xianyu.wei@nxp.com>
+---
+ script/ethercatctl.in     | 4 ----
+ script/init.d/ethercat.in | 4 ----
+ 2 files changed, 8 deletions(-)
+
+diff --git a/script/ethercatctl.in b/script/ethercatctl.in
+index 281794e..0697972 100755
+--- a/script/ethercatctl.in
++++ b/script/ethercatctl.in
+@@ -35,7 +35,6 @@
+
+ MODPROBE=/sbin/modprobe
+ RMMOD=/sbin/rmmod
+-MODINFO=/sbin/modinfo
+
+ ETHERCAT=@prefix@/bin/ethercat
+
+@@ -103,9 +102,6 @@ start)
+     # check for modules to replace
+     for MODULE in ${DEVICE_MODULES}; do
+         ECMODULE=ec_${MODULE}
+-        if ! ${MODINFO} ${ECMODULE} > /dev/null; then
+-            continue # ec_* module not found
+-        fi
+
+         if [ ${MODULE} != "generic" ]; then
+             # try to unload standard module
+diff --git a/script/init.d/ethercat.in b/script/init.d/ethercat.in
+index 151e114..fcdbdde 100755
+--- a/script/init.d/ethercat.in
++++ b/script/init.d/ethercat.in
+@@ -49,7 +49,6 @@
+
+ MODPROBE=/sbin/modprobe
+ RMMOD=/sbin/rmmod
+-MODINFO=/sbin/modinfo
+ ETHERCAT=@prefix@/bin/ethercat
+ MASTER_ARGS=
+
+@@ -173,9 +172,6 @@ start)
+     # check for modules to replace
+     for MODULE in ${DEVICE_MODULES}; do
+         ECMODULE=ec_${MODULE}
+-        if ! ${MODINFO} ${ECMODULE} > /dev/null; then
+-            continue # ec_* module not found
+-        fi
+         if [ ${MODULE} != "generic" ]; then
+             if lsmod | grep "^${MODULE} " > /dev/null; then
+                 if ! ${RMMOD} ${MODULE}; then
+--
+1.8.3.1
+
