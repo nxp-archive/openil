@@ -10,6 +10,7 @@ comment "canfestival needs a glibc or uClibc toolchain w/ threads and dynamic li
 
 config BR2_PACKAGE_CANFESTIVAL
 	bool "canfestival"
+	default y
 	depends on BR2_PACKAGE_CANFESTIVAL_ARCH_SUPPORTS
 	depends on !BR2_TOOLCHAIN_USES_MUSL # sigval_t
 	depends on BR2_TOOLCHAIN_HAS_THREADS
@@ -77,6 +78,7 @@ config BR2_PACKAGE_CANFESTIVAL_DRIVER
 
 config BR2_PACKAGE_CANFESTIVAL_ADDITIONAL_OPTIONS
 	string "additional configure options"
+	default "--SDO_MAX_LENGTH_TRANSFER=512 --SDO_BLOCK_SIZE=75 --SDO_MAX_SIMULTANEOUS_TRANSFERS=1"
 	help
 	  Additional options can be passed directly to the configure script
 	  (e.g.: --MAX_CAN_BUS_ID=..., --SDO_MAX_LENGTH_TRANSFER=...,
@@ -84,6 +86,7 @@ config BR2_PACKAGE_CANFESTIVAL_ADDITIONAL_OPTIONS
 
 config BR2_PACKAGE_CANFESTIVAL_INSTALL_EXAMPLES
 	bool "install examples"
+	default y
 	help
 	  Install binary application examples.
 
