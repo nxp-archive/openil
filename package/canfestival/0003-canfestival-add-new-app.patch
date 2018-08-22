@@ -1,9 +1,9 @@
-From bf2009c46912843e707e3e5c72b69a8e165a2284 Mon Sep 17 00:00:00 2001
-From: Jianchao <jianchao.wang@nxp.com>
-Date: Mon, 30 Jul 2018 11:21:18 +0800
+From cdc3b7b7faa7adaf44115601216f9ec411abdf78 Mon Sep 17 00:00:00 2001
+From: Jianchao Wang <jianchao.wang@nxp.com>
+Date: Wed, 22 Aug 2018 15:49:29 +0800
 Subject: [PATCH] canfestival add new app
 
-Signed-off-by: Jianchao <jianchao.wang@nxp.com>
+Signed-off-by: Jianchao Wang <jianchao.wang@nxp.com>
 ---
  Makefile.in                     |  17 +-
  app/CANopen-app.c               | 205 ++++++++++++++
@@ -11,7 +11,7 @@ Signed-off-by: Jianchao <jianchao.wang@nxp.com>
  app/TestMaster.c                | 596 ++++++++++++++++++++++++++++++++++++++++
  app/callback.c                  | 119 ++++++++
  app/cmdTable.c                  | 389 ++++++++++++++++++++++++++
- app/console.c                   | 209 ++++++++++++++
+ app/console.c                   | 205 ++++++++++++++
  app/inc/TestMaster.h            |  65 +++++
  app/inc/callback.h              |  54 ++++
  app/inc/cmdtable.h              |  50 ++++
@@ -21,7 +21,7 @@ Signed-off-by: Jianchao <jianchao.wang@nxp.com>
  include/config.h                |  49 ++++
  src/lifegrd.c                   |  14 +-
  src/states.c                    |  41 ++-
- 16 files changed, 1896 insertions(+), 22 deletions(-)
+ 16 files changed, 1892 insertions(+), 22 deletions(-)
  create mode 100644 app/CANopen-app.c
  create mode 100644 app/Makefile
  create mode 100644 app/TestMaster.c
@@ -1469,10 +1469,10 @@ index 0000000..7af3cbb
 +}
 diff --git a/app/console.c b/app/console.c
 new file mode 100644
-index 0000000..05dd9f2
+index 0000000..1c1943d
 --- /dev/null
 +++ b/app/console.c
-@@ -0,0 +1,209 @@
+@@ -0,0 +1,205 @@
 +/*
 + * design console function for CANopen
 + *
@@ -1524,6 +1524,8 @@ index 0000000..05dd9f2
 +#ifndef ARRAY_SIZE
 +	#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 +#endif
++
++#define MSG_MAX_SIZE 100
 +
 +struct cmd_type {
 +	char *name;
@@ -1626,7 +1628,7 @@ index 0000000..05dd9f2
 +bool console_valid;
 +void *console_rx_handle(void *fd)
 +{
-+	char buffer[100] = {0};
++	char buffer[MSG_MAX_SIZE] = {0};
 +	char *buf = buffer;
 +	ssize_t nBytes;
 +
@@ -1636,40 +1638,35 @@ index 0000000..05dd9f2
 +		/*
 +		 * support string input and one by one character input
 +		 */
-+		nBytes = read(*(int *)fd, buf, 50);
-+		if (console_valid)
++		if (fgets(buf, MSG_MAX_SIZE, stdin) == NULL)
++			continue;
++		if (console_valid) {
++			nBytes = strlen(buf);
 +			if (buf[nBytes - 1] == '\n') {
 +				nBytes--;
-+				buffer[nBytes] = '\0';
++				buf[nBytes] = '\0';
 +
 +				if (strlen(buffer) > 0)
 +					cmd_exe(buffer);
 +
-+				memset(buffer, 0, 50);
++				memset(buffer, 0, MSG_MAX_SIZE);
++				buf = buffer;
 +			} else {
 +				buf += nBytes;
 +			}
-+		else
++		} else
 +			printf("Warn: Console is invalid when testing!\n");
 +	}
 +}
 +
 +static pthread_t console_rx_thread;
-+static int fd;
 +int console_init(void)
 +{
-+	char *console = "/dev/console";
 +
 +	cmdtable_init();
-+	fd = open(console, O_RDWR);
-+	if (fd < 0) {
-+		printf("open console is failed!");
-+		return 1;
-+	}
 +
 +	if (pthread_create(&console_rx_thread, NULL, console_rx_handle,
-+	    (void *)&fd) != 0) {
-+		close(fd);
++	    NULL) != 0) {
 +		printf("Error: fail to create \"console\" thread!\n");
 +		return 1;
 +	}
@@ -1680,7 +1677,6 @@ index 0000000..05dd9f2
 +void wait_console_exit(void)
 +{
 +	pthread_join(console_rx_thread, NULL);
-+	close(fd);
 +}
 diff --git a/app/inc/TestMaster.h b/app/inc/TestMaster.h
 new file mode 100644

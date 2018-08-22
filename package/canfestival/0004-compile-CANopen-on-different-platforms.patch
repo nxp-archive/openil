@@ -1,18 +1,57 @@
-From 33e558470fa8a0f65daa9e8a011ca408a0eb5397 Mon Sep 17 00:00:00 2001
+From 8cd8778e0548dbe23d77cc98ff4765d638cd777a Mon Sep 17 00:00:00 2001
 From: Jianchao Wang <jianchao.wang@nxp.com>
-Date: Tue, 7 Aug 2018 16:36:01 +0800
-Subject: [PATCH] realize the function that can compile CANopen on different
- platform
+Date: Wed, 22 Aug 2018 17:03:49 +0800
+Subject: [PATCH] compile CANopen on different platforms
 
 Signed-off-by: Jianchao Wang <jianchao.wang@nxp.com>
 ---
+ Makefile.in     | 18 ++++++++++++++++++
  app/Makefile    | 52 ----------------------------------------------------
  app/Makefile.in | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
  configure       |  3 ++-
- 3 files changed, 54 insertions(+), 53 deletions(-)
+ 4 files changed, 72 insertions(+), 53 deletions(-)
  delete mode 100644 app/Makefile
  create mode 100644 app/Makefile.in
 
+diff --git a/Makefile.in b/Makefile.in
+index e5bdd00..8ecdd3d 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -20,6 +20,21 @@
+ # License along with this library; if not, write to the Free Software
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ # 
++MAKEFILEDIR = app/Makefile \
++	drivers/Makefile \
++	drivers/can_virtual/Makefile \
++	drivers/timers_unix/Makefile \
++	drivers/unix/Makefile \
++	examples/CANOpenShell/Makefile \
++	examples/Makefile \
++	examples/SillySlave/Makefile \
++	examples/TestMasterMicroMod/Makefile \
++	examples/TestMasterSlave/Makefile \
++	examples/TestMasterSlaveLSS/Makefile \
++	examples/test_copcican_linux/Makefile \
++	objdictgen/Makefile \
++	src/Makefile \
++	Makefile
+ 
+ PYTHON ?= python
+ export PYTHON
+@@ -64,9 +79,12 @@ uninstall:
+ 
+ clean:
+ 	#$(MAKE) -C src $@
++	$(MAKE) -C app $@
+ 	$(MAKE) -C drivers $@
+ 	$(MAKE) -C examples $@
+ 	$(MAKE) -C objdictgen $@
++	rm -f objdictgen/canfestival_config.py
++	rm -f $(MAKEFILEDIR)
+ 	
+ mrproper: clean
+ 	$(MAKE) -C src $@
 diff --git a/app/Makefile b/app/Makefile
 deleted file mode 100644
 index 8b3b41f..0000000
@@ -73,7 +112,7 @@ index 8b3b41f..0000000
 -	rm CANopen-app
 diff --git a/app/Makefile.in b/app/Makefile.in
 new file mode 100644
-index 0000000..2db1114
+index 0000000..ca64187
 --- /dev/null
 +++ b/app/Makefile.in
 @@ -0,0 +1,52 @@
@@ -126,11 +165,11 @@ index 0000000..2db1114
 +	cp $< $(DESTDIR)$(PREFIX)/bin/
 +
 +clean:
-+	rm obj/*.o
-+	rm ../src/*.o
-+	rm CANopen-app
++	rm -f obj/*.o
++	rm -f ../src/*.o
++	rm -f CANopen-app
 diff --git a/configure b/configure
-index b63b276..b6c396f 100755
+index 1a45ec7..4cdca8e 100755
 --- a/configure
 +++ b/configure
 @@ -795,7 +795,8 @@ MAKEFILES=Makefile.in\
