@@ -22,7 +22,7 @@ image sdcard.img {
 
   partition rcw {
     in-partition-table = "no"
-    image = "rcw_1600_qspiboot.bin.swap"
+    image = "rcw_1600_qspiboot.bin.swapped"
     offset = 0
   }
 
