@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PPA_VERSION = LSDK-17.09
+PPA_VERSION = LSDK-18.06
 PPA_SITE = https://github.com/qoriq-open-source/ppa-generic.git
 PPA_SITE_METHOD = git
 PPA_LICENSE = BSD 3-clause "New" or "Revised" License

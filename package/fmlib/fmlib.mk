@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FMLIB_VERSION = LSDK-17.09
+FMLIB_VERSION = LSDK-18.06
 FMLIB_SITE = https://github.com/qoriq-open-source/fmlib.git
 FMLIB_SITE_METHOD = git
 FMLIB_LICENSE = GPL

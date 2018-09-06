@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CST_VERSION = LSDK-17.09
+CST_VERSION = LSDK-18.06
 CST_SITE = https://github.com/qoriq-open-source/cst.git
 CST_SITE_METHOD = git
 CST_LICENSE = NXP

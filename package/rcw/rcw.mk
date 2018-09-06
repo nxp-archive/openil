@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-RCW_VERSION = LSDK-17.09
+RCW_VERSION = LSDK-18.06
 RCW_SITE = https://github.com/qoriq-open-source/rcw.git
 RCW_SITE_METHOD = git
 RCW_LICENSE = BSD License

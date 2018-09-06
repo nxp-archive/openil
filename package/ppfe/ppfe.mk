@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-PPFE_VERSION = fsl-sdk-v2.0-1701
-PPFE_SITE = git://git.freescale.com/ppc/sdk/engine-pfe-bin.git
+PPFE_VERSION = LSDK-18.06
+PPFE_SITE = https://github.com/NXP/qoriq-engine-pfe-bin.git
 PPFE_LICENSE = Freescale-Binary-EULA
 PPFE_LICENSE_FILES = Freescale-Binary-EULA
 

@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FMC_VERSION = LSDK-17.09
+FMC_VERSION = LSDK-18.06
 FMC_SITE = https://github.com/qoriq-open-source/fmc.git
 FMC_SITE_METHOD = git
 FMC_LICENSE = MIT

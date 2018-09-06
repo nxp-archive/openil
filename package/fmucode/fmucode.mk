@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-FMUCODE_VERSION = LSDK-17.09
-FMUCODE_SITE = https://github.com/qoriq-open-source/fm-ucode.git
+FMUCODE_VERSION = LSDK-18.06
+FMUCODE_SITE = https://github.com/NXP/qoriq-fm-ucode.git
 FMUCODE_SITE_METHOD = git
 FMUCODE_LICENSE = Freescale-Binary-EULA
 FMUCODE_LICENSE_FILES = Freescale-Binary-EULA
