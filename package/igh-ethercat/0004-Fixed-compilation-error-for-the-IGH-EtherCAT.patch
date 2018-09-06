@@ -1,0 +1,65 @@
+From 6e255e8396fdaeb2a1c4b3102139f42231b4cff2 Mon Sep 17 00:00:00 2001
+From: weixy <xianyu.wei@nxp.com>
+Date: Thu, 6 Sep 2018 08:46:32 +0800
+Subject: [PATCH 4/4] Fixed compilation error for the IGH EtherCAT.
+
+Fix two compilation errors in files cdev.c and master.c.
+
+Signed-off-by: weixy <xianyu.wei@nxp.com>
+---
+ master/cdev.c   | 8 ++------
+ master/master.c | 1 +
+ 2 files changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/master/cdev.c b/master/cdev.c
+index 1513d91..d1f31dc 100644
+--- a/master/cdev.c
++++ b/master/cdev.c
+@@ -62,7 +62,7 @@ static int eccdev_mmap(struct file *, struct vm_area_struct *);
+ #define PAGE_FAULT_VERSION KERNEL_VERSION(2, 6, 23)
+ 
+ #if LINUX_VERSION_CODE >= PAGE_FAULT_VERSION
+-static int eccdev_vma_fault(struct vm_area_struct *, struct vm_fault *);
++static int eccdev_vma_fault(struct vm_fault *);
+ #else
+ static struct page *eccdev_vma_nopage(
+         struct vm_area_struct *, unsigned long, int *);
+@@ -253,12 +253,11 @@ int eccdev_mmap(
+  * \return Zero on success, otherwise a negative error code.
+  */
+ static int eccdev_vma_fault(
+-        struct vm_area_struct *vma, /**< Virtual memory area. */
+         struct vm_fault *vmf /**< Fault data. */
+         )
+ {
+     unsigned long offset = vmf->pgoff << PAGE_SHIFT;
+-    ec_cdev_priv_t *priv = (ec_cdev_priv_t *) vma->vm_private_data;
++	ec_cdev_priv_t *priv = (ec_cdev_priv_t *) vmf->vma->vm_private_data;
+     struct page *page;
+ 
+     if (offset >= priv->ctx.process_data_size) {
+@@ -273,9 +272,6 @@ static int eccdev_vma_fault(
+     get_page(page);
+     vmf->page = page;
+ 
+-    EC_MASTER_DBG(priv->cdev->master, 1, "Vma fault, virtual_address = %p,"
+-            " offset = %lu, page = %p\n", vmf->virtual_address, offset, page);
+-
+     return 0;
+ }
+ 
+diff --git a/master/master.c b/master/master.c
+index 7a533b0..f7e5880 100644
+--- a/master/master.c
++++ b/master/master.c
+@@ -44,6 +44,7 @@
+ #include <linux/device.h>
+ #include <linux/version.h>
+ #include <linux/hrtimer.h>
++#include <uapi/linux/sched/types.h>
+ #include "globals.h"
+ #include "slave.h"
+ #include "slave_config.h"
+-- 
+2.7.4
+
