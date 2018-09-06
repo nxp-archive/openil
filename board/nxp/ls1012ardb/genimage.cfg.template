@@ -22,7 +22,7 @@ image sdcard.img {
 
   partition rcw {
     in-partition-table = "no"
-    image = "PBL_0x35_0x08_800_250_1000_default.bin"
+    image = "rcw_1000_default.bin.swapped"
     offset = 0
   }
 
@@ -42,6 +42,12 @@ image sdcard.img {
     in-partition-table = "no"
     image = "ppa.itb"
     offset = 4M
+  }
+
+  partition ppfe {
+    in-partition-table = "no"
+    image = "pfe_fw_sbl.itb"
+    offset = 10M
   }
 
   partition boot {

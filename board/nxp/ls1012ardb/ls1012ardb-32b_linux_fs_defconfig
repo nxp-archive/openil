@@ -45,7 +45,7 @@ BR2_ROOTFS_POST_SCRIPT_ARGS="$(LINUX_DIR) $(TOPDIR)"
 
 # packages for rcw
 BR2_PACKAGE_RCW=y
-BR2_PACKAGE_RCW_BIN="ls1012ardb/R_SPNH_3508/PBL_0x35_0x08_800_250_1000_default.bin"
+BR2_PACKAGE_RCW_BIN="ls1012ardb/R_SPNH_3508/rcw_1000_default.bin"
 
 # busybox setting
 BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="board/nxp/common/openil-busybox.config"
