@@ -67,6 +67,22 @@ choice
 		bool "Linux 4.9.x kernel headers"
 		select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_9
 
+	config BR2_KERNEL_HEADERS_4_10
+		bool "Linux 4.10.x kernel headers"
+		select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_10
+
+	config BR2_KERNEL_HEADERS_4_11
+		bool "Linux 4.11.x kernel headers"
+		select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_11
+
+	config BR2_KERNEL_HEADERS_4_12
+		bool "Linux 4.12.x kernel headers"
+		select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_12
+
+	config BR2_KERNEL_HEADERS_4_13
+		bool "Linux 4.13.x kernel headers"
+		select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_13
+
 	config BR2_KERNEL_HEADERS_4_14
 		bool "Linux 4.14.x kernel headers"
 		select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_14
