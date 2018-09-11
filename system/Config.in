@@ -522,7 +522,7 @@ config BR2_ROOTFS_USERS_TABLES
 
 config BR2_ROOTFS_PARTITION_SIZE
 	string "Partition size of the storage for the rootfs"
-	default "300M"
+	default "3000M"
 	help
 	  Specify the size of the storage device partition for the
 	  building rootfs. Currently used by NXP platforms in the
