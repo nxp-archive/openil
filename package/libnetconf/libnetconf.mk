@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBNETCONF_VERSION = master
+LIBNETCONF_VERSION = 6351e224b4e67f0ba0265f27e1aa4707060036b0
 LIBNETCONF_SITE = https://github.com/CESNET/libnetconf.git
 LIBNETCONF_SITE_METHOD = git
 LIBNETCONF_INSTALL_STAGING = YES
