@@ -16,6 +16,7 @@ LIBNETCONF_DEPENDENCIES  = openssl libgcrypt libssh libxslt ncurses readline
 LIBNETCONF_DEPENDENCIES += dbus host-pyang host-h-python-libxml2 libcurl
 LIBNETCONF_CONF_ENV += PKG_CONFIG=$(HOST_DIR)/usr/bin/pkg-config
 LIBNETCONF_CONF_ENV += enable_validation=no
+LIBNETCONF_AUTORECONF := YES
 
 define LIBNETCONF_INSTALL_STAGING_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/dev-tools/lnctool/lnctool $(HOST_DIR)/usr/bin
