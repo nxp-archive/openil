@@ -68,7 +68,7 @@ main()
 	cp hdr_kernel.out ${BINARIES_DIR}
 	cp hdr_bs.out ${BINARIES_DIR}
 	cp bootscript ${BINARIES_DIR}
-	cp secboot_hdrs.bin ${BINARIES_DIR}
+	cp secboot_hdrs_qspiboot.bin ${BINARIES_DIR}
 	cp srk_hash.txt ${BINARIES_DIR}
 	echo ${3}
 	cd ${3}

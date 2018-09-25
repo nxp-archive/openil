@@ -26,7 +26,7 @@ image sdcard.img {
 
   partition secboot_hdrs {
     in-partition-table = "no"
-    image = "secboot_hdrs.bin"
+    image = "secboot_hdrs_sdboot.bin"
     offset = 6M
   }
 

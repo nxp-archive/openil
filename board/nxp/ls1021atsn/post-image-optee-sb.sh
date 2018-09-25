@@ -89,7 +89,7 @@ main()
 	cp u-boot-with-spl-pbl-sec.bin ${BINARIES_DIR}
 	cp hdr_linux.out ${BINARIES_DIR}
 	cp hdr_dtb.out ${BINARIES_DIR}
-	cp secboot_hdrs.bin ${BINARIES_DIR}
+	cp secboot_hdrs_sdboot.bin ${BINARIES_DIR}
 	cp hdr_tee.out ${BINARIES_DIR}
 	cp srk_hash.txt ${BINARIES_DIR}
 	cd ${3}
