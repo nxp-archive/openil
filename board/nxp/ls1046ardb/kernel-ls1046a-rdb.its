@@ -51,5 +51,11 @@
 			fdt = "fdt@1";
 			ramdisk = "ramdisk@1";
 		};
+		ls1046ardb {
+			description = "Boot Linux kernel";
+			kernel = "kernel@1";
+			fdt = "fdt@1";
+			ramdisk = "ramdisk@1";
+		};
 	};
 };
