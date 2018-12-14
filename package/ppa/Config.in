@@ -31,6 +31,7 @@ if BR2_PACKAGE_PPA
 config BR2_PACKAGE_PPA_PLATFORM
 	string
 	default "ls1012" if BR2_TARGET_UBOOT_BOARDNAME="ls1012ardb_qspi"
+	default "ls1028" if BR2_TARGET_UBOOT_BOARDNAME="ls1028ardb_sdcard"
 	default "ls1043" if BR2_TARGET_UBOOT_BOARDNAME="ls1043ardb_sdcard"
 	default "ls1043" if BR2_TARGET_UBOOT_BOARDNAME="ls1043ardb_sdcard_baremetal"
 	default "ls1046" if BR2_TARGET_UBOOT_BOARDNAME="ls1046ardb_sdcard"
