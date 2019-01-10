@@ -73,6 +73,10 @@ BR2_PACKAGE_RCW_BIN="ls1028ardb/R_SQPP_85bb/rcw_1300_sd.bin"
 # ppa firmware
 BR2_PACKAGE_PPA=y
 
+#Display port firmware
+BR2_PACKAGE_DP=y
+BR2_PACKAGE_DP_BIN="mhdp_fw_1_0_51-dptx-hdcp-mcu2.bin"
+
 # packages for xenomai
 BR2_PACKAGE_XENOMAI=y
 BR2_PACKAGE_XENOMAI_ARCH_SUPPORTS=y

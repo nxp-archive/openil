@@ -1,0 +1,9 @@
+config BR2_PACKAGE_DP
+	bool "display port firmware"
+	help
+	Display Port, a resident EL3 firmware.
+
+if BR2_PACKAGE_DP
+config BR2_PACKAGE_DP_BIN
+	string "Custom Firmware BIN"
+endif

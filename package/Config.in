@@ -1865,6 +1865,9 @@ endmenu
 menu "ppa firmware"
 	source "package/ppa/Config.in"
 endmenu
+menu "display port firmware"
+	source "package/dp/Config.in"
+endmenu
 menu "Baremetal"
 	source "package/bm-uboot/Config.in"
 	source "package/icc/Config.in"
