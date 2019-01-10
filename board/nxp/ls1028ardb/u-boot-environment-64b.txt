@@ -1,5 +1,5 @@
 baudrate=115200
-bootcmd=setenv bootargs root=/dev/mmcblk0p2 rootwait rw earlycon=uart8250,0x21c0500 console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};bootm ${loadaddr}:kernel@1 - ${loadaddr}:fdt@1
+bootcmd=setenv bootargs root=/dev/mmcblk0p2 rootwait rw earlycon=uart8250,0x21c0500 console=ttyS0,115200 cma=256M video=1920x1080-32@60;mmcinfo;fatload mmc 0:1 0x98000000 ls1028a-dp-fw.bin;hdp load 0x98000000 0x2000;fatload mmc 0:1 ${loadaddr} ${bootfile};bootm ${loadaddr}:kernel@1 - ${loadaddr}:fdt@1
 bootdelay=3
 bootfile=kernel-ls1028a-rdb.itb
 eth2addr=00:1F:7B:63:35:E9
