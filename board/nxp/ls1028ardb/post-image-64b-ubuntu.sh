@@ -32,7 +32,7 @@ main()
 	sed -e "s/%PLATFORM%/${BOARDNAME}/" board/nxp/common/version.json > ${BINARIES_DIR}/version.json
 
 	# build the SDcard image
-	local FILES=""kernel-ls1028a-rdb.itb", "version.json""
+	local FILES=""kernel-ls1028a-rdb.itb", "version.json", "ls1028a-dp-fw.bin""
 	local GENIMAGE_CFG="$(mktemp --suffix genimage.cfg)"
 	local GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 
