@@ -131,3 +131,6 @@ BR2_PACKAGE_TSNTOOL=y
 
 #netperf
 BR2_PACKAGE_NETPERF=y
+
+#libnfc support for MikroBus
+BR2_PACKAGE_LIBNFC_NCI=y
