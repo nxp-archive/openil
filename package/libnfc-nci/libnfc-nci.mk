@@ -15,6 +15,7 @@ TARGET_NAME = $(ARCH)-$(TARGET_OS)-$(LIBC)$(ABI)
 
 define LIBNFC_NCI_CONFIGURE_CMDS
 	cd $(@D) && ./bootstrap && \
+		$(TARGET_CONFIGURE_ARGS) $(TARGET_CONFIGURE_OPTS) $(TARGET_MAKE_ENV) \
 		./configure LDFLAGS=-static --host=$(TARGET_NAME)
 endef
 
