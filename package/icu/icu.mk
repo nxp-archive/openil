@@ -1,7 +1,4 @@
-################################################################################
-#
-# icu
-#
+################################################################################ # # icu #
 ################################################################################
 
 ICU_VERSION = 58.2
@@ -13,6 +10,7 @@ ICU_LICENSE_FILES = LICENSE
 ICU_DEPENDENCIES = host-icu
 ICU_INSTALL_STAGING = YES
 ICU_CONFIG_SCRIPTS = icu-config
+ICU_CPPFLAGS += -I$(TOP_DIR)/output/host/usr/aarch64-buildroot-linux-gnu/sysroot/usr/include
 ICU_CONF_OPTS = \
 	--with-cross-build=$(HOST_ICU_DIR)/source \
 	--disable-samples \

@@ -1,0 +1,52 @@
+From 47ae75ed376b99b0147d624adddf1b6ea50ba2c6 Mon Sep 17 00:00:00 2001
+From: Xiaolin He <xiaolin.he@nxp.com>
+Date: Wed, 23 Jan 2019 15:20:23 +0800
+Subject: [PATCH] add secondHand
+
+Signed-off-by: Xiaolin He <xiaolin.he@nxp.com>
+---
+ examples/gui/analogclock/main.cpp | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/examples/gui/analogclock/main.cpp b/examples/gui/analogclock/main.cpp
+index 053ccb5..831ab11 100644
+--- a/examples/gui/analogclock/main.cpp
++++ b/examples/gui/analogclock/main.cpp
+@@ -99,11 +99,17 @@ void AnalogClockWindow::render(QPainter *p)
+     static const QPoint minuteHand[3] = {
+         QPoint(7, 8),
+         QPoint(-7, 8),
+-        QPoint(0, -70)
++        QPoint(0, -65)
++    };
++    static const QPoint secondHand[3] = {
++        QPoint(7, 8),
++        QPoint(-7, 8),
++        QPoint(0, -90)
+     };
+ 
+     QColor hourColor(127, 0, 127);
+-    QColor minuteColor(0, 127, 127, 191);
++    QColor minuteColor(0, 127, 127, 150);
++    QColor secondColor(0, 160, 230, 150);
+ //! [8]
+ 
+ //! [9]
+@@ -157,6 +163,14 @@ void AnalogClockWindow::render(QPainter *p)
+         p->rotate(6.0);
+     }
+ //! [4]
++	//secondHand
++    p->setPen(Qt::NoPen);
++    p->setBrush(secondColor);
++
++    p->save();
++    p->rotate(6.0 * time.second());
++    p->drawConvexPolygon(secondHand, 3);
++    p->restore();
+ }
+ 
+ int main(int argc, char **argv)
+-- 
+2.17.1
+

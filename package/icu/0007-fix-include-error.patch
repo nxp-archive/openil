@@ -1,0 +1,32 @@
+From 4999dd544729b57c7dc92cbeff289f7c2ec98ac5 Mon Sep 17 00:00:00 2001
+From: Xiaolin He <xiaolin.he@nxp.com>
+Date: Thu, 17 Jan 2019 14:41:33 +0800
+Subject: [PATCH] fix include error Signed-off-by: Xiaolin He
+ <xiaolin.he@nxp.com>
+
+---
+ source/i18n/digitlst.cpp | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/source/i18n/digitlst.cpp b/source/i18n/digitlst.cpp
+index ab5b557..1b0d01e 100644
+--- a/source/i18n/digitlst.cpp
++++ b/source/i18n/digitlst.cpp
+@@ -60,13 +60,7 @@
+ # endif
+ #endif
+ 
+-#if U_USE_STRTOD_L
+-# if U_PLATFORM_USES_ONLY_WIN32_API || U_PLATFORM == U_PF_CYGWIN
+-#   include <locale.h>
+-# else
+-#   include <xlocale.h>
+-# endif
+-#endif
++#include <locale.h>
+ 
+ // ***************************************************************************
+ // class DigitList
+-- 
+2.17.1
+
