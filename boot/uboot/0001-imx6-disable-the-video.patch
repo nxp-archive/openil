@@ -1,0 +1,46 @@
+From ec6d2ddd0695f624b6a84304459bf92286698187 Mon Sep 17 00:00:00 2001
+From: Changming Huang <jerry.huang@nxp.com>
+Date: Fri, 1 Feb 2019 21:25:05 +0800
+Subject: [PATCH] imx6: disable the video
+
+Signed-off-by: Changming Huang <jerry.huang@nxp.com>
+---
+ configs/mx6sabresd_defconfig      | 1 -
+ include/configs/mx6sabre_common.h | 3 ++-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configs/mx6sabresd_defconfig b/configs/mx6sabresd_defconfig
+index 83b8bed..9285970 100644
+--- a/configs/mx6sabresd_defconfig
++++ b/configs/mx6sabresd_defconfig
+@@ -65,6 +65,5 @@ CONFIG_USB_GADGET_PRODUCT_NUM=0xa4a5
+ CONFIG_CI_UDC=y
+ CONFIG_USB_HOST_ETHER=y
+ CONFIG_USB_ETHER_ASIX=y
+-CONFIG_VIDEO=y
+ # CONFIG_VIDEO_SW_CURSOR is not set
+ CONFIG_OF_LIBFDT=y
+diff --git a/include/configs/mx6sabre_common.h b/include/configs/mx6sabre_common.h
+index d976e77..487d7d6 100644
+--- a/include/configs/mx6sabre_common.h
++++ b/include/configs/mx6sabre_common.h
+@@ -197,6 +197,7 @@
+ #endif
+ 
+ /* Framebuffer */
++/*
+ #define CONFIG_VIDEO_IPUV3
+ #define CONFIG_VIDEO_BMP_RLE8
+ #define CONFIG_SPLASH_SCREEN
+@@ -206,7 +207,7 @@
+ #define CONFIG_VIDEO_BMP_LOGO
+ #define CONFIG_IMX_HDMI
+ #define CONFIG_IMX_VIDEO_SKIP
+-
++*/
+ #define CONFIG_USBD_HS
+ 
+ #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */
+-- 
+2.7.4
+
