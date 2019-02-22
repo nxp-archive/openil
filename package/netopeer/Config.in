@@ -2,6 +2,10 @@ config BR2_PACKAGE_NETOPEER
 	bool "netopeer-server"
 	select BR2_PACKAGE_PYANG
 	select BR2_PACKAGE_LIBNETCONF
+	select BR2_PACKAGE_PYTHON_CURSES
+	select BR2_PACKAGE_PYTHON_PYEXPAT
+	select BR2_PACKAGE_PYTHON_LIBXML2
+	select BR2_PACKAGE_OPENSSH
 	help
 	  Netopeer is a set of NETCONF tools built on the libnetconf library.
 	  It allows operators to connect to their NETCONF-enabled devices as

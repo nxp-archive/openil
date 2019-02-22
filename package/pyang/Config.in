@@ -1,4 +1,5 @@
 config BR2_PACKAGE_PYANG
+	select BR2_PACKAGE_PYTHON
 	select BR2_PACKAGE_PYTHON_LXML
 	bool "pyang"
 	help
