@@ -6,7 +6,7 @@
 
 STRACE_VERSION = 4.15
 STRACE_SOURCE = strace-$(STRACE_VERSION).tar.xz
-STRACE_SITE = http://downloads.sourceforge.net/project/strace/strace/$(STRACE_VERSION)
+STRACE_SITE = https://github.com/strace/strace/releases/download/v$(STRACE_VERSION)
 STRACE_LICENSE = BSD-3c
 STRACE_LICENSE_FILES = COPYING
 
