@@ -10,7 +10,7 @@ TSNTOOL_SITE_METHOD = git
 TSNTOOL_LICENSE = MIT/GPL2.0
 TSNTOOL_LICENSE_FILES = LICENSE
 TSNTOOL_INSTALL_STAGING = YES
-TSNTOOL_DEPENDENCIES = libnl readline ncurses
+TSNTOOL_DEPENDENCIES = linux libnl readline ncurses
 
 define TSNTOOL_BUILD_CMDS
 	mkdir -p $(@D)/include/linux/;
