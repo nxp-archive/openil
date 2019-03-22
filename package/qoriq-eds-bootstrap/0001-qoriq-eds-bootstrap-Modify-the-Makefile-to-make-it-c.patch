@@ -1,0 +1,36 @@
+From 6817317093c5faf5b9e77bea61a42c56b5527734 Mon Sep 17 00:00:00 2001
+From: Xianyu Wei <xianyu.wei@nxp.com>
+Date: Tue, 12 Mar 2019 17:25:44 +0800
+Subject: [PATCH] qoriq-eds-bootstrap: Modify the Makefile to make it can
+ compiles in openil
+
+Signed-off-by: Xianyu Wei <xianyu.wei@nxp.com>
+---
+ Makefile | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 9e7f56e..4422f9c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -4,11 +4,14 @@
+ #
+ #####################################
+ 
+-INSTALL_DIR ?= /
++INSTALL_DIR := $(DESTDIR)
+ INSTALL ?= install
+-ARCH ?= arm64
++BOOTSTRAP_ARCH := arm64
++ifdef ARCH
++BOOTSTRAP_ARCH := $(ARCH)
++endif
+ 
+ install:
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/bin
+-	sudo cp -r ${ARCH}/bootstrap-enroll $(INSTALL_DIR)/usr/local/edgescale/bin/
++	cp -r ${BOOTSTRAP_ARCH}/bootstrap-enroll $(INSTALL_DIR)/usr/local/edgescale/bin/
+ 
+-- 
+2.7.4
+

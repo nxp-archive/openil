@@ -1836,7 +1836,11 @@ menu "Text editors and viewers"
 	source "package/uemacs/Config.in"
 	source "package/vim/Config.in"
 endmenu
-
+menu "Edge-scale service"
+	source "package/qoriq-edgescale-eds/Config.in"
+	source "package/qoriq-eds-kubelet/Config.in"
+	source "package/qoriq-eds-bootstrap/Config.in"
+endmenu
 menu "Netconf Supporting"
 	source "package/pyang/Config.in"
 	source "package/libnetconf/Config.in"
