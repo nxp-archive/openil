@@ -1,5 +1,6 @@
 baudrate=115200
-bootcmd=setenv bootargs root=/dev/ram0 rw earlycon=uart8250,0x21c0500 console=ttyS0,115200;pfe stop; sf probe 0:0; sf read $kernel_load $kernel_start $kernel_size && bootm $kernel_load
+bootfile=kernel-ls1012a-rdb.itb
+bootcmd=setenv bootargs root=/dev/mmcblk0p2 rootwait rw earlycon=uart8250,0x21c0500 console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};bootm $loadaddr:kernel@1 - $loadaddr:fdt@1
 bootdelay=3
 eth1addr=00:04:9f:04:9f:b6
 ethact=pfe_eth0
@@ -12,7 +13,7 @@ ipaddr=192.168.1.3
 kernel_load=0xa0000000
 kernel_size=0x2800000
 kernel_start=0x1000000
-loadaddr=0x80100000
+loadaddr=0xa0000000
 scsidevs=0
 serverip=192.168.1.1
 stderr=serial
