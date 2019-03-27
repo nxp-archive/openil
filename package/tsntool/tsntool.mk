@@ -28,4 +28,12 @@ define TSNTOOL_INSTALL_TARGET_CMDS
 	cp -rf package/tsntool/samples/ $(TARGET_DIR)/root
 endef
 
+define TSNTOOL_INSTALL_STAGING_CMDS
+    $(INSTALL) -D -m 0755 $(BUILD_DIR)/linux-$(BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION)/include/uapi/linux/tsn.h \
+			  $(STAGING_DIR)/usr/include/linux/;
+	$(INSTALL) -d $(STAGING_DIR)/usr/include/tsn;
+	$(INSTALL) -D -m 0755 $(@D)/include/tsn/genl_tsn.h $(STAGING_DIR)/usr/include/tsn;
+	$(INSTALL) -D -m 0755 $(@D)/libtsn.so $(STAGING_DIR)/usr/lib/;
+endef
+
 $(eval $(generic-package))
