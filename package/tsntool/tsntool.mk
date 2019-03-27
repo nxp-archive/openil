@@ -22,9 +22,6 @@ endef
 define TSNTOOL_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/libtsn.so $(TARGET_DIR)/usr/lib/;
 	$(INSTALL) -D -m 0755 $(@D)/tsntool $(TARGET_DIR)/usr/bin/;
-	$(INSTALL) -D -m 0755 $(@D)/include/linux/tsn.h $(STAGING_DIR)/usr/include/;
-	$(INSTALL) -D -m 0755 $(@D)/include/tsn/genl_tsn.h $(STAGING_DIR)/usr/include/;
-	$(INSTALL) -D -m 0755 $(@D)/libtsn.so $(STAGING_DIR)/usr/lib/;
 	cp -rf package/tsntool/samples/ $(TARGET_DIR)/root
 endef
 
