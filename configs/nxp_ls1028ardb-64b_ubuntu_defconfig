@@ -62,6 +62,7 @@ BR2_PACKAGE_HOST_MTOOLS=y
 BR2_ROOTFS_POST_BUILD_SCRIPT="board/nxp/common/post-build-ubuntu-base-16.04.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/nxp/ls1028ardb/post-image-64b-ubuntu.sh"
 BR2_ROOTFS_POST_SCRIPT_ARGS="$(LINUX_DIR) $(TOPDIR) $(UBOOT_DIR)"
+BR2_ROOTFS_POST_CFG_UDEV="board/nxp/ls1028ardb/post-cfg-udev.sh"
 
 # extend the partition size
 BR2_TARGET_ROOTFS_EXT2_EXTRA_BLOCKS=102400

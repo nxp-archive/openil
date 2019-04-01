@@ -135,3 +135,7 @@ BR2_PACKAGE_NETPERF=y
 
 #libnfc support for MikroBus
 BR2_PACKAGE_LIBNFC_NCI=y
+
+#eudev support
+BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
+BR2_ROOTFS_POST_CFG_UDEV="board/nxp/ls1028ardb/post-cfg-udev.sh"
