@@ -587,6 +587,12 @@ config BR2_ROOTFS_POST_BUILD_SCRIPT
 	  argument. Make sure the exit code of those scripts are 0, otherwise
 	  make will stop after calling them.
 
+config BR2_ROOTFS_POST_CFG_UDEV
+	string "Custom scripts to configure udev file system"
+	default ""
+	help
+	  Configure the udev file system
+
 config BR2_ROOTFS_POST_FAKEROOT_SCRIPT
 	string "Custom scripts to run inside the fakeroot environment"
 	default ""
