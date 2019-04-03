@@ -1,5 +1,6 @@
 # Architecture
 BR2_aarch64=y
+BR2_cortex_a72=y
 
 # toolchain
 BR2_TOOLCHAIN_EXTERNAL=y
