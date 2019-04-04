@@ -1,0 +1,264 @@
+---------------------------------------------------------------------------
+yang-tsn introduction
+----------------------
+
+Model tsn used for configure switch in the ls1028ardb board.
+
+---------------------------------------------------------------------------
+Environment setup
+------------------
+
+# netopeer-server.
+Select on the
+Target packages -> Netconf Supporting -> yang-tsn
+
+# netopeer-cli
+Usually, User need to install netopeer clienton on a CentOS/Ubuntu PC to run netopeer-cli.
+
+Meanwhile, for convenience, user can also enable netopeer-cli on the
+Target packages -> Netconf Supporting-> netopeer-client
+By doing so, user can avoid disturbing installation of netopeer client
+
+Make sure the netconf server is running(check netopeer-server is running at ls1028ardb).
+
+if netopeer-server is not running. Input command to let it run(verbose mode):
+
+	/usr/local/bin/netopeer-server -v 3
+
+---------------------------------------------------------------------------
+Introduction of client commands
+--------------------------------
+User can get more information by "help" command in netopeer-cli's interactive environment
+
+Test commands at netopeer-client:
+
+# Start client software
+
+	>$ netopeer-cli
+	
+
+- connect
+
+	#Connect the netconf server ls1021atsn board(use the ip on ls1021atsn, here 10.193.20.53 is example):
+
+		netconf> connect --port 830 --login root 10.193.20.53(device ip address)
+	#Because 830 is default configuration of netopeer, By default, user can also use following comand
+		netconf> connect --login root 10.193.20.53(device ip address)
+
+- lock
+	#Allows the client to lock the entire configuration datastore system of a device. 
+	#Such locks are intended to be short-lived and allow a client to make a change
+	#without fear of interaction with other NETCONF clients, nonNETCONF clients (e.g., 
+	#SNMP and command line interface (CLI) scripts), and human users.
+	#User can lock running/candidate/startup datastore with following command
+	
+		netconf> lock running
+		netconf> lock candidate
+		netconf> lock startup
+		
+	#Note: if the target datastore is candidate, User would get the error "Candidate datastore not 
+	#		locked but already modified." when the value of modified in candidate property is true.
+	#		User can copy configuration from running to candidate to solve this issue
+
+- get
+
+	#Get staus datas of server
+
+		netconf> get
+	
+
+	#User can get datas what he want by --filter option
+	
+		netconf> get --filter
+	
+	#User must input the data's node, following are some examples
+	
+		# ege1:get nacm node
+			<nacm/>
+		# ege2:get tsn node
+			<tsn/>
+		# ege3:get nacm node and tsn node
+			<nacm/>
+			<tsn/>
+		# ege4:get dinterfaces node in tsn node
+			<tsn>
+				<dinterfaces/>
+			</tsn>
+	
+		
+- get-config
+
+	#Get current startup configs:
+
+		netconf> get-config startup
+	
+	#Get current running configs:
+
+		netconf> get-config running
+
+	#Get current candidate configs:
+
+		netconf> get-config candidate
+	
+	
+	#User can get configuration data what he want by --filter option
+		netconf> get-config running --filter
+	#User must input the data's node, following are some examples
+		# ege1:get netopeer node
+			<netopeer/>
+		# ege2:get tsn node
+			<tsn/>
+		# ege3:get netopeer node and tsn node
+			<netopeer/>
+			<tsn/>
+	
+- edit-config
+
+	#User can edit any element or multi elements in the module
+
+	netconf> edit-config candidate
+
+	#Candidate modification would only effect the candidate datastore. 
+	#Not really modify into switch configuration of ls1028.
+	#If user want to apply the configuration in running datastore to switch,
+	#comand "apply_config" via "user-rpc” should be used
+		
+	netconf> edit-config running
+
+	#Running modification would only effect the running datastore. Not really modify into switch configuration of ls1028.
+	
+	#Input below text into the editor and wait for got 'OK' message:
+	# For example: below message means edit entry index 1 in l2-policing-table
+	
+		<tsn xmlns="http://nxp.com/ns/yang/tsn">
+		  <interfaces>
+			<device-id>device01</device-id>
+			<interface>
+				<name>swp0</name>
+				<gate-enabled>true</gate-enabled>
+			</interface>
+		  </interfaces>
+		</tsn>
+
+- copy-config
+	#User can copy the configuration data node between different configuration data nodes or files
+	
+	#Copy configuration from running datastore to candidate datastore. This will effect on all modules
+	#enabled in netopeer server, including the server's datastore 
+		netconf> copy-config --source running candidate
+	
+	#Copy configuration from file on client device to candidate datastore. 
+		netconf> copy-config --config <file> candidate
+		#Note: the file should be in xml format
+
+
+- commit
+
+	#'commit' command will copy the candidate area data into running area. This will effect on all modules
+	#enabled in netopeer server, including the server's datastore
+
+	netconf> commit
+
+
+- discard-changes
+	#'discard-changes' simply resets the candidate datastore to be the same as the running datastore, 
+	# but that should be so by default when starting netopeer-server. You should read about it in the NETCONF RFC. 
+	# It is suggested to run 'get-config candidate' and 'get-config running' check whether they are same or not
+	# every after connect opertion. If not, run 'discard-changes' first.
+
+	netconf> discard-changes
+
+
+- user-rpc
+	#There are 3 RPCs, naming get_ports_name, validate_config and apply_config
+
+	# user can get device's port name
+	# by user-rpc with message:
+
+	netconf> user-rpc
+
+	#Input below text into the editor(nc_standard.xml is an example name):
+	
+		<get_ports_name xmlns="http://nxp.com/ns/yang/tsn">
+		</get_ports_name>
+
+	#Note: you can also use file with the same content to realize this.
+		user-rpc --file [file]
+
+
+	# user can validate the configuration in candidate datastore
+	# by user-rpc with message:
+
+	netconf> user-rpc
+
+	#Input below text into the editor(nc_standard.xml is an example name):
+	
+		<validate_config xmlns="http://nxp.com/ns/yang/tsn">
+		</validate_config>
+
+
+	# User can apply the configuration in running datastore(really modify the device's tsn configuratin)
+	# by user-rpc with message:
+
+	netconf> user-rpc
+
+	#Input below text into the editor(nc_standard.xml is an example name):
+	
+		<apply_config xmlns="http://nxp.com/ns/yang/tsn">
+		</apply_config>
+		
+- disconnect
+	#Disconnect from netopeer server
+	
+- quit
+	#Quit the program
+
+---------------------------------------------------------------------------		
+Recommended operational steps
+-------------------------------
+#step 1: run netopeer-cli
+	>$ netopeer-cli
+
+#step 2: connect to server
+	netconf> connect --login root 10.193.20.6(server-ip)
+
+#step 3: sync running and candidate datastores
+	netconf> discard-changes
+
+#step 4: lock running and candidate datastores
+	netconf> lock candidate
+	netconf> lock running
+
+#step 5: momdify candidate datastore
+	netconf> copy-config --config ls1028_tsn_config.xml candidate
+
+#step 6: validate cofiguration in candidate datastores
+	netconf> user-rpc --file validate_config.xml
+	#The content of validate_config.xml is as following:
+		<validate_config xmlns="http://nxp.com/ns/yang/tsn"/>
+	#User can find validate_config.xml in packages/yang-tsn/examples
+
+#step 7: commit cofiguration
+	netconf> commit
+	
+#step 8: apply cofiguration in running datastores
+	netconf> user-rpc --file apply_config.xml
+	#The content of apply_config.xml is as following:
+		<apply_config xmlns="http://nxp.com/ns/yang/tsn"/>
+	#User can find apply_config.xml in packages/yang-tsn/examples
+
+#step 9: unlock running and candidate datastores
+	netconf> unlock candidate
+	netconf> unlock running
+
+#step 10: disconnect from server
+	netconf> disconnect
+
+#step 11: exit netopeer-cli
+	netconf> quit
+
+---------------------------------------------------------------------------		
+Example files
+--------------
+There are some helpful files mentioned above in packages/yang-tsn/examples path.
+ 

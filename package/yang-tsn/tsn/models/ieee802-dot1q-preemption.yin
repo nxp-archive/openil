@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="ieee802-dot1q-preemption"
+        xmlns="urn:ietf:params:xml:ns:yang:yin:1"
+        xmlns:preempt="urn:ieee:std:802.1Q:yang:ieee802-dot1q-preemption"
+        xmlns:dot1q-types="urn:ieee:std:802.1Q:yang:ieee802-dot1q-types"
+        xmlns:if="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+  <namespace uri="urn:ieee:std:802.1Q:yang:ieee802-dot1q-preemption"/>
+  <prefix value="preempt"/>
+  <import module="ieee802-dot1q-types">
+    <prefix value="dot1q-types"/>
+  </import>
+  <import module="ietf-interfaces">
+    <prefix value="if"/>
+  </import>
+  <organization>
+    <text>IEEE 802.1 Working Group</text>
+  </organization>
+  <contact>
+    <text>WG-URL: http://www.ieee802.org/1/
+WG-EMail: stds-802-1-L@ieee.org
+    
+Contact: IEEE 802.1 Working Group Chair
+Postal: C/O IEEE 802.1 Working Group
+IEEE Standards Association
+445 Hoes Lane
+P.O. Box 1331
+Piscataway
+NJ 08855-1331
+USA
+    
+E-mail: STDS-802-1-L@IEEE.ORG</text>
+  </contact>
+  <description>
+    <text>This module provides for management of IEEE Std 802.1Q Bridges
+that support Frame Preemption.</text>
+  </description>
+  <revision date="2018-09-10">
+    <description>
+      <text>Update for P802.1Qcw/D0.1</text>
+    </description>
+    <reference>
+      <text>IEEE Std 802.1Qbu-2016</text>
+    </reference>
+  </revision>
+  <feature name="frame-preemption">
+    <description>
+      <text>Each / A Port supports Frame Preemption.</text>
+    </description>
+    <reference>
+      <text>IEEE Std 802.1Qbu-2016</text>
+    </reference>
+  </feature>
+  <augment target-node="/if:interfaces/if:interface">
+    <if-feature name="frame-preemption"/>
+    <description>
+      <text>Augment interface management with Frame Preemption
+configuration.</text>
+    </description>
+    <container name="frame-preemption-parameters">
+      <description>
+        <text>A table containing a set of frame preemption parameters, one
+for each Port. All writeable objects in this table must be
+persistent over power up restart/reboot.</text>
+      </description>
+      <reference>
+        <text>12.30.1 of IEEE Std 802.1Qbu-2016
+6.7.2 of IEEE Std 802.1Qbu-2016</text>
+      </reference>
+      <list name="frame-preemption-status-table">
+        <key value="traffic-class"/>
+        <description>
+          <text>The framePreemptionStatusTable (6.7.2) consists of 8
+framePreemptionAdminStatus values (12.30.1.1.1), one per
+priority</text>
+        </description>
+        <reference>
+          <text>12.30.1.1 of IEEE Std 802.1Qbu-2016
+6.7.2 of IEEE Std 802.1Qbu-2016</text>
+        </reference>
+        <leaf name="traffic-class">
+          <type name="dot1q-types:traffic-class-type"/>
+          <description>
+            <text>Traffic class</text>
+          </description>
+        </leaf>
+        <leaf name="frame-preemption-status">
+          <type name="enumeration">
+            <enum name="express">
+              <value value="1"/>
+              <description>
+                <text>Frames queued for the priority are to be transmitted
+using the express service for the Port.</text>
+              </description>
+            </enum>
+            <enum name="preemptable">
+              <value value="2"/>
+              <description>
+                <text>Frames queued for the priority are to be transmitted
+using the preemptable service for the Port and
+preemption is enabled for the Port.</text>
+              </description>
+            </enum>
+          </type>
+          <description>
+            <text>The value of the framePreemptionAdminStatus parameter for
+the traffic class. The default value of the
+framePreemptionAdminStatus parameter is express (1). The
+value of this object MUST be retained across
+reinitializations of the management system.</text>
+          </description>
+          <reference>
+            <text>12.30.1.1.1 of IEEE Std 802.1Qbu-2016
+6.7.2 of IEEE Std 802.1Qbu-2016</text>
+          </reference>
+        </leaf>
+      </list>
+      <leaf name="hold-advance">
+        <type name="uint32"/>
+        <config value="false"/>
+        <description>
+          <text>The value of the holdAdvance parameter for the Port in
+nanoseconds. There is no default value; the holdAdvance is a
+property of the underlying MAC.</text>
+        </description>
+        <reference>
+          <text>12.30.1.2 of IEEE Std 802.1Qbu-2016
+6.7.2 of IEEE Std 802.1Qbu-2016</text>
+        </reference>
+      </leaf>
+      <leaf name="release-advance">
+        <type name="uint32"/>
+        <config value="false"/>
+        <description>
+          <text>The value of the releaseAdvance parameter for the Port in
+nanoseconds. There is no default value; the holdAdvance is a
+property of the underlying MAC.</text>
+        </description>
+        <reference>
+          <text>12.30.1.3 of IEEE Std 802.1Qbu-2016
+6.7.2 of IEEE Std 802.1Qbu-2016</text>
+        </reference>
+      </leaf>
+      <leaf name="preemption-active">
+        <type name="boolean"/>
+        <config value="false"/>
+        <description>
+          <text>TRUE if preemption is both supported by the MAC and
+currently active.</text>
+        </description>
+        <reference>
+          <text>12.30.1.4 of IEEE Std 802.1Qbu-2016
+6.7.2 of IEEE Std 802.1Qbu-2016</text>
+        </reference>
+      </leaf>
+      <leaf name="hold-request">
+        <type name="enumeration">
+          <enum name="hold">
+            <value value="1"/>
+            <description>
+              <text>Sequence of gate operations for the Port has executed a
+Set-And-Hold-MAC operation.</text>
+            </description>
+          </enum>
+          <enum name="release">
+            <value value="2"/>
+            <description>
+              <text>Sequence of gate operations for the Port has executed a
+Set-And-Release-MAC operation.</text>
+            </description>
+          </enum>
+        </type>
+        <config value="false"/>
+        <description>
+          <text>The value is hold (1) when the sequence of gate operations
+for the Port has executed a Set-And-Hold-MAC operation, and
+release (2) when the sequence of gate operations has
+executed a Set-And-Release-MAC operation. The value of this
+object is release (2) on system initialization.</text>
+        </description>
+        <reference>
+          <text>12.30.1.5 of IEEE Std 802.1Qbu-2016
+6.7.2 of IEEE Std 802.1Qbu-2016</text>
+        </reference>
+      </leaf>
+    </container>
+  </augment>
+</module>

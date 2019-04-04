@@ -1,0 +1,2 @@
+nxp="http://nxp.com/ns/yang/tsn"
+/nxp:tsn

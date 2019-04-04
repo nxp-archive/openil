@@ -1,0 +1,1113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="ieee802-dot1q-types"
+        xmlns="urn:ietf:params:xml:ns:yang:yin:1"
+        xmlns:dot1q-types="urn:ieee:std:802.1Q:yang:ieee802-dot1q-types"
+        xmlns:yang="urn:ietf:params:xml:ns:yang:ietf-yang-types">
+  <namespace uri="urn:ieee:std:802.1Q:yang:ieee802-dot1q-types"/>
+  <prefix value="dot1q-types"/>
+  <import module="ietf-yang-types">
+    <prefix value="yang"/>
+  </import>
+  <organization>
+    <text>IEEE 802.1 Working Group</text>
+  </organization>
+  <contact>
+    <text>WG-URL: http://www.ieee802.org/1/
+WG-EMail: stds-802-1-L@ieee.org
+    
+Contact: IEEE 802.1 Working Group Chair
+Postal: C/O IEEE 802.1 Working Group
+       IEEE Standards Association
+       445 Hoes Lane
+       P.O. Box 1331
+       Piscataway
+       NJ 08854
+       USA
+    
+E-mail: STDS-802-1-L@IEEE.ORG</text>
+  </contact>
+  <description>
+    <text>Common types used within dot1Q-bridge modules.</text>
+  </description>
+  <revision date="2018-03-07">
+    <description>
+      <text>Published as part of IEEE Std 802.1Q-2018.
+Initial version.</text>
+    </description>
+    <reference>
+      <text>IEEE Std 802.1Q-2018, Bridges and Bridged Networks.</text>
+    </reference>
+  </revision>
+  <identity name="dot1q-vlan-type">
+    <description>
+      <text>Base identity from which all 802.1Q VLAN tag types are derived
+from.</text>
+    </description>
+  </identity>
+  <identity name="c-vlan">
+    <base name="dot1q-vlan-type"/>
+    <description>
+      <text>An 802.1Q Customer VLAN, using the 81-00 EtherType</text>
+    </description>
+    <reference>
+      <text>5.5 of IEEE Std 802.1Q-2018</text>
+    </reference>
+  </identity>
+  <identity name="s-vlan">
+    <base name="dot1q-vlan-type"/>
+    <description>
+      <text>An 802.1Q Service VLAN, using the 88-A8 EtherType originally
+introduced in 802.1ad, and incorporated into 802.1Q (2011)</text>
+    </description>
+    <reference>
+      <text>5.6 of IEEE Std 802.1Q-2018</text>
+    </reference>
+  </identity>
+  <typedef name="name-type">
+    <type name="string">
+      <length value="0..32"/>
+    </type>
+    <description>
+      <text>A text string of up to 32 characters, of locally determined
+significance.</text>
+    </description>
+  </typedef>
+  <typedef name="port-number-type">
+    <type name="uint32">
+      <range value="1..65535"/>
+    </type>
+    <description>
+      <text>The port number of the Bridge port for which this entry
+contains Bridge management information.</text>
+    </description>
+  </typedef>
+  <typedef name="priority-type">
+    <type name="uint8">
+      <range value="0..7"/>
+    </type>
+    <description>
+      <text>A range of priorities from 0 to 7 (inclusive). The Priority
+Code Point (PCP) is a 3-bit field that refers to the class of
+service associated with an 802.1Q VLAN tagged frame. The field
+specifies a priority value between 0 and 7, these values can be
+used by quality of service (QoS) to prioritize different classes
+of traffic.</text>
+    </description>
+  </typedef>
+  <typedef name="vid-range-type">
+    <type name="string">
+      <pattern value="([1-9][0-9]{0,3}(-[1-9][0-9]{0,3})?(,[1-9][0-9]{0,3}(-[1-9][0-9]{0,3})?)*)"/>
+    </type>
+    <description>
+      <text>A list of VLAN Ids, or non overlapping VLAN ranges, in
+ascending order, between 1 and 4094.
+      
+This type is used to match an ordered list of VLAN Ids, or
+contiguous ranges of VLAN Ids. Valid VLAN Ids must be in the
+range 1 to 4094, and included in the list in non overlapping
+ascending order.
+      
+For example: 1,10-100,250,500-1000</text>
+    </description>
+  </typedef>
+  <typedef name="vlanid">
+    <type name="uint16">
+      <range value="1..4094"/>
+    </type>
+    <description>
+      <text>The vlanid type uniquely identifies a VLAN. This is the 12-bit
+VLAN-ID used in the VLAN Tag header. The range is defined by the
+referenced specification. This type is in the value set and its
+semantics equivalent to the VlanId textual convention of the
+SMIv2.</text>
+    </description>
+  </typedef>
+  <typedef name="vlan-index-type">
+    <type name="uint32">
+      <range value="1..4094 | 4096..4294967295"/>
+    </type>
+    <description>
+      <text>A value used to index per-VLAN tables. Values of 0 and 4095 are
+not permitted. The range of valid VLAN indices. If the value is
+greater than 4095, then it represents a VLAN with scope local to
+the particular agent, i.e., one without a global VLAN-ID
+assigned to it. Such VLANs are outside the scope of IEEE 802.1Q,
+but it is convenient to be able to manage them in the same way
+using this YANG module.</text>
+    </description>
+    <reference>
+      <text>9.6 of IEEE Std 802.1Q-2018</text>
+    </reference>
+  </typedef>
+  <typedef name="mstid-type">
+    <type name="uint32">
+      <range value="1..4094"/>
+    </type>
+    <description>
+      <text>In an MSTP Bridge, an MSTID, i.e., a value used to identify a
+spanning tree (or MST) instance</text>
+    </description>
+    <reference>
+      <text>13.8 of IEEE Std 802.1Q-2018</text>
+    </reference>
+  </typedef>
+  <typedef name="pcp-selection-type">
+    <type name="enumeration">
+      <enum name="8P0D">
+        <description>
+          <text>8 priorities, 0 drop eligible</text>
+        </description>
+      </enum>
+      <enum name="7P1D">
+        <description>
+          <text>7 priorities, 1 drop eligible</text>
+        </description>
+      </enum>
+      <enum name="6P2D">
+        <description>
+          <text>6 priorities, 2 drop eligible</text>
+        </description>
+      </enum>
+      <enum name="5P3D">
+        <description>
+          <text>5 priorities, 3 drop eligible</text>
+        </description>
+      </enum>
+    </type>
+    <description>
+      <text>Priority Code Point selection types.</text>
+    </description>
+    <reference>
+      <text>12.6.2.5.3 of IEEE Std 802.1Q-2018
+6.9.3 of IEEE Std 802.1Q-2018</text>
+    </reference>
+  </typedef>
+  <typedef name="protocol-frame-format-type">
+    <type name="enumeration">
+      <enum name="Ethernet">
+        <description>
+          <text>Ethernet frame format</text>
+        </description>
+      </enum>
+      <enum name="rfc1042">
+        <description>
+          <text>RFC 1042 frame format</text>
+        </description>
+      </enum>
+      <enum name="snap8021H">
+        <description>
+          <text>SNAP 802.1H frame format</text>
+        </description>
+      </enum>
+      <enum name="snapOther">
+        <description>
+          <text>Other SNAP frame format</text>
+        </description>
+      </enum>
+      <enum name="llcOther">
+        <description>
+          <text>Other LLC frame format</text>
+        </description>
+      </enum>
+    </type>
+    <description>
+      <text>A value representing the frame format to be matched.</text>
+    </description>
+    <reference>
+      <text>12.10.1.7.1 of IEEE Std 802.1Q-2018</text>
+    </reference>
+  </typedef>
+  <typedef name="ethertype-type">
+    <type name="string">
+      <pattern value="[0-9a-fA-F]{2}-[0-9a-fA-F]{2}"/>
+    </type>
+    <description>
+      <text>The EtherType value represented in the canonical order defined
+by IEEE 802. The canonical representation uses uppercase
+characters.</text>
+    </description>
+    <reference>
+      <text>9.2 of IEEE Std 802-2014</text>
+    </reference>
+  </typedef>
+  <typedef name="dot1q-tag-type">
+    <type name="identityref">
+      <base name="dot1q-vlan-type"/>
+    </type>
+    <description>
+      <text>Identifies a specific 802.1Q tag type</text>
+    </description>
+    <reference>
+      <text>IEEE Std 802.1Q-2018</text>
+    </reference>
+  </typedef>
+  <typedef name="traffic-class-type">
+    <type name="uint8">
+      <range value="0..7"/>
+    </type>
+    <description>
+      <text>This is the numerical value associated with a traffic class in
+a Bridge. Larger values are associated with higher priority
+traffic classes.</text>
+    </description>
+    <reference>
+      <text>3.239 of IEEE Std 802.1Q-2018</text>
+    </reference>
+  </typedef>
+  <grouping name="dot1q-tag-classifier-grouping">
+    <description>
+      <text>A grouping which represents an 802.1Q VLAN, matching both the
+EtherType and a single VLAN Id.</text>
+    </description>
+    <leaf name="tag-type">
+      <type name="dot1q-tag-type"/>
+      <mandatory value="true"/>
+      <description>
+        <text>VLAN type</text>
+      </description>
+    </leaf>
+    <leaf name="vlan-id">
+      <type name="vlanid"/>
+      <mandatory value="true"/>
+      <description>
+        <text>VLAN Id</text>
+      </description>
+    </leaf>
+  </grouping>
+  <grouping name="dot1q-tag-or-any-classifier-grouping">
+    <description>
+      <text>A grouping which represents an 802.1Q VLAN, matching both the
+EtherType and a single VLAN Id or 'any' to match on any VLAN Id.</text>
+    </description>
+    <leaf name="tag-type">
+      <type name="dot1q-tag-type"/>
+      <mandatory value="true"/>
+      <description>
+        <text>VLAN type</text>
+      </description>
+    </leaf>
+    <leaf name="vlan-id">
+      <type name="union">
+        <type name="vlanid"/>
+        <type name="enumeration">
+          <enum name="any">
+            <value value="4095"/>
+            <description>
+              <text>Matches 'any' VLAN in the range 1 to 4094 that is not
+matched by a more specific VLAN Id match</text>
+            </description>
+          </enum>
+        </type>
+      </type>
+      <mandatory value="true"/>
+      <description>
+        <text>VLAN Id or any</text>
+      </description>
+    </leaf>
+  </grouping>
+  <grouping name="dot1q-tag-ranges-classifier-grouping">
+    <description>
+      <text>A grouping which represents an 802.1Q VLAN that matches a range
+of VLAN Ids.</text>
+    </description>
+    <leaf name="tag-type">
+      <type name="dot1q-tag-type"/>
+      <mandatory value="true"/>
+      <description>
+        <text>VLAN type</text>
+      </description>
+    </leaf>
+    <leaf name="vlan-ids">
+      <type name="vid-range-type"/>
+      <mandatory value="true"/>
+      <description>
+        <text>VLAN Ids</text>
+      </description>
+    </leaf>
+  </grouping>
+  <grouping name="dot1q-tag-ranges-or-any-classifier-grouping">
+    <description>
+      <text>A grouping which represents an 802.1Q VLAN, matching both the
+EtherType and a single VLAN Id, ordered list of ranges, or 'any'
+to match on any VLAN Id.</text>
+    </description>
+    <leaf name="tag-type">
+      <type name="dot1q-tag-type"/>
+      <mandatory value="true"/>
+      <description>
+        <text>VLAN type</text>
+      </description>
+    </leaf>
+    <leaf name="vlan-id">
+      <type name="union">
+        <type name="vid-range-type"/>
+        <type name="enumeration">
+          <enum name="any">
+            <value value="4095"/>
+            <description>
+              <text>Matches 'any' VLAN in the range 1 to 4094.</text>
+            </description>
+          </enum>
+        </type>
+      </type>
+      <mandatory value="true"/>
+      <description>
+        <text>VLAN Ids or any</text>
+      </description>
+    </leaf>
+  </grouping>
+  <grouping name="priority-regeneration-table-grouping">
+    <description>
+      <text>The priority regeneration table provides the ability to map
+incoming priority values on a per-Port basis, under management
+control.</text>
+    </description>
+    <reference>
+      <text>6.9.4 of IEEE Std 802.1Q-2018</text>
+    </reference>
+    <leaf name="priority0">
+      <type name="priority-type"/>
+      <default value="0"/>
+      <description>
+        <text>Priority 0</text>
+      </description>
+      <reference>
+        <text>12.6.2.3 of IEEE Std 802.1Q-2018
+6.9.4 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority1">
+      <type name="priority-type"/>
+      <default value="1"/>
+      <description>
+        <text>Priority 1</text>
+      </description>
+      <reference>
+        <text>12.6.2.3 of IEEE Std 802.1Q-2018
+6.9.4 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority2">
+      <type name="priority-type"/>
+      <default value="2"/>
+      <description>
+        <text>Priority 2</text>
+      </description>
+      <reference>
+        <text>12.6.2.3 of IEEE Std 802.1Q-2018
+6.9.4 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority3">
+      <type name="priority-type"/>
+      <default value="3"/>
+      <description>
+        <text>Priority 3</text>
+      </description>
+      <reference>
+        <text>12.6.2.3 of IEEE Std 802.1Q-2018
+6.9.4 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority4">
+      <type name="priority-type"/>
+      <default value="4"/>
+      <description>
+        <text>Priority 4</text>
+      </description>
+      <reference>
+        <text>12.6.2.3 of IEEE Std 802.1Q-2018
+6.9.4 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority5">
+      <type name="priority-type"/>
+      <default value="5"/>
+      <description>
+        <text>Priority 5</text>
+      </description>
+      <reference>
+        <text>12.6.2.3 of IEEE Std 802.1Q-2018
+6.9.4 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority6">
+      <type name="priority-type"/>
+      <default value="6"/>
+      <description>
+        <text>Priority 6</text>
+      </description>
+      <reference>
+        <text>12.6.2.3 of IEEE Std 802.1Q-2018
+6.9.4 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority7">
+      <type name="priority-type"/>
+      <default value="7"/>
+      <description>
+        <text>Priority 7</text>
+      </description>
+      <reference>
+        <text>12.6.2.3 of IEEE Std 802.1Q-2018
+6.9.4 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+  </grouping>
+  <grouping name="pcp-decoding-table-grouping">
+    <description>
+      <text>The Priority Code Point decoding table enables the decoding of
+the priority and drop-eligible parameters from the PCP.</text>
+    </description>
+    <reference>
+      <text>6.9.3 of IEEE Std 802.1Q-2018</text>
+    </reference>
+    <list name="pcp-decoding-map">
+      <key value="pcp"/>
+      <description>
+        <text>This map associates the priority code point field found in
+the VLAN to a priority and drop eligible value based upon the
+priority code point selection type.</text>
+      </description>
+      <leaf name="pcp">
+        <type name="pcp-selection-type"/>
+        <description>
+          <text>The priority code point selection type.</text>
+        </description>
+        <reference>
+          <text>12.6.2.7 of IEEE Std 802.1Q-2018
+6.9.3 of IEEE Std 802.1Q-2018</text>
+        </reference>
+      </leaf>
+      <list name="priority-map">
+        <key value="priority-code-point"/>
+        <description>
+          <text>This map associated a priority code point value to priority
+and drop eligible parameters.</text>
+        </description>
+        <leaf name="priority-code-point">
+          <type name="priority-type"/>
+          <description>
+            <text>Priority associated with the pcp.</text>
+          </description>
+          <reference>
+            <text>12.6.2.7 of IEEE Std 802.1Q-2018
+6.9.3 of IEEE Std 802.1Q-2018</text>
+          </reference>
+        </leaf>
+        <leaf name="priority">
+          <type name="priority-type"/>
+          <description>
+            <text>Priority associated with the pcp.</text>
+          </description>
+          <reference>
+            <text>12.6.2.7 of IEEE Std 802.1Q-2018
+6.9.3 of IEEE Std 802.1Q-2018</text>
+          </reference>
+        </leaf>
+        <leaf name="drop-eligible">
+          <type name="boolean"/>
+          <description>
+            <text>Drop eligible value for pcp</text>
+          </description>
+          <reference>
+            <text>12.6.2.7 of IEEE Std 802.1Q-2018
+6.9.3 of IEEE Std 802.1Q-2018</text>
+          </reference>
+        </leaf>
+      </list>
+    </list>
+  </grouping>
+  <grouping name="pcp-encoding-table-grouping">
+    <description>
+      <text>The Priority Code Point encoding table encodes the priority and
+drop-eligible parameters in the PCP field of the VLAN tag.</text>
+    </description>
+    <reference>
+      <text>12.6.2.9 of IEEE Std 802.1Q-2018
+6.9.3 of IEEE Std 802.1Q-2018</text>
+    </reference>
+    <list name="pcp-encoding-map">
+      <key value="pcp"/>
+      <description>
+        <text>This map associated the priority and drop-eligible parameters
+to the priority used to encode the PCP of the VLAN based upon
+the priority code point selection type.</text>
+      </description>
+      <leaf name="pcp">
+        <type name="pcp-selection-type"/>
+        <description>
+          <text>The priority code point selection type.</text>
+        </description>
+        <reference>
+          <text>12.6.2.7 of IEEE Std 802.1Q-2018
+6.9.3 of IEEE Std 802.1Q-2018</text>
+        </reference>
+      </leaf>
+      <list name="priority-map">
+        <key value="priority dei"/>
+        <description>
+          <text>This map associated the priority and drop-eligible
+parameters to the priority code point field of the VLAN tag.</text>
+        </description>
+        <leaf name="priority">
+          <type name="priority-type"/>
+          <description>
+            <text>Priority associated with the pcp.</text>
+          </description>
+          <reference>
+            <text>12.6.2.7 of IEEE Std 802.1Q-2018
+6.9.3 of IEEE Std 802.1Q-2018</text>
+          </reference>
+        </leaf>
+        <leaf name="dei">
+          <type name="boolean"/>
+          <description>
+            <text>The drop eligible value.</text>
+          </description>
+          <reference>
+            <text>12.6.2 of IEEE Std 802.1Q-2018
+8.6.6 of IEEE Std 802.1Q-2018</text>
+          </reference>
+        </leaf>
+        <leaf name="priority-code-point">
+          <type name="priority-type"/>
+          <description>
+            <text>PCP value for priority when DEI value</text>
+          </description>
+          <reference>
+            <text>12.6.2.9 of IEEE Std 802.1Q-2018
+6.9.3 of IEEE Std 802.1Q-2018</text>
+          </reference>
+        </leaf>
+      </list>
+    </list>
+  </grouping>
+  <grouping name="service-access-priority-table-grouping">
+    <description>
+      <text>The Service Access Priority Table associates a received
+priority with a serice access priority.</text>
+    </description>
+    <reference>
+      <text>12.6.2.17 of IEEE Std 802.1Q-2018
+6.13.1 of IEEE Std 802.1Q-2018</text>
+    </reference>
+    <leaf name="priority0">
+      <type name="priority-type"/>
+      <default value="0"/>
+      <description>
+        <text>Service access priority value for priority 0</text>
+      </description>
+      <reference>
+        <text>12.6.2.17 of IEEE Std 802.1Q-2018
+6.13.1 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority1">
+      <type name="priority-type"/>
+      <default value="1"/>
+      <description>
+        <text>Service access priority value for priority 1</text>
+      </description>
+      <reference>
+        <text>12.6.2.17 of IEEE Std 802.1Q-2018
+6.13.1 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority2">
+      <type name="priority-type"/>
+      <default value="2"/>
+      <description>
+        <text>Service access priority value for priority 2</text>
+      </description>
+      <reference>
+        <text>12.6.2.17 of IEEE Std 802.1Q-2018
+6.13.1 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority3">
+      <type name="priority-type"/>
+      <default value="3"/>
+      <description>
+        <text>Service access priority value for priority 3</text>
+      </description>
+      <reference>
+        <text>12.6.2.17 of IEEE Std 802.1Q-2018
+6.13.1 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority4">
+      <type name="priority-type"/>
+      <default value="4"/>
+      <description>
+        <text>Service access priority value for priority 4</text>
+      </description>
+      <reference>
+        <text>12.6.2.17 of IEEE Std 802.1Q-2018
+6.13.1 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority5">
+      <type name="priority-type"/>
+      <default value="5"/>
+      <description>
+        <text>Service access priority value for priority 5</text>
+      </description>
+      <reference>
+        <text>12.6.2.17 of IEEE Std 802.1Q-2018
+6.13.1 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority6">
+      <type name="priority-type"/>
+      <default value="6"/>
+      <description>
+        <text>Service access priority value for priority 6</text>
+      </description>
+      <reference>
+        <text>12.6.2.17 of IEEE Std 802.1Q-2018
+6.13.1 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="priority7">
+      <type name="priority-type"/>
+      <default value="7"/>
+      <description>
+        <text>Service access priority value for priority 7</text>
+      </description>
+      <reference>
+        <text>12.6.2.17 of IEEE Std 802.1Q-2018
+6.13.1 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+  </grouping>
+  <grouping name="traffic-class-table-grouping">
+    <description>
+      <text>The Traffic Class Table models the operations that can be
+performed on, or inquire about, the current contents of the
+Traffic Class Table (8.6.6) for a given Port.</text>
+    </description>
+    <reference>
+      <text>12.6.3 of IEEE Std 802.1Q-2018
+8.6.6 of IEEE Std 802.1Q-2018</text>
+    </reference>
+    <list name="traffic-class-map">
+      <key value="priority"/>
+      <description>
+        <text>The priority index into the traffic class table.</text>
+      </description>
+      <leaf name="priority">
+        <type name="priority-type"/>
+        <description>
+          <text>The priority of the traffic class entry.</text>
+        </description>
+        <reference>
+          <text>8.6.6 of IEEE Std 802.1Q-2018</text>
+        </reference>
+      </leaf>
+      <list name="available-traffic-class">
+        <key value="num-traffic-class"/>
+        <description>
+          <text>The traffic class index associated with a given priority
+within the traffic class table.</text>
+        </description>
+        <reference>
+          <text>8.6.6 of IEEE Std 802.1Q-2018</text>
+        </reference>
+        <leaf name="num-traffic-class">
+          <type name="uint8">
+            <range value="1..8"/>
+          </type>
+          <description>
+            <text>The available number of traffic classes.</text>
+          </description>
+          <reference>
+            <text>8.6.6 of IEEE Std 802.1Q-2018</text>
+          </reference>
+        </leaf>
+        <leaf name="traffic-class">
+          <type name="traffic-class-type"/>
+          <description>
+            <text>The traffic class index associated with a given traffic
+class entry.</text>
+          </description>
+          <reference>
+            <text>8.6.6 of IEEE Std 802.1Q-2018</text>
+          </reference>
+        </leaf>
+      </list>
+    </list>
+  </grouping>
+  <grouping name="port-map-grouping">
+    <description>
+      <text>A set of control indicators, one for each Port. A Port Map,
+containing a control element for each outbound Port</text>
+    </description>
+    <reference>
+      <text>8.8.1 of IEEE Std 802.1Q-2018
+8.8.2 of IEEE Std 802.1Q-2018</text>
+    </reference>
+    <list name="port-map">
+      <key value="port-ref"/>
+      <description>
+        <text>The list of entries composing the port map.</text>
+      </description>
+      <leaf name="port-ref">
+        <type name="port-number-type"/>
+        <description>
+          <text>The interface port reference associated with this map.</text>
+        </description>
+        <reference>
+          <text>8.8.1 of IEEE Std 802.1Q-2018</text>
+        </reference>
+      </leaf>
+      <choice name="map-type">
+        <description>
+          <text>Type of port map</text>
+        </description>
+        <container name="static-filtering-entries">
+          <description>
+            <text>Static filtering entries attributes.</text>
+          </description>
+          <leaf name="control-element">
+            <type name="enumeration">
+              <enum name="forward">
+                <description>
+                  <text>Forwarded, independently of any dynamic filtering
+information held by the FDB.</text>
+                </description>
+              </enum>
+              <enum name="filter">
+                <description>
+                  <text>Filtered, independently of any dynamic filtering
+information.</text>
+                </description>
+              </enum>
+              <enum name="forward-filter">
+                <description>
+                  <text>Forwarded or filtered on the basis of dynamic
+filtering information, or on the basis of the
+default Group filtering behavior for the outbound
+Port (8.8.6) if no dynamic filtering information is
+present specifically for the MAC address.</text>
+                </description>
+              </enum>
+            </type>
+            <description>
+              <text>containing a control element for each outbound Port,
+specifying that a frame with a destination MAC address,
+and in the case of VLAN Bridge components, VID that
+meets this specification.</text>
+            </description>
+            <reference>
+              <text>8.8.1 of IEEE Std 802.1Q-2018</text>
+            </reference>
+          </leaf>
+          <leaf name="connection-identifier">
+            <type name="port-number-type"/>
+            <description>
+              <text>A Port MAP may contain a connection identifier (8.8.12)
+for each outbound port. The connection identifier may be
+associated with the Bridge Port value maintained in a
+Dynamic Filtering Entry of the FDB for Bridge Ports.</text>
+            </description>
+            <reference>
+              <text>8.8.1 of IEEE Std 802.1Q-2018
+8.8.12 of IEEE Std 802.1Q-2018</text>
+            </reference>
+          </leaf>
+        </container>
+        <container name="static-vlan-registration-entries">
+          <description>
+            <text>Static VLAN registration entries.</text>
+          </description>
+          <leaf name="registrar-admin-control">
+            <type name="enumeration">
+              <enum name="fixed-new-ignored">
+                <description>
+                  <text>Registration Fixed (New ignored).</text>
+                </description>
+              </enum>
+              <enum name="fixed-new-propagated">
+                <description>
+                  <text>Registration Fixed (New propagated.</text>
+                </description>
+              </enum>
+              <enum name="forbidden">
+                <description>
+                  <text>Registration Forbidden.</text>
+                </description>
+              </enum>
+              <enum name="normal">
+                <description>
+                  <text>Normal Registration.</text>
+                </description>
+              </enum>
+            </type>
+            <description>
+              <text>The Registrar Administrative Control values for MVRP
+and MIRP for the VID.</text>
+            </description>
+            <reference>
+              <text>8.8.2 of IEEE Std 802.1Q-2018</text>
+            </reference>
+          </leaf>
+          <leaf name="vlan-transmitted">
+            <type name="enumeration">
+              <enum name="tagged">
+                <description>
+                  <text>VLAN-tagged</text>
+                </description>
+              </enum>
+              <enum name="untagged">
+                <description>
+                  <text>VLAN-untagged</text>
+                </description>
+              </enum>
+            </type>
+            <description>
+              <text>Whether frames are to be VLAN-tagged or untagged when
+transmitted.</text>
+            </description>
+            <reference>
+              <text>8.8.2 of IEEE Std 802.1Q-2018</text>
+            </reference>
+          </leaf>
+        </container>
+        <container name="mac-address-registration-entries">
+          <description>
+            <text>MAC address registration entries attributes.</text>
+          </description>
+          <leaf name="control-element">
+            <type name="enumeration">
+              <enum name="registered">
+                <description>
+                  <text>Forwarded, independently of any dynamic filtering
+information held by the FDB.</text>
+                </description>
+              </enum>
+              <enum name="not-registered">
+                <description>
+                  <text>Filtered, independently of any dynamic filtering
+information.</text>
+                </description>
+              </enum>
+            </type>
+            <description>
+              <text>containing a control element for each outbound Port,
+specifying that a frame with a destination MAC address,
+and in the case of VLAN Bridge components, VID that
+meets this specification.</text>
+            </description>
+            <reference>
+              <text>8.8.4 of IEEE Std 802.1Q-2018</text>
+            </reference>
+          </leaf>
+        </container>
+        <container name="dynamic-vlan-registration-entries">
+          <description>
+            <text>Dynamic VLAN registration entries attributes.</text>
+          </description>
+          <leaf name="control-element">
+            <type name="enumeration">
+              <enum name="registered">
+                <description>
+                  <text>Forwarded, independently of any dynamic filtering
+information held by the FDB.</text>
+                </description>
+              </enum>
+            </type>
+            <description>
+              <text>containing a control element for each outbound Port,
+specifying that a frame with a destination MAC address,
+and in the case of VLAN Bridge components, VID that
+meets this specification.</text>
+            </description>
+            <reference>
+              <text>8.8.5 of IEEE Std 802.1Q-2018</text>
+            </reference>
+          </leaf>
+        </container>
+        <container name="dynamic-reservation-entries">
+          <description>
+            <text>Dynamic reservation entries attributes.</text>
+          </description>
+          <leaf name="control-element">
+            <type name="enumeration">
+              <enum name="forward">
+                <description>
+                  <text>Forwarded, independently of any dynamic filtering
+information held by the FDB.</text>
+                </description>
+              </enum>
+              <enum name="filter">
+                <description>
+                  <text>Filtered, independently of any dynamic filtering
+information.</text>
+                </description>
+              </enum>
+            </type>
+            <description>
+              <text>Containing a control element for each outbound Port,
+specifying that a frame with a destination MAC address,
+and in the case of VLAN Bridge components, VID that
+meets this specification.</text>
+            </description>
+            <reference>
+              <text>8.8.7 of IEEE Std 802.1Q-2018</text>
+            </reference>
+          </leaf>
+        </container>
+        <container name="dynamic-filtering-entries">
+          <description>
+            <text>Dynamic filtering entries attributes.</text>
+          </description>
+          <leaf name="control-element">
+            <type name="enumeration">
+              <enum name="forward">
+                <description>
+                  <text>Forwarded, independently of any dynamic filtering
+information held by the FDB.</text>
+                </description>
+              </enum>
+            </type>
+            <description>
+              <text>Containing a control element for each outbound Port,
+specifying that a frame with a destination MAC address,
+and in the case of VLAN Bridge components, VID that
+meets this specification.</text>
+            </description>
+            <reference>
+              <text>8.8.3 of IEEE Std 802.1Q-2018</text>
+            </reference>
+          </leaf>
+        </container>
+      </choice>
+    </list>
+  </grouping>
+  <grouping name="bridge-port-statistics-grouping">
+    <description>
+      <text>Grouping of bridge port statistics.</text>
+    </description>
+    <reference>
+      <text>12.6.1.1.3 of IEEE Std 802.1Q-2018</text>
+    </reference>
+    <leaf name="delay-exceeded-discards">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The number of frames discarded by this port due to excessive
+transit delay through the Bridge. It is incremented by both
+transparent and source route Bridges.</text>
+      </description>
+      <reference>
+        <text>12.6.1.1.3 of IEEE Std 802.1Q-2018
+8.6.6 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="mtu-exceeded-discards">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The number of frames discarded by this port due to an
+excessive size. It is incremented by both transparent and
+source route Bridges.</text>
+      </description>
+      <reference>
+        <text>12.6.1.1.3, item g) of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="frame-rx">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The number of frames that have been received by this port
+from its segment. Note that a frame received on the interface
+corresponding to this port is only counted by this object if
+and only if it is for a protocol being processed by the local
+bridging function, including Bridge management frames.</text>
+      </description>
+      <reference>
+        <text>12.6.1.1.3 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="octets-rx">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The total number of octets in all valid frames received
+(including BPDUs, frames addressed to the Bridge as an end
+station, and frames that were submitted to the Forwarding
+Process).</text>
+      </description>
+      <reference>
+        <text>12.6.1.1.3 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="frame-tx">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The number of frames that have been transmitted by this port
+to its segment. Note that a frame transmitted on the interface
+corresponding to this port is only counted by this object if
+and only if it is for a protocol being processed by the local
+bridging function, including Bridge management frames.</text>
+      </description>
+    </leaf>
+    <leaf name="octets-tx">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The total number of octets that have been transmitted by this
+port to its segment.</text>
+      </description>
+    </leaf>
+    <leaf name="discard-inbound">
+      <type name="yang:counter64"/>
+      <description>
+        <text>Count of received valid frames that were discarded (i.e.,
+filtered) by the Forwarding Process.</text>
+      </description>
+      <reference>
+        <text>12.6.1.1.3 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="forward-outbound">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The number of frames forwarded to the associated MAC Entity
+(8.5).</text>
+      </description>
+      <reference>
+        <text>12.6.1.1.3 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="discard-lack-of-buffers">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The count of frames that were to be transmitted through the
+associated Port but were discarded due to lack of buffers.</text>
+      </description>
+      <reference>
+        <text>12.6.1.1.3 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="discard-transit-delay-exceeded">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The number of frames discarded by this port due to excessive
+transit delay through the Bridge. It is incremented by both
+transparent and source route Bridges.</text>
+      </description>
+      <reference>
+        <text>12.6.1.1.3 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+    <leaf name="discard-on-error">
+      <type name="yang:counter64"/>
+      <description>
+        <text>The number of frames that were to be forwarded on the
+associated MAC but could not be transmitted (e.g., frame would
+be too large, 6.5.8).</text>
+      </description>
+      <reference>
+        <text>12.6.1.1.3 of IEEE Std 802.1Q-2018</text>
+      </reference>
+    </leaf>
+  </grouping>
+</module>
