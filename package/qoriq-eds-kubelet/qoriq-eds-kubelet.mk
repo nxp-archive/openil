@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-QORIQ_EDS_KUBELET_VERSION = master
+QORIQ_EDS_KUBELET_VERSION = cf5175b3186e1308cc29a6295fb7bd012b614a22
 QORIQ_EDS_KUBELET_SITE_METHOD = git
-QORIQ_EDS_KUBELET_SITE = ssh://git@bitbucket.sw.nxp.com/dcca/qoriq-eds-kubelet.git
+QORIQ_EDS_KUBELET_SITE = https://github.com/NXP/qoriq-eds-kubelet.git
 QORIQ_EDS_KUBELET_LICENSE = GPLv2+
 
 QORIQ_EDS_KUBELET_DEPENDENCIES = host-go host-pkgconf

@@ -1,0 +1,26 @@
+From a9cd682733cafd80ee4a2afae2f7ff8105be4327 Mon Sep 17 00:00:00 2001
+From: "mengkun.chen" <mengkun.chen@nxp.com>
+Date: Tue, 22 Jan 2019 17:53:00 +0800
+Subject: [PATCH] Change bootstrap-enroll location
+
+Signed-off-by: mengkun.chen <mengkun.chen@nxp.com>
+---
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index d40c839..9e7f56e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -9,6 +9,6 @@ INSTALL ?= install
+ ARCH ?= arm64
+ 
+ install:
+-	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/bin
+-	sudo cp -r ${ARCH}/bootstrap-enroll $(INSTALL_DIR)/usr/local/bin/
++	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/bin
++	sudo cp -r ${ARCH}/bootstrap-enroll $(INSTALL_DIR)/usr/local/edgescale/bin/
+ 
+-- 
+2.7.4
+
