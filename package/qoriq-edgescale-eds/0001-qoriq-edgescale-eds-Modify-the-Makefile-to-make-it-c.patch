@@ -1,17 +1,18 @@
-From 5c08c9d52478d429b8c51ca3ea29d618e1e475dc Mon Sep 17 00:00:00 2001
-From: Xianyu Wei <xianyu.wei@nxp.com>
-Date: Thu, 7 Mar 2019 19:16:48 +0800
+From 5ab328471f005befe0002a0f9b6f916852f73d55 Mon Sep 17 00:00:00 2001
+From: Changming Huang <jerry.huang@nxp.com>
+Date: Thu, 4 Apr 2019 17:46:59 +0800
 Subject: [PATCH 1/3] qoriq-edgescale-eds: Modify the Makefile to make it can
  compiles in openil
 
 Signed-off-by: Xianyu Wei <xianyu.wei@nxp.com>
+Signed-off-by: Changming Huang <jerry.huang@nxp.com>
 ---
  Makefile            | 29 ++++++++++++-----------------
- cert-agent/Makefile | 35 +++++++++++++++++++++++------------
+ cert-agent/Makefile | 37 ++++++++++++++++++++++++-------------
  etc/Makefile        | 10 +++++-----
  mq-agent/Makefile   | 34 ++++++++++++++++++++++------------
  startup/Makefile    | 14 +++++++-------
- 5 files changed, 69 insertions(+), 53 deletions(-)
+ 5 files changed, 70 insertions(+), 54 deletions(-)
 
 diff --git a/Makefile b/Makefile
 index eb84d57..cfd1aff 100644
@@ -70,10 +71,10 @@ index eb84d57..cfd1aff 100644
  	for dir in $(TARGETS);\
  	do \
 diff --git a/cert-agent/Makefile b/cert-agent/Makefile
-index eb14185..137c1af 100644
+index 475b938..eb9b585 100644
 --- a/cert-agent/Makefile
 +++ b/cert-agent/Makefile
-@@ -5,23 +5,34 @@
+@@ -5,24 +5,35 @@
  #####################################
  
  INSTALL_DIR ?= /
@@ -112,14 +113,16 @@ index eb14185..137c1af 100644
  
  all:
 -	go get github.com/edgeiot/est-client-go
--	env CGO_ENABLED=1 GOOS=linux GOARCH=${ARCH} CC=${CC} CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS}" go build --ldflags="-w -s" --tags "${GOBUILDTAGS}"
+-	go get gopkg.in/yaml.v2
+-	env CGO_ENABLED=1 GOOS=linux GOARCH=${ARCH} CC=${CC} CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS}" go build -o cert-agent --ldflags="-w -s" --tags "${GOBUILDTAGS}"
 +	$(GO_GET) github.com/edgeiot/est-client-go
++	$(GO_GET) gopkg.in/yaml.v2
 +	$(GO_CMD) version
 +	$(GO_BUILD) --ldflags="-w -s" --tags "${GOBUILDTAGS}"
  
  clean:
  	rm -f cert-agent
-@@ -31,4 +42,4 @@ install:
+@@ -32,4 +43,4 @@ install:
  	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/conf
  	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/doc
  	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/log
