@@ -144,3 +144,6 @@ BR2_PACKAGE_ICC_MAX_CPUS=2
 
 #libnfc support for MikroBus
 BR2_PACKAGE_LIBNFC_NCI=y
+
+#libblep support for MikroBus
+BR2_PACKAGE_LIBBLEP=y
