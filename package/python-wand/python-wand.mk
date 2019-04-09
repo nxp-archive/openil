@@ -4,7 +4,7 @@
 #
 ################################################################################
 PYTHON_WAND_VERSION = 0.4.4
-PYTHON_WAND_SITE = git://github.com/dahlia/wand.git
+PYTHON_WAND_SITE = https://github.com/emcconville/wand.git
 PYTHON_WAND_SITE_METHOD = git
 PYTHON_WAND_LICENSE = MIT
 PYTHON_WAND_LICENSE_FILES = LICENSE
