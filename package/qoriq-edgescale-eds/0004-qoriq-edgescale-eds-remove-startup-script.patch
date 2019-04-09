@@ -1,0 +1,27 @@
+From d6625761823d3fd3a7a2f8ef65ea19185504e2bb Mon Sep 17 00:00:00 2001
+From: Xiaolin He <xiaolin.he@nxp.com>
+Date: Thu, 4 Apr 2019 20:23:50 +0800
+Subject: [PATCH 3/3] qoriq-edgescale-eds: remove startup script
+
+Signed-off-by: Xiaolin He <xiaolin.he@nxp.com>
+---
+ etc/Makefile | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/etc/Makefile b/etc/Makefile
+index 8b87944..8e68e45 100644
+--- a/etc/Makefile
++++ b/etc/Makefile
+@@ -16,9 +16,6 @@ install:
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/etc/rc5.d
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/conf
+ 	cp -r edgescale-version $(INSTALL_DIR)/usr/local/edgescale/conf
+-	cp -r edgescale $(INSTALL_DIR)/etc/init.d/S90edgescale
+-	ln -sf ../init.d/S90edgescale $(INSTALL_DIR)/etc/rc3.d/S09edgescale
+-	ln -sf ../init.d/S90edgescale $(INSTALL_DIR)/etc/rc5.d/S09edgescale
+ 
+ 
+ .PHONY: clean install
+-- 
+2.7.4
+
