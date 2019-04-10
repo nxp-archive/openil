@@ -6,6 +6,7 @@
 #include <linux/tsn.h>
 #include <libxml/tree.h>
 #include <libnetconf_xml.h>
+#include <cjson/cJSON.h>
 
 #ifndef __YANG_TSN_H__
 #define __YANG_TSN_H__
@@ -21,20 +22,22 @@
 #define CONF_FOLDER        "/usr/local/etc/netopeer/tsn"
 #define DATASTORE_FILENAME "/usr/local/etc/netopeer/tsn/datastore.xml"
 #define TEMPXML            "/var/lib/libnetconf/config.xml"
+#define TSNTOOL_PORT_ST_FILE "/tmp/tsntool.json"
+#define TSNTOOL_PORT_ST_BAK_FILE "/tmp/tsntool.json.old"
 
 struct std_qbv_conf{
-	char device_name[MAX_IF_NAME_LENGTH];
-	struct tsn_qbv_conf qbv_conf;
+		char device_name[MAX_IF_NAME_LENGTH];
+		struct tsn_qbv_conf qbv_conf;
 };
 
 struct ieee_cycle_time{
-	uint32_t numerator;
-	uint32_t denominator;
+		uint32_t numerator;
+		uint32_t denominator;
 };
 
 struct ieee_ptp_time{
-	uint64_t seconds;
-	uint64_t nano_seconds;
+		uint64_t seconds;
+		uint64_t nano_seconds;
 };
 
 int xml_read_field(xmlNode *node, char *field_name,char * data);
