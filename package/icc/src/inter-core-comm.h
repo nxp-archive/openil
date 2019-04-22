@@ -16,10 +16,13 @@
 #define GICD_SIZE			0x1000
 #endif
 #define GIC_DIST_SOFTINT	0xf00
+#define IPIDEV_IOCIRQ	1
 
 int mycoreid;
 void *gic_base;
 void *share_base;
+int shd_memfd;
+
 
 #ifdef CONFIG_ICC_MAX_CPUS
 #define CONFIG_MAX_CPUS CONFIG_ICC_MAX_CPUS

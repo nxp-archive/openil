@@ -135,14 +135,25 @@ void icc_block_free(unsigned long block)
 void icc_set_sgi(int core_mask, unsigned int hw_irq)
 {
 	unsigned long val;
+	char hostname[32];
 
 	if(hw_irq > 15) {
 		printf ("Interrupt id num: %lu is not valid, SGI[0 - 15]\n", hw_irq);
 		return;
 	}
 
-	val = (core_mask << 16) | 0x8000 | hw_irq;
-	*((volatile unsigned int *)((void *)gic_base + GIC_DIST_SOFTINT)) = val;
+	if (gethostname(hostname,sizeof(hostname))) {
+		printf ("gethostname error");
+		return;
+	}
+	if (strstr(hostname, "LS1028A")) { /* Check the LS1028A board */
+		val = core_mask | hw_irq << 24;
+		if (ioctl(shd_memfd, 1, &val))
+			printf("Triger Interrupt failed\n");
+	} else { /* Other board */
+		val = (core_mask << 16) | 0x8000 | hw_irq;
+		*((volatile unsigned int *)((void *)gic_base + GIC_DIST_SOFTINT)) = val;
+	}
 }
 
 int icc_set_block(int core_mask, unsigned int byte_count, unsigned long block)

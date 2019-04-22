@@ -23,7 +23,7 @@
 #define MEMDEVICE "/dev/mem"
 #define SHD_MEMDEVICE "/dev/ipi_bm"
 
-int memfd, shd_memfd;
+int memfd;
 
 void usage(char *name)
 {
