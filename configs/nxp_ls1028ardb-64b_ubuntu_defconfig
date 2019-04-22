@@ -12,7 +12,7 @@ BR2_ROOTFS_SKELETON_CUSTOM_SOURCE="ubuntu-base-16.04.3-base-arm64.tar.gz"
 BR2_ROOTFS_SKELETON_CUSTOM_SITE_METHOD="wget"
 BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT="tar zxvf"
 BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT_IGNORE_ERROR=y
-BR2_ROOTFS_POST_CUSTOM_SKELETON_SCRIPT="board/nxp/common/post-custom-skeleton-ubuntu-base-16.04.sh"
+BR2_ROOTFS_POST_CUSTOM_SKELETON_SCRIPT="board/nxp/ls1028ardb/post-custom-skeleton-ubuntu-base-16.04.sh"
 BR2_INIT_SYSTEMD=y
 
 # system issue
