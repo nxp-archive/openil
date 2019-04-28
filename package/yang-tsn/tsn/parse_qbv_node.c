@@ -16,25 +16,6 @@
 #include <linux/tsn.h>
 #include "yang_tsn.h"
 
-typedef enum {
-	PORT_TYPE_ENETC = 0,
-	PORT_TYPE_SWITCH = 1,
-	PORT_TYPE_UNKOWN = 0xff,
-}PORT_TYPE;
-
-PORT_TYPE judge_port_type(struct std_qbv_conf *admin_conf)
-{
-	PORT_TYPE type = PORT_TYPE_UNKOWN;
-	if(strncmp(admin_conf->device_name,"swp", 3) == 0){
-		type = PORT_TYPE_SWITCH;
-	}else if(strncmp(admin_conf->device_name,"eno", 3) == 0){
-		type = PORT_TYPE_ENETC;
-	}
-	return type;
-}
-
-
-
 int parse_sgs_params(xmlNode *node, struct std_qbv_conf *admin_conf, int list_index, char * err_msg)
 {
 	int rc = EXIT_SUCCESS;
@@ -226,7 +207,6 @@ int parse_admin_base_time(xmlNode *node, struct std_qbv_conf *admin_conf, char *
 	unsigned long tmp;
 	char ele_val[MAX_ELEMENT_LENGTH];
 	struct ieee_ptp_time admin_base_time = {0,0};
-	PORT_TYPE port_type;
 	
 	if (node->type != XML_ELEMENT_NODE) {
 		nc_verb_verbose("admin-base-time node must be of element type!");
@@ -285,20 +265,7 @@ int parse_admin_base_time(xmlNode *node, struct std_qbv_conf *admin_conf, char *
 			goto out;
 		}
 	}
-	/* there have diffrents between enetc and switch */
-	port_type = judge_port_type(admin_conf);
-	if(port_type == PORT_TYPE_SWITCH){
-		admin_conf->qbv_conf.admin.base_time = admin_base_time.nano_seconds + (admin_base_time.seconds<<32);
-	}else if(port_type == PORT_TYPE_ENETC){
-		admin_conf->qbv_conf.admin.base_time = admin_base_time.nano_seconds + (admin_base_time.seconds*1000000000);
-	}else{
-		nc_verb_verbose("%s have unknown port type!", admin_conf->device_name);
-		sprintf(err_msg, 
-						"can't judge port type from port name \"%s\"",
-						admin_conf->device_name);
-		rc = EXIT_FAILURE;
-		goto out;
-	}
+    admin_conf->qbv_conf.admin.base_time = admin_base_time.nano_seconds + (admin_base_time.seconds*1000000000);
 	
 out:
 	return rc;
