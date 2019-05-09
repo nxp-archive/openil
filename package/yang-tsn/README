@@ -2,7 +2,7 @@
 yang-tsn introduction
 ----------------------
 
-Model tsn used for configure switch in the ls1028ardb board.
+Model tsn used for configure switch in the LS1028ARDB board.
 
 ---------------------------------------------------------------------------
 Environment setup
@@ -19,7 +19,7 @@ Meanwhile, for convenience, user can also enable netopeer-cli on the
 Target packages -> Netconf Supporting-> netopeer-client
 By doing so, user can avoid disturbing installation of netopeer client
 
-Make sure the netconf server is running(check netopeer-server is running at ls1028ardb).
+Make sure the netconf server is running(check netopeer-server is running at LS1028ARDB).
 
 if netopeer-server is not running. Input command to let it run(verbose mode):
 
@@ -39,7 +39,7 @@ Test commands at netopeer-client:
 
 - connect
 
-	#Connect the netconf server ls1021atsn board(use the ip on ls1021atsn, here 10.193.20.53 is example):
+	#Connect the netconf server on LS1028ARDB board(use the ip on LS1028ARDB, here 10.193.20.53 is example):
 
 		netconf> connect --port 830 --login root 10.193.20.53(device ip address)
 	#Because 830 is default configuration of netopeer, By default, user can also use following comand
@@ -119,13 +119,13 @@ Test commands at netopeer-client:
 	netconf> edit-config candidate
 
 	#Candidate modification would only effect the candidate datastore. 
-	#Not really modify into switch configuration of ls1028.
+	#Not really modify into switch configuration of LS1028ARDB.
 	#If user want to apply the configuration in running datastore to switch,
 	#comand "apply_config" via "user-rpc” should be used
 		
 	netconf> edit-config running
 
-	#Running modification would only effect the running datastore. Not really modify into switch configuration of ls1028.
+	#Running modification would only effect the running datastore. Not really modify into switch configuration of LS1028ARDB.
 	
 	#Input below text into the editor and wait for got 'OK' message:
 	# For example: below message means edit entry index 1 in l2-policing-table
@@ -220,7 +220,7 @@ Recommended operational steps
 	>$ netopeer-cli
 
 #step 2: connect to server
-	netconf> connect --login root 10.193.20.6(server-ip)
+	netconf> connect --login root 10.193.20.53(server-ip)
 
 #step 3: sync running and candidate datastores
 	netconf> discard-changes
