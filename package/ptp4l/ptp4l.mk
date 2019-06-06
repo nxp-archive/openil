@@ -33,6 +33,7 @@ endef
 define PTP4L_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/ptp4l $(TARGET_DIR)/usr/sbin/ptp4l
 	cp -dpfr $(@D)/ptp4l_default.cfg $(TARGET_DIR)/etc/
+	cp -dpfr $(@D)/gPTP.cfg $(TARGET_DIR)/etc/
 endef
 
 $(eval $(generic-package))
