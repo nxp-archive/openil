@@ -1,0 +1,4 @@
+config BR2_PACKAGE_FELIXACL
+bool "felix acl tool"
+help
+	Felix acl tool.

@@ -1880,4 +1880,7 @@ menu "Baremetal"
 	source "package/bm-uboot/Config.in"
 	source "package/icc/Config.in"
 endmenu
+menu "felixacl"
+	source "package/felixacl/Config.in"
+endmenu
 endmenu
