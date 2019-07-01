@@ -16,7 +16,7 @@ define TSNTOOL_BUILD_CMDS
 	mkdir -p $(@D)/include/linux/;
 	$(SED) 's/termcap/ncurses/' $(@D)/Makefile;
 	$(INSTALL) -D -m 0755 $(BUILD_DIR)/linux-$(BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION)/include/uapi/linux/tsn.h $(@D)/include/linux/;
-	$(TARGET_CONFIGURE_ARGS) $(TARGET_CONFIGURE_OPTS) $(TARGET_MAKE_ENV) $(MAKE) $(TARGET_MAKE_OPTS) -C $(@D)
+	$(TARGET_CONFIGURE_ARGS) $(TARGET_CONFIGURE_OPTS) $(TARGET_MAKE_ENV) $(MAKE) -j1 $(TARGET_MAKE_OPTS) -C $(@D)
 endef
 
 define TSNTOOL_INSTALL_TARGET_CMDS
