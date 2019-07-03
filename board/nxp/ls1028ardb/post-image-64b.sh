@@ -11,6 +11,10 @@ main()
 	echo ${4}
 	echo ${BR2_ROOTFS_PARTITION_SIZE}
 
+	local RCWFILE=${BR2_PACKAGE_RCW_BIN##*/}
+	RCWFILE=${RCWFILE%\"*}
+	local DESTRCW="rcw_1300.bin"
+
 	# build the itb image
 	cp board/nxp/ls1028ardb/kernel-ls1028a-rdb.its ${2}/
 	cp output/images/fsl-ls1028a-rdb.dtb ${2}/
@@ -18,6 +22,7 @@ main()
 	cd ${2}/
 	mkimage -f kernel-ls1028a-rdb.its kernel-ls1028a-rdb.itb
 	cd ${3}
+	cp ${BINARIES_DIR}/${RCWFILE} ${BINARIES_DIR}/${DESTRCW}
 	cp ${2}/kernel-ls1028a-rdb.itb ${BINARIES_DIR}/
 	rm ${2}/fsl-image-core-ls1028ardb.ext2.gz
 	rm ${2}/fsl-ls1028a-rdb.dtb

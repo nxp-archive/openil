@@ -22,7 +22,7 @@ image sdcard.img {
 
   partition rcw {
     in-partition-table = "no"
-    image = "rcw_1300_sd.bin"
+    image = "rcw_1300.bin"
     offset = 4096
   }
 
