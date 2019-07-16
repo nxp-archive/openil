@@ -1,4 +1,4 @@
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin
 
 [ -f /etc/banner ] && cat /etc/banner
 
