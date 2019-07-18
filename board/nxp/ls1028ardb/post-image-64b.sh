@@ -15,19 +15,8 @@ main()
 	RCWFILE=${RCWFILE%\"*}
 	local DESTRCW="rcw_1300.bin"
 
-	# build the itb image
-	cp board/nxp/ls1028ardb/kernel-ls1028a-rdb.its ${2}/
-	cp output/images/fsl-ls1028a-rdb.dtb ${2}/
-	cp ${BINARIES_DIR}/rootfs.ext2.gz ${2}/fsl-image-core-ls1028ardb.ext2.gz
-	cd ${2}/
-	mkimage -f kernel-ls1028a-rdb.its kernel-ls1028a-rdb.itb
 	cd ${3}
 	cp ${BINARIES_DIR}/${RCWFILE} ${BINARIES_DIR}/${DESTRCW}
-	cp ${2}/kernel-ls1028a-rdb.itb ${BINARIES_DIR}/
-	rm ${2}/fsl-image-core-ls1028ardb.ext2.gz
-	rm ${2}/fsl-ls1028a-rdb.dtb
-	rm ${2}/kernel-ls1028a-rdb.itb
-	rm ${2}/kernel-ls1028a-rdb.its
 
 	# build the ramdisk rootfs
 	mkimage -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
@@ -37,7 +26,7 @@ main()
 	sed -e "s/%PLATFORM%/${BOARDNAME}/" board/nxp/common/version.json > ${BINARIES_DIR}/version.json
 
 	# build the SDcard image
-	local FILES=""kernel-ls1028a-rdb.itb", "version.json", "ls1028a-dp-fw.bin""
+	local FILES=""Image", "fsl-ls1028a-rdb.dtb", "version.json", "ls1028a-dp-fw.bin""
 	local GENIMAGE_CFG="$(mktemp --suffix genimage.cfg)"
 	local GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 
