@@ -1,0 +1,4 @@
+config BR2_PACKAGE_YANG_MODEL
+bool "yang-model"
+help
+	YANG models
