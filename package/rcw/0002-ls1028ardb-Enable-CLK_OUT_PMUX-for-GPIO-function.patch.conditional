@@ -1,0 +1,12 @@
+diff -ruN a/ls1028ardb/R_SQPP_85bb/rcw_1300_sd.rcw b/ls1028ardb/R_SQPP_85bb/rcw_1300_sd.rcw
+--- a/ls1028ardb/R_SQPP_85bb/rcw_1300_sd.rcw	2019-08-08 14:38:12.571731816 +0800
++++ b/ls1028ardb/R_SQPP_85bb/rcw_1300_sd.rcw	2019-07-22 11:40:42.135788548 +0800
+@@ -30,7 +30,7 @@
+ IIC4_PMUX=2
+ IIC5_PMUX=1
+ IIC6_PMUX=3
+-CLK_OUT_PMUX=2
++CLK_OUT_PMUX=1
+ EC1_SAI4_5_PMUX=5
+ EC1_SAI3_6_PMUX=5
+ USB3_CLK_FSEL=39
