@@ -148,5 +148,8 @@ BR2_PACKAGE_LIBNFC_NCI=y
 #libblep support for MikroBus
 BR2_PACKAGE_LIBBLEP=y
 
+#libbee support for MikroBus
+BR2_PACKAGE_LIBBEE=y
+
 # i2c-tools
 BR2_PACKAGE_I2C_TOOLS=y

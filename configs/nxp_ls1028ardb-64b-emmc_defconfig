@@ -137,6 +137,12 @@ BR2_PACKAGE_NETPERF=y
 #libnfc support for MikroBus
 BR2_PACKAGE_LIBNFC_NCI=y
 
+#libblep support for MikroBus
+BR2_PACKAGE_LIBBLEP=y
+
+#libbee support for MikroBus
+BR2_PACKAGE_LIBBEE=y
+
 #eudev support
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
 BR2_ROOTFS_POST_CFG_UDEV="board/nxp/ls1028ardb/post-cfg-udev.sh"
@@ -160,3 +166,6 @@ BR2_PACKAGE_FLICKCURL_UTILS=y
 BR2_PACKAGE_BASH=y
 BR2_SYSTEM_BIN_SH_BASH=y
 BR2_SYSTEM_BIN_SH="bash"
+
+# i2c-tools
+BR2_PACKAGE_I2C_TOOLS=y

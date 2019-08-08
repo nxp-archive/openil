@@ -131,6 +131,9 @@ BR2_PACKAGE_LIBNFC_NCI=y
 #libblep support for MikroBus
 BR2_PACKAGE_LIBBLEP=y
 
+#libbee support for MikroBus
+BR2_PACKAGE_LIBBEE=y
+
 #
 # Edge-scale service
 #
