@@ -6,7 +6,7 @@
 
 PINENTRY_VERSION = 0.9.4
 PINENTRY_SOURCE = pinentry-$(PINENTRY_VERSION).tar.bz2
-PINENTRY_SITE = ftp://ftp.gnupg.org/gcrypt/pinentry
+PINENTRY_SITE = https://gnupg.org/ftp/gcrypt/pinentry
 PINENTRY_LICENSE = GPLv2+
 PINENTRY_LICENSE_FILES = COPYING
 PINENTRY_DEPENDENCIES = \
