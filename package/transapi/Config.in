@@ -1,0 +1,17 @@
+config BR2_PACKAGE_TRANSAPI
+bool "transapi"
+depends on !BR2_PACKAGE_YANG_CFGINTERFACES
+select BR2_PACKAGE_TSNTOOL
+select BR2_PACKAGE_NETOPEER
+select BR2_PACKAGE_YANG_MODEL
+
+help
+	configue tsn feature based on netopeer project.
+if BR2_PACKAGE_TRANSAPI
+choice
+prompt "platform"
+
+config BR2_PACKAGE_TRANSAPI_LS1028ARDB
+	bool "LS1028ARDB"
+endchoice
+endif

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"
+	    xmlns:preempt="urn:ieee:std:802.1Q:yang:ieee802-dot1q-preemption">
+	<interface>
+		<name>eno0</name>
+		<enabled>true</enabled>
+		<preempt:frame-preemption-parameters>
+			<preempt:frame-preemption-status-table>
+				<preempt:traffic-class>0</preempt:traffic-class>
+				<preempt:frame-preemption-status>preemptable</preempt:frame-preemption-status>
+			</preempt:frame-preemption-status-table>
+			<preempt:frame-preemption-status-table>
+				<preempt:traffic-class>1</preempt:traffic-class>
+				<preempt:frame-preemption-status>express</preempt:frame-preemption-status>
+			</preempt:frame-preemption-status-table>
+			<preempt:frame-preemption-status-table>
+				<preempt:traffic-class>2</preempt:traffic-class>
+				<preempt:frame-preemption-status>express</preempt:frame-preemption-status>
+			</preempt:frame-preemption-status-table>
+			<preempt:frame-preemption-status-table>
+				<preempt:traffic-class>3</preempt:traffic-class>
+				<preempt:frame-preemption-status>preemptable</preempt:frame-preemption-status>
+			</preempt:frame-preemption-status-table>
+		</preempt:frame-preemption-parameters>
+	</interface>
+    <interface>
+		<name>swp0</name>
+		<enabled>true</enabled>
+		<preempt:frame-preemption-parameters>
+			<preempt:frame-preemption-status-table>
+				<preempt:traffic-class>0</preempt:traffic-class>
+				<preempt:frame-preemption-status>preemptable</preempt:frame-preemption-status>
+			</preempt:frame-preemption-status-table>
+			<preempt:frame-preemption-status-table>
+				<preempt:traffic-class>1</preempt:traffic-class>
+				<preempt:frame-preemption-status>express</preempt:frame-preemption-status>
+			</preempt:frame-preemption-status-table>
+			<preempt:frame-preemption-status-table>
+				<preempt:traffic-class>2</preempt:traffic-class>
+				<preempt:frame-preemption-status>express</preempt:frame-preemption-status>
+			</preempt:frame-preemption-status-table>
+			<preempt:frame-preemption-status-table>
+				<preempt:traffic-class>3</preempt:traffic-class>
+				<preempt:frame-preemption-status>preemptable</preempt:frame-preemption-status>
+			</preempt:frame-preemption-status-table>
+		</preempt:frame-preemption-parameters>
+	</interface>
+</interfaces>
+
+
+

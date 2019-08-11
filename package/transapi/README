@@ -1,0 +1,223 @@
+---------------------------------------------------------------------------
+transapi introduction
+----------------------
+
+Supply transAPIs used for configuring tsn features in the LS1028ARDB board.
+
+---------------------------------------------------------------------------
+Environment setup
+------------------
+
+# netopeer-server
+Select on the
+Target packages -> Netconf Supporting -> netopeer-server
+
+# netopeer-cli
+Usually, User need to install netopeer clienton on a CentOS/Ubuntu PC to run netopeer-cli.
+
+Meanwhile, for convenience, user can also enable netopeer-cli on the
+Target packages -> Netconf Supporting-> netopeer-client
+By doing so, user can avoid disturbing installation of netopeer client
+
+Make sure the netconf server is running(check netopeer-server is running at LS1028ARDB).
+
+Note: Sometimes it need one or two minutes before the server's socket link become stable upon the device power up.
+
+if netopeer-server is not running. Input command to let it run(verbose mode):
+
+	/usr/local/bin/netopeer-server -v 3
+
+#transapi
+Select on the
+Target packages -> Netconf Supporting -> transapi
+---------------------------------------------------------------------------
+Introduction of client commands
+--------------------------------
+User can get more information by "help" command in netopeer-cli's interactive environment
+
+Test commands at netopeer-client:
+
+# Start client software
+
+	>$ netopeer-cli
+
+- connect
+
+	# Connect the netconf server on LS1028ARDB board(use the ip on LS1028ARDB, for example,10.193.20.53):
+
+		netconf> connect --port 830 --login root 10.193.20.53(device ip address)
+	# Because 830 is default configuration of netopeer, By default, user can also use following command
+		netconf> connect --login root 10.193.20.53(device ip address)
+
+- lock
+	# Allows the client to lock the entire configuration datastore system of a device.
+	# Such locks are intended to be short-lived and allow a client to make a change
+	# without fear of interaction with other NETCONF clients, nonNETCONF clients (e.g.,
+	# SNMP and command line interface (CLI) scripts), and human users.
+	# User can lock running/candidate/startup datastore with following command
+
+		netconf> lock running
+		netconf> lock candidate
+		netconf> lock startup
+
+	# Note: if the target datastore is candidate, User would get the error "Candidate datastore not
+	#	locked but already modified." when the value of modified in candidate property is true.
+	#	User can copy configuration from running to candidate to solve this issue
+
+- get
+
+	# Get staus datas of server
+
+		netconf> get
+
+
+	# User can get datas what he want by --filter option
+
+		netconf> get --filter
+
+	# User must input the data's node, following are some examples
+
+		# ege1:get nacm node
+			<nacm/>
+		# ege2:get interfaces node
+			<datastores/>
+				<interfaces/>
+			</datastores>
+		# ege3:get nacm node and datastores node
+			<nacm/>
+			<datastores/>
+
+
+- get-config
+
+	# Get current startup configs:
+
+		netconf> get-config startup
+
+	# Get current running configs:
+
+		netconf> get-config running
+
+	# Get current candidate configs:
+
+		netconf> get-config candidate
+
+
+	# User can get configuration data what he want by --filter option
+		netconf> get-config running --filter
+	# User must input the data's node, following are some examples
+		# ege1:get netopeer configuration
+			<netopeer/>
+		# ege2:get interfaces configuration
+			<interfaces/>
+		# ege3:get netopeer and interfaces configuration
+			<netopeer/>
+			<interfaces/>
+
+- edit-config
+
+	# User can edit any element or multi elements in the module
+
+	netconf> edit-config candidate
+
+	# Candidate modification would only effect the candidate datastore.
+	# Not really modify into switch configuration of LS1028ARDB.
+	# If user want to apply the configuration in running datastore to switch,
+	# command "apply_config" via "user-rpc” should be used
+
+	netconf> edit-config running
+
+	# Running modification would only effect the running datastore. Not really modify into switch configuration of LS1028ARDB.
+
+	# Input below text into the editor and wait for got 'OK' message:
+	# For example: below message means edit entry index 1 in l2-policing-table
+
+		<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"
+			    xmlns:preempt="urn:ieee:std:802.1Q:yang:ieee802-dot1q-preemption">
+			<interface>
+				<name>eno0</name>
+				<enabled>true</enabled>
+				<preempt:frame-preemption-parameters>
+					<preempt:frame-preemption-status-table>
+					       <preempt:traffic-class>0</preempt:traffic-class>
+					       <preempt:frame-preemption-status>preemptable</preempt:frame-preemption-status>
+					</preempt:frame-preemption-status-table>
+					<preempt:frame-preemption-status-table>
+						<preempt:traffic-class>1</preempt:traffic-class>
+						<preempt:frame-preemption-status>express</preempt:frame-preemption-status>
+					</preempt:frame-preemption-status-table>
+				</preempt:frame-preemption-parameters>
+			</interface>
+		</interfaces>
+
+- copy-config
+	# User can copy the configuration data node between different configuration data nodes or files
+
+	# Copy configuration from running datastore to candidate datastore. This will effect on all modules
+	# enabled in netopeer server, including the server's datastore
+		netconf> copy-config --source running candidate
+
+	# Copy configuration from file on client device to candidate datastore.
+		netconf> copy-config --config <file> candidate
+		#Note: the file should be in xml format
+
+
+- commit
+
+	# 'commit' command will copy the candidate area data into running area. This will effect on all modules
+	# enabled in netopeer server, including the server's datastore
+
+	netconf> commit
+
+
+- discard-changes
+	#'discard-changes' simply resets the candidate datastore to be the same as the running datastore,
+	# but that should be so by default when starting netopeer-server. You should read about it in the NETCONF RFC.
+	# It is suggested to run 'get-config candidate' and 'get-config running' check whether they are same or not
+	# every after connect opertion. If not, run 'discard-changes' first.
+
+	netconf> discard-changes
+
+- disconnect
+	# Disconnect from netopeer server
+
+- quit
+	# Quit the program
+
+---------------------------------------------------------------------------
+Recommended operational steps
+-------------------------------
+#step 1: run netopeer-cli
+	>$ netopeer-cli
+
+#step 2: connect to server
+	netconf> connect --login root 10.193.20.53(server-ip)
+
+#step 3: sync running and candidate datastores
+	netconf> discard-changes
+
+#step 4: lock running and candidate datastores
+	netconf> lock candidate
+	netconf> lock running
+
+#step 5: momdify candidate datastore
+	netconf> copy-config --config qbv_instance.xml candidate
+
+#step 6: commit cofiguration
+	netconf> commit
+
+#step 7: unlock running and candidate datastores
+	netconf> unlock candidate
+	netconf> unlock running
+
+#step 8: disconnect from server
+	netconf> disconnect
+
+#step 9: exit netopeer-cli
+	netconf> quit
+
+---------------------------------------------------------------------------
+Example files
+--------------
+There are some helpful files mentioned above in packages/transapi/examples path.
+

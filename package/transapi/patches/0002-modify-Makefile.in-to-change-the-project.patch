@@ -1,0 +1,256 @@
+From c06e9679e58707990dc1efde9bffef80924e0a07 Mon Sep 17 00:00:00 2001
+From: Xiaolin He <xiaolin.he@nxp.com>
+Date: Sat, 10 Aug 2019 23:13:10 +0800
+Subject: [PATCH 2/2] modify Makefile.in to change the project.
+
+Signed-off-by: Xiaolin He <xiaolin.he@nxp.com>
+---
+ Makefile.in | 200 ++++++++++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 168 insertions(+), 32 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index bfc0f07..4d4e30b 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -1,5 +1,8 @@
+ PKGNAME = @PROJECTNAME@
+-TARGET = @PROJECTNAME@.la
++IF_TARGET = cfginterfaces.so
++BRIDGE_TARGET = cfgbridges.so
++IF_MODEL_NAME = cfginterfaces
++BRIDGE_MODEL_NAME = cfgbridges
+
+ # Various configurable paths (remember to edit Makefile.in, not Makefile)
+ prefix = @prefix@
+@@ -18,64 +21,197 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+ INSTALL_DATA = @INSTALL_DATA@
+ LIBS = @LIBS@
+ CFLAGS = -Wall -pthread @CFLAGS@
++CFLAGS += $(shell pkg-config --cflags libnl-3.0 libnl-genl-3.0 libcjson)
++CFLAGS += -I./platform -I./cfginterfaces -I./cfgbridges -I./cfginterfaces-qbu -I./cfginterfaces-qbv \
++	-I./cfgbridges-qci -I./common
+ CPPFLAGS = @CPPFLAGS@
+-LDFLAGS = @LDFLAGS@
+-LIBTOOL = $(libtool) --tag=CC --quiet
++LDFLAGS = @LDFLAGS@ -ltsn $(shell pkg-config --libs libnl-3.0 libnl-genl-3.0 libcjson) -lpthread -lrt
+
+ NETOPEER_MANAGER = @NETOPEER_MANAGER@
+ NETOPEER_DIR = @NETOPEER_DIR@
+
+-MODEL = @PROJECTNAME@.yin \
+-	@PROJECTNAME@-config.rng \
+-	@PROJECTNAME@-gdefs-config.rng \
+-	@PROJECTNAME@-schematron.xsl
+
++IF_MODEL_DIR = $(NETOPEER_DIR)/$(PKGNAME)/$(IF_MODEL_NAME)/
++BRIDGE_MODEL_DIR = $(NETOPEER_DIR)/$(PKGNAME)/$(BRIDGE_MODEL_NAME)/
+
+-SRCS = @PROJECTNAME@.c
+-OBJDIR = .obj
+-LOBJS = $(SRCS:%.c=$(OBJDIR)/%.lo)
+
+-all: $(TARGET)
++IF_MODEL = ietf-interfaces@2014-05-08.yin \
++	ieee802-dot1q-preemption.yin \
++	ieee802-dot1q-sched.yin \
++	ieee802-dot1q-types.yin \
++	ietf-yang-types.yin \
++	ietf-interfaces@2014-05-08-config.rng \
++	ietf-interfaces@2014-05-08-gdefs-config.rng \
++	ietf-interfaces@2014-05-08-schematron.xsl
+
+-$(TARGET): $(LOBJS)
+-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -avoid-version -module -shared -export-dynamic --mode=link -o $@ $^ -rpath $(libdir)
++BRIDGE_MODEL = ieee802-dot1q-bridge.yin \
++	ieee802-dot1q-stream-filters-gates.yin \
++	ietf-interfaces@2014-05-08.yin \
++	ieee802-dot1q-types.yin \
++	ieee802-dot1q-psfp.yin \
++	ieee802-types.yin \
++	ietf-yang-types.yin \
++	iana-if-type@2017-01-19.yin \
++	ieee802-dot1q-bridge-config.rng \
++	ieee802-dot1q-bridge-gdefs-config.rng \
++	ieee802-dot1q-bridge-schematron.xsl
+
+-$(OBJDIR)/%.lo: %.c
++
++PLATFORM_SRCS =
++PLATFORM_SRCS = $(shell find platform -name "*.[c|h]")  # All .c and .h in basic directory
++
++COMMON_SRCS =
++COMMON_SRCS = $(shell find common -name "*.[c|h]")  # All .c and .h in basic directory
++
++IF_SRCS =
++IF_SRCS += $(shell find cfginterfaces -name "*.[c|h]")  # All .c and .h in interface directory
++IF_SRCS += $(shell find cfginterfaces-* -name "*.[c|h]")  # All .c and .h in interface-* directory
++IF_SRCS += $(PLATFORM_SRCS) $(COMMON_SRCS)
++
++BRIDGE_SRCS =
++BRIDGE_SRCS += $(shell find cfgbridges -name "*.[c|h]")  # All .c and .h in bridge directory
++BRIDGE_SRCS += $(shell find cfgbridges-* -name "*.[c|h]")  # All .c and .h in bridge-* directory
++BRIDGE_SRCS += $(PLATFORM_SRCS) $(COMMON_SRCS)
++
++IF_OBJDIR = cfginterfacest
++IF_LOBJS = $(IF_SRCS:%.c=$(IF_OBJDIR)/%.o)
++
++BRIDGE_OBJDIR = cfgbridges
++BRIDGE_LOBJS = $(BRIDGE_SRCS:%.c=$(BRIDGE_OBJDIR)/%.o)
++
++all: $(IF_TARGET) $(BRIDGE_TARGET)
++
++$(IF_TARGET): $(IF_LOBJS)
++	$(CC) -shared $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -o $@ $^
++
++$(IF_OBJDIR)/%.o: %.c
+ 	@[ -d $$(dirname $@) ] || \
+ 		(mkdir -p $$(dirname $@))
+-	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) $(CPPFLAGS) -fPIC -shared -c $< -o $@
++	$(CC) $(CFLAGS) $(CPPFLAGS) -fPIC -shared -c $< -o $@
++
++$(BRIDGE_TARGET): $(BRIDGE_LOBJS)
++	$(CC) -shared $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBS) -o $@ $^
++
++$(BRIDGE_OBJDIR)/%.o: %.c
++	@[ -d $$(dirname $@) ] || \
++		(mkdir -p $$(dirname $@))
++	$(CC) $(CFLAGS) $(CPPFLAGS) -fPIC -shared -c $< -o $@
+
+ .PHONY: install
+-install: $(TARGET)
++install: $(IF_TARGET) $(BRIDGE_TARGET)
+ 	$(INSTALL) -m 775 -d $(DESTDIR)/$(libdir)
+-	$(LIBTOOL) --mode=install cp $(TARGET) $(DESTDIR)/$(libdir)/;
+-	$(INSTALL) -d $(NETOPEER_DIR)/$(PKGNAME)/
+-	@for i in $(MODEL); do \
+-		$(INSTALL_DATA) -m 600 $$i $(NETOPEER_DIR)/$(PKGNAME)/; \
++	$(INSTALL) -m 775 $(IF_TARGET) $(DESTDIR)/$(libdir)/;
++	$(INSTALL) -m 775 $(BRIDGE_TARGET) $(DESTDIR)/$(libdir)/;
++	$(INSTALL) -d $(DESTDIR)/$(IF_MODEL_DIR);
++	$(INSTALL) -d $(DESTDIR)/$(BRIDGE_MODEL_DIR);
++	@for i in $(IF_MODEL); do \
++		$(INSTALL_DATA) -m 600 $(IF_MODEL_NAME)/$$i $(DESTDIR)/$(IF_MODEL_DIR)/; \
++	done
++	@for i in $(BRIDGE_MODEL); do \
++		$(INSTALL_DATA) -m 600 $(BRIDGE_MODEL_NAME)/$$i $(DESTDIR)/$(BRIDGE_MODEL_DIR)/; \
+ 	done
+ 	if test -n "$(NETOPEER_MANAGER)"; then \
+-		if test -n "`$(NETOPEER_MANAGER) list | grep "^$(PKGNAME) ("`"; then \
+-			$(NETOPEER_MANAGER) rm --name $(PKGNAME); \
++		if test -n "`$(NETOPEER_MANAGER) list \
++				--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++				--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml | grep "^$(IF_MODEL_NAME) ("`"; then \
++			$(NETOPEER_MANAGER) rm --name $(IF_MODEL_NAME) \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
+ 		fi; \
+-		$(NETOPEER_MANAGER) add --name $(PKGNAME) \
+-			--model $(NETOPEER_DIR)/$(PKGNAME)/$(PKGNAME).yin \
+-			--transapi $(DESTDIR)/$(libdir)/$(PKGNAME).so \
+-			--datastore $(NETOPEER_DIR)/$(PKGNAME)/datastore.xml; \
++		$(NETOPEER_MANAGER) add --name $(IF_MODEL_NAME) \
++			--model $(DESTDIR)/$(IF_MODEL_DIR)/ietf-interfaces@2014-05-08.yin \
++			--model_target $(IF_MODEL_DIR)/ietf-interfaces@2014-05-08.yin \
++			--transapi $(DESTDIR)/$(libdir)/$(IF_MODEL_NAME).so \
++			--datastore $(IF_MODEL_DIR)/datastore.xml \
++			--transapi_target $(libdir)/$(IF_MODEL_NAME).so \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(IF_MODEL_NAME) \
++			--augment $(DESTDIR)/$(IF_MODEL_DIR)/ieee802-dot1q-preemption.yin \
++			--augment_target $(IF_MODEL_DIR)/ieee802-dot1q-preemption.yin \
++			--features frame-preemption \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(IF_MODEL_NAME) \
++			--augment $(DESTDIR)/$(IF_MODEL_DIR)/ieee802-dot1q-sched.yin \
++			--augment_target $(IF_MODEL_DIR)/ieee802-dot1q-sched.yin \
++			--features scheduled-traffic \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(IF_MODEL_NAME) \
++			--import $(DESTDIR)/$(IF_MODEL_DIR)/ieee802-dot1q-types.yin \
++			--import_target $(IF_MODEL_DIR)/ieee802-dot1q-types.yin \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++	fi
++	if test -n "$(NETOPEER_MANAGER)"; then \
++		if test -n "`$(NETOPEER_MANAGER) list \
++				--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++				--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml | grep "^$(BRIDGE_MODEL_NAME) ("`"; then \
++			$(NETOPEER_MANAGER) rm --name $(BRIDGE_MODEL_NAME) \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		fi; \
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--model $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-bridge.yin \
++			--model_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-bridge.yin \
++			--features ingress-filtering extended-filtering-services \
++				port-and-protocol-based-vlan flow-filtering \
++				simple-bridge-port \
++			--transapi $(DESTDIR)/$(libdir)/$(BRIDGE_MODEL_NAME).so \
++			--datastore $(BRIDGE_MODEL_DIR)/datastore.xml \
++			--transapi_target $(libdir)/$(BRIDGE_MODEL_NAME).so \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--augment $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-psfp.yin \
++			--augment_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-psfp.yin \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--augment $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-stream-filters-gates.yin \
++			--augment_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-stream-filters-gates.yin \
++			--features closed-gate-state \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--import $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-types.yin \
++			--import_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-types.yin \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--import $(DESTDIR)/$(BRIDGE_MODEL_DIR)//ietf-yang-types.yin \
++			--import_target $(BRIDGE_MODEL_DIR)//ietf-yang-types.yin \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--import $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-types.yin \
++			--import_target $(BRIDGE_MODEL_DIR)/ieee802-types.yin \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--import $(DESTDIR)/$(BRIDGE_MODEL_DIR)/iana-if-type@2017-01-19.yin \
++			--import_target $(BRIDGE_MODEL_DIR)/iana-if-type@2017-01-19.yin \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
+ 	fi
+
+ .PHONY: uninstall
+ uninstall:
+-	$(LIBTOOL) --mode=uninstall rm -rf $(DESTDIR)/$(libdir)/$(TARGET);
++	rm -rf $(DESTDIR)/$(libdir)/$(TARGET);
+ 	rm -rf $(NETOPEER_DIR)/$(PKGNAME)/
+ 	if test -n "$(NETOPEER_MANAGER)"; then \
+-		if test -n "`$(NETOPEER_MANAGER) list | grep "^$(PKGNAME) ("`"; then \
+-			$(NETOPEER_MANAGER) rm --name $(PKGNAME); \
++		if test -n "`$(NETOPEER_MANAGER) list | grep "^$(BRIDGE_MODEL_NAME) ("`"; then \
++			$(NETOPEER_MANAGER) rm --name $(BRIDGE_MODEL_NAME); \
++		fi; \
++        if test -n "`$(NETOPEER_MANAGER) list | grep "^$(IF_MODEL_NAME) ("`"; then \
++			$(NETOPEER_MANAGER) rm --name $(IF_MODEL_NAME); \
+ 		fi; \
+ 	fi
+
+ .PHONY: clean
+ clean:
+-	$(LIBTOOL) --mode clean rm -f $(LOBJS)
+-	$(LIBTOOL) --mode clean rm -f $(TARGET)
+-	rm -rf $(TARGET) $(OBJDIR)
++	rm -f $(IF_LOBJS) $(BRIDGE_LOBJS)
++	rm -f $(IF_TARGET) $(BRIDGE_TARGET)
++	rm -rf $(IF_TARGET) $(BRIDGE_TARGET) $(IF_OBJDIR) $(BRIDGE_OBJDIR)
+
+--
+2.7.4
+

@@ -1,0 +1,38 @@
+From 7041088c44b9c1ad2276d4f186618f6812f6aaca Mon Sep 17 00:00:00 2001
+From: Xiaolin He <xiaolin.he@nxp.com>
+Date: Tue, 6 Aug 2019 17:36:50 +0800
+Subject: [PATCH 1/2] modify configure.in to change parameters to fit the
+ project.
+
+Signed-off-by: Xiaolin He <xiaolin.he@nxp.com>
+---
+ configure.in | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index bc9b969..cbfa8be 100644
+--- a/configure.in
++++ b/configure.in
+@@ -1,8 +1,8 @@
+ AC_PREREQ([2.63])
+-AC_INIT([ietf-interfaces@2014-05-08], [1.0], [BUG-REPORT-ADDRESS])
++AC_INIT([transapi], [2.0], [BUG-REPORT-ADDRESS])
+ AC_CONFIG_SRCDIR([ietf-interfaces@2014-05-08.c])
+
+-PROJECTNAME=ietf-interfaces@2014-05-08
++PROJECTNAME=transapi
+ AC_SUBST(PROJECTNAME)
+
+ # --enable-debug option
+@@ -65,7 +65,7 @@ if test -z "$WITH_LIBXML2" ; then
+ 	if test "$XML2_CONFIG" = "no"; then
+ 		AC_MSG_ERROR([Missing development package of libxml2.])
+ 	fi
+-	AC_CHECK_LIB([xml2], [main], [LIBS="`xml2-config --libs` $LIBS" CFLAGS="`xml2-config --cflags` $CFLAGS"], AC_MSG_ERROR([Libxml2 not found ]))
++	AC_CHECK_LIB([xml2], [main], [LIBS="`${WITH_LIBXML2}/xml2-config --libs` $LIBS" CFLAGS="`${WITH_LIBXML2}/xml2-config --cflags` $CFLAGS"], AC_MSG_ERROR([Libxml2 not found ]))
+ fi
+
+ # Checks for header files.
+--
+2.7.4
+

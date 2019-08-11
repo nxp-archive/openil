@@ -1851,6 +1851,7 @@ menu "Netconf Supporting"
 	source "package/yang-cfginterfaces/Config.in"
 	source "package/yang-sja1105/Config.in"
 	source "package/yang-model/Config.in"
+	source "package/transapi/Config.in"
 endmenu
 menu "Time-Sensitive Networking tools"
 	source "package/sja1105-tool/Config.in"
