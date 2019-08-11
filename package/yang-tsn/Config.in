@@ -1,6 +1,0 @@
-config BR2_PACKAGE_YANG_TSN
-select BR2_PACKAGE_TSNTOOL
-select BR2_PACKAGE_NETOPEER
-bool "yang-tsn"
-help
-	config tsn by netopeer

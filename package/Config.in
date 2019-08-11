@@ -1850,7 +1850,6 @@ menu "Netconf Supporting"
 	source "package/netopeer-client/Config.in"
 	source "package/yang-cfginterfaces/Config.in"
 	source "package/yang-sja1105/Config.in"
-	source "package/yang-tsn/Config.in"
 	source "package/yang-model/Config.in"
 endmenu
 menu "Time-Sensitive Networking tools"
