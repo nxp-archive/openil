@@ -194,17 +194,6 @@ index bfc0f07..4d4e30b 100644
 +			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
 +			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
 +		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
-+			--augment $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-psfp.yin \
-+			--augment_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-psfp.yin \
-+			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
-+			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
-+		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
-+			--augment $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-stream-filters-gates.yin \
-+			--augment_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-stream-filters-gates.yin \
-+			--features closed-gate-state \
-+			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
-+			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
-+		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
 +			--import $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-types.yin \
 +			--import_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-types.yin \
 +			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
@@ -222,6 +211,17 @@ index bfc0f07..4d4e30b 100644
 +		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
 +			--import $(DESTDIR)/$(BRIDGE_MODEL_DIR)/iana-if-type@2017-01-19.yin \
 +			--import_target $(BRIDGE_MODEL_DIR)/iana-if-type@2017-01-19.yin \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--augment $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-stream-filters-gates.yin \
++			--augment_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-stream-filters-gates.yin \
++			--features closed-gate-state \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--augment $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-psfp.yin \
++			--augment_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-psfp.yin \
 +			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
 +			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
  	fi

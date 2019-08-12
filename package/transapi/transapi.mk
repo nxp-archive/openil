@@ -10,7 +10,7 @@ TRANSAPI_SITE_METHOD = git
 TRANSAPI_LICENSE = MIT/GPL2.0
 TRANSAPI_LICENSE_FILES = LICENSE
 # if use libtool to install libraries, flowing command is necessary
-#TRANSAPI_AUTORECONF = YES
+TRANSAPI_AUTORECONF = YES
 TRANSAPI_DEPENDENCIES = libxml2 pyang libnetconf netopeer tsntool yang-model
 TRANSAPI_CONF_ENV += PKG_CONFIG_PATH="$(STAGING_DIR)/usr/lib/pkgconfig"
 TRANSAPI_CONF_ENV += PYTHON_CONFIG="$(STAGING_DIR)/usr/bin/python-config"
@@ -71,10 +71,10 @@ define TRANSAPI_CREATE_CONFIGURE
 		transapi;
 
         cd $(TOPDIR); \
-        $(APPLY_PATCHES) $(@D) package/transapi/patches\
-		0001-modify-configure.in-to-change-parameters-to-fit-the-.patch; \
-        $(APPLY_PATCHES) $(@D) package/transapi/patches\
-		0002-modify-Makefile.in-to-change-the-project.patch; \
+        $(APPLY_PATCHES) $(@D) package/transapi\
+		0001-modify-configure.in-to-change-parameters-to-fit-the-.patch.conditional; \
+        $(APPLY_PATCHES) $(@D) package/transapi\
+		0002-modify-Makefile.in-to-change-the-project.patch.conditional; \
         cd $(@D); \
         $(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/autoreconf --force --install
 endef
@@ -114,11 +114,11 @@ define TRANSAPI_LNCTOOL_CREATE_FILES
 		--augment-model ietf-interfaces@2014-05-08.yang \
 		--augment-model ietf-yang-types.yang \
 		--augment-model ieee802-dot1q-types.yang \
-		--augment-model ieee802-dot1q-psfp.yang \
 		--augment-model ieee802-types.yang \
 		--augment-model iana-if-type@2017-01-19.yang \
 		--augment-model ietf-inet-types@2013-07-15.yang \
 		--augment-model ieee802-dot1q-stream-filters-gates.yang \
+		--augment-model ieee802-dot1q-psfp.yang \
 		--search-path cfgbridges \
 		validation;
 endef
