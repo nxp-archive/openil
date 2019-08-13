@@ -149,6 +149,23 @@ Test commands at netopeer-client:
 				</preempt:frame-preemption-parameters>
 			</interface>
 		</interfaces>
+	# If any items were removed, the parameter '--defop replace' should be used.
+	# For example, If remove the second table node in above instance like below:
+		<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"
+			    xmlns:preempt="urn:ieee:std:802.1Q:yang:ieee802-dot1q-preemption">
+			<interface>
+				<name>eno0</name>
+				<enabled>true</enabled>
+				<preempt:frame-preemption-parameters>
+					<preempt:frame-preemption-status-table>
+					       <preempt:traffic-class>0</preempt:traffic-class>
+					       <preempt:frame-preemption-status>preemptable</preempt:frame-preemption-status>
+					</preempt:frame-preemption-status-table>
+				</preempt:frame-preemption-parameters>
+			</interface>
+		</interfaces>
+	# In such case, on the netopeer-cli side. the commands should be
+		netconf> edit-config --defop replace running
 
 - copy-config
 	# User can copy the configuration data node between different configuration data nodes or files
