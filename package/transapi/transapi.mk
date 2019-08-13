@@ -119,6 +119,7 @@ define TRANSAPI_LNCTOOL_CREATE_FILES
 		--augment-model ietf-inet-types@2013-07-15.yang \
 		--augment-model ieee802-dot1q-stream-filters-gates.yang \
 		--augment-model ieee802-dot1q-psfp.yang \
+		--augment-model ieee802-dot1q-cb-stream-identification.yang \
 		--search-path cfgbridges \
 		validation;
 endef

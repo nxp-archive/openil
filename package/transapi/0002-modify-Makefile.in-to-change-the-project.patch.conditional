@@ -1,15 +1,15 @@
-From c06e9679e58707990dc1efde9bffef80924e0a07 Mon Sep 17 00:00:00 2001
+From 1c90dcb671c8b2cf53d3502b60b765e189d1f7aa Mon Sep 17 00:00:00 2001
 From: Xiaolin He <xiaolin.he@nxp.com>
 Date: Sat, 10 Aug 2019 23:13:10 +0800
 Subject: [PATCH 2/2] modify Makefile.in to change the project.
 
 Signed-off-by: Xiaolin He <xiaolin.he@nxp.com>
 ---
- Makefile.in | 200 ++++++++++++++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 168 insertions(+), 32 deletions(-)
+ Makefile.in | 206 ++++++++++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 174 insertions(+), 32 deletions(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index bfc0f07..4d4e30b 100644
+index bfc0f07..2188158 100644
 --- a/Makefile.in
 +++ b/Makefile.in
 @@ -1,5 +1,8 @@
@@ -22,13 +22,13 @@ index bfc0f07..4d4e30b 100644
 
  # Various configurable paths (remember to edit Makefile.in, not Makefile)
  prefix = @prefix@
-@@ -18,64 +21,197 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+@@ -18,64 +21,203 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
  INSTALL_DATA = @INSTALL_DATA@
  LIBS = @LIBS@
  CFLAGS = -Wall -pthread @CFLAGS@
 +CFLAGS += $(shell pkg-config --cflags libnl-3.0 libnl-genl-3.0 libcjson)
 +CFLAGS += -I./platform -I./cfginterfaces -I./cfgbridges -I./cfginterfaces-qbu -I./cfginterfaces-qbv \
-+	-I./cfgbridges-qci -I./common
++	-I./cfgbridges-qci -I./common -I./cfgbridges-cb
  CPPFLAGS = @CPPFLAGS@
 -LDFLAGS = @LDFLAGS@
 -LIBTOOL = $(libtool) --tag=CC --quiet
@@ -66,6 +66,7 @@ index bfc0f07..4d4e30b 100644
 +	ietf-interfaces@2014-05-08.yin \
 +	ieee802-dot1q-types.yin \
 +	ieee802-dot1q-psfp.yin \
++	ieee802-dot1q-cb-stream-identification.yin \
 +	ieee802-types.yin \
 +	ietf-yang-types.yin \
 +	iana-if-type@2017-01-19.yin \
@@ -224,6 +225,11 @@ index bfc0f07..4d4e30b 100644
 +			--augment_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-psfp.yin \
 +			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
 +			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
++		$(NETOPEER_MANAGER) add --name $(BRIDGE_MODEL_NAME) \
++			--augment $(DESTDIR)/$(BRIDGE_MODEL_DIR)/ieee802-dot1q-cb-stream-identification.yin \
++			--augment_target $(BRIDGE_MODEL_DIR)/ieee802-dot1q-cb-stream-identification.yin \
++			--modules_path $(DESTDIR)/$(NETOPEER_DIR)/modules.conf.d/ \
++			--netopeer_config $(DESTDIR)/$(NETOPEER_DIR)/cfgnetopeer/datastore.xml;\
  	fi
 
  .PHONY: uninstall
@@ -251,6 +257,6 @@ index bfc0f07..4d4e30b 100644
 +	rm -f $(IF_TARGET) $(BRIDGE_TARGET)
 +	rm -rf $(IF_TARGET) $(BRIDGE_TARGET) $(IF_OBJDIR) $(BRIDGE_OBJDIR)
 
---
+-- 
 2.7.4
 
