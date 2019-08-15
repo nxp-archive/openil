@@ -1,7 +1,7 @@
 diff -ruN tmp/bee.c libbee/bee.c
 --- tmp/bee.c	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/bee.c	2019-08-08 15:16:02.415762414 +0800
-@@ -0,0 +1,287 @@
++++ libbee/bee.c	2019-08-14 19:39:39.974963766 +0800
+@@ -0,0 +1,293 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
 + * Copyright 2018-2019 NXP
@@ -143,12 +143,12 @@ diff -ruN tmp/bee.c libbee/bee.c
 +	close(fd);
 +}
 +
-+void recv_file(void)
++void recv_file(int file_size)
 +{
 +	int fd = 0;
 +
 +	fd = open(file_name, O_WRONLY | O_CREAT, 0777);
-+	write(fd, file_buffer, name_len);
++	write(fd, file_buffer, file_size);
 +	close(fd);
 +}
 +
@@ -232,8 +232,10 @@ diff -ruN tmp/bee.c libbee/bee.c
 +		get_file(&file_size);
 +		if (file_size == -1)
 +			return 2;
-+	} else
++	} else {
++		printf("Send the SEQ_REQ command.\n");
 +		send_cmd(SEQ_REQ, 0);
++	}
 +
 +	/* Infinite loop */
 +	for (;;) {
@@ -244,6 +246,7 @@ diff -ruN tmp/bee.c libbee/bee.c
 +			switch (SEQ_NUMBER) {
 +			case SEQ_REQ:	/* server */
 +				send_size = 0;
++				printf("Send the SEQ_INFO command.\n");
 +				send_cmd(SEQ_INFO, file_size);
 +				break;
 +
@@ -254,6 +257,7 @@ diff -ruN tmp/bee.c libbee/bee.c
 +				file_name[name_len] = '\0';
 +				recv_size = 0;
 +				buffer = file_buffer;
++				printf("Send the SEQ_START command.\n");
 +				send_cmd(SEQ_START, 0);
 +				break;
 +
@@ -264,12 +268,14 @@ diff -ruN tmp/bee.c libbee/bee.c
 +			case SEQ_DATA: /* client */
 +				recv_size += RX_SIZE - HEADER_LENGTH - 2;
 +				buffer += recv_size;
++				printf("Send the SEQ_START command.\n");
++				send_cmd(SEQ_START, 0);
 +				break;
 +
 +			case SEQ_END: /* client */
 +				if (file_size == recv_size) {
 +					buffer = DATA_RX;
-+					recv_file();
++					recv_file(file_size);
 +					return 0;
 +				} else {
 +					try++;
@@ -291,8 +297,8 @@ diff -ruN tmp/bee.c libbee/bee.c
 +}
 diff -ruN tmp/Init_Routines.c libbee/Init_Routines.c
 --- tmp/Init_Routines.c	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/Init_Routines.c	2019-08-05 16:21:34.956321361 +0800
-@@ -0,0 +1,92 @@
++++ libbee/Init_Routines.c	2019-08-14 19:06:51.850937235 +0800
+@@ -0,0 +1,90 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
 + * Copyright 2018-2019 NXP
@@ -344,8 +350,6 @@ diff -ruN tmp/Init_Routines.c libbee/Init_Routines.c
 +		ADDRESS_long_2[i] = 2;
 +	}
 +
-+	//DATA_TX[0] = 0;        /* Initialize first byte */
-+
 +	usleep(5000);
 +
 +	/*
@@ -387,7 +391,7 @@ diff -ruN tmp/Init_Routines.c libbee/Init_Routines.c
 +}
 diff -ruN tmp/Init_Routines.h libbee/Init_Routines.h
 --- tmp/Init_Routines.h	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/Init_Routines.h	2019-08-05 16:10:36.292312482 +0800
++++ libbee/Init_Routines.h	2019-08-14 16:29:38.338810070 +0800
 @@ -0,0 +1,21 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
@@ -412,7 +416,7 @@ diff -ruN tmp/Init_Routines.h libbee/Init_Routines.h
 +#endif
 diff -ruN tmp/Makefile libbee/Makefile
 --- tmp/Makefile	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/Makefile	2019-07-23 21:16:05.593418619 +0800
++++ libbee/Makefile	2019-08-14 16:29:38.338810070 +0800
 @@ -0,0 +1,13 @@
 +CC = ../../host/usr/bin/aarch64-linux-gnu-gcc
 +#CC = gcc
@@ -429,7 +433,7 @@ diff -ruN tmp/Makefile libbee/Makefile
 +	rm -rf *.o bee_demo
 diff -ruN tmp/Misc_Routines.c libbee/Misc_Routines.c
 --- tmp/Misc_Routines.c	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/Misc_Routines.c	2019-08-05 17:35:31.628381168 +0800
++++ libbee/Misc_Routines.c	2019-08-14 19:09:28.466939346 +0800
 @@ -0,0 +1,537 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
@@ -480,8 +484,8 @@ diff -ruN tmp/Misc_Routines.c libbee/Misc_Routines.c
 + */
 +void enable_interrupt(void)
 +{
-+	/* 0x00  all interrupts are enable */
-+	write_ZIGBEE_short(INTCON_M, 0x00);
++	/* 0xF7 Only reception interrupt is enable */
++	write_ZIGBEE_short(INTCON_M, 0xF7);
 +}
 +
 +/*
@@ -970,7 +974,7 @@ diff -ruN tmp/Misc_Routines.c libbee/Misc_Routines.c
 +
 diff -ruN tmp/Misc_Routines.h libbee/Misc_Routines.h
 --- tmp/Misc_Routines.h	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/Misc_Routines.h	2019-08-05 16:52:06.920346056 +0800
++++ libbee/Misc_Routines.h	2019-08-14 16:29:38.338810070 +0800
 @@ -0,0 +1,51 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
@@ -1025,7 +1029,7 @@ diff -ruN tmp/Misc_Routines.h libbee/Misc_Routines.h
 +#endif
 diff -ruN tmp/ReadWrite_Routines.c libbee/ReadWrite_Routines.c
 --- tmp/ReadWrite_Routines.c	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/ReadWrite_Routines.c	2019-08-06 16:12:49.437478965 +0800
++++ libbee/ReadWrite_Routines.c	2019-08-14 16:29:38.338810070 +0800
 @@ -0,0 +1,306 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
@@ -1335,7 +1339,7 @@ diff -ruN tmp/ReadWrite_Routines.c libbee/ReadWrite_Routines.c
 +}
 diff -ruN tmp/ReadWrite_Routines.h libbee/ReadWrite_Routines.h
 --- tmp/ReadWrite_Routines.h	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/ReadWrite_Routines.h	2019-08-06 16:12:41.249478854 +0800
++++ libbee/ReadWrite_Routines.h	2019-08-14 16:29:38.338810070 +0800
 @@ -0,0 +1,42 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
@@ -1381,7 +1385,7 @@ diff -ruN tmp/ReadWrite_Routines.h libbee/ReadWrite_Routines.h
 +#endif
 diff -ruN tmp/registers.h libbee/registers.h
 --- tmp/registers.h	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/registers.h	2019-07-18 17:50:27.639428861 +0800
++++ libbee/registers.h	2019-08-14 16:29:38.338810070 +0800
 @@ -0,0 +1,131 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
@@ -1516,7 +1520,7 @@ diff -ruN tmp/registers.h libbee/registers.h
 +#endif
 diff -ruN tmp/Reset_Routines.c libbee/Reset_Routines.c
 --- tmp/Reset_Routines.c	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/Reset_Routines.c	2019-07-23 21:13:31.869416547 +0800
++++ libbee/Reset_Routines.c	2019-08-14 16:29:38.338810070 +0800
 @@ -0,0 +1,79 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
@@ -1599,7 +1603,7 @@ diff -ruN tmp/Reset_Routines.c libbee/Reset_Routines.c
 +}
 diff -ruN tmp/Reset_Routines.h libbee/Reset_Routines.h
 --- tmp/Reset_Routines.h	1970-01-01 08:00:00.000000000 +0800
-+++ libbee/Reset_Routines.h	2019-07-23 21:14:46.573417554 +0800
++++ libbee/Reset_Routines.h	2019-08-14 16:29:38.338810070 +0800
 @@ -0,0 +1,24 @@
 +/*
 + * Copyright 2013 Freescale Semiconductor, Inc.
