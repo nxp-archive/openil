@@ -5,7 +5,7 @@
 case "$1" in
 	start)
 		printf "Starting haveged: "
-		start-stop-daemon -S -x /usr/sbin/haveged -- -w 1024 -r 0
+		start-stop-daemon -S -x /usr/sbin/haveged -- -d 1024 -r 0
 		[ $? = 0 ] && echo "OK" || echo "FAIL"
 		;;
 	stop)
