@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PYANG_VERSION = pyang-1.7.4
+PYANG_VERSION = pyang-2.0.1
 PYANG_SITE = https://github.com/mbj4668/pyang.git 
 PYANG_SITE_METHOD = git
 PYANG_INSTALL_STAGING = YES
