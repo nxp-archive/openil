@@ -56,7 +56,7 @@ BR2_ROOTFS_POST_IMAGE_SCRIPT="board/nxp/ls1021atwr/post-image.sh"
 BR2_ROOTFS_POST_SCRIPT_ARGS="$(LINUX_DIR) $(TOPDIR) $(UBOOT_DIR)"
 
 # linux partition size
-BR2_ROOTFS_PARTITION_SIZE="500M"
+BR2_TARGET_ROOTFS_EXT2_SIZE="500M"
 
 # busybox setting
 BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="board/nxp/common/openil-busybox.config"
