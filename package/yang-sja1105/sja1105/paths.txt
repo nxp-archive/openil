@@ -1,2 +1,0 @@
-nxp=http://nxp.com/ns/yang/tsn/sja1105
-/nxp:sja1105
