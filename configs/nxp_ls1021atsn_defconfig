@@ -3,6 +3,9 @@ BR2_arm=y
 BR2_cortex_a7=y
 BR2_ARM_FPU_NEON=y
 
+# Init system
+BR2_INIT_SYSTEMD=y
+
 # Filesystem
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
@@ -78,7 +81,7 @@ BR2_PACKAGE_LINUXPTP=y
 BR2_PACKAGE_E2FSPROGS_RESIZE2FS=y
 
 # Add for NETCONF apps and ota
-BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/ls1021atsn/busybox_init_overlay"
+BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/systemd_init_overlay"
 BR2_INSTALL_LIBSTDCPP=y
 BR2_PACKAGE_BZIP2=y
 BR2_PACKAGE_ZIP=y
