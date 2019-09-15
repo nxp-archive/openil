@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-USTREAM_SSL_VERSION = ec80adaa1b47f28d426fa19c692011ce60b992d6
+USTREAM_SSL_VERSION = 23a3f2830341acd1db149175baf7315a33bd0edb
 USTREAM_SSL_SITE = git://git.openwrt.org/project/ustream-ssl.git
 USTREAM_SSL_LICENSE = ISC
 USTREAM_SSL_LICENSE_FILES = ustream-ssl.h

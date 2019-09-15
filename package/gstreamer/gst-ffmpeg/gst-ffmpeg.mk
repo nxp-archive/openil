@@ -12,11 +12,11 @@ GST_FFMPEG_DEPENDENCIES = host-pkgconf gstreamer gst-plugins-base
 
 ifeq ($(BR2_PACKAGE_GST_FFMPEG_GPL),y)
 GST_FFMPEG_CONF_OPTS += --disable-lgpl
-GST_FFMPEG_LICENSE = GPLv2+ (gst-ffmpeg), GPLv2+/GPLv3+ (libav)
+GST_FFMPEG_LICENSE = GPL-2.0+ (gst-ffmpeg), GPL-2.0+/GPL-3.0+ (libav)
 GST_FFMPEG_LICENSE_FILES = COPYING gst-libs/ext/libav/COPYING.GPLv2 gst-libs/ext/libav/COPYING.GPLv3
 else
 GST_FFMPEG_CONF_OPTS += --enable-lgpl
-GST_FFMPEG_LICENSE = LGPLv2+ (gst-ffmpeg), LGPLv2.1+/LGPLv3+ (libav)
+GST_FFMPEG_LICENSE = LGPL-2.0+ (gst-ffmpeg), LGPL-2.1+/LGPL-3.0+ (libav)
 GST_FFMPEG_LICENSE_FILES = COPYING.LIB gst-libs/ext/libav/COPYING.LGPLv2.1 gst-libs/ext/libav/COPYING.LGPLv3
 endif
 
@@ -90,6 +90,14 @@ ifeq ($(BR2_STATIC_LIBS),)
 GST_FFMPEG_CONF_EXTRA_OPTS += --enable-pic
 endif
 
+GST_FFMPEG_CFLAGS = $(TARGET_CFLAGS)
+
+ifeq ($(BR2_TOOLCHAIN_HAS_GCC_BUG_85180),y)
+GST_FFMPEG_CONF_EXTRA_OPTS += --disable-optimizations
+GST_FFMPEG_CFLAGS += -O0
+endif
+
+GST_FFMPEG_CONF_ENV += CFLAGS="$(GST_FFMPEG_CFLAGS)"
 GST_FFMPEG_CONF_OPTS += --with-ffmpeg-extra-configure="$(GST_FFMPEG_CONF_EXTRA_OPTS)"
 
 $(eval $(autotools-package))

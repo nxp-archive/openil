@@ -1,44 +1,37 @@
 choice
 	prompt "Target Architecture Variant"
-	depends on BR2_xtensa
 	default BR2_xtensa_fsf
+	depends on BR2_xtensa
+
 config BR2_XTENSA_CUSTOM
-	select BR2_ARCH_HAS_MMU_OPTIONAL
 	bool "Custom Xtensa processor configuration"
+	select BR2_ARCH_HAS_MMU_OPTIONAL
+
 config BR2_xtensa_fsf
-	select BR2_ARCH_HAS_MMU_MANDATORY
 	bool "fsf - Default configuration"
+	select BR2_ARCH_HAS_MMU_MANDATORY
+
 endchoice
 
-config BR2_XTENSA_CUSTOM_NAME
-	string "Custom Xtensa processor configuration name"
+config BR2_XTENSA_OVERLAY_FILE
+	string "Overlay file for custom configuration"
 	depends on BR2_XTENSA_CUSTOM
-	default ""
 	help
-	  Name given to a custom Xtensa processor configuration.
+	  Enter the path to the overlay tarball for a custom processor
+	  configuration.
 
-config BR2_XTENSA_CORE_NAME
-	string
-	default BR2_XTENSA_CUSTOM_NAME	if BR2_XTENSA_CUSTOM
-	default ""			if BR2_xtensa_fsf
+	  These overlay files are tar packages with updated
+	  configuration files for various toolchain packages and Xtensa
+	  processor configurations. They are provided by the processor
+	  vendor or directly from Tensilica.
 
-config BR2_XTENSA_OVERLAY_DIR
-	string "Overlay directory for custom configuration"
-	depends on BR2_XTENSA_CUSTOM
-	default ""
-	help
-	  Provide the directory path that contains the overlay file
-	  for a custom processor configuration. The path is relative
-	  to the top directory of buildroot.
-	  These overlay files are tar packages with updated configuration
-	  files for various toolchain packages and Xtensa processor
-	  configurations. They are provided by the processor vendor or
-	  directly from Tensilica.
+	  The path can be either absolute, or relative to the top
+	  directory of buildroot.
 
 choice
 	prompt "Target Architecture Endianness"
-	depends on BR2_XTENSA_CUSTOM
 	default BR2_XTENSA_LITTLE_ENDIAN
+	depends on BR2_XTENSA_CUSTOM
 
 config BR2_XTENSA_LITTLE_ENDIAN
 	bool "Little endian"
@@ -54,3 +47,9 @@ config BR2_ENDIAN
 
 config BR2_ARCH
 	default "xtensa"	if BR2_xtensa
+
+config BR2_READELF_ARCH_NAME
+	default "Tensilica Xtensa Processor"
+
+# vim: ft=kconfig
+# -*- mode:kconfig; -*-

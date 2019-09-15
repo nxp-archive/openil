@@ -5,30 +5,22 @@
 ################################################################################
 
 ifeq ($(BR2_PACKAGE_LUA_5_3),y)
-LUA_VERSION = 5.3.4
-else
-ifeq ($(BR2_PACKAGE_LUA_5_2),y)
-LUA_VERSION = 5.2.4
+LUA_VERSION = 5.3.5
 else
 LUA_VERSION = 5.1.5
-endif
 endif
 LUA_SITE = http://www.lua.org/ftp
 LUA_INSTALL_STAGING = YES
 LUA_LICENSE = MIT
-ifeq ($(BR2_PACKAGE_LUA_5_1),y)
-LUA_LICENSE_FILES = COPYRIGHT
-else
+ifeq ($(BR2_PACKAGE_LUA_5_3),y)
 LUA_LICENSE_FILES = doc/readme.html
+else
+LUA_LICENSE_FILES = COPYRIGHT
 endif
 
 LUA_PROVIDES = luainterpreter
 
 LUA_CFLAGS = -Wall -fPIC -DLUA_USE_POSIX
-
-ifeq ($(BR2_PACKAGE_LUA_5_2),y)
-LUA_CFLAGS += -DLUA_COMPAT_ALL
-endif
 
 ifeq ($(BR2_PACKAGE_LUA_5_3),y)
 LUA_CFLAGS += -DLUA_COMPAT_5_2
@@ -73,6 +65,8 @@ define LUA_BUILD_CMDS
 	MYLDFLAGS="$(TARGET_LDFLAGS)" \
 	BUILDMODE=$(LUA_BUILDMODE) \
 	PKG_VERSION=$(LUA_VERSION) -C $(@D)/src all
+	sed -e "s/@VERSION@/$(LUA_VERSION)/;s/@ABI@/$(LUAINTERPRETER_ABIVER)/;s/@MYLIBS@/$(LUA_MYLIBS)/" \
+		package/lua/lua.pc.in > $(@D)/lua.pc
 endef
 
 define HOST_LUA_BUILD_CMDS
@@ -82,13 +76,14 @@ define HOST_LUA_BUILD_CMDS
 	MYLIBS="$(HOST_LUA_MYLIBS)" \
 	BUILDMODE=static \
 	PKG_VERSION=$(LUA_VERSION) -C $(@D)/src all
+	sed -e "s/@VERSION@/$(LUA_VERSION)/;s/@ABI@/$(LUAINTERPRETER_ABIVER)/;s/@MYLIBS@/$(HOST_LUA_MYLIBS)/" \
+		package/lua/lua.pc.in > $(@D)/lua.pc
 endef
 
 define LUA_INSTALL_STAGING_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) INSTALL_TOP="$(STAGING_DIR)/usr" -C $(@D) install
-	mkdir -p $(STAGING_DIR)/usr/lib/pkgconfig/
-	sed -e "s/@MYLIBS@/$(LUA_MYLIBS)/g" $(@D)/etc/lua.pc \
-		> $(STAGING_DIR)/usr/lib/pkgconfig/lua.pc
+	$(INSTALL) -m 0644 -D $(@D)/lua.pc \
+		$(STAGING_DIR)/usr/lib/pkgconfig/lua.pc
 endef
 
 define LUA_INSTALL_TARGET_CMDS
@@ -96,10 +91,9 @@ define LUA_INSTALL_TARGET_CMDS
 endef
 
 define HOST_LUA_INSTALL_CMDS
-	$(HOST_MAKE_ENV) $(MAKE) INSTALL_TOP="$(HOST_DIR)/usr" -C $(@D) install
-	mkdir -p $(HOST_DIR)/usr/lib/pkgconfig/
-	sed -e "s/@MYLIBS@/$(HOST_LUA_MYLIBS)/g" $(@D)/etc/lua.pc \
-		> $(HOST_DIR)/lib/pkgconfig/lua.pc
+	$(HOST_MAKE_ENV) $(MAKE) INSTALL_TOP="$(HOST_DIR)" -C $(@D) install
+	$(INSTALL) -m 0644 -D $(@D)/lua.pc \
+		$(HOST_DIR)/lib/pkgconfig/lua.pc
 endef
 
 $(eval $(generic-package))

@@ -13,12 +13,6 @@ See:
 - http://www.lego.com/en-us/mindstorms/products/ev3/31313-mindstorms-ev3/
 - http://www.ti.com/product/am1808
 
-The buildroot configuration uses the Linux kernel of the ev3dev project.
-See:
-- https://github.com/ev3dev/ev3-kernel/
-- https://github.com/ev3dev/lego-linux-drivers/
-- http://www.ev3dev.org/
-
 How it works
 ============
 
@@ -65,7 +59,8 @@ After building, you should obtain this tree:
     ├── rootfs.squashfs
     ├── sdcard.img
     ├── u-boot.bin
-    └── uImage
+    ├── uImage -> uImage.da850-lego-ev3
+    └── uImage.da850-lego-ev3
 
 Installation
 ============
@@ -74,6 +69,13 @@ You can use either flash.bin or the sdcard.img. To load flash.bin, use the
 official Lego Mindstorms EV3 programming software firmware update tool to load
 the image. To use sdcard.img, use a disk writing tool such as Etcher or dd to
 write the image to the µSD card.
+
+NOTE: The sdcard.img created by lego_ev3_defconfig won't boot if the official
+LEGO firmware is installed on the EV3 (it has an old version of U-Boot that
+doesn't know about device tree). You must either set the kernel configuration
+option to append the device tree to the kernel or you can create a boot.scr
+that chainloads a newer U-Boot or you can install a newer U-Boot in the flash
+memory (just flashing u-boot.bin is enough).
 
 Finish
 ======
@@ -85,3 +87,13 @@ See:
 - http://botbench.com/blog/2013/08/05/mindsensors-ev3-usb-console-adapter/
 
 The serial port config to use is 115200/8-N-1.
+
+Bluetooth
+=========
+
+To enable Bluetooth:
+
+    # modprobe hci_uart
+    # /usr/libexec/bluetooth/bluetoothd &
+    # bluetoothctl
+    [bluetooth]# power on

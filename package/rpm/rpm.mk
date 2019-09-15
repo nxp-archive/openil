@@ -4,27 +4,28 @@
 #
 ################################################################################
 
-RPM_VERSION_MAJOR = 4.13
-RPM_VERSION = $(RPM_VERSION_MAJOR).0.1
+RPM_VERSION_MAJOR = 4.14
+RPM_VERSION = $(RPM_VERSION_MAJOR).2.1
 RPM_SOURCE = rpm-$(RPM_VERSION).tar.bz2
 RPM_SITE = http://ftp.rpm.org/releases/rpm-$(RPM_VERSION_MAJOR).x
-RPM_DEPENDENCIES = host-pkgconf berkeleydb file popt zlib
-RPM_LICENSE = GPLv2 or LGPLv2 (library only)
+RPM_DEPENDENCIES = \
+	host-pkgconf \
+	berkeleydb \
+	$(if $(BR2_PACKAGE_BZIP2),bzip2) \
+	$(if $(BR2_PACKAGE_ELFUTILS),elfutils) \
+	file \
+	popt \
+	$(if $(BR2_PACKAGE_XZ),xz) \
+	zlib \
+	$(TARGET_NLS_DEPENDENCIES)
+RPM_LICENSE = GPL-2.0 or LGPL-2.0 (library only)
 RPM_LICENSE_FILES = COPYING
-RPM_PATCH = \
-	https://github.com/rpm-software-management/rpm/commit/b5f1895aae096836d6e8e155ee289e1b10fcabcb.patch \
-	https://github.com/rpm-software-management/rpm/commit/c810a0aca3f1148d2072d44b91b8cc9caeb4cf19.patch
-
-# b5f1895aae096836d6e8e155ee289e1b10fcabcb.patch
-# c810a0aca3f1148d2072d44b91b8cc9caeb4cf19.patch
-RPM_AUTORECONF = YES
 
 RPM_CONF_OPTS = \
 	--disable-python \
 	--disable-rpath \
 	--with-external-db \
 	--with-gnu-ld \
-	--without-cap \
 	--without-hackingdocs \
 	--without-lua
 
@@ -35,18 +36,34 @@ else
 RPM_CONF_OPTS += --without-acl
 endif
 
-ifeq ($(BR2_PACKAGE_LIBNSS),y)
-RPM_DEPENDENCIES += libnss
-RPM_CONF_OPTS += --without-beecrypt
-RPM_CFLAGS += -I$(STAGING_DIR)/usr/include/nss -I$(STAGING_DIR)/usr/include/nspr
+ifeq ($(BR2_PACKAGE_DBUS),y)
+RPM_DEPENDENCIES += dbus
+RPM_CONF_OPTS += --enable-plugins
 else
-RPM_DEPENDENCIES += beecrypt
-RPM_CONF_OPTS += --with-beecrypt
-RPM_CFLAGS += -I$(STAGING_DIR)/usr/include/beecrypt
+RPM_CONF_OPTS += --disable-plugins
 endif
 
-ifeq ($(BR2_NEEDS_GETTEXT_IF_LOCALE),y)
-RPM_DEPENDENCIES += gettext
+ifeq ($(BR2_PACKAGE_LIBCAP),y)
+RPM_DEPENDENCIES += libcap
+RPM_CONF_OPTS += --with-cap
+else
+RPM_CONF_OPTS += --without-cap
+endif
+
+ifeq ($(BR2_PACKAGE_LIBNSS),y)
+RPM_DEPENDENCIES += libnss
+RPM_CONF_OPTS += --with-crypto=nss
+RPM_CFLAGS += -I$(STAGING_DIR)/usr/include/nss -I$(STAGING_DIR)/usr/include/nspr
+else ifeq ($(BR2_PACKAGE_BEECRYPT),y)
+RPM_DEPENDENCIES += beecrypt
+RPM_CONF_OPTS += --with-crypto=beecrypt
+RPM_CFLAGS += -I$(STAGING_DIR)/usr/include/beecrypt
+else
+RPM_DEPENDENCIES += openssl
+RPM_CONF_OPTS += --with-crypto=openssl
+endif
+
+ifeq ($(BR2_PACKAGE_GETTEXT_PROVIDES_LIBINTL),y)
 RPM_CONF_OPTS += --with-libintl-prefix=$(STAGING_DIR)/usr
 else
 RPM_CONF_OPTS += --without-libintl-prefix
@@ -66,25 +83,17 @@ else
 RPM_CONF_OPTS += --without-selinux
 endif
 
-# For the elfutils and binutils dependencies, there are no
-# configuration options to explicitly enable/disable them.
-ifeq ($(BR2_PACKAGE_ELFUTILS),y)
-RPM_DEPENDENCIES += elfutils
-endif
-
-ifeq ($(BR2_PACKAGE_BINUTILS),y)
-RPM_DEPENDENCIES += binutils
-endif
-
-# RPM, when using NLS, requires GNU gettext's _nl_msg_cat_cntr, which is not
-# provided in musl.
-ifeq ($(BR2_TOOLCHAIN_USES_MUSL),y)
-RPM_CONF_OPTS += --disable-nls
+ifeq ($(BR2_PACKAGE_ZSTD),y)
+RPM_DEPENDENCIES += zstd
+RPM_CONF_OPTS += --enable-zstd
+else
+RPM_CONF_OPTS += --disable-zstd
 endif
 
 # ac_cv_prog_cc_c99: RPM uses non-standard GCC extensions (ex. `asm`).
 RPM_CONF_ENV = \
 	ac_cv_prog_cc_c99='-std=gnu99' \
-	CFLAGS="$(TARGET_CFLAGS) $(RPM_CFLAGS)"
+	CFLAGS="$(TARGET_CFLAGS) $(RPM_CFLAGS)" \
+	LIBS=$(TARGET_NLS_LIBS)
 
 $(eval $(autotools-package))

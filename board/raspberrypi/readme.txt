@@ -8,6 +8,7 @@ These instructions apply to all models of the Raspberry Pi:
   - the "enhanced" models A+ and B+,
   - the model B2 (aka Raspberry Pi 2)
   - the model B3 (aka Raspberry Pi 3).
+  - the model B4 (aka Raspberry Pi 4).
 
 How to build it
 ===============
@@ -30,9 +31,13 @@ For model 2 B:
 
   $ make raspberrypi2_defconfig
 
-For model 3 B:
+For model 3 B and B+:
 
   $ make raspberrypi3_defconfig
+
+For model 4 B:
+
+  $ make raspberrypi4_defconfig
 
 Build the rootfs
 ----------------
@@ -56,6 +61,8 @@ After building, you should obtain this tree:
     +-- bcm2708-rpi-b-plus.dtb      [1]
     +-- bcm2709-rpi-2-b.dtb         [1]
     +-- bcm2710-rpi-3-b.dtb         [1]
+    +-- bcm2710-rpi-3-b-plus.dtb    [1]
+    +-- bcm2711-rpi-4-b.dtb         [1]
     +-- boot.vfat
     +-- rootfs.ext4
     +-- rpi-firmware/
@@ -71,7 +78,7 @@ After building, you should obtain this tree:
 [1] Not all of them will be present, depending on the RaspberryPi
     model you are using.
 
-[2] Only for the Raspberry Pi 3 Model (overlay pi3-miniuart-bt is needed
+[2] Only for the Raspberry Pi 3/4 Models (overlay pi3-miniuart-bt is needed
     to enable the RPi3 serial console otherwise occupied by the bluetooth
     chip). Alternative would be to disable the serial console in cmdline.txt
     and /etc/inittab.

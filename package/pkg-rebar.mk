@@ -25,14 +25,14 @@
 # infrastructure tells rebar to NOT download dependencies during
 # the build stage.
 #
-REBAR_HOST_DEPS_DIR = $(HOST_DIR)/usr/share/rebar/deps
+REBAR_HOST_DEPS_DIR = $(HOST_DIR)/share/rebar/deps
 REBAR_TARGET_DEPS_DIR = $(STAGING_DIR)/usr/share/rebar/deps
 
 # Tell rebar where to find the dependencies
 #
 REBAR_HOST_DEPS_ENV = \
 	ERL_COMPILER_OPTIONS='{i, "$(REBAR_HOST_DEPS_DIR)"}' \
-	ERL_EI_LIBDIR=$(HOST_DIR)/usr/lib/erlang/lib/erl_interface-$(ERLANG_EI_VSN)/lib
+	ERL_EI_LIBDIR=$(HOST_DIR)/lib/erlang/lib/erl_interface-$(ERLANG_EI_VSN)/lib
 REBAR_TARGET_DEPS_ENV = \
 	ERL_COMPILER_OPTIONS='{i, "$(REBAR_TARGET_DEPS_DIR)"}' \
 	ERL_EI_LIBDIR=$(STAGING_DIR)/usr/lib/erlang/lib/erl_interface-$(ERLANG_EI_VSN)/lib
@@ -44,7 +44,7 @@ REBAR_TARGET_DEPS_ENV = \
 # Install an Erlang application from $(@D).
 #
 # i.e., define a recipe that installs the "bin ebin priv $(2)" directories
-# from $(@D) to $(1)$($(PKG)_ERLANG_LIBDIR).
+# from $(@D) to $(1)/$($(PKG)_ERLANG_LIBDIR).
 #
 #  argument 1 should typically be $(HOST_DIR), $(TARGET_DIR),
 #	      or $(STAGING_DIR).
@@ -59,7 +59,7 @@ define install-erlang-directories
 	$(INSTALL) -d $(1)/$($(PKG)_ERLANG_LIBDIR)
 	for dir in bin ebin priv $(2); do                               \
 		if test -d $(@D)/$$dir; then                            \
-			cp -r $(@D)/$$dir $(1)$($(PKG)_ERLANG_LIBDIR);  \
+			cp -r $(@D)/$$dir $(1)/$($(PKG)_ERLANG_LIBDIR); \
 		fi;                                                     \
 	done
 endef
@@ -94,6 +94,13 @@ define install-rebar-deps
 		$(REBAR_$(2)_DEPS_DIR)/$($(PKG)_ERLANG_APP)
 endef
 
+# Remove the "deps" statement from a rebar.config file
+define remove-rebar-config-dependencies
+	$(SED) '/^{deps.*}\.$$/d' -e '/^{deps/,/}\.$$/d' \
+		$($(PKG)_DIR)/rebar.config
+endef
+
+
 ################################################################################
 # inner-rebar-package -- defines how the configuration, compilation
 # and installation of a rebar package should be done, implements a few
@@ -119,10 +126,10 @@ define inner-rebar-package
 $(2)_ERLANG_APP = $(subst -,_,$(patsubst erlang-%,%,$(patsubst host-%,%,$(1))))
 
 # Path where to store the package's libs, relative to either $(HOST_DIR)
-# for host packages, or $(STAGING_DIR) for target packages.
+# for host packages, or $(STAGING_DIR)/usr for target packages.
 #
 $(2)_ERLANG_LIBDIR = \
-	/usr/lib/erlang/lib/$$($$(PKG)_ERLANG_APP)-$$($$(PKG)_VERSION)
+	lib/erlang/lib/$$($$(PKG)_ERLANG_APP)-$$($$(PKG)_VERSION)
 
 # If a host package, inherit <pkg>_USE_BUNDLED_REBAR from the target
 # package, if not explicitly defined. Otherwise, default to NO.
@@ -173,8 +180,8 @@ endif
 # package-related variables
 ifndef $(2)_INSTALL_STAGING_CMDS
 define $(2)_INSTALL_STAGING_CMDS
-	$$(call install-erlang-directories,$$(STAGING_DIR),include)
-	$$(call install-rebar-deps,$$(STAGING_DIR),TARGET)
+	$$(call install-erlang-directories,$$(STAGING_DIR)/usr,include)
+	$$(call install-rebar-deps,$$(STAGING_DIR)/usr,TARGET)
 endef
 endif
 
@@ -182,7 +189,7 @@ endif
 # package-related variables
 ifndef $(2)_INSTALL_TARGET_CMDS
 define $(2)_INSTALL_TARGET_CMDS
-	$$(call install-erlang-directories,$$(TARGET_DIR))
+	$$(call install-erlang-directories,$$(TARGET_DIR)/usr)
 endef
 endif
 
@@ -225,6 +232,14 @@ $(2)_REBAR = ./rebar
 else
 $(2)_REBAR = rebar
 $(2)_DEPENDENCIES += host-erlang-rebar
+endif
+
+$(2)_KEEP_DEPENDENCIES ?= NO
+
+# Remove dependencies listed in rebar.config unless the package says
+# otherwise
+ifeq ($$($(2)_KEEP_DEPENDENCIES),NO)
+$(2)_POST_PATCH_HOOKS += remove-rebar-config-dependencies
 endif
 
 # The package sub-infra to use

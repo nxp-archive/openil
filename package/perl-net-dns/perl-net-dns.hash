@@ -1,3 +1,6 @@
 # retrieved by scancpan from http://cpan.metacpan.org/
-md5    96c1a801cab92b81696a037c7c326e59 Net-DNS-1.07.tar.gz
-sha256 5f91497f1af9f690153fa05a27a7d73ddada08bed40536fe2d0ac759b7af8492 Net-DNS-1.07.tar.gz
+md5    565d3ae163591f3da7e1a20827b73c28 Net-DNS-1.20.tar.gz
+sha256 7fd9692b687253baa8f2eb639f1dd7ff9c77fddd67167dc59b400bd25e4ce01b Net-DNS-1.20.tar.gz
+
+# computed by scancpan
+sha256 afa7d288df3e3edbdb34790407ba4a9c7750c2746059d9355f4168bfb3212583 README

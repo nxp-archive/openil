@@ -5,7 +5,7 @@
 ################################################################################
 
 RUBY_VERSION_MAJOR = 2.4
-RUBY_VERSION = $(RUBY_VERSION_MAJOR).1
+RUBY_VERSION = $(RUBY_VERSION_MAJOR).6
 RUBY_VERSION_EXT = 2.4.0
 RUBY_SITE = http://cache.ruby-lang.org/pub/ruby/$(RUBY_VERSION_MAJOR)
 RUBY_SOURCE = ruby-$(RUBY_VERSION).tar.xz
@@ -17,7 +17,7 @@ HOST_RUBY_CONF_OPTS = \
 	--disable-install-doc \
 	--with-out-ext=curses,openssl,readline \
 	--without-gmp
-RUBY_LICENSE = Ruby or BSD-2c, BSD-3c, others
+RUBY_LICENSE = Ruby or BSD-2-Clause, BSD-3-Clause, others
 RUBY_LICENSE_FILES = LEGAL COPYING BSDL
 
 RUBY_CFLAGS = $(TARGET_CFLAGS)
@@ -38,13 +38,6 @@ RUBY_CONF_ENV += \
 	ac_cv_func_finite=yes \
 	ac_cv_func_isinf=yes \
 	ac_cv_func_isnan=yes
-endif
-
-ifeq ($(BR2_bfin),y)
-RUBY_CONF_ENV += ac_cv_func_dl_iterate_phdr=no
-# Blackfin doesn't have FFI closure support, needed by the fiddle
-# extension.
-RUBY_CONF_OPTS += --with-out-ext=fiddle
 endif
 
 ifeq ($(BR2_TOOLCHAIN_HAS_SSP),)

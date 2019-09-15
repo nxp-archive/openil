@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-LIBLINEAR_VERSION = 2.1
+LIBLINEAR_VERSION = 2.30
 LIBLINEAR_SITE = http://www.csie.ntu.edu.tw/~cjlin/liblinear
-LIBLINEAR_LICENSE = BSD-3c
+LIBLINEAR_LICENSE = BSD-3-Clause
 LIBLINEAR_LICENSE_FILES = COPYRIGHT
 LIBLINEAR_INSTALL_STAGING = YES
 LIBLINEAR_CFLAGS = $(TARGET_CFLAGS)

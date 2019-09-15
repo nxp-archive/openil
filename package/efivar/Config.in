@@ -1,8 +1,8 @@
 config BR2_PACKAGE_EFIVAR_ARCH_SUPPORTS
 	bool
+	default y
 	depends on BR2_arm || BR2_aarch64 || BR2_i386 || BR2_x86_64 \
 		|| BR2_powerpc64le || BR2_mipsel || BR2_mips64el
-	default y
 
 config BR2_PACKAGE_EFIVAR
 	bool "efivar"
@@ -16,19 +16,18 @@ config BR2_PACKAGE_EFIVAR
 	# failures. So, prevent this package to be built using those
 	# toolchains.
 	depends on !BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_MIPS
-	# doesn't build with musl due to lack of __bswap_constant_16
-	depends on !BR2_TOOLCHAIN_USES_MUSL
 	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
-	select BR2_PACKAGE_POPT
+	# needs __builtin_bswap16
+	depends on BR2_HOST_GCC_AT_LEAST_4_8
 	help
 	  Tools and libraries to manipulate EFI variables
 
-	  https://github.com/rhinstaller/efivar
+	  https://github.com/rhboot/efivar
 
-comment "efivar needs a glibc or uClibc toolchain w/ dynamic library, headers >= 3.12, gcc >= 4.9"
+comment "efivar needs a toolchain w/ dynamic library, headers >= 3.12, gcc >= 4.9, host gcc >= 4.8"
 	depends on BR2_PACKAGE_EFIVAR_ARCH_SUPPORTS
 	depends on BR2_STATIC_LIBS || \
 		!BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_12 || \
-		BR2_TOOLCHAIN_USES_MUSL || \
-		!BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
+		!BR2_TOOLCHAIN_GCC_AT_LEAST_4_9 || \
+		!BR2_HOST_GCC_AT_LEAST_4_8
 	depends on !BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_MIPS

@@ -2,6 +2,7 @@ config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_MIPS
 	bool "Sourcery CodeBench MIPS 2016.05"
 	depends on BR2_mips || BR2_mipsel || BR2_mips64 || BR2_mips64el
 	depends on BR2_MIPS_CPU_MIPS32R2 || BR2_MIPS_CPU_MIPS64R2
+	depends on !BR2_ARCH_NEEDS_GCC_AT_LEAST_6
 	# Unsupported MIPS cores
 	depends on !BR2_mips_interaptiv
 	depends on BR2_HOSTARCH = "x86_64" || BR2_HOSTARCH = "x86"
@@ -10,6 +11,7 @@ config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_MIPS
 	select BR2_TOOLCHAIN_EXTERNAL_GLIBC
 	select BR2_TOOLCHAIN_HAS_SSP
 	select BR2_TOOLCHAIN_HAS_NATIVE_RPC
+	select BR2_TOOLCHAIN_HAS_OPENMP
 	select BR2_INSTALL_LIBSTDCPP
 	select BR2_HOSTARCH_NEEDS_IA32_LIBS
 	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_4
@@ -89,5 +91,6 @@ config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_MIPS
 	      Select BR2_SOFT_FLOAT
 
 comment "Sourcery CodeBench toolchains are only available for MIPS/MIPS64 o32 and n64"
+	depends on !BR2_ARCH_NEEDS_GCC_AT_LEAST_6
 	depends on BR2_MIPS_NABI32
 	depends on !BR2_STATIC_LIBS

@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi/ipaddress/json, sha256 locally computed
-md5	8bbf0326719fafb1f453921ef96729fe  ipaddress-1.0.17.tar.gz
-sha256	3a21c5a15f433710aaa26f1ae174b615973a25182006ae7f9c26de151cd51716  ipaddress-1.0.17.tar.gz
+# md5, sha256 from https://pypi.org/pypi/ipaddress/json
+md5	74c1ce3109f30eaa1ab3dd342e7b76d4  ipaddress-1.0.22.tar.gz
+sha256	b146c751ea45cad6188dd6cf2d9b757f6f4f8d6ffb96a023e6f2e26eea02a72c  ipaddress-1.0.22.tar.gz
+# Locally computed sha256 checksums
+sha256	38675419eb4a79ec616396d70f1254b3a433fb7088fb3f4cc9b6c0bcdcec6162  LICENSE

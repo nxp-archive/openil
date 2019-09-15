@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-XXHASH_VERSION = r40
-XXHASH_SITE = $(call github,Cyan4973,xxHash,$(XXHASH_VERSION))
-XXHASH_LICENSE = BSD-2c, GPLv2+
+XXHASH_VERSION = 0.6.5
+XXHASH_SITE = $(call github,Cyan4973,xxHash,v$(XXHASH_VERSION))
+XXHASH_LICENSE = BSD-2-Clause, GPL-2.0+
 XXHASH_LICENSE_FILES = LICENSE xxhsum.c
 
 define XXHASH_BUILD_CMDS

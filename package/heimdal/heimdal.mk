@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-HEIMDAL_VERSION = 7.4.0
+HEIMDAL_VERSION = 7.7.0
 HEIMDAL_SITE = https://github.com/heimdal/heimdal/releases/download/heimdal-$(HEIMDAL_VERSION)
 HOST_HEIMDAL_DEPENDENCIES = host-e2fsprogs host-ncurses host-pkgconf
 HEIMDAL_INSTALL_STAGING = YES
@@ -24,17 +24,20 @@ HOST_HEIMDAL_CONF_OPTS = \
 	--without-libedit \
 	--without-hesiod \
 	--without-x \
+	--disable-mdb-db \
+	--disable-ndbm-db \
 	--disable-heimdal-documentation
+
 HOST_HEIMDAL_CONF_ENV = MAKEINFO=true
-HEIMDAL_LICENSE = BSD-3c
+HEIMDAL_LICENSE = BSD-3-Clause
 HEIMDAL_LICENSE_FILES = LICENSE
 
 # We need asn1_compile in the PATH for samba4
 define HOST_HEIMDAL_MAKE_SYMLINK
-	ln -sf $(HOST_DIR)/usr/libexec/heimdal/asn1_compile \
-		$(HOST_DIR)/usr/bin/asn1_compile
-	ln -sf $(HOST_DIR)/usr/bin/compile_et \
-		$(HOST_DIR)/usr/libexec/heimdal/compile_et
+	ln -sf $(HOST_DIR)/libexec/heimdal/asn1_compile \
+		$(HOST_DIR)/bin/asn1_compile
+	ln -sf $(HOST_DIR)/bin/compile_et \
+		$(HOST_DIR)/libexec/heimdal/compile_et
 endef
 
 HOST_HEIMDAL_POST_INSTALL_HOOKS += HOST_HEIMDAL_MAKE_SYMLINK

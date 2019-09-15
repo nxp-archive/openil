@@ -4,13 +4,13 @@
 #
 ################################################################################
 
-GPSD_VERSION = 3.16
+GPSD_VERSION = 3.19
 GPSD_SITE = http://download-mirror.savannah.gnu.org/releases/gpsd
-GPSD_LICENSE = BSD-3c
+GPSD_LICENSE = BSD-2-Clause
 GPSD_LICENSE_FILES = COPYING
 GPSD_INSTALL_STAGING = YES
 
-GPSD_DEPENDENCIES = host-scons host-pkgconf
+GPSD_DEPENDENCIES = host-python host-scons host-pkgconf
 
 GPSD_LDFLAGS = $(TARGET_LDFLAGS)
 GPSD_CFLAGS = $(TARGET_CFLAGS)
@@ -18,11 +18,14 @@ GPSD_CFLAGS = $(TARGET_CFLAGS)
 GPSD_SCONS_ENV = $(TARGET_CONFIGURE_OPTS)
 
 GPSD_SCONS_OPTS = \
-	arch=$(ARCH)\
-	prefix=/usr\
-	sysroot=$(STAGING_DIR)\
-	strip=no\
-	python=no
+	arch=$(ARCH) \
+	manbuild=no \
+	prefix=/usr \
+	sysroot=$(STAGING_DIR) \
+	strip=no \
+	python=no \
+	qt=no \
+	ntpshm=yes
 
 ifeq ($(BR2_PACKAGE_NCURSES),y)
 GPSD_DEPENDENCIES += ncurses
@@ -40,19 +43,8 @@ else
 GPSD_SCONS_OPTS += libgpsmm=no
 endif
 
-# prevents from triggering GCC ICE
-# A bug was reported to the gcc bug tracker:
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68485
-ifeq ($(BR2_microblaze),y)
+ifeq ($(BR2_TOOLCHAIN_HAS_GCC_BUG_68485),y)
 GPSD_CFLAGS += -O0
-endif
-
-# Enable or disable Qt binding
-ifeq ($(BR2_PACKAGE_QT_NETWORK),y)
-GPSD_SCONS_ENV += QMAKE="$(QT_QMAKE)"
-GPSD_DEPENDENCIES += qt
-else
-GPSD_SCONS_OPTS += qt=no
 endif
 
 # If libusb is available build it before so the package can use it
@@ -111,6 +103,12 @@ endif
 ifneq ($(BR2_PACKAGE_GPSD_GPSCLOCK),y)
 GPSD_SCONS_OPTS += gpsclock=no
 endif
+ifneq ($(BR2_PACKAGE_GPSD_GREIS),y)
+GPSD_SCONS_OPTS += greis=no
+endif
+ifneq ($(BR2_PACKAGE_GPSD_ISYNC),y)
+GPSD_SCONS_OPTS += isync=no
+endif
 ifneq ($(BR2_PACKAGE_GPSD_ITRAX),y)
 GPSD_SCONS_OPTS += itrax=no
 endif
@@ -144,6 +142,9 @@ endif
 ifneq ($(BR2_PACKAGE_GPSD_SIRF),y)
 GPSD_SCONS_OPTS += sirf=no
 endif
+ifneq ($(BR2_PACKAGE_GPSD_SKYTRAQ),y)
+GPSD_SCONS_OPTS += skytraq=no
+endif
 ifneq ($(BR2_PACKAGE_GPSD_SUPERSTAR2),y)
 GPSD_SCONS_OPTS += superstar2=no
 endif
@@ -161,9 +162,6 @@ GPSD_SCONS_OPTS += ublox=no
 endif
 
 # Features
-ifneq ($(BR2_PACKAGE_GPSD_NTP_SHM),y)
-GPSD_SCONS_OPTS += ntpshm=no
-endif
 ifneq ($(BR2_PACKAGE_GPSD_PPS),y)
 GPSD_SCONS_OPTS += pps=no
 endif
@@ -195,10 +193,10 @@ ifeq ($(BR2_PACKAGE_GPSD_FIXED_PORT_SPEED),y)
 GPSD_SCONS_OPTS += fixed_port_speed=$(BR2_PACKAGE_GPSD_FIXED_PORT_SPEED_VALUE)
 endif
 ifeq ($(BR2_PACKAGE_GPSD_MAX_CLIENT),y)
-GPSD_SCONS_OPTS += limited_max_clients=$(BR2_PACKAGE_GPSD_MAX_CLIENT_VALUE)
+GPSD_SCONS_OPTS += max_clients=$(BR2_PACKAGE_GPSD_MAX_CLIENT_VALUE)
 endif
 ifeq ($(BR2_PACKAGE_GPSD_MAX_DEV),y)
-GPSD_SCONS_OPTS += limited_max_devices=$(BR2_PACKAGE_GPSD_MAX_DEV_VALUE)
+GPSD_SCONS_OPTS += max_devices=$(BR2_PACKAGE_GPSD_MAX_DEV_VALUE)
 endif
 
 GPSD_SCONS_ENV += LDFLAGS="$(GPSD_LDFLAGS)" CFLAGS="$(GPSD_CFLAGS)"
@@ -206,7 +204,7 @@ GPSD_SCONS_ENV += LDFLAGS="$(GPSD_LDFLAGS)" CFLAGS="$(GPSD_CFLAGS)"
 define GPSD_BUILD_CMDS
 	(cd $(@D); \
 		$(GPSD_SCONS_ENV) \
-		$(SCONS) \
+		$(HOST_DIR)/bin/python2 $(SCONS) \
 		$(GPSD_SCONS_OPTS))
 endef
 
@@ -214,7 +212,7 @@ define GPSD_INSTALL_TARGET_CMDS
 	(cd $(@D); \
 		$(GPSD_SCONS_ENV) \
 		DESTDIR=$(TARGET_DIR) \
-		$(SCONS) \
+		$(HOST_DIR)/bin/python2 $(SCONS) \
 		$(GPSD_SCONS_OPTS) \
 		install)
 endef
@@ -228,7 +226,7 @@ define GPSD_INSTALL_STAGING_CMDS
 	(cd $(@D); \
 		$(GPSD_SCONS_ENV) \
 		DESTDIR=$(STAGING_DIR) \
-		$(SCONS) \
+		$(HOST_DIR)/bin/python2 $(SCONS) \
 		$(GPSD_SCONS_OPTS) \
 		install)
 endef
@@ -240,7 +238,7 @@ define GPSD_INSTALL_UDEV_RULES
 	(cd $(@D); \
 		$(GPSD_SCONS_ENV) \
 		DESTDIR=$(TARGET_DIR) \
-		$(SCONS) \
+		$(HOST_DIR)/bin/python2 $(SCONS) \
 		$(GPSD_SCONS_OPTS) \
 		udev-install)
 	chmod u+w $(TARGET_DIR)/lib/udev/rules.d/25-gpsd.rules

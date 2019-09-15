@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-APITRACE_VERSION = 7.0
+APITRACE_VERSION = 8.0
 APITRACE_SITE = $(call github,apitrace,apitrace,$(APITRACE_VERSION))
 APITRACE_LICENSE = MIT
 APITRACE_LICENSE_FILES = LICENSE

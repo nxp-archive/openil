@@ -1,4 +1,4 @@
-# From http://sourceforge.net/projects/qpdf/files/qpdf/6.0.0/qpdf-6.0.0.sha1/download
-sha1	15ebe09d9b9ddd2309a67e4295693fcf82494e33	qpdf-6.0.0.tar.gz
-# Locally computed
-sha256	a9fdc7e94d38fcd3831f37b6e0fe36492bf79aa6d54f8f66062cf7f9c4155233	qpdf-6.0.0.tar.gz
+# From https://sourceforge.net/projects/qpdf/files/qpdf/8.4.0/qpdf-8.4.0.sha512/download
+sha512	13225c6285311e8fe89970971b082b9613e70d474ee71dd5572f1ae268234d366c2c9c7bf427c4758a746a1a27ecc0127d31044ab501dbc08885c8aa0a514028  qpdf-8.4.0.tar.gz
+# Locally computed:
+sha256  fb929ac30decb4dc3a2eea2bec6c43296a797c5d2d602deb3784ee39430583d5  Artistic-2.0

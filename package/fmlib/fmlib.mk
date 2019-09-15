@@ -4,10 +4,9 @@
 #
 ################################################################################
 
-FMLIB_VERSION = LSDK-18.06
-FMLIB_SITE = https://github.com/qoriq-open-source/fmlib.git
-FMLIB_SITE_METHOD = git
-FMLIB_LICENSE = GPL
+FMLIB_VERSION = fsl-sdk-v2.0
+FMLIB_SITE = git://git.freescale.com/ppc/sdk/fmlib.git
+FMLIB_LICENSE = BSD-3-Clause, GPL-2.0+
 FMLIB_LICENSE_FILES = COPYING
 FMLIB_DEPENDENCIES = linux
 FMLIB_INSTALL_STAGING = YES
@@ -22,13 +21,17 @@ FMLIB_MAKE_OPTS = \
 	KERNEL_SRC="$(LINUX_DIR)" \
 	PREFIX="$(STAGING_DIR)/usr"
 
+FMLIB_ARCHTYPE = $(call qstrip,$(BR2_PACKAGE_FMLIB_ARCHTYPE))
+FMLIB_PLATFORM = $(call qstrip,$(BR2_PACKAGE_FMLIB_PLATFORM))
+
 define FMLIB_BUILD_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE) $(FMLIB_MAKE_OPTS) -C $(@D) 
+	$(SED) "s:P4080:$(FMLIB_PLATFORM):g" $(@D)/Makefile
+	$(TARGET_MAKE_ENV) $(MAKE) $(FMLIB_MAKE_OPTS) -C $(@D) libfm-$(FMLIB_ARCHTYPE).a
 endef
 
 define FMLIB_INSTALL_STAGING_CMDS
 	$(RM) $(STAGING_DIR)/usr/lib/libfm.a
-	$(TARGET_MAKE_ENV) $(MAKE) $(FMLIB_MAKE_OPTS) -C $(@D) install-libfm-arm
+	$(TARGET_MAKE_ENV) $(MAKE) $(FMLIB_MAKE_OPTS) -C $(@D) install-libfm-$(FMLIB_ARCHTYPE)
 endef
 
 $(eval $(generic-package))

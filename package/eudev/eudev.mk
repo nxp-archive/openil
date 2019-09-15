@@ -4,14 +4,11 @@
 #
 ################################################################################
 
-EUDEV_VERSION = 3.2.1
+EUDEV_VERSION = 3.2.8
 EUDEV_SITE = http://dev.gentoo.org/~blueness/eudev
-EUDEV_LICENSE = GPLv2+ (programs), LGPLv2.1+ (libraries)
+EUDEV_LICENSE = GPL-2.0+ (programs), LGPL-2.1+ (libraries)
 EUDEV_LICENSE_FILES = COPYING
 EUDEV_INSTALL_STAGING = YES
-
-# mq_getattr is in librt
-EUDEV_CONF_ENV += LIBS=-lrt
 
 EUDEV_CONF_OPTS = \
 	--disable-manpages \
@@ -54,6 +51,8 @@ endef
 # Required by default rules for input devices
 define EUDEV_USERS
 	- - input -1 * - - - Input device group
+	- - render -1 * - - - DRI rendering nodes
+	- - kvm -1 * - - - kvm nodes
 endef
 
 $(eval $(autotools-package))

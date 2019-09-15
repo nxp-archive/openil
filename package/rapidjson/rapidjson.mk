@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-RAPIDJSON_VERSION = v1.1.0
-RAPIDJSON_SITE = $(call github,miloyip,rapidjson,$(RAPIDJSON_VERSION))
+RAPIDJSON_VERSION = 1.1.0
+RAPIDJSON_SITE = $(call github,miloyip,rapidjson,v$(RAPIDJSON_VERSION))
 RAPIDJSON_LICENSE = MIT
 RAPIDJSON_LICENSE_FILES = license.txt
 
@@ -13,8 +13,9 @@ RAPIDJSON_LICENSE_FILES = license.txt
 RAPIDJSON_INSTALL_TARGET = NO
 RAPIDJSON_INSTALL_STAGING = YES
 
-define RAPIDJSON_INSTALL_STAGING_CMDS
-	cp -dpfr $(@D)/include/* $(STAGING_DIR)/usr/include
-endef
+RAPIDJSON_CONF_OPTS = \
+	-DRAPIDJSON_BUILD_DOC=OFF \
+	-DRAPIDJSON_BUILD_EXAMPLES=OFF \
+	-DRAPIDJSON_BUILD_TESTS=OFF
 
-$(eval $(generic-package))
+$(eval $(cmake-package))

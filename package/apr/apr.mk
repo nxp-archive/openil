@@ -4,7 +4,8 @@
 #
 ################################################################################
 
-APR_VERSION = 1.5.1
+APR_VERSION = 1.7.0
+APR_SOURCE = apr-$(APR_VERSION).tar.bz2
 APR_SITE = http://archive.apache.org/dist/apr
 APR_LICENSE = Apache-2.0
 APR_LICENSE_FILES = LICENSE
@@ -25,7 +26,12 @@ APR_CONF_ENV = \
 	ac_cv_sizeof_pid_t=4 \
 	ac_cv_struct_rlimit=yes \
 	ac_cv_o_nonblock_inherited=no \
-	apr_cv_mutex_recursive=yes
+	apr_cv_mutex_recursive=yes \
+	apr_cv_epoll=yes \
+	apr_cv_epoll_create1=yes \
+	apr_cv_dup3=yes \
+	apr_cv_sock_cloexec=yes \
+	apr_cv_accept4=yes
 APR_CONFIG_SCRIPTS = apr-1-config
 
 # Doesn't even try to guess when cross compiling

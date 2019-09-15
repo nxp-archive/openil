@@ -4,16 +4,9 @@
 #
 ################################################################################
 
-#
-# This program is free software; you can redistribute it
-# and/or modify it under the terms of the GNU Lesser General
-# Public License as published by the Free Software Foundation
-# either version 2.1 of the License, or (at your option) any
-# later version.
-
-AVAHI_VERSION = 0.6.32
+AVAHI_VERSION = 0.7
 AVAHI_SITE = https://github.com/lathiat/avahi/releases/download/v$(AVAHI_VERSION)
-AVAHI_LICENSE = LGPLv2.1+
+AVAHI_LICENSE = LGPL-2.1+
 AVAHI_LICENSE_FILES = LICENSE
 AVAHI_INSTALL_STAGING = YES
 
@@ -84,7 +77,7 @@ AVAHI_CONF_OPTS = \
 	--disable-gtk \
 	--disable-gtk3 \
 	--disable-gdbm \
-	--disable-pygtk \
+	--disable-pygobject \
 	--disable-mono \
 	--disable-monodoc \
 	--disable-stack-protector \
@@ -97,8 +90,8 @@ AVAHI_CONF_OPTS = \
 	--with-autoipd-group=avahi
 
 AVAHI_DEPENDENCIES = \
-	$(if $(BR2_NEEDS_GETTEXT_IF_LOCALE),gettext) host-intltool \
-	host-pkgconf host-gettext
+	host-intltool host-pkgconf \
+	$(TARGET_NLS_DEPENDENCIES)
 
 AVAHI_CFLAGS = $(TARGET_CFLAGS)
 
@@ -132,6 +125,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_DBUS),y)
 AVAHI_DEPENDENCIES += dbus
+AVAHI_CONF_OPTS += --with-dbus-sys=/usr/share/dbus-1/system.d
 else
 AVAHI_CONF_OPTS += --disable-dbus
 endif
@@ -168,7 +162,7 @@ endif
 
 AVAHI_CONF_ENV += CFLAGS="$(AVAHI_CFLAGS)"
 
-AVAHI_MAKE_OPTS += $(if $(BR2_NEEDS_GETTEXT_IF_LOCALE),LIBS=-lintl)
+AVAHI_MAKE_OPTS += LIBS=$(TARGET_NLS_LIBS)
 
 define AVAHI_USERS
 	avahi -1 avahi -1 * - - -
@@ -196,6 +190,13 @@ endif
 
 ifeq ($(BR2_PACKAGE_AVAHI_DAEMON),y)
 
+ifeq ($(BR2_PACKAGE_SYSTEMD_SYSUSERS),y)
+define AVAHI_INSTALL_SYSTEMD_SYSUSERS
+	$(INSTALL) -D -m 644 package/avahi/avahi_sysusers.conf \
+		$(TARGET_DIR)/usr/lib/sysusers.d/avahi.conf
+endef
+endif
+
 define AVAHI_INSTALL_INIT_SYSTEMD
 	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
 
@@ -207,6 +208,8 @@ define AVAHI_INSTALL_INIT_SYSTEMD
 
 	$(INSTALL) -D -m 644 package/avahi/avahi_tmpfiles.conf \
 		$(TARGET_DIR)/usr/lib/tmpfiles.d/avahi.conf
+
+	$(AVAHI_INSTALL_SYSTEMD_SYSUSERS)
 endef
 
 define AVAHI_INSTALL_DAEMON_INIT_SYSV

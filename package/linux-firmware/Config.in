@@ -19,6 +19,11 @@ endmenu # Audio
 
 menu "Video firmware"
 
+config BR2_PACKAGE_LINUX_FIRMWARE_AMDGPU
+	bool "AMD GPU video card firmware"
+	help
+	  Firmware files for AMD GPU video cards.
+
 config BR2_PACKAGE_LINUX_FIRMWARE_I915
 	bool "Intel i915 video card firmware"
 	help
@@ -29,6 +34,16 @@ config BR2_PACKAGE_LINUX_FIRMWARE_RADEON
 	help
 	  Firmware files for AMD Radeon video cards.
 
+config BR2_PACKAGE_LINUX_FIRMWARE_QCOM_VENUS
+	bool "Qualcomm Venus video codec accelerator"
+	help
+	  Firmware files for Qualcomm Venus video codec accelerator
+
+config BR2_PACKAGE_LINUX_FIRMWARE_QCOM_ADRENO
+	bool "Qualcomm Adreno GPU firmware"
+	help
+	  Firmware files for Qualcomm Adreno GPU firmware
+
 endmenu # Video
 
 menu "Bluetooth firmware"
@@ -38,6 +53,21 @@ config BR2_PACKAGE_LINUX_FIRMWARE_IBT
 	help
 	  Firmware files for Intel 3160/7260/7265/8260/8265 Wireless
 	  bluetooth support.
+
+config BR2_PACKAGE_LINUX_FIRMWARE_MEDIATEK_MT7650
+	bool "MediaTek MT7650"
+	help
+	  Firmware files for MediaTek MT7650 bluetooth support
+
+config BR2_PACKAGE_LINUX_FIRMWARE_QUALCOMM_6174A_BT
+	bool "Qualcomm Atheros Rome 6174A Bluetooth"
+	help
+	  Firmware files for QCA Rome 6174A bluetooth support.
+
+config BR2_PACKAGE_LINUX_FIRMWARE_TI_CC2560
+	bool "TI CC2560"
+	help
+	  Firmware files for Bluetooth modules CC2560 and CC2560A
 
 endmenu # Bluetooth
 
@@ -72,6 +102,16 @@ config BR2_PACKAGE_LINUX_FIRMWARE_ATHEROS_9271
 	bool "Atheros 9271"
 	help
 	  Firmware files for the Atheros 9271 module
+
+config BR2_PACKAGE_LINUX_FIRMWARE_ATHEROS_10K_QCA998X
+	bool "Atheros 10k (QCA998X)"
+	help
+	  Firmware files for the Atheros QCA988X module
+
+config BR2_PACKAGE_LINUX_FIRMWARE_ATHEROS_10K_QCA6174
+	bool "Atheros 10k (QCA6174)"
+	help
+	  Firmware files for the Atheros QCA6174 module
 
 config BR2_PACKAGE_LINUX_FIRMWARE_BRCM_BCM43XX
 	bool "Broadcom BRCM bcm43xx"
@@ -146,6 +186,12 @@ config BR2_PACKAGE_LINUX_FIRMWARE_IWLWIFI_8265
 	  Firmware files for the Intel Wifi 8265 devices supported by
 	  the iwlwifi kernel driver.
 
+config BR2_PACKAGE_LINUX_FIRMWARE_IWLWIFI_9XXX
+	bool "Intel iwlwifi 9xxx"
+	help
+	  Firmware files for the Intel Wifi 9xxx devices supported by
+	  the iwlwifi kernel driver.
+
 config BR2_PACKAGE_LINUX_FIRMWARE_LIBERTAS_SD8686_V8
 	bool "Libertas SD 8686 v8"
 	help
@@ -160,6 +206,22 @@ config BR2_PACKAGE_LINUX_FIRMWARE_LIBERTAS_SD8688
 	bool "Libertas SD 8688"
 	help
 	  Firmware files for the Marvell SD8688 module
+
+config BR2_PACKAGE_LINUX_FIRMWARE_LIBERTAS_USB8388_V9
+	bool "Libertas USB 8388 v9"
+	help
+	  Firmware files (version 9) for the Marvell USB8388 module
+
+config BR2_PACKAGE_LINUX_FIRMWARE_LIBERTAS_USB8388_OLPC
+	bool "Libertas USB 8388 OLPC"
+	help
+	  Firmware files (OLPC mesh capable version) for the Marvell
+	  USB8388 module.
+
+config BR2_PACKAGE_LINUX_FIRMWARE_LIBERTAS_USB_THINFIRM
+	bool "Libertas USB Thin Firmware"
+	help
+	  Firmware files (soft MAC) for the Marvell USB modules
 
 config BR2_PACKAGE_LINUX_FIRMWARE_MWIFIEX_SD8787
 	bool "Marvell Wifi-Ex 8787 SDIO"
@@ -206,6 +268,16 @@ config BR2_PACKAGE_LINUX_FIRMWARE_MEDIATEK_MT7601U
 	help
 	  MediaTek MT7601U
 
+config BR2_PACKAGE_LINUX_FIRMWARE_MEDIATEK_MT76X2E
+	bool "MediaTek MT76x2e"
+	help
+	  MediaTek MT76x2e
+
+config BR2_PACKAGE_LINUX_FIRMWARE_QUALCOMM_6174
+	bool "Qualcomm Atheros 6174"
+	help
+	  Firmware files for the Qualcomm Atheros QCA6174 chip
+
 config BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT61
 	bool "Ralink rt2501/rt61"
 	help
@@ -236,10 +308,16 @@ config BR2_PACKAGE_LINUX_FIRMWARE_RTL_88XX
 	help
 	  Realtek rtl8821ae
 
+config BR2_PACKAGE_LINUX_FIRMWARE_REDPINE_RS9113
+	bool "Redpine rs9113"
+	help
+	  Firmware files for WLAN and Bluetooth modules rs9113
+
 config BR2_PACKAGE_LINUX_FIRMWARE_TI_WL127X
 	bool "TI wl127x"
 	help
-	  Firmware files for WLAN and Bluetooth modules wl1271 and wl1273
+	  Firmware files for WLAN and Bluetooth modules wl1271 and
+	  wl1273
 
 config BR2_PACKAGE_LINUX_FIRMWARE_TI_WL128X
 	bool "TI wl128x"
@@ -258,17 +336,32 @@ menu "Ethernet firmware"
 config BR2_PACKAGE_LINUX_FIRMWARE_BNX2X
 	bool "Broadcom NetXtremeII"
 	help
-	  Firmware files for Broadcom NetXtreme 10Gb ethernet cards (bnx2x)
+	  Firmware files for Broadcom NetXtreme 10Gb ethernet cards
+	  (bnx2x)
 
 config BR2_PACKAGE_LINUX_FIRMWARE_CXGB4_T4
 	bool "Chelsio T4"
 	help
-	  Firmware files for Chelsio T4 1Gb and 10Gb ethernet cards (cxgb4)
+	  Firmware files for Chelsio T4 1Gb and 10Gb ethernet cards
+	  (cxgb4)
 
 config BR2_PACKAGE_LINUX_FIRMWARE_CXGB4_T5
 	bool "Chelsio T5"
 	help
-	  Firmware files for Chelsio T5 1Gb and 10Gb ethernet cards (cxgb4)
+	  Firmware files for Chelsio T5 1Gb and 10Gb ethernet cards
+	  (cxgb4)
+
+config BR2_PACKAGE_LINUX_FIRMWARE_INTEL_E100
+	bool "Intel e100 825xx"
+	help
+	  Firmware files for Intel 825xx handled by driver e100
+	  (e100)
+
+config BR2_PACKAGE_LINUX_FIRMWARE_QLOGIC_4X
+	bool "QLogic FastLinQ 4xxxx"
+	help
+	  Firmware files for QLogic FastLinQ 4xxxx ethernet devices
+	  (qede)
 
 config BR2_PACKAGE_LINUX_FIRMWARE_RTL_8169
 	bool "Realtek 8169"
@@ -303,6 +396,43 @@ config BR2_PACKAGE_LINUX_FIRMWARE_XCx000
 	bool "Xceive/Cresta xc4000/xc5000/xc500c"
 	help
 	  Firmware file for xc4000/xc5000/xc5000c based DVB tuner driver
+
+endmenu
+
+menu "SoC Firmware"
+
+config BR2_PACKAGE_LINUX_FIRMWARE_IMX_SDMA
+	bool "Freescale i.MX SDMA"
+	help
+	  Firmware files for i.MX SDMA.
+
+endmenu
+
+menu "Fibre Channel Adapter Firmware"
+
+config BR2_PACKAGE_LINUX_FIRMWARE_QLOGIC_2XXX
+	bool "QLogic 2xxx Fibre Channel Adapters"
+	help
+	  Firmware files for ql2xxx adapters
+
+endmenu
+
+menu "Intel QuickAssist Firmware"
+
+config BR2_PACKAGE_LINUX_FIRMWARE_QAT_DH895XCC
+	bool "Support for DH895xCC"
+	help
+	  Firmware files for Intel DH895xCC devices
+
+config BR2_PACKAGE_LINUX_FIRMWARE_QAT_C3XXX
+	bool "Support for C3XXX"
+	help
+	  Firmware files for Intel C3XXX devices
+
+config BR2_PACKAGE_LINUX_FIRMWARE_QAT_C62X
+	bool "Support for C62X"
+	help
+	  Firmware files for Intel C62X devices
 
 endmenu
 

@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-AUDIT_VERSION = 2.7.1
+AUDIT_VERSION = 2.8.5
 AUDIT_SITE = http://people.redhat.com/sgrubb/audit
-AUDIT_LICENSE = GPLv2+ (programs), unclear (libraries)
-AUDIT_LICENSE_FILES = COPYING
+AUDIT_LICENSE = GPL-2.0+ (programs), LGPL-2.1+ (libraries)
+AUDIT_LICENSE_FILES = COPYING COPYING.LIB
 
 AUDIT_INSTALL_STAGING = YES
 
@@ -38,7 +38,7 @@ AUDIT_CONF_OPTS += --disable-systemd
 endif
 
 define AUDIT_INSTALL_INIT_SYSV
-	$(INSTALL) -D -m 755 package/audit/S01auditd $(TARGET_DIR)/etc/init.d/S01auditd
+	$(INSTALL) -D -m 755 package/audit/S02auditd $(TARGET_DIR)/etc/init.d/S02auditd
 endef
 
 define AUDIT_INSTALL_INIT_SYSTEMD
@@ -51,8 +51,8 @@ define AUDIT_INSTALL_INIT_SYSTEMD
 endef
 
 define AUDIT_INSTALL_CLEANUP
-	$(RM) -rf $(TARGET_DIR)/etc/rc.d
-	$(RM) -rf $(TARGET_DIR)/etc/sysconfig
+	$(RM) $(TARGET_DIR)/etc/rc.d/init.d/auditd
+	$(RM) $(TARGET_DIR)/etc/sysconfig/auditd
 endef
 AUDIT_POST_INSTALL_TARGET_HOOKS += AUDIT_INSTALL_CLEANUP
 

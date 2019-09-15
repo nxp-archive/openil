@@ -1,3 +1,4 @@
-# md5 from https://pypi.python.org/pypi/flask/json, sha256 locally computed
-md5	c1d30f51cff4a38f9454b23328a15c5a  Flask-0.12.tar.gz
-sha256	93e803cdbe326a61ebd5c5d353959397c85f829bec610d59cb635c9f97d7ca8b  Flask-0.12.tar.gz
+# md5 from https://pypi.python.org/pypi/Flask/json, sha256 locally computed
+md5	824f0f20aae1f44c9c7dc4054adb7969  Flask-1.0.2.tar.gz
+sha256	2271c0070dbcb5275fad4a82e29f23ab92682dc45f9dfbc22c02ba9b9322ce48  Flask-1.0.2.tar.gz
+sha256	ce2117037008b9a8949f5a9ee1c7755f10844964d8ae4e138cded06f4e89de5f  LICENSE

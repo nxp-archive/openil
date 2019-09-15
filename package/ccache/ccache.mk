@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-CCACHE_VERSION = 3.3.3
-CCACHE_SITE = https://samba.org/ftp/ccache
+CCACHE_VERSION = 3.7.4
+CCACHE_SITE = https://github.com/ccache/ccache/releases/download/v$(CCACHE_VERSION)
 CCACHE_SOURCE = ccache-$(CCACHE_VERSION).tar.xz
-CCACHE_LICENSE = GPLv3+, others
-CCACHE_LICENSE_FILES = LICENSE.txt GPL-3.0.txt
+CCACHE_LICENSE = GPL-3.0+, others
+CCACHE_LICENSE_FILES = LICENSE.adoc GPL-3.0.txt
 
 # Force ccache to use its internal zlib. The problem is that without
 # this, ccache would link against the zlib of the build system, but we
@@ -20,6 +20,11 @@ CCACHE_LICENSE_FILES = LICENSE.txt GPL-3.0.txt
 # path: tell ccache to use its internal copy of zlib, so that ccache
 # has zero dependency besides the C library.
 HOST_CCACHE_CONF_OPTS += --with-bundled-zlib
+
+# We are ccache, so we can't use ccache
+HOST_CCACHE_CONF_ENV = \
+	CC="$(HOSTCC_NOCCACHE)" \
+	CXX="$(HOSTCXX_NOCCACHE)"
 
 # Patch host-ccache as follows:
 #  - Use BR_CACHE_DIR instead of CCACHE_DIR, because CCACHE_DIR
@@ -33,8 +38,8 @@ HOST_CCACHE_CONF_OPTS += --with-bundled-zlib
 HOST_CCACHE_DEFAULT_CCACHE_DIR = $(patsubst $(HOME)/%,\%s/%,$(BR_CACHE_DIR))
 
 define HOST_CCACHE_PATCH_CONFIGURATION
-	sed -i 's,getenv("CCACHE_DIR"),getenv("BR_CACHE_DIR"),' $(@D)/ccache.c
-	sed -i 's,"%s/.ccache","$(HOST_CCACHE_DEFAULT_CCACHE_DIR)",' $(@D)/conf.c
+	sed -i 's,getenv("CCACHE_DIR"),getenv("BR_CACHE_DIR"),' $(@D)/src/ccache.c
+	sed -i 's,"%s/.ccache","$(HOST_CCACHE_DEFAULT_CCACHE_DIR)",' $(@D)/src/conf.c
 endef
 
 HOST_CCACHE_POST_PATCH_HOOKS += HOST_CCACHE_PATCH_CONFIGURATION

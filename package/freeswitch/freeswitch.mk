@@ -4,16 +4,17 @@
 #
 ################################################################################
 
-FREESWITCH_VERSION = 1.6.14
-FREESWITCH_SOURCE = freeswitch-$(FREESWITCH_VERSION).tar.xz
-FREESWITCH_SITE = http://files.freeswitch.org/freeswitch-releases
-FREESWITCH_LICENSE = MPLv1.1, \
-	GPLv3+ with font exception (fonts), \
+FREESWITCH_VERSION = 1.10.0
+FREESWITCH_SOURCE = freeswitch-$(FREESWITCH_VERSION).-release.tar.xz
+FREESWITCH_SITE = https://files.freeswitch.org/freeswitch-releases
+# External modules need headers/libs from staging
+FREESWITCH_INSTALL_STAGING = YES
+FREESWITCH_LICENSE = MPL-1.1, \
+	GPL-3.0+ with font exception (fonts), \
 	Apache-2.0 (apr, apr-util), \
-	LGPLv2+ (sofia-sip), \
-	LGPLv2.1, GPLv2 (spandsp), \
-	BSD-3c (libsrtp), \
-	tiff license
+	LGPL-2.0+ (sofia-sip), \
+	LGPL-2.1, GPL-2.0 (spandsp), \
+	BSD-3-Clause (libsrtp)
 
 FREESWITCH_LICENSE_FILES = \
 	COPYING \
@@ -22,8 +23,7 @@ FREESWITCH_LICENSE_FILES = \
 	libs/sofia-sip/COPYING \
 	libs/sofia-sip/COPYRIGHTS \
 	libs/spandsp/COPYING \
-	libs/srtp/LICENSE \
-	libs/tiff-4.0.2/COPYRIGHT
+	libs/srtp/LICENSE
 
 # required dependencies
 FREESWITCH_DEPENDENCIES = \
@@ -34,8 +34,13 @@ FREESWITCH_DEPENDENCIES = \
 	pcre \
 	speex \
 	sqlite \
+	tiff \
 	util-linux \
 	zlib
+
+# disable display of ClueCon banner in fs_cli
+FREESWITCH_CONF_ENV += \
+	disable_cc=yes
 
 # we neither need host-perl nor host-php
 FREESWITCH_CONF_ENV += \
@@ -110,7 +115,6 @@ FREESWITCH_ENABLED_MODULES += \
 	applications/mod_valet_parking \
 	applications/mod_voicemail \
 	codecs/mod_g723_1 \
-	codecs/mod_g729 \
 	dialplans/mod_dialplan_asterisk \
 	dialplans/mod_dialplan_xml \
 	endpoints/mod_loopback \
@@ -145,6 +149,7 @@ FREESWITCH_ENABLED_MODULES += \
 	say/mod_say_sv \
 	say/mod_say_th \
 	say/mod_say_zh \
+	timers/mod_timerfd \
 	xml_int/mod_xml_cdr \
 	xml_int/mod_xml_rpc \
 	xml_int/mod_xml_scgi
@@ -159,7 +164,7 @@ FREESWITCH_PRE_CONFIGURE_HOOKS += FREESWITCH_ENABLE_MODULES
 # mod_isac supports a limited set of archs
 # src/mod/codecs/mod_isac/typedefs.h
 ifeq ($(BR2_i386)$(BR2_mips)$(BR2_mipsel)$(BR2_mips64)$(BR2_mips64el)$(BR2_x86_64),y)
-FREESWITCH_LICENSE := $(FREESWITCH_LICENSE), BSD-3c (mod_isac)
+FREESWITCH_LICENSE := $(FREESWITCH_LICENSE), BSD-3-Clause (mod_isac)
 FREESWITCH_LICENSE_FILES += src/mod/codecs/mod_isac/LICENSE
 FREESWITCH_ENABLED_MODULES += codecs/mod_isac
 endif
@@ -167,6 +172,12 @@ endif
 ifeq ($(BR2_PACKAGE_ALSA_LIB),y)
 FREESWITCH_DEPENDENCIES += alsa-lib
 FREESWITCH_ENABLED_MODULES += endpoints/mod_alsa
+endif
+
+# Use the pass-through g729 module provided by freeswitch instead of
+# the external mod_bcg729 provided by freeswitch-mod-bcg729.
+ifeq ($(BR2_PACKAGE_FREESWITCH_MOD_BCG729),)
+FREESWITCH_ENABLED_MODULES += codecs/mod_g729
 endif
 
 ifeq ($(BR2_PACKAGE_FREETYPE),y)
@@ -207,6 +218,13 @@ endif
 ifeq ($(BR2_PACKAGE_LIBMEMCACHED),y)
 FREESWITCH_DEPENDENCIES += libmemcached
 FREESWITCH_ENABLED_MODULES += applications/mod_memcache
+endif
+
+ifeq ($(BR2_PACKAGE_LIBOPENH264),y)
+FREESWITCH_LICENSE := $(FREESWITCH_LICENSE), BSD-2-Clause (libopenh264)
+FREESWITCH_LICENSE_FILES += docs/OPENH264_BINARY_LICENSE.txt
+FREESWITCH_DEPENDENCIES += libopenh264
+FREESWITCH_ENABLED_MODULES += codecs/mod_openh264
 endif
 
 ifeq ($(BR2_PACKAGE_LIBPNG),y)
@@ -264,6 +282,13 @@ FREESWITCH_DEPENDENCIES += opencv
 FREESWITCH_ENABLED_MODULES += applications/mod_cv
 endif
 
+ifeq ($(BR2_PACKAGE_POSTGRESQL),y)
+FREESWITCH_CONF_ENV += \
+	ac_cv_path_PG_CONFIG=$(STAGING_DIR)/usr/bin/pg_config
+FREESWITCH_DEPENDENCIES += postgresql
+FREESWITCH_ENABLED_MODULES += databases/mod_pgsql
+endif
+
 ifeq ($(BR2_PACKAGE_UNIXODBC),y)
 FREESWITCH_DEPENDENCIES += unixodbc
 FREESWITCH_CONF_OPTS += \
@@ -278,7 +303,7 @@ FREESWITCH_DEPENDENCIES += xz
 endif
 
 ifeq ($(BR2_TOOLCHAIN_GCC_AT_LEAST_4_8)$(BR2_PACKAGE_FFMPEG),yy)
-FREESWITCH_LICENSE := $(FREESWITCH_LICENSE), BSD-3c (libvpx, libyuv)
+FREESWITCH_LICENSE := $(FREESWITCH_LICENSE), BSD-3-Clause (libvpx, libyuv)
 FREESWITCH_LICENSE_FILES += libs/libvpx/LICENSE libs/libyuv/LICENSE
 FREESWITCH_CONF_OPTS += --enable-libvpx --enable-libyuv
 FREESWITCH_DEPENDENCIES += host-yasm ffmpeg

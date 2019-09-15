@@ -4,22 +4,14 @@
 #
 ################################################################################
 
-LTP_TESTSUITE_VERSION = 20170116
+LTP_TESTSUITE_VERSION = 20190517
 LTP_TESTSUITE_SOURCE = ltp-full-$(LTP_TESTSUITE_VERSION).tar.xz
 LTP_TESTSUITE_SITE = https://github.com/linux-test-project/ltp/releases/download/$(LTP_TESTSUITE_VERSION)
-LTP_TESTSUITE_LICENSE = GPLv2, GPLv2+
+LTP_TESTSUITE_LICENSE = GPL-2.0, GPL-2.0+
 LTP_TESTSUITE_LICENSE_FILES = COPYING
 
-# Do not enable Open POSIX testsuite as it doesn't cross-compile
-# properly: t0 program is built for the host machine. Notice that due
-# to a bug, --without-open-posix-testsuite actually enables the test
-# suite.
-# See https://github.com/linux-test-project/ltp/issues/143 (invalid
-# autoconf test) and
-# https://github.com/linux-test-project/ltp/issues/144 (Open POSIX
-# testsuite not cross-compiling).
 LTP_TESTSUITE_CONF_OPTS += \
-	--with-realtime-testsuite
+	--with-realtime-testsuite --with-open-posix-testsuite
 
 ifeq ($(BR2_LINUX_KERNEL),y)
 LTP_TESTSUITE_DEPENDENCIES += linux
@@ -38,6 +30,13 @@ ifeq ($(BR2_PACKAGE_LIBCAP)$(BR2_PACKAGE_ATTR),yy)
 LTP_TESTSUITE_DEPENDENCIES += libcap
 else
 LTP_TESTSUITE_CONF_ENV += ac_cv_lib_cap_cap_compare=no
+endif
+
+# No explicit enable/disable options
+ifeq ($(BR2_PACKAGE_NUMACTL),y)
+LTP_TESTSUITE_DEPENDENCIES += numactl
+else
+LTP_TESTSUITE_CONF_ENV += have_numa_headers=no
 endif
 
 # ltp-testsuite uses <fts.h>, which isn't compatible with largefile
@@ -61,12 +60,18 @@ LTP_TESTSUITE_CONF_ENV += \
 # Requires uClibc fts and bessel support, normally not enabled
 ifeq ($(BR2_TOOLCHAIN_USES_UCLIBC),y)
 define LTP_TESTSUITE_REMOVE_UNSUPPORTED
-	rm -rf $(@D)/testcases/kernel/controllers/cpuset/
 	rm -rf $(@D)/testcases/misc/math/float/bessel/
 	rm -f $(@D)/testcases/misc/math/float/float_bessel.c
 endef
 LTP_TESTSUITE_POST_PATCH_HOOKS += LTP_TESTSUITE_REMOVE_UNSUPPORTED
 endif
 
+# ldd command build system tries to build a shared library unconditionally.
+ifeq ($(BR2_STATIC_LIBS),y)
+define LTP_TESTSUITE_REMOVE_LDD
+	rm -rf $(@D)/testcases/commands/ldd
+endef
+LTP_TESTSUITE_POST_PATCH_HOOKS += LTP_TESTSUITE_REMOVE_LDD
+endif
 
 $(eval $(autotools-package))

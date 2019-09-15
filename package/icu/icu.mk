@@ -1,16 +1,21 @@
-################################################################################ # # icu #
+################################################################################
+#
+# icu
+#
 ################################################################################
 
-ICU_VERSION = 58.2
-ICU_SOURCE = icu4c-$(subst .,_,$(ICU_VERSION))-src.tgz
-ICU_SITE = http://download.icu-project.org/files/icu4c/$(ICU_VERSION)
+# Git tags (and therefore versions on release-monitoring.org) use the
+# XX-Y format, but the tarballs are named XX_Y and the containing
+# directories XX.Y.
+ICU_VERSION = 64-2
+ICU_SOURCE = icu4c-$(subst -,_,$(ICU_VERSION))-src.tgz
+ICU_SITE = http://download.icu-project.org/files/icu4c/$(subst -,.,$(ICU_VERSION))
 ICU_LICENSE = ICU License
 ICU_LICENSE_FILES = LICENSE
 
 ICU_DEPENDENCIES = host-icu
 ICU_INSTALL_STAGING = YES
 ICU_CONFIG_SCRIPTS = icu-config
-ICU_CPPFLAGS += -I$(TOP_DIR)/output/host/usr/aarch64-buildroot-linux-gnu/sysroot/usr/include
 ICU_CONF_OPTS = \
 	--with-cross-build=$(HOST_ICU_DIR)/source \
 	--disable-samples \

@@ -4,17 +4,18 @@ config BR2_PACKAGE_MONKEY
 	depends on !BR2_STATIC_LIBS # dlopen()
 	depends on BR2_USE_MMU # fork()
 	help
-	  Monkey Server is a fast and lightweight web server for Linux platforms.
+	  Monkey Server is a fast and lightweight web server for Linux
+	  platforms.
 
 	  http://monkey-project.com/
 
 if BR2_PACKAGE_MONKEY
 
-config BR2_PACKAGE_MONKEY_SHARED
-	bool "install shared library"
+config BR2_PACKAGE_MONKEY_SSL
+	bool "enable SSL/TLS"
+	select BR2_PACKAGE_MBEDTLS
 	help
-	  Build Monkey as a shared library in addition to stand-alone
-	  server
+	  Enable build of the SSL/TLS plugin.
 
 endif
 

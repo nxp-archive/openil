@@ -41,6 +41,11 @@ $$(error No implementation selected for virtual package $(1). Configuration erro
 endif
 endif
 
+# explicitly set these so we do not get confused by environment
+# variables with the same names.
+$(2)_VERSION =
+$(2)_SOURCE =
+
 $(2)_IS_VIRTUAL = YES
 
 # Add dependency against the provider
@@ -49,7 +54,13 @@ $(2)_IS_VIRTUAL = YES
 ifeq ($(4),target)
 $(2)_DEPENDENCIES += $$(call qstrip,$$(BR2_PACKAGE_PROVIDES_$(2)))
 else
+ifeq ($$(call qstrip,$$(BR2_PACKAGE_PROVIDES_$(2))),)
+# Inherit from target package BR2_PACKAGE_PROVIDES_FOO
 $(2)_DEPENDENCIES += host-$$(call qstrip,$$(BR2_PACKAGE_PROVIDES_$(3)))
+else
+# BR2_PACKAGE_PROVIDES_HOST_<pkg> is explicitly defined
+$(2)_DEPENDENCIES += $$(call qstrip,$$(BR2_PACKAGE_PROVIDES_$(2)))
+endif
 endif
 
 # Call the generic package infrastructure to generate the necessary

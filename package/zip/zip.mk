@@ -4,8 +4,9 @@
 #
 ################################################################################
 
-ZIP_VERSION = 30
-ZIP_SOURCE = zip$(ZIP_VERSION).tgz
+ZIP_VERSION = 3.0
+# The version is really 3.0, but the tarball is named zip30.tgz
+ZIP_SOURCE = zip$(subst .,,$(ZIP_VERSION)).tgz
 ZIP_SITE = ftp://ftp.info-zip.org/pub/infozip/src
 ZIP_LICENSE = Info-ZIP
 ZIP_LICENSE_FILES = LICENSE
@@ -47,7 +48,7 @@ endef
 
 define HOST_ZIP_INSTALL_CMDS
 	$(HOST_MAKE_ENV) $(MAKE) $(HOST_CONFIGURE_OPTS) -C $(@D) -f unix/Makefile install \
-		prefix=$(HOST_DIR)/usr
+		prefix=$(HOST_DIR)
 endef
 
 $(eval $(generic-package))

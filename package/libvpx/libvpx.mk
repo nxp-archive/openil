@@ -4,10 +4,9 @@
 #
 ################################################################################
 
-LIBVPX_VERSION = 1.6.0
-LIBVPX_SOURCE = libvpx-$(LIBVPX_VERSION).tar.bz2
-LIBVPX_SITE = http://storage.googleapis.com/downloads.webmproject.org/releases/webm
-LIBVPX_LICENSE = BSD-3c
+LIBVPX_VERSION = 1.8.1
+LIBVPX_SITE = $(call github,webmproject,libvpx,v$(LIBVPX_VERSION))
+LIBVPX_LICENSE = BSD-3-Clause
 LIBVPX_LICENSE_FILES = LICENSE PATENTS
 LIBVPX_INSTALL_STAGING = YES
 

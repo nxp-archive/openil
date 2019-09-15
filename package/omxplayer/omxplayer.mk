@@ -4,13 +4,13 @@
 #
 ################################################################################
 
-OMXPLAYER_VERSION = 6c90c7503ba4658221774759edf7f2ae816711de
+OMXPLAYER_VERSION = f06235cc9690a6d58187514452df8cf8fcdaacec
 OMXPLAYER_SITE = $(call github,popcornmix,omxplayer,$(OMXPLAYER_VERSION))
-OMXPLAYER_LICENSE = GPLv2+
+OMXPLAYER_LICENSE = GPL-2.0+
 OMXPLAYER_LICENSE_FILES = COPYING
 
 OMXPLAYER_DEPENDENCIES = \
-	host-pkgconf boost dbus ffmpeg freetype libidn libusb pcre \
+	host-pkgconf alsa-lib boost dbus ffmpeg freetype libidn libusb pcre \
 	rpi-userland zlib
 
 OMXPLAYER_EXTRA_CFLAGS = \
@@ -23,14 +23,7 @@ OMXPLAYER_EXTRA_CFLAGS = \
 # procedure is, well, tainted. Fix this by forcing the real,
 # correct values.
 OMXPLAYER_MAKE_ENV = \
-	USE_BUILDROOT=1 \
-	BUILDROOT=$(TOP_DIR) \
 	SDKSTAGE=$(STAGING_DIR) \
-	TARGETFS=$(TARGET_DIR) \
-	TOOLCHAIN=$(HOST_DIR)/usr \
-	HOST=$(GNU_TARGET_NAME) \
-	SYSROOT=$(STAGING_DIR) \
-	JOBS=$(PARALLEL_JOBS) \
 	$(TARGET_CONFIGURE_OPTS) \
 	STRIP=true \
 	CFLAGS="$(TARGET_CFLAGS) $(OMXPLAYER_EXTRA_CFLAGS)"

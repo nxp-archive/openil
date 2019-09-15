@@ -15,7 +15,6 @@ export BZR := $(call qstrip,$(BR2_BZR))
 export GIT := $(call qstrip,$(BR2_GIT))
 export HG := $(call qstrip,$(BR2_HG))
 export SCP := $(call qstrip,$(BR2_SCP))
-SSH := $(call qstrip,$(BR2_SSH))
 export LOCALFILES := $(call qstrip,$(BR2_LOCALFILES))
 
 DL_WRAPPER = support/download/dl-wrapper
@@ -31,8 +30,8 @@ else
 BR2_DL_DIR = $(DL_DIR)
 endif
 
-# ensure it exists and a absolute path
-DL_DIR := $(shell mkdir -p $(DL_DIR) && cd $(DL_DIR) >/dev/null && pwd)
+# ensure it exists and a absolute path, derefrecing symlinks
+DL_DIR := $(shell mkdir -p $(DL_DIR) && cd $(DL_DIR) >/dev/null && pwd -P)
 
 #
 # URI scheme helper functions
@@ -42,6 +41,8 @@ DL_DIR := $(shell mkdir -p $(DL_DIR) && cd $(DL_DIR) >/dev/null && pwd)
 #
 # geturischeme: http
 geturischeme = $(firstword $(subst ://, ,$(call qstrip,$(1))))
+# getschemeplusuri: git|parameter+http://example.com
+getschemeplusuri = $(call geturischeme,$(1))$(if $(2),\|$(2))+$(1)
 # stripurischeme: www.example.com/dir/file
 stripurischeme = $(lastword $(subst ://, ,$(call qstrip,$(1))))
 # domain: www.example.com
@@ -61,195 +62,55 @@ github = https://github.com/$(1)/$(2)/archive/$(3)
 export BR_NO_CHECK_HASH_FOR =
 
 ################################################################################
-# The DOWNLOAD_* helpers are in charge of getting a working copy
-# of the source repository for their corresponding SCM,
-# checking out the requested version / commit / tag, and create an
-# archive out of it. DOWNLOAD_SCP uses scp to obtain a remote file with
-# ssh authentication. DOWNLOAD_WGET is the normal wget-based download
-# mechanism.
-#
-# The SOURCE_CHECK_* helpers are in charge of simply checking that the source
-# is available for download. This can be used to make sure one will be able
-# to get all the sources needed for one's build configuration.
-################################################################################
-
-define DOWNLOAD_GIT
-	$(EXTRA_ENV) $(DL_WRAPPER) -b git \
-		-o $(DL_DIR)/$($(PKG)_SOURCE) \
-		$(if $($(PKG)_GIT_SUBMODULES),-r) \
-		$(QUIET) \
-		-- \
-		$($(PKG)_SITE) \
-		$($(PKG)_DL_VERSION) \
-		$($(PKG)_RAW_BASE_NAME) \
-		$($(PKG)_DL_OPTS)
-endef
-
-# TODO: improve to check that the given PKG_DL_VERSION exists on the remote
-# repository
-define SOURCE_CHECK_GIT
-	$(GIT) ls-remote --heads $($(PKG)_SITE) > /dev/null
-endef
-
-define DOWNLOAD_BZR
-	$(EXTRA_ENV) $(DL_WRAPPER) -b bzr \
-		-o $(DL_DIR)/$($(PKG)_SOURCE) \
-		$(QUIET) \
-		-- \
-		$($(PKG)_SITE) \
-		$($(PKG)_DL_VERSION) \
-		$($(PKG)_RAW_BASE_NAME) \
-		$($(PKG)_DL_OPTS)
-endef
-
-define SOURCE_CHECK_BZR
-	$(BZR) ls --quiet $($(PKG)_SITE) > /dev/null
-endef
-
-define DOWNLOAD_CVS
-	$(EXTRA_ENV) $(DL_WRAPPER) -b cvs \
-		-o $(DL_DIR)/$($(PKG)_SOURCE) \
-		$(QUIET) \
-		-- \
-		$(call stripurischeme,$(call qstrip,$($(PKG)_SITE))) \
-		$($(PKG)_DL_VERSION) \
-		$($(PKG)_RAWNAME) \
-		$($(PKG)_RAW_BASE_NAME) \
-		$($(PKG)_DL_OPTS)
-endef
-
-# Not all CVS servers support ls/rls, use login to see if we can connect
-define SOURCE_CHECK_CVS
-	$(CVS) -d:pserver:anonymous:@$(call stripurischeme,$(call qstrip,$($(PKG)_SITE))) login
-endef
-
-define DOWNLOAD_SVN
-	$(EXTRA_ENV) $(DL_WRAPPER) -b svn \
-		-o $(DL_DIR)/$($(PKG)_SOURCE) \
-		$(QUIET) \
-		-- \
-		$($(PKG)_SITE) \
-		$($(PKG)_DL_VERSION) \
-		$($(PKG)_RAW_BASE_NAME) \
-		$($(PKG)_DL_OPTS)
-endef
-
-define SOURCE_CHECK_SVN
-	$(SVN) ls $($(PKG)_SITE)@$($(PKG)_DL_VERSION) > /dev/null
-endef
-
-# SCP URIs should be of the form scp://[user@]host:filepath
-# Note that filepath is relative to the user's home directory, so you may want
-# to prepend the path with a slash: scp://[user@]host:/absolutepath
-define DOWNLOAD_SCP
-	$(EXTRA_ENV) $(DL_WRAPPER) -b scp \
-		-o $(DL_DIR)/$(2) \
-		-H $(PKGDIR)/$($(PKG)_RAWNAME).hash \
-		$(QUIET) \
-		-- \
-		'$(call stripurischeme,$(call qstrip,$(1)))' \
-		$($(PKG)_DL_OPTS)
-endef
-
-define SOURCE_CHECK_SCP
-	$(SSH) $(call domain,$(1),:) ls '$(call notdomain,$(1),:)' > /dev/null
-endef
-
-define DOWNLOAD_HG
-	$(EXTRA_ENV) $(DL_WRAPPER) -b hg \
-		-o $(DL_DIR)/$($(PKG)_SOURCE) \
-		$(QUIET) \
-		-- \
-		$($(PKG)_SITE) \
-		$($(PKG)_DL_VERSION) \
-		$($(PKG)_RAW_BASE_NAME) \
-		$($(PKG)_DL_OPTS)
-endef
-
-# TODO: improve to check that the given PKG_DL_VERSION exists on the remote
-# repository
-define SOURCE_CHECK_HG
-	$(HG) incoming --force -l1 $($(PKG)_SITE) > /dev/null
-endef
-
-define DOWNLOAD_WGET
-	$(EXTRA_ENV) $(DL_WRAPPER) -b wget \
-		-o $(DL_DIR)/$(2) \
-		-H $(PKGDIR)/$($(PKG)_RAWNAME).hash \
-		$(QUIET) \
-		-- \
-		'$(call qstrip,$(1))' \
-		$($(PKG)_DL_OPTS)
-endef
-
-define SOURCE_CHECK_WGET
-	$(WGET) --spider '$(call qstrip,$(1))'
-endef
-
-define DOWNLOAD_LOCALFILES
-	$(EXTRA_ENV) $(DL_WRAPPER) -b cp \
-		-o $(DL_DIR)/$(2) \
-		-H $(PKGDIR)/$($(PKG)_RAWNAME).hash \
-		$(QUIET) \
-		-- \
-		$(call stripurischeme,$(call qstrip,$(1))) \
-		$($(PKG)_DL_OPTS)
-endef
-
-define SOURCE_CHECK_LOCALFILES
-	test -e $(call stripurischeme,$(call qstrip,$(1)))
-endef
-
-################################################################################
-# DOWNLOAD -- Download helper. Will try to download source from:
+# DOWNLOAD_URIS - List the candidates URIs where to get the package from:
 # 1) BR2_PRIMARY_SITE if enabled
 # 2) Download site, unless BR2_PRIMARY_SITE_ONLY is set
 # 3) BR2_BACKUP_SITE if enabled, unless BR2_PRIMARY_SITE_ONLY is set
 #
 # Argument 1 is the source location
+# Argument 2 is the upper-case package name
 #
-# E.G. use like this:
-# $(call DOWNLOAD,$(FOO_SITE))
+################################################################################
+
+ifneq ($(call qstrip,$(BR2_PRIMARY_SITE)),)
+DOWNLOAD_URIS += \
+	$(call getschemeplusuri,$(call qstrip,$(BR2_PRIMARY_SITE)/$($(2)_DL_SUBDIR)),urlencode) \
+	$(call getschemeplusuri,$(call qstrip,$(BR2_PRIMARY_SITE)),urlencode)
+endif
+
+ifeq ($(BR2_PRIMARY_SITE_ONLY),)
+DOWNLOAD_URIS += \
+	$(patsubst %/,%,$(dir $(call qstrip,$(1))))
+ifneq ($(call qstrip,$(BR2_BACKUP_SITE)),)
+DOWNLOAD_URIS += \
+	$(call getschemeplusuri,$(call qstrip,$(BR2_BACKUP_SITE)/$($(2)_DL_SUBDIR)),urlencode) \
+	$(call getschemeplusuri,$(call qstrip,$(BR2_BACKUP_SITE)),urlencode)
+endif
+endif
+
+################################################################################
+# DOWNLOAD -- Download helper. Will call DL_WRAPPER which will try to download
+# source from the list returned by DOWNLOAD_URIS.
 #
-# For PRIMARY and BACKUP site, any ? in the URL is replaced by %3F. A ? in
-# the URL is used to separate query arguments, but the PRIMARY and BACKUP
-# sites serve just plain files.
+# Argument 1 is the source location
+# Argument 2 is the upper-case package name
+#
 ################################################################################
 
 define DOWNLOAD
-	$(call DOWNLOAD_INNER,$(1),$(notdir $(1)),DOWNLOAD)
-endef
-
-define SOURCE_CHECK
-	$(call DOWNLOAD_INNER,$(1),$(notdir $(1)),SOURCE_CHECK)
-endef
-
-define DOWNLOAD_INNER
-	$(Q)$(if $(filter bzr cvs git hg svn,$($(PKG)_SITE_METHOD)),export BR_NO_CHECK_HASH_FOR=$(2);) \
-	if test -n "$(call qstrip,$(BR2_PRIMARY_SITE))" ; then \
-		case "$(call geturischeme,$(BR2_PRIMARY_SITE))" in \
-			file) $(call $(3)_LOCALFILES,$(BR2_PRIMARY_SITE)/$(2),$(2)) && exit ;; \
-			scp) $(call $(3)_SCP,$(BR2_PRIMARY_SITE)/$(2),$(2)) && exit ;; \
-			*) $(call $(3)_WGET,$(BR2_PRIMARY_SITE)/$(subst ?,%3F,$(2)),$(2)) && exit ;; \
-		esac ; \
-	fi ; \
-	if test "$(BR2_PRIMARY_SITE_ONLY)" = "y" ; then \
-		exit 1 ; \
-	fi ; \
-	if test -n "$(1)" ; then \
-		case "$($(PKG)_SITE_METHOD)" in \
-			git) $($(3)_GIT) && exit ;; \
-			svn) $($(3)_SVN) && exit ;; \
-			cvs) $($(3)_CVS) && exit ;; \
-			bzr) $($(3)_BZR) && exit ;; \
-			file) $($(3)_LOCALFILES) && exit ;; \
-			scp) $($(3)_SCP) && exit ;; \
-			hg) $($(3)_HG) && exit ;; \
-			*) $(call $(3)_WGET,$(1),$(2)) && exit ;; \
-		esac ; \
-	fi ; \
-	if test -n "$(call qstrip,$(BR2_BACKUP_SITE))" ; then \
-		$(call $(3)_WGET,$(BR2_BACKUP_SITE)/$(subst ?,%3F,$(2)),$(2)) && exit ; \
-	fi ; \
-	exit 1
+	$(Q)mkdir -p $($(2)_DL_DIR)
+	$(Q)$(EXTRA_ENV) flock $($(2)_DL_DIR)/ $(DL_WRAPPER) \
+		-c '$($(2)_DL_VERSION)' \
+		-d '$($(2)_DL_DIR)' \
+		-D '$(DL_DIR)' \
+		-f '$(notdir $(1))' \
+		-H '$($(2)_HASH_FILE)' \
+		-n '$($(2)_BASENAME_RAW)' \
+		-N '$($(2)_RAWNAME)' \
+		-o '$($(2)_DL_DIR)/$(notdir $(1))' \
+		$(if $($(2)_GIT_SUBMODULES),-r) \
+		$(foreach uri,$(call DOWNLOAD_URIS,$(1),$(2)),-u $(uri)) \
+		$(QUIET) \
+		-- \
+		$($(2)_DL_OPTS)
 endef

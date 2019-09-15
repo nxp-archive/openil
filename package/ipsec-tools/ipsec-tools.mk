@@ -9,15 +9,14 @@ IPSEC_TOOLS_SOURCE = ipsec-tools-$(IPSEC_TOOLS_VERSION).tar.bz2
 IPSEC_TOOLS_SITE = http://sourceforge.net/projects/ipsec-tools/files/ipsec-tools/$(IPSEC_TOOLS_VERSION)
 IPSEC_TOOLS_INSTALL_STAGING = YES
 IPSEC_TOOLS_MAKE = $(MAKE1)
-IPSEC_TOOLS_DEPENDENCIES = openssl flex host-flex
+IPSEC_TOOLS_DEPENDENCIES = openssl flex host-pkgconf host-flex host-bison
+# we patch configure.ac
+IPSEC_TOOLS_AUTORECONF = YES
 
 # configure hardcodes -Werror, so override CFLAGS on make invocation
 IPSEC_TOOLS_MAKE_OPTS = CFLAGS='$(TARGET_CFLAGS)'
 
-# openssl uses zlib, so we need to explicitly link with it when static
-ifeq ($(BR2_STATIC_LIBS),y)
-IPSEC_TOOLS_CONF_ENV += LIBS=-lz
-endif
+IPSEC_TOOLS_CONF_ENV = LIBS=`$(PKG_CONFIG_HOST_BINARY) --libs openssl`
 
 IPSEC_TOOLS_CONF_OPTS = \
 	  --without-libpam \
@@ -66,13 +65,13 @@ else
 IPSEC_TOOLS_CONF_OPTS += --disable-hybrid
 endif
 
-ifeq ($(BR2_PACKAGE_IPSEC_SECCTX_DISABLE),y)
+ifeq ($(BR2_PACKAGE_IPSEC_TOOLS_SECCTX_DISABLE),y)
 IPSEC_TOOLS_CONF_OPTS += --enable-security-context=no
 endif
-ifeq ($(BR2_PACKAGE_IPSEC_SECCTX_ENABLE),y)
+ifeq ($(BR2_PACKAGE_IPSEC_TOOLS_SECCTX_ENABLE),y)
 IPSEC_TOOLS_CONF_OPTS += --enable-security-context=yes
 endif
-ifeq ($(BR2_PACKAGE_IPSEC_SECCTX_KERNEL),y)
+ifeq ($(BR2_PACKAGE_IPSEC_TOOLS_SECCTX_KERNEL),y)
 IPSEC_TOOLS_CONF_OPTS += --enable-security-context=kernel
 endif
 

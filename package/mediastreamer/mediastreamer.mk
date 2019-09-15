@@ -11,7 +11,7 @@ MEDIASTREAMER_INSTALL_STAGING = YES
 MEDIASTREAMER_DEPENDENCIES = host-intltool host-pkgconf ortp host-gettext host-vim
 # tests fail linking on some architectures, so disable them
 MEDIASTREAMER_CONF_OPTS = --disable-tests --disable-glx --disable-strict
-MEDIASTREAMER_LICENSE = GPLv2+
+MEDIASTREAMER_LICENSE = GPL-2.0+
 MEDIASTREAMER_LICENSE_FILES = COPYING
 
 # patching configure.ac
@@ -46,7 +46,7 @@ MEDIASTREAMER_CONF_OPTS += --disable-opus
 endif
 
 # portaudio backend needs speex as well
-ifeq ($(BR2_PACKAGE_PORTAUDIO)$(BR2_PACKAGE_SPEEX),yy)
+ifeq ($(BR2_PACKAGE_PORTAUDIO)$(BR2_PACKAGE_SPEEX)$(BR2_PACKAGE_SPEEXDSP),yyy)
 MEDIASTREAMER_CONF_OPTS += --enable-portaudio
 MEDIASTREAMER_DEPENDENCIES += portaudio speex
 else
@@ -60,7 +60,7 @@ else
 MEDIASTREAMER_CONF_OPTS += --disable-pulseaudio
 endif
 
-ifeq ($(BR2_PACKAGE_SPEEX),y)
+ifeq ($(BR2_PACKAGE_SPEEX)$(BR2_PACKAGE_SPEEXDSP),yy)
 MEDIASTREAMER_CONF_OPTS += --enable-speex
 MEDIASTREAMER_DEPENDENCIES += speex
 else

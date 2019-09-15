@@ -1,7 +1,9 @@
-comment "libgtk3 needs a toolchain w/ wchar, threads, C++"
+comment "libgtk3 needs a toolchain w/ wchar, threads, C++, gcc >= 4.8, host gcc >= 4.8"
 	depends on BR2_USE_MMU
 	depends on BR2_TOOLCHAIN_HAS_SYNC_4
 	depends on !BR2_USE_WCHAR || !BR2_INSTALL_LIBSTDCPP || \
+		!BR2_TOOLCHAIN_GCC_AT_LEAST_4_8 || \
+		!BR2_HOST_GCC_AT_LEAST_4_8 || \
 		!BR2_TOOLCHAIN_HAS_THREADS
 
 comment "libgtk3 needs an OpenGL or an OpenGL-EGL/wayland backend"
@@ -12,6 +14,16 @@ comment "libgtk3 needs an OpenGL or an OpenGL-EGL/wayland backend"
 
 config BR2_PACKAGE_LIBGTK3
 	bool "libgtk3"
+	depends on BR2_USE_WCHAR # glib2
+	depends on BR2_TOOLCHAIN_HAS_THREADS # glib2
+	depends on BR2_USE_MMU # glib2
+	depends on BR2_INSTALL_LIBSTDCPP # pango
+	depends on BR2_TOOLCHAIN_HAS_SYNC_4 # pango -> harfbuzz
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_8 # pango -> harfbuzz
+	# host-libgtk3 -> host-librsvg -> host-pango -> host-harfbuzz
+	depends on BR2_HOST_GCC_AT_LEAST_4_8
+	depends on BR2_PACKAGE_HAS_LIBEGL_WAYLAND || \
+		BR2_PACKAGE_HAS_LIBGL
 	select BR2_PACKAGE_ATK
 	select BR2_PACKAGE_CAIRO
 	select BR2_PACKAGE_CAIRO_PS
@@ -24,13 +36,6 @@ config BR2_PACKAGE_LIBGTK3
 	# At least one backend is required
 	select BR2_PACKAGE_LIBGTK3_BROADWAY if \
 		!(BR2_PACKAGE_LIBGTK3_X11 || BR2_PACKAGE_LIBGTK3_WAYLAND)
-	depends on BR2_USE_WCHAR # glib2
-	depends on BR2_TOOLCHAIN_HAS_THREADS # glib2
-	depends on BR2_USE_MMU # glib2
-	depends on BR2_INSTALL_LIBSTDCPP # pango
-	depends on BR2_TOOLCHAIN_HAS_SYNC_4 # pango -> harfbuzz
-	depends on BR2_PACKAGE_HAS_LIBEGL_WAYLAND || \
-		BR2_PACKAGE_HAS_LIBGL
 	help
 	  The GTK+ version 3 graphical user interface library
 
@@ -42,13 +47,13 @@ config BR2_PACKAGE_LIBGTK3_BROADWAY
 	bool "Broadway GDK backend"
 	default y
 	  help
-	  This enables the Broadway backend for GDK, which provides support
-	  for displaying GTK+ applications in a web browser, using HTML5 and
-	  web sockets.
+	  This enables the Broadway backend for GDK, which provides
+	  support for displaying GTK+ applications in a web browser,
+	  using HTML5 and web sockets.
 
 	  For example, to run gtk3-demo on a target which IP address is
-	  192.168.0.1 and use it from a web browser, execute the following
-	  commands:
+	  192.168.0.1 and use it from a web browser, execute the
+	  following commands:
 
 	  $ broadwayd -a 192.168.0.1 -p 8080 :2 &
 	  $ export GDK_BACKEND=broadway

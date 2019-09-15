@@ -7,11 +7,11 @@
 UNSCD_VERSION = 0.52
 UNSCD_SOURCE = nscd-$(UNSCD_VERSION).c
 UNSCD_SITE = http://busybox.net/~vda/unscd
-UNSCD_LICENSE = GPLv2
+UNSCD_LICENSE = GPL-2.0
 UNSCD_LICENSE_FILES = $(UNSCD_SOURCE)
 
 define UNSCD_EXTRACT_CMDS
-	cp $(DL_DIR)/$($(PKG)_SOURCE) $(@D)/
+	cp $(UNSCD_DL_DIR)/$($(PKG)_SOURCE) $(@D)/
 endef
 
 define UNSCD_BUILD_CMDS

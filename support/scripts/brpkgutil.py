@@ -1,62 +1,50 @@
 # Copyright (C) 2010-2013 Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+# Copyright (C) 2019 Yann E. MORIN <yann.morin.1998@free.fr>
 
-import sys
+import json
+import logging
+import os
 import subprocess
+from collections import defaultdict
 
-# Execute the "make <pkg>-show-version" command to get the version of a given
-# list of packages, and return the version formatted as a Python dictionary.
-def get_version(pkgs):
-    sys.stderr.write("Getting version for %s\n" % pkgs)
-    cmd = ["make", "-s", "--no-print-directory" ]
-    for pkg in pkgs:
-        cmd.append("%s-show-version" % pkg)
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
-    output = p.communicate()[0]
-    if p.returncode != 0:
-        sys.stderr.write("Error getting version %s\n" % pkgs)
-        sys.exit(1)
-    output = output.split("\n")
-    if len(output) != len(pkgs) + 1:
-        sys.stderr.write("Error getting version\n")
-        sys.exit(1)
-    version = {}
-    for i in range(0, len(pkgs)):
-        pkg = pkgs[i]
-        version[pkg] = output[i]
-    return version
 
-def _get_depends(pkgs, rule):
-    sys.stderr.write("Getting dependencies for %s\n" % pkgs)
-    cmd = ["make", "-s", "--no-print-directory" ]
-    for pkg in pkgs:
-        cmd.append("%s-%s" % (pkg, rule))
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
-    output = p.communicate()[0]
-    if p.returncode != 0:
-        sys.stderr.write("Error getting dependencies %s\n" % pkgs)
-        sys.exit(1)
-    output = output.split("\n")
-    if len(output) != len(pkgs) + 1:
-        sys.stderr.write("Error getting dependencies\n")
-        sys.exit(1)
+# This function returns a tuple of four dictionaries, all using package
+# names as keys:
+# - a dictionary which values are the lists of packages that are the
+#   dependencies of the package used as key;
+# - a dictionary which values are the lists of packages that are the
+#   reverse dependencies of the package used as key;
+# - a dictionary which values are the type of the package used as key;
+# - a dictionary which values are the version of the package used as key,
+#   'virtual' for a virtual package, or the empty string for a rootfs.
+def get_dependency_tree():
+    logging.info("Getting dependency tree...")
+
     deps = {}
-    for i in range(0, len(pkgs)):
-        pkg = pkgs[i]
-        pkg_deps = output[i].split(" ")
-        if pkg_deps == ['']:
-            deps[pkg] = []
-        else:
-            deps[pkg] = pkg_deps
-    return deps
+    rdeps = defaultdict(list)
+    types = {}
+    versions = {}
 
-# Execute the "make <pkg>-show-depends" command to get the list of
-# dependencies of a given list of packages, and return the list of
-# dependencies formatted as a Python dictionary.
-def get_depends(pkgs):
-    return _get_depends(pkgs, 'show-depends')
+    # Special case for the 'all' top-level fake package
+    deps['all'] = []
+    types['all'] = 'target'
+    versions['all'] = ''
 
-# Execute the "make <pkg>-show-rdepends" command to get the list of
-# reverse dependencies of a given list of packages, and return the
-# list of dependencies formatted as a Python dictionary.
-def get_rdepends(pkgs):
-    return _get_depends(pkgs, 'show-rdepends')
+    cmd = ["make", "-s", "--no-print-directory", "show-info"]
+    with open(os.devnull, 'wb') as devnull:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=devnull,
+                             universal_newlines=True)
+        pkg_list = json.loads(p.communicate()[0])
+
+    for pkg in pkg_list:
+        deps['all'].append(pkg)
+        types[pkg] = pkg_list[pkg]["type"]
+        deps[pkg] = pkg_list[pkg].get("dependencies", [])
+        for p in deps[pkg]:
+            rdeps[p].append(pkg)
+        versions[pkg] = \
+            None if pkg_list[pkg]["type"] == "rootfs" \
+            else "virtual" if pkg_list[pkg]["virtual"] \
+            else pkg_list[pkg]["version"]
+
+    return (deps, rdeps, types, versions)

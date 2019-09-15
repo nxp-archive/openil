@@ -1,12 +1,13 @@
 [Unit]
-Description=DHCP client daemon
-After=network.target systemd-resolved.service
-Before=network-online.target
+Description=DHCP client
+After=network.target
 
 [Service]
 Type=forking
-ExecStart=/sbin/dhcpcd
-KillSignal=SIGINT
+EnvironmentFile=-/etc/default/dhcpcd
+PIDFile=/var/run/dhcpcd.pid
+ExecStart=/sbin/dhcpcd $DAEMON_ARGS
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

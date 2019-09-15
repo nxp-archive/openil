@@ -44,14 +44,14 @@ $(2)_NEEDS_EXTERNAL_WAF ?= NO
 # If the package does not have its own waf, use our own.
 ifeq ($$($(2)_NEEDS_EXTERNAL_WAF),YES)
 $(2)_DEPENDENCIES += host-waf
-$(2)_WAF = $(HOST_DIR)/usr/bin/waf
+$(2)_WAF = $$(HOST_DIR)/bin/waf
 else
 $(2)_WAF = ./waf
 endif
 
-$(2)_BUILD_OPTS 			?=
-$(2)_INSTALL_STAGING_OPTS 		?=
-$(2)_INSTALL_TARGET_OPTS 		?=
+$(2)_BUILD_OPTS				?=
+$(2)_INSTALL_STAGING_OPTS		?=
+$(2)_INSTALL_TARGET_OPTS		?=
 $(2)_WAF_OPTS				?=
 
 #
@@ -60,10 +60,10 @@ $(2)_WAF_OPTS				?=
 #
 ifndef $(2)_CONFIGURE_CMDS
 define $(2)_CONFIGURE_CMDS
-	cd $$(@D) && \
+	cd $$($$(PKG)_SRCDIR) && \
 	$$(TARGET_CONFIGURE_OPTS) \
 	$$($(2)_CONF_ENV) \
-	$$(HOST_DIR)/usr/bin/python2 $$($(2)_WAF) configure \
+	$$(HOST_DIR)/bin/python2 $$($(2)_WAF) configure \
 		--prefix=/usr \
 		--libdir=/usr/lib \
 		$$($(2)_CONF_OPTS) \
@@ -77,8 +77,8 @@ endif
 #
 ifndef $(2)_BUILD_CMDS
 define $(2)_BUILD_CMDS
-	cd $$(@D) && \
-	$$(TARGET_MAKE_ENV) $$(HOST_DIR)/usr/bin/python2 $$($(2)_WAF) \
+	cd $$($$(PKG)_SRCDIR) && \
+	$$(TARGET_MAKE_ENV) $$(HOST_DIR)/bin/python2 $$($(2)_WAF) \
 		build -j $$(PARALLEL_JOBS) $$($(2)_BUILD_OPTS) \
 		$$($(2)_WAF_OPTS)
 endef
@@ -90,8 +90,8 @@ endif
 #
 ifndef $(2)_INSTALL_STAGING_CMDS
 define $(2)_INSTALL_STAGING_CMDS
-	cd $$(@D) && \
-	$$(TARGET_MAKE_ENV) $$(HOST_DIR)/usr/bin/python2 $$($(2)_WAF) \
+	cd $$($$(PKG)_SRCDIR) && \
+	$$(TARGET_MAKE_ENV) $$(HOST_DIR)/bin/python2 $$($(2)_WAF) \
 		install --destdir=$$(STAGING_DIR) \
 		$$($(2)_INSTALL_STAGING_OPTS) \
 		$$($(2)_WAF_OPTS)
@@ -104,8 +104,8 @@ endif
 #
 ifndef $(2)_INSTALL_TARGET_CMDS
 define $(2)_INSTALL_TARGET_CMDS
-	cd $$(@D) && \
-	$$(TARGET_MAKE_ENV) $$(HOST_DIR)/usr/bin/python2 $$($(2)_WAF) \
+	cd $$($$(PKG)_SRCDIR) && \
+	$$(TARGET_MAKE_ENV) $$(HOST_DIR)/bin/python2 $$($(2)_WAF) \
 		install --destdir=$$(TARGET_DIR) \
 		$$($(2)_INSTALL_TARGET_OPTS) \
 		$$($(2)_WAF_OPTS)

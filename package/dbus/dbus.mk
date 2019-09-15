@@ -4,11 +4,9 @@
 #
 ################################################################################
 
-DBUS_VERSION = 1.10.16
-DBUS_SITE = http://dbus.freedesktop.org/releases/dbus
-DBUS_LICENSE = AFLv2.1 or GPLv2+ (library, tools), GPLv2+ (tools)
-# 0001-config-loader-expat-Tell-Expat-not-to-defend-against.patch
-DBUS_AUTORECONF = YES
+DBUS_VERSION = 1.12.16
+DBUS_SITE = https://dbus.freedesktop.org/releases/dbus
+DBUS_LICENSE = AFL-2.1 or GPL-2.0+ (library, tools), GPL-2.0+ (tools)
 DBUS_LICENSE_FILES = COPYING
 DBUS_INSTALL_STAGING = YES
 
@@ -22,20 +20,15 @@ endef
 
 DBUS_DEPENDENCIES = host-pkgconf expat
 
-DBUS_CONF_ENV = ac_cv_have_abstract_sockets=yes
 DBUS_CONF_OPTS = \
 	--with-dbus-user=dbus \
 	--disable-tests \
 	--disable-asserts \
-	--enable-abstract-sockets \
-	--disable-selinux \
 	--disable-xml-docs \
 	--disable-doxygen-docs \
-	--disable-dnotify \
 	--with-xml=expat \
 	--with-system-socket=/var/run/dbus/system_bus_socket \
-	--with-system-pid-file=/var/run/messagebus.pid \
-	--with-init-scripts=none
+	--with-system-pid-file=/var/run/messagebus.pid
 
 ifeq ($(BR2_STATIC_LIBS),y)
 DBUS_CONF_OPTS += LIBS='-pthread'
@@ -111,11 +104,9 @@ HOST_DBUS_CONF_OPTS = \
 	--with-dbus-user=dbus \
 	--disable-tests \
 	--disable-asserts \
-	--enable-abstract-sockets \
 	--disable-selinux \
 	--disable-xml-docs \
 	--disable-doxygen-docs \
-	--enable-dnotify \
 	--without-x \
 	--with-xml=expat
 
@@ -123,7 +114,7 @@ HOST_DBUS_CONF_OPTS = \
 DBUS_HOST_INTROSPECT = $(HOST_DBUS_DIR)/introspect.xml
 
 HOST_DBUS_GEN_INTROSPECT = \
-	$(HOST_DIR)/usr/bin/dbus-daemon --introspect > $(DBUS_HOST_INTROSPECT)
+	$(HOST_DIR)/bin/dbus-daemon --introspect > $(DBUS_HOST_INTROSPECT)
 
 HOST_DBUS_POST_INSTALL_HOOKS += HOST_DBUS_GEN_INTROSPECT
 

@@ -13,10 +13,9 @@ config BR2_PACKAGE_MINIDLNA
 	select BR2_PACKAGE_LIBEXIF
 	select BR2_PACKAGE_JPEG
 	select BR2_PACKAGE_SQLITE
-	select BR2_PACKAGE_GETTEXT if BR2_NEEDS_GETTEXT_IF_LOCALE
 	help
-	  MiniDLNA (aka ReadyDLNA) is server software with the aim of being
-	  fully compliant with DLNA/UPnP-AV clients.
+	  MiniDLNA (aka ReadyDLNA) is server software with the aim of
+	  being fully compliant with DLNA/UPnP-AV clients.
 
 	  http://minidlna.sourceforge.net/
 

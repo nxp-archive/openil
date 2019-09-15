@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi/certifi/json, sha256 locally computed
-md5	baa81e951a29958563689d868ef1064d  certifi-2016.9.26.tar.gz
-sha256	8275aef1bbeaf05c53715bfc5d8569bd1e04ca1e8e69608cc52bcaac2604eb19  certifi-2016.9.26.tar.gz
+# md5, sha256 from https://pypi.org/pypi/certifi/json
+md5	af8fea5f3df6f7f81e9c6cbc6dd7c1e8  certifi-2019.6.16.tar.gz
+sha256	945e3ba63a0b9f577b1395204e13c3a231f9bc0223888be653286534e5873695  certifi-2019.6.16.tar.gz
+# Locally computed sha256 checksums
+sha256	6a70a4bf6b010016d59a64b8ae4ad8dc7f5ef16f1fb453cc2ecd771c5a341131  LICENSE

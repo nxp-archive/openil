@@ -7,10 +7,15 @@
 SDL_SOUND_VERSION = 1.0.3
 SDL_SOUND_SOURCE = SDL_sound-$(SDL_SOUND_VERSION).tar.gz
 SDL_SOUND_SITE = http://icculus.org/SDL_sound/downloads
-SDL_SOUND_LICENSE = LGPLv2.1+
+SDL_SOUND_LICENSE = LGPL-2.1+
 SDL_SOUND_LICENSE_FILES = COPYING
 SDL_SOUND_INSTALL_STAGING = YES
 SDL_SOUND_DEPENDENCIES = sdl
+SDL_SOUND_CONF_OPTS = \
+	--with-sdl-prefix=$(STAGING_DIR)/usr \
+	--with-sdl-exec-prefix=$(STAGING_DIR)/usr \
+	--disable-sdltest \
+	--enable-static
 
 ifneq ($(BR2_ENABLE_LOCALE),y)
 SDL_SOUND_DEPENDENCIES += libiconv
@@ -45,11 +50,12 @@ else
 SDL_SOUND_CONF_OPTS += --disable-speex
 endif
 
-SDL_SOUND_CONF_OPTS = \
-	--with-sdl-prefix=$(STAGING_DIR)/usr \
-	--with-sdl-exec-prefix=$(STAGING_DIR)/usr \
-	--disable-sdltest \
-	--enable-static
+ifeq ($(BR2_PACKAGE_PHYSFS),y)
+SDL_SOUND_CONF_OPTS += --enable-physfs
+SDL_SOUND_DEPENDENCIES += physfs
+else
+SDL_SOUND_CONF_OPTS += --disable-physfs
+endif
 
 ifeq ($(BR2_X86_CPU_HAS_MMX),y)
 SDL_SOUND_CONF_OPTS += --enable-mmx

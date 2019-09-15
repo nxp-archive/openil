@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-ZYRE_VERSION = 1d949e4bf79b694ea883c325f5813e87ddc2a687
-ZYRE_SITE = $(call github,zeromq,zyre,$(ZYRE_VERSION))
-ZYRE_LICENSE = MPLv2.0
+ZYRE_VERSION = 2.0.0
+ZYRE_SITE = $(call github,zeromq,zyre,v$(ZYRE_VERSION))
+ZYRE_LICENSE = MPL-2.0
 ZYRE_LICENSE_FILES = LICENSE
 ZYRE_INSTALL_STAGING = YES
 ZYRE_DEPENDENCIES = czmq zeromq host-pkgconf

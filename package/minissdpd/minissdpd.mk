@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-MINISSDPD_VERSION = 1.5
+MINISSDPD_VERSION = 1.5.20180223
 MINISSDPD_SITE = http://miniupnp.free.fr/files
-MINISSDPD_LICENSE = BSD-3c
+MINISSDPD_LICENSE = BSD-3-Clause
 MINISSDPD_LICENSE_FILES = LICENSE
 MINISSDPD_DEPENDENCIES = libnfnetlink
 

@@ -16,15 +16,14 @@ AMD_CATALYST_SUFFIX = $(if $(BR2_x86_64),_64)
 AMD_CATALYST_ARCH_DIR = $(@D)/arch/x86$(AMD_CATALYST_SUFFIX)
 AMD_CATALYST_LIB_SUFFIX = $(if $(BR2_x86_64),64)
 
-
 define AMD_CATALYST_EXTRACT_CMDS
-	unzip -q $(DL_DIR)/$(AMD_CATALYST_SOURCE) -d $(@D)
+	unzip -q $(AMD_CATALYST_DL_DIR)/$(AMD_CATALYST_SOURCE) -d $(@D)
 	$(SHELL) $(@D)/AMD-Catalyst-$(AMD_CATALYST_VERSION)-Linux-installer-$(AMD_CATALYST_VERBOSE_VER)-x86.x86_64.run --extract $(@D)
 endef
 
 ifeq ($(BR2_PACKAGE_AMD_CATALYST_MODULE),y)
 AMD_CATALYST_MODULE_SUBDIRS = common/lib/modules/fglrx/build_mod/2.6.x
-AMD_CATALYST_MODULE_MAKE_OPTS =  \
+AMD_CATALYST_MODULE_MAKE_OPTS = \
 	CFLAGS_MODULE="-DCOMPAT_ALLOC_USER_SPACE=arch_compat_alloc_user_space"
 
 define AMD_CATALYST_PREPARE_MODULE
@@ -102,7 +101,6 @@ define AMD_CATALYST_INSTALL_XORG
 	$(INSTALL) -D -m 0644 package/amd-catalyst/20-fglrx.conf \
 		$(TARGET_DIR)/etc/X11/xorg.conf.d/20-fglrx.conf
 
-
 	# Common files: containing binary profiles about GPUs,
 	# required by the fglrx_drv xorg driver
 	$(INSTALL) -d $(TARGET_DIR)/etc/ati
@@ -151,15 +149,6 @@ define  AMD_CATALYST_INSTALL_CMDLINE_TOOLS
 endef
 endif
 
-ifeq ($(BR2_PACKAGE_AMD_CATALYST_CCCLE), y)
-define AMD_CATALYST_INSTALL_CCCLE
-	$(INSTALL) -m 0755 $(AMD_CATALYST_ARCH_DIR)/usr/X11R6/bin/amdcccle \
-		$(TARGET_DIR)/usr/bin/amdcccle
-	$(INSTALL) -m 0755 $(AMD_CATALYST_ARCH_DIR)/usr/sbin/amdnotifyui \
-		$(TARGET_DIR)/usr/sbin/amdnotifyui
-endef
-endif
-
 define AMD_CATALYST_INSTALL_STAGING_CMDS
 	$(call AMD_CATALYST_INSTALL_STAGING_XORG)
 endef
@@ -167,7 +156,6 @@ endef
 define AMD_CATALYST_INSTALL_TARGET_CMDS
 	$(call AMD_CATALYST_INSTALL_XORG)
 	$(call AMD_CATALYST_INSTALL_CMDLINE_TOOLS)
-	$(call AMD_CATALYST_INSTALL_CCCLE)
 	$(call AMD_CATALYST_INSTALL_OPENCL)
 endef
 

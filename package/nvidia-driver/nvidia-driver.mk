@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-NVIDIA_DRIVER_VERSION = 375.20
+NVIDIA_DRIVER_VERSION = 390.67
 NVIDIA_DRIVER_SUFFIX = $(if $(BR2_x86_64),_64)
 NVIDIA_DRIVER_SITE = http://download.nvidia.com/XFree86/Linux-x86$(NVIDIA_DRIVER_SUFFIX)/$(NVIDIA_DRIVER_VERSION)
 NVIDIA_DRIVER_SOURCE = NVIDIA-Linux-x86$(NVIDIA_DRIVER_SUFFIX)-$(NVIDIA_DRIVER_VERSION).run
@@ -20,8 +20,8 @@ ifeq ($(BR2_PACKAGE_NVIDIA_DRIVER_XORG),y)
 # are build dependencies of packages that depend on nvidia-driver, so
 # they should be built prior to those packages, and the only simple
 # way to do so is to make nvidia-driver depend on them.
-NVIDIA_DRIVER_DEPENDENCIES = mesa3d-headers
-NVIDIA_DRIVER_PROVIDES = libgl libegl libgles
+NVIDIA_DRIVER_DEPENDENCIES += mesa3d-headers xlib_libX11 xlib_libXext
+NVIDIA_DRIVER_PROVIDES += libgl libegl libgles
 
 # libGL.so.$(NVIDIA_DRIVER_VERSION) is the legacy libGL.so library; it
 # has been replaced with libGL.so.1.0.0. Installing both is technically
@@ -43,33 +43,33 @@ NVIDIA_DRIVER_PROVIDES = libgl libegl libgles
 NVIDIA_DRIVER_LIBS_GL = \
 	libGLX.so.0 \
 	libGL.so.$(NVIDIA_DRIVER_VERSION) \
-	libGLX_nvidia.so.$(NVIDIA_DRIVER_VERSION) \
+	libGLX_nvidia.so.$(NVIDIA_DRIVER_VERSION)
 
 NVIDIA_DRIVER_LIBS_EGL = \
-	libEGL.so.1 \
+	libEGL.so.1.1.0 \
 	libGLdispatch.so.0 \
-	libEGL_nvidia.so.$(NVIDIA_DRIVER_VERSION) \
+	libEGL_nvidia.so.$(NVIDIA_DRIVER_VERSION)
 
 NVIDIA_DRIVER_LIBS_GLES = \
-	libGLESv1_CM.so.1 \
-	libGLESv2.so.2 \
+	libGLESv1_CM.so.1.2.0 \
+	libGLESv2.so.2.1.0 \
 	libGLESv1_CM_nvidia.so.$(NVIDIA_DRIVER_VERSION) \
-	libGLESv2_nvidia.so.$(NVIDIA_DRIVER_VERSION) \
+	libGLESv2_nvidia.so.$(NVIDIA_DRIVER_VERSION)
 
 NVIDIA_DRIVER_LIBS_MISC = \
 	libnvidia-eglcore.so.$(NVIDIA_DRIVER_VERSION) \
-	libnvidia-egl-wayland.so.$(NVIDIA_DRIVER_VERSION) \
+	libnvidia-egl-wayland.so.1.0.2 \
 	libnvidia-glcore.so.$(NVIDIA_DRIVER_VERSION) \
 	libnvidia-glsi.so.$(NVIDIA_DRIVER_VERSION) \
 	tls/libnvidia-tls.so.$(NVIDIA_DRIVER_VERSION) \
 	libvdpau_nvidia.so.$(NVIDIA_DRIVER_VERSION) \
-	libnvidia-ml.so.$(NVIDIA_DRIVER_VERSION) \
+	libnvidia-ml.so.$(NVIDIA_DRIVER_VERSION)
 
-NVIDIA_DRIVER_LIBS = \
+NVIDIA_DRIVER_LIBS += \
 	$(NVIDIA_DRIVER_LIBS_GL) \
 	$(NVIDIA_DRIVER_LIBS_EGL) \
 	$(NVIDIA_DRIVER_LIBS_GLES) \
-	$(NVIDIA_DRIVER_LIBS_MISC) \
+	$(NVIDIA_DRIVER_LIBS_MISC)
 
 # Install the gl.pc file
 define NVIDIA_DRIVER_INSTALL_GL_DEV
@@ -116,6 +116,8 @@ ifeq ($(BR2_PACKAGE_NVIDIA_DRIVER_OPENCL),y)
 NVIDIA_DRIVER_LIBS += \
 	libOpenCL.so.1.0.0 \
 	libnvidia-opencl.so.$(NVIDIA_DRIVER_VERSION)
+NVIDIA_DRIVER_DEPENDENCIES += mesa3d-headers
+NVIDIA_DRIVER_PROVIDES += libopencl
 endif
 
 # Build and install the kernel modules if needed
@@ -144,7 +146,7 @@ endif # BR2_PACKAGE_NVIDIA_DRIVER_MODULE == y
 # virtually everywhere, and it is fine enough to provide useful options.
 # Except it can't extract into an existing (even empty) directory.
 define NVIDIA_DRIVER_EXTRACT_CMDS
-	$(SHELL) $(DL_DIR)/$(NVIDIA_DRIVER_SOURCE) --extract-only --target \
+	$(SHELL) $(NVIDIA_DRIVER_DL_DIR)/$(NVIDIA_DRIVER_SOURCE) --extract-only --target \
 		$(@D)/tmp-extract
 	chmod u+w -R $(@D)
 	mv $(@D)/tmp-extract/* $(@D)/tmp-extract/.manifest $(@D)

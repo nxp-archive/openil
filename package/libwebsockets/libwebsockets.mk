@@ -4,15 +4,13 @@
 #
 ################################################################################
 
-LIBWEBSOCKETS_VERSION = v2.1.1
-LIBWEBSOCKETS_SITE = $(call github,warmcat,libwebsockets,$(LIBWEBSOCKETS_VERSION))
-LIBWEBSOCKETS_LICENSE = LGPLv2.1 with exceptions
+LIBWEBSOCKETS_VERSION = 2.4.2
+LIBWEBSOCKETS_SITE = $(call github,warmcat,libwebsockets,v$(LIBWEBSOCKETS_VERSION))
+LIBWEBSOCKETS_LICENSE = LGPL-2.1 with exceptions
 LIBWEBSOCKETS_LICENSE_FILES = LICENSE
 LIBWEBSOCKETS_DEPENDENCIES = zlib
 LIBWEBSOCKETS_INSTALL_STAGING = YES
 LIBWEBSOCKETS_CONF_OPTS = -DLWS_WITHOUT_TESTAPPS=ON -DLWS_IPV6=ON
-
-LIBWEBSOCKETS_PATCH = https://github.com/warmcat/libwebsockets/commit/f9f5a5760782b68fba190fb46d306f7c08f027c0.patch
 
 # If LWS_MAX_SMP=1, then there is no code related to pthreads compiled
 # in the library. If unset, LWS_MAX_SMP defaults to 32 and a small
@@ -35,6 +33,13 @@ LIBWEBSOCKETS_DEPENDENCIES += libev
 LIBWEBSOCKETS_CONF_OPTS += -DLWS_WITH_LIBEV=ON
 else
 LIBWEBSOCKETS_CONF_OPTS += -DLWS_WITH_LIBEV=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_LIBEVENT),y)
+LIBWEBSOCKETS_DEPENDENCIES += libevent
+LIBWEBSOCKETS_CONF_OPTS += -DLWS_WITH_LIBEVENT=ON
+else
+LIBWEBSOCKETS_CONF_OPTS += -DLWS_WITH_LIBEVENT=OFF
 endif
 
 ifeq ($(BR2_PACKAGE_LIBUV),y)

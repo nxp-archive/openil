@@ -7,12 +7,12 @@
 LIBFREEIMAGE_VERSION = 3.17.0
 LIBFREEIMAGE_SITE = http://downloads.sourceforge.net/freeimage
 LIBFREEIMAGE_SOURCE = FreeImage$(subst .,,$(LIBFREEIMAGE_VERSION)).zip
-LIBFREEIMAGE_LICENSE = GPLv2 or GPLv3 or FreeImage Public License
+LIBFREEIMAGE_LICENSE = GPL-2.0 or GPL-3.0 or FreeImage Public License
 LIBFREEIMAGE_LICENSE_FILES = license-gplv2.txt license-gplv3.txt license-fi.txt
 LIBFREEIMAGE_INSTALL_STAGING = YES
 
 define LIBFREEIMAGE_EXTRACT_CMDS
-	$(UNZIP) $(DL_DIR)/$(LIBFREEIMAGE_SOURCE) -d $(@D)
+	$(UNZIP) $(LIBFREEIMAGE_DL_DIR)/$(LIBFREEIMAGE_SOURCE) -d $(@D)
 	mv $(@D)/FreeImage/* $(@D)
 	rmdir $(@D)/FreeImage
 endef
@@ -30,4 +30,3 @@ define LIBFREEIMAGE_INSTALL_TARGET_CMDS
 endef
 
 $(eval $(generic-package))
-

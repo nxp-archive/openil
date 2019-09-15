@@ -7,73 +7,100 @@
 # The original upstream was forked to the github repository in 2014 to
 # pull fixes from other distribution and centralize the changes after
 # the upstream seemed to have gone dormant.  The fork contains the
-# latest changes including msul support, removing a libsysfs dependency
+# latest changes including musl support, removing a libsysfs dependency
 # and IPv6 updates.
 # http://www.spinics.net/lists/netdev/msg279881.html
 
-IPUTILS_VERSION = 55828d1fef3fed7f07abcbf7be9282a9662e78c7
-IPUTILS_SITE = $(call github,iputils,iputils,$(IPUTILS_VERSION))
-IPUTILS_LICENSE = GPLv2+, BSD-3c, BSD-4c
-# Only includes a license file for BSD
-IPUTILS_LICENSE_FILES = ninfod/COPYING
-
-# Build after busybox so target ends up with this package's full
-# versions of the applications instead of busybox applets.
-ifeq ($(BR2_PACKAGE_BUSYBOX),y)
-IPUTILS_DEPENDENCIES += busybox
-endif
-
-IPUTILS_MAKE_OPTS = $(TARGET_CONFIGURE_OPTS) USE_SYSFS=no USE_IDN=no\
-	CFLAGS="$(TARGET_CFLAGS) -D_GNU_SOURCE"
+IPUTILS_VERSION = 20190709
+IPUTILS_SITE = $(call github,iputils,iputils,s$(IPUTILS_VERSION))
+IPUTILS_LICENSE = GPL-2.0+, BSD-3-Clause
+IPUTILS_LICENSE_FILES = LICENSE Documentation/LICENSE.BSD3 Documentation/LICENSE.GPL2
+IPUTILS_DEPENDENCIES = $(TARGET_NLS_DEPENDENCIES)
 
 ifeq ($(BR2_PACKAGE_LIBCAP),y)
-IPUTILS_MAKE_OPTS += USE_CAP=yes
+IPUTILS_CONF_OPTS += -DUSE_CAP=true
 IPUTILS_DEPENDENCIES += libcap
 else
-IPUTILS_MAKE_OPTS += USE_CAP=no
+IPUTILS_CONF_OPTS += -DUSE_CAP=false
 endif
 
-ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
-IPUTILS_MAKE_OPTS += USE_GCRYPT=yes
-IPUTILS_DEPENDENCIES += libgcrypt
-# When gettext is enabled (BR2_PACKAGE_GETTEXT=y), and provides libintl
-# (BR2_NEEDS_GETTEXT=y), libgpg-error will link with libintl, and libgpg-error
-# is pulled in by libgcrypt. Since iputils doesn't use libtool, we have to link
-# with libintl explicitly for static linking.
-ifeq ($(BR2_STATIC_LIBS)$(BR2_NEEDS_GETTEXT)$(BR2_PACKAGE_GETTEXT),yyy)
-IPUTILS_MAKE_OPTS += ADDLIB='-lintl'
-endif
+ifeq ($(BR2_PACKAGE_LIBIDN2),y)
+IPUTILS_CONF_OPTS += -DUSE_IDN=true
+IPUTILS_DEPENDENCIES += libidn2
 else
-IPUTILS_MAKE_OPTS += USE_GCRYPT=no
+IPUTILS_CONF_OPTS += -DUSE_IDN=false
 endif
 
 ifeq ($(BR2_PACKAGE_NETTLE),y)
-IPUTILS_MAKE_OPTS += USE_NETTLE=yes
+IPUTILS_CONF_OPTS += -DUSE_CRYPTO=nettle
 IPUTILS_DEPENDENCIES += nettle
-else
-IPUTILS_MAKE_OPTS += USE_NETTLE=no
-endif
-
-ifeq ($(BR2_PACKAGE_OPENSSL),y)
-IPUTILS_MAKE_OPTS += USE_CRYPTO=yes
+else ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
+IPUTILS_CONF_OPTS += -DUSE_CRYPTO=gcrypt
+IPUTILS_DEPENDENCIES += libgcrypt
+else ifeq ($(BR2_PACKAGE_OPENSSL),y)
+IPUTILS_CONF_OPTS += -DUSE_CRYPTO=openssl
 IPUTILS_DEPENDENCIES += openssl
+else ifeq ($(BR2_PACKAGE_LINUX_HEADERS),y)
+IPUTILS_CONF_OPTS += -DUSE_CRYPTO=kernel
+IPUTILS_DEPENDENCIES += linux-headers
 else
-IPUTILS_MAKE_OPTS += USE_CRYPTO=no
+IPUTILS_CONF_OPTS += -DUSE_CRYPTO=none
+# BUILD_NINFOD=true and USE_CRYPTO=none cannot be combined
+IPUTILS_CONF_OPTS += -DBUILD_NINFOD=false
 endif
 
-define IPUTILS_BUILD_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) $(IPUTILS_MAKE_OPTS)
-endef
+# ninfod requires <pthread.h>
+ifneq ($(BR2_TOOLCHAIN_HAS_THREADS),y)
+IPUTILS_CONF_OPTS += -DBUILD_NINFOD=false
+endif
 
-define IPUTILS_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 755 $(@D)/arping      $(TARGET_DIR)/sbin/arping
-	$(INSTALL) -D -m 755 $(@D)/clockdiff   $(TARGET_DIR)/bin/clockdiff
-	$(INSTALL) -D -m 755 $(@D)/ping        $(TARGET_DIR)/bin/ping
-	$(INSTALL) -D -m 755 $(@D)/rarpd       $(TARGET_DIR)/sbin/rarpd
-	$(INSTALL) -D -m 755 $(@D)/rdisc       $(TARGET_DIR)/sbin/rdisc
-	$(INSTALL) -D -m 755 $(@D)/tftpd       $(TARGET_DIR)/usr/sbin/in.tftpd
-	$(INSTALL) -D -m 755 $(@D)/tracepath   $(TARGET_DIR)/bin/tracepath
-	$(INSTALL) -D -m 755 $(@D)/traceroute6 $(TARGET_DIR)/bin/traceroute6
-endef
+ifeq ($(BR2_SYSTEM_ENABLE_NLS),y)
+IPUTILS_CONF_OPTS += -DUSE_GETTEXT=true
+else
+IPUTILS_CONF_OPTS += -DUSE_GETTEXT=false
+endif
 
-$(eval $(generic-package))
+IPUTILS_CONF_OPTS += -DBUILD_TRACEROUTE6=true
+
+# XSL Stylesheets for DocBook 5 not packaged for buildroot
+IPUTILS_CONF_OPTS += -DBUILD_MANS=false -DBUILD_HTML_MANS=false
+
+# move iputils binaries to the same location as where Busybox installs
+# the corresponding applets, so that we have a single version of the
+# tools (from iputils)
+define IPUTILS_MOVE_BINARIES
+	mv $(TARGET_DIR)/usr/bin/arping $(TARGET_DIR)/usr/sbin/arping
+	$(if $(BR2_ROOTFS_MERGED_USR),,\
+		mv $(TARGET_DIR)/usr/bin/ping $(TARGET_DIR)/bin/ping)
+	mv $(TARGET_DIR)/usr/bin/tftpd $(TARGET_DIR)/usr/sbin/tftpd
+endef
+IPUTILS_POST_INSTALL_TARGET_HOOKS += IPUTILS_MOVE_BINARIES
+
+# upstream requires distros to create symlink
+define IPUTILS_CREATE_PING6_SYMLINK
+	ln -sf $(TARGET_DIR)/bin/ping $(TARGET_DIR)/bin/ping6
+endef
+IPUTILS_POST_INSTALL_TARGET_HOOKS += IPUTILS_CREATE_PING6_SYMLINK
+
+# handle permissions ourselves
+IPUTILS_CONF_OPTS += -DNO_SETCAP_OR_SUID=true
+ifeq ($(BR2_ROOTFS_DEVICE_TABLE_SUPPORTS_EXTENDED_ATTRIBUTES),y)
+define IPUTILS_PERMISSIONS
+	/usr/sbin/arping      f 755 0 0 - - - - -
+	/usr/bin/clockdiff    f 755 0 0 - - - - -
+	|xattr cap_net_raw+p
+	/bin/ping             f 755 0 0 - - - - -
+	|xattr cap_net_raw+p
+	/usr/bin/traceroute6  f 755 0 0 - - - - -
+	|xattr cap_net_raw+p
+endef
+else
+define IPUTILS_PERMISSIONS
+	/usr/sbin/arping      f  755 0 0 - - - - -
+	/usr/bin/clockdiff    f 4755 0 0 - - - - -
+	/bin/ping             f 4755 0 0 - - - - -
+	/usr/bin/traceroute6  f 4755 0 0 - - - - -
+endef
+endif
+
+$(eval $(meson-package))

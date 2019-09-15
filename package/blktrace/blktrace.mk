@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-BLKTRACE_VERSION = 1.1.0
+BLKTRACE_VERSION = 1.2.0
 BLKTRACE_SITE = http://brick.kernel.dk/snaps
 BLKTRACE_DEPENDENCIES = libaio
-BLKTRACE_LICENSE = GPLv2+
+BLKTRACE_LICENSE = GPL-2.0+
 BLKTRACE_LICENSE_FILES = COPYING
 
 define BLKTRACE_BUILD_CMDS

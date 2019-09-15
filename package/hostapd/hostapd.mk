@@ -4,44 +4,57 @@
 #
 ################################################################################
 
-HOSTAPD_VERSION = 2.6
-HOSTAPD_SITE = http://hostap.epitest.fi/releases
+HOSTAPD_VERSION = 2.9
+HOSTAPD_SITE = http://w1.fi/releases
 HOSTAPD_SUBDIR = hostapd
 HOSTAPD_CONFIG = $(HOSTAPD_DIR)/$(HOSTAPD_SUBDIR)/.config
-HOSTAPD_DEPENDENCIES = host-pkgconf libnl
-HOSTAPD_CFLAGS = $(TARGET_CFLAGS) -I$(STAGING_DIR)/usr/include/libnl3/
-HOSTAPD_LICENSE = BSD-3c
+HOSTAPD_DEPENDENCIES = host-pkgconf
+HOSTAPD_CFLAGS = $(TARGET_CFLAGS)
+HOSTAPD_LICENSE = BSD-3-Clause
 HOSTAPD_LICENSE_FILES = README
 HOSTAPD_CONFIG_SET =
 
 HOSTAPD_CONFIG_ENABLE = \
-	CONFIG_FULL_DYNAMIC_VLAN \
-	CONFIG_HS20 \
-	CONFIG_IEEE80211AC \
-	CONFIG_IEEE80211N \
-	CONFIG_IEEE80211R \
 	CONFIG_INTERNAL_LIBTOMMATH \
-	CONFIG_INTERWORKING \
-	CONFIG_LIBNL32 \
-	CONFIG_VLAN_NETLINK
+	CONFIG_DEBUG_FILE \
+	CONFIG_DEBUG_SYSLOG
 
 HOSTAPD_CONFIG_DISABLE =
 
-# libnl-3 needs -lm (for rint) and -lpthread if linking statically
-# And library order matters hence stick -lnl-3 first since it's appended
-# in the hostapd Makefiles as in LIBS+=-lnl-3 ... thus failing
-ifeq ($(BR2_STATIC_LIBS),y)
-HOSTAPD_LIBS += -lnl-3 -lm -lpthread
-endif
-
 # Try to use openssl if it's already available
-ifeq ($(BR2_PACKAGE_OPENSSL),y)
-HOSTAPD_DEPENDENCIES += openssl
-HOSTAPD_LIBS += $(if $(BR2_STATIC_LIBS),-lcrypto -lz)
+ifeq ($(BR2_PACKAGE_LIBOPENSSL),y)
+HOSTAPD_DEPENDENCIES += host-pkgconf libopenssl
+HOSTAPD_LIBS += `$(PKG_CONFIG_HOST_BINARY) --libs openssl`
 HOSTAPD_CONFIG_EDITS += 's/\#\(CONFIG_TLS=openssl\)/\1/'
 else
 HOSTAPD_CONFIG_DISABLE += CONFIG_EAP_PWD
 HOSTAPD_CONFIG_EDITS += 's/\#\(CONFIG_TLS=\).*/\1internal/'
+endif
+
+ifeq ($(BR2_PACKAGE_HOSTAPD_DRIVER_HOSTAP),)
+HOSTAPD_CONFIG_DISABLE += CONFIG_DRIVER_HOSTAP
+endif
+
+ifeq ($(BR2_PACKAGE_HOSTAPD_DRIVER_NL80211),)
+HOSTAPD_CONFIG_DISABLE += CONFIG_DRIVER_NL80211
+endif
+
+ifeq ($(BR2_PACKAGE_HOSTAPD_DRIVER_WIRED),y)
+HOSTAPD_CONFIG_ENABLE += CONFIG_DRIVER_WIRED
+endif
+
+ifeq ($(BR2_PACKAGE_HOSTAPD_DRIVER_NONE),y)
+HOSTAPD_CONFIG_ENABLE += CONFIG_DRIVER_NONE
+endif
+
+# Add options for wireless drivers
+ifeq ($(BR2_PACKAGE_HOSTAPD_HAS_WIFI_DRIVERS),y)
+HOSTAPD_CONFIG_ENABLE += \
+	CONFIG_HS20 \
+	CONFIG_IEEE80211AC \
+	CONFIG_IEEE80211N \
+	CONFIG_IEEE80211R \
+	CONFIG_INTERWORKING
 endif
 
 ifeq ($(BR2_PACKAGE_HOSTAPD_ACS),y)
@@ -51,7 +64,7 @@ endif
 ifeq ($(BR2_PACKAGE_HOSTAPD_EAP),y)
 HOSTAPD_CONFIG_ENABLE += \
 	CONFIG_EAP \
-	CONFIG_RADIUS_SERVER \
+	CONFIG_RADIUS_SERVER
 
 # Enable both TLS v1.1 (CONFIG_TLSV11) and v1.2 (CONFIG_TLSV12)
 HOSTAPD_CONFIG_ENABLE += CONFIG_TLSV1
@@ -64,6 +77,31 @@ endif
 
 ifeq ($(BR2_PACKAGE_HOSTAPD_WPS),y)
 HOSTAPD_CONFIG_ENABLE += CONFIG_WPS
+endif
+
+ifeq ($(BR2_PACKAGE_HOSTAPD_VLAN),)
+HOSTAPD_CONFIG_ENABLE += CONFIG_NO_VLAN
+endif
+
+ifeq ($(BR2_PACKAGE_HOSTAPD_VLAN_DYNAMIC),y)
+HOSTAPD_CONFIG_ENABLE += CONFIG_FULL_DYNAMIC_VLAN
+endif
+
+ifeq ($(BR2_PACKAGE_HOSTAPD_VLAN_NETLINK),y)
+HOSTAPD_CONFIG_ENABLE += CONFIG_VLAN_NETLINK
+endif
+
+# Options for building with libnl
+ifeq ($(BR2_PACKAGE_LIBNL),y)
+HOSTAPD_DEPENDENCIES += libnl
+HOSTAPD_CFLAGS += -I$(STAGING_DIR)/usr/include/libnl3/
+HOSTAPD_CONFIG_ENABLE += CONFIG_LIBNL32
+# libnl-3 needs -lm (for rint) and -lpthread if linking statically
+# And library order matters hence stick -lnl-3 first since it's appended
+# in the hostapd Makefiles as in LIBS+=-lnl-3 ... thus failing
+ifeq ($(BR2_STATIC_LIBS),y)
+HOSTAPD_LIBS += -lnl-3 -lm -lpthread
+endif
 endif
 
 define HOSTAPD_CONFIGURE_CMDS

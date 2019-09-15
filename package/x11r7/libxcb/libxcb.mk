@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBXCB_VERSION = 1.12
+LIBXCB_VERSION = 1.13.1
 LIBXCB_SOURCE = libxcb-$(LIBXCB_VERSION).tar.bz2
 LIBXCB_SITE = http://xcb.freedesktop.org/dist
 LIBXCB_LICENSE = MIT
@@ -23,8 +23,8 @@ LIBXCB_CONF_OPTS = --with-doxygen=no
 HOST_LIBXCB_CONF_OPTS = --with-doxygen=no
 
 # libxcb is not python3 friendly, so force the python interpreter
-HOST_LIBXCB_CONF_OPTS += ac_cv_path_PYTHON=$(HOST_DIR)/usr/bin/python2
-LIBXCB_CONF_OPTS += ac_cv_path_PYTHON=$(HOST_DIR)/usr/bin/python2
+HOST_LIBXCB_CONF_OPTS += ac_cv_path_PYTHON=$(HOST_DIR)/bin/python2
+LIBXCB_CONF_OPTS += ac_cv_path_PYTHON=$(HOST_DIR)/bin/python2
 
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))

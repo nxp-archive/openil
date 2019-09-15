@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-KTAP_VERSION = eb66d40310c93dc82bc8eac889744c1ed1f01f7b
+KTAP_VERSION = 23bc7a4a94bd9e4e1b8b7c06632e61c041d57b5f
 KTAP_SITE = $(call github,ktap,ktap,$(KTAP_VERSION))
-KTAP_LICENSE = GPLv2
+KTAP_LICENSE = GPL-2.0
 KTAP_LICENSE_FILES = LICENSE-GPL
 
 ifeq ($(BR2_PACKAGE_ELFUTILS),y)

@@ -4,13 +4,13 @@
 #
 ################################################################################
 
-NCURSES_VERSION = 5.9
+NCURSES_VERSION = 6.1
 NCURSES_SITE = $(BR2_GNU_MIRROR)/ncurses
 NCURSES_INSTALL_STAGING = YES
 NCURSES_DEPENDENCIES = host-ncurses
 NCURSES_LICENSE = MIT with advertising clause
 NCURSES_LICENSE_FILES = README
-NCURSES_CONFIG_SCRIPTS = ncurses$(NCURSES_LIB_SUFFIX)$(NCURSES_ABI_VERSION)-config
+NCURSES_CONFIG_SCRIPTS = ncurses$(NCURSES_LIB_SUFFIX)6-config
 
 NCURSES_CONF_OPTS = \
 	--without-cxx \
@@ -25,6 +25,8 @@ NCURSES_CONF_OPTS = \
 	--enable-const \
 	--enable-overwrite \
 	--enable-pc-files \
+	--disable-stripping \
+	--with-pkg-config-libdir="/usr/lib/pkgconfig" \
 	$(if $(BR2_PACKAGE_NCURSES_TARGET_PROGS),,--without-progs) \
 	--without-manpages
 
@@ -49,6 +51,7 @@ NCURSES_TERMINFO_FILES = \
 	d/dumb \
 	l/linux \
 	p/putty \
+	p/putty-256color \
 	p/putty-vt100 \
 	s/screen \
 	s/screen-256color \
@@ -58,8 +61,11 @@ NCURSES_TERMINFO_FILES = \
 	v/vt200 \
 	v/vt220 \
 	x/xterm \
+	x/xterm+256color \
+	x/xterm-256color \
 	x/xterm-color \
 	x/xterm-xfree86 \
+	$(call qstrip,$(BR2_PACKAGE_NCURSES_ADDITIONAL_TERMINFO))
 
 ifeq ($(BR2_PACKAGE_NCURSES_WCHAR),y)
 NCURSES_CONF_OPTS += --enable-widec
@@ -96,17 +102,10 @@ NCURSES_LINK_STAGING_LIBS = \
 NCURSES_LINK_STAGING_PC = $(call NCURSES_LINK_PC)
 
 NCURSES_CONF_OPTS += --enable-ext-colors
-NCURSES_ABI_VERSION = 6
-NCURSES_TERMINFO_FILES += \
-	p/putty-256color \
-	x/xterm+256color \
-	x/xterm-256color
 
 NCURSES_POST_INSTALL_STAGING_HOOKS += NCURSES_LINK_STAGING_LIBS
 NCURSES_POST_INSTALL_STAGING_HOOKS += NCURSES_LINK_STAGING_PC
 
-else # BR2_PACKAGE_NCURSES_WCHAR
-NCURSES_ABI_VERSION = 5
 endif # BR2_PACKAGE_NCURSES_WCHAR
 
 ifneq ($(BR2_ENABLE_DEBUG),y)
@@ -154,6 +153,8 @@ HOST_NCURSES_CONF_OPTS = \
 	--without-cxx \
 	--without-cxx-binding \
 	--without-ada \
+	--with-default-terminfo-dir=/usr/share/terminfo \
+	--disable-db-install \
 	--without-normal
 
 $(eval $(autotools-package))

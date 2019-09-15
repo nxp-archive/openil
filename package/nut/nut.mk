@@ -7,12 +7,15 @@
 NUT_VERSION_MAJOR = 2.7
 NUT_VERSION = $(NUT_VERSION_MAJOR).4
 NUT_SITE = http://www.networkupstools.org/source/$(NUT_VERSION_MAJOR)
-NUT_LICENSE = GPLv2+, GPLv3+ (python scripts), GPL/Artistic (perl client)
+NUT_LICENSE = GPL-2.0+, GPL-3.0+ (python scripts), GPL/Artistic (perl client)
 NUT_LICENSE_FILES = COPYING LICENSE-GPL2 LICENSE-GPL3
 NUT_DEPENDENCIES = host-pkgconf
 
 # Our patch changes m4 macros, so we need to autoreconf
 NUT_AUTORECONF = YES
+
+# Race condition in tools generation
+NUT_MAKE = $(MAKE1)
 
 # Put the PID files in a read-write place (/var/run is a tmpfs)
 # since the default location (/var/state/ups) maybe readonly.

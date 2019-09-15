@@ -1,14 +1,12 @@
-comment "alsa-utils needs a toolchain w/ threads, dynamic library"
+comment "alsa-utils needs a toolchain w/ threads"
 	depends on BR2_USE_MMU # fork
-	depends on !BR2_TOOLCHAIN_HAS_THREADS || BR2_STATIC_LIBS
+	depends on !BR2_TOOLCHAIN_HAS_THREADS
 
 menuconfig BR2_PACKAGE_ALSA_UTILS
 	bool "alsa-utils"
 	depends on BR2_USE_MMU # fork
 	depends on BR2_TOOLCHAIN_HAS_THREADS # alsa-lib
-	depends on !BR2_STATIC_LIBS # uses dlfcn.h
 	select BR2_PACKAGE_ALSA_LIB
-	select BR2_PACKAGE_GETTEXT if BR2_NEEDS_GETTEXT_IF_LOCALE
 	help
 	  This package contains the command line utilities for the ALSA
 	  project.
@@ -33,10 +31,10 @@ config BR2_PACKAGE_ALSA_UTILS_ALSALOOP
 
 config BR2_PACKAGE_ALSA_UTILS_ALSAMIXER
 	bool "alsamixer"
+	default y
+	depends on BR2_USE_WCHAR
 	select BR2_PACKAGE_NCURSES
 	select BR2_PACKAGE_ALSA_LIB_MIXER
-	depends on BR2_USE_WCHAR
-	default y
 
 comment "alsamixer needs a toolchain w/ wchar"
 	depends on !BR2_USE_WCHAR
@@ -50,7 +48,6 @@ config BR2_PACKAGE_ALSA_UTILS_ALSATPLG
 config BR2_PACKAGE_ALSA_UTILS_AMIDI
 	bool "amidi"
 	select BR2_PACKAGE_ALSA_LIB_RAWMIDI
-	select BR2_PACKAGE_ALSA_LIB_SEQ
 
 config BR2_PACKAGE_ALSA_UTILS_AMIXER
 	bool "amixer"
@@ -78,7 +75,13 @@ config BR2_PACKAGE_ALSA_UTILS_ASEQNET
 
 config BR2_PACKAGE_ALSA_UTILS_BAT
 	bool "bat"
-	select BR2_PACKAGE_FFTW
+	help
+	  ALSABAT (ALSA Basic Audio Tester) is a simple command-line
+	  utility intended to help automate audio driver and sound
+	  server testing with little human interaction.
+
+	  Note that analysis support in alsabat requires fftw single
+	  precision.
 
 config BR2_PACKAGE_ALSA_UTILS_IECSET
 	bool "iecset"

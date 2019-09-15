@@ -4,14 +4,19 @@
 #
 ################################################################################
 
-UCLIBC_NG_TEST_VERSION = c9b9876cefc142a23aa622b821290ed16af80058
+UCLIBC_NG_TEST_VERSION = c6d62cbc60504c7f6867b486248b0ef7cc2da554
 UCLIBC_NG_TEST_SITE = git://uclibc-ng.org/git/uclibc-ng-test
-UCLIBC_NG_TEST_LICENSE = LGPLv2.1+
+UCLIBC_NG_TEST_LICENSE = LGPL-2.1+
 UCLIBC_NG_TEST_LICENSE_FILES = COPYING.LIB
 
 # the math tests are recently synced from glibc and need more adaption before
 # regular testing is possible
 UCLIBC_NG_TEST_MAKE_ENV += NO_MATH=1
+
+# obsolete encrypt and setkey functions are not available since glibc 2.28
+ifeq ($(BR2_TOOLCHAIN_USES_GLIBC),y)
+UCLIBC_NG_TEST_MAKE_ENV += NO_CRYPT=1
+endif
 
 # locale tests are not compatible with musl, yet
 ifeq ($(BR2_TOOLCHAIN_USES_MUSL),y)
@@ -48,7 +53,7 @@ define UCLIBC_NG_TEST_BUILD_CMDS
 endef
 
 define UCLIBC_NG_TEST_INSTALL_TARGET_CMDS
-        $(TARGET_MAKE_ENV) $(MAKE) -C $(@D) DESTDIR="$(TARGET_DIR)" install
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) DESTDIR="$(TARGET_DIR)" install
 endef
 
 $(eval $(generic-package))

@@ -1,1 +1,6 @@
-sha256 30fbfb4f90ed8805194b39683a8a2ed465776ffd60df4482bd029d63b316b3f1 sngrep-v1.4.2.tar.gz
+# From https://github.com/irontec/sngrep/releases/download/v1.4.6/sngrep-1.4.6.tar.gz.md5sum
+md5 094e76786b118258bac69e1514aac826  sngrep-1.4.6.tar.gz
+
+# Locally computed
+sha256 638d6557dc68db401b07d73b2e7f8276800281f021fe0c942992566d6b59a48a sngrep-1.4.6.tar.gz
+sha256 8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903 LICENSE

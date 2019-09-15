@@ -1,4 +1,5 @@
-# md5 from https://pypi.python.org/pypi/python-engineio/json
-md5	9b0075dbbb25d7a302eba99dd9ba4af8  python-engineio-0.9.2.tar.gz
-# sha256 calculated by scanpypi
-sha256	c53282415ed9bc3cb4e7beafb2a1ce5c369af95dcf8f968061e5bc7572b60867  python-engineio-0.9.2.tar.gz
+# md5, sha256 from https://pypi.org/pypi/python-engineio/json
+md5	11a4f18f5b08a36d07d3c0ff85e7c047  python-engineio-3.9.3.tar.gz
+sha256	2a4c874aea686e79f8ea9efc30748110df581df6d577d18bb5eaa1a8f2199d12  python-engineio-3.9.3.tar.gz
+# Locally computed sha256 checksums
+sha256	c9e97d3dbc1fbbcdb4f7808b282cd646db887aff4f5313fe6bbe8d4c31405a9c  LICENSE

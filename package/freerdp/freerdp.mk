@@ -4,8 +4,7 @@
 #
 ################################################################################
 
-# Changeset on the master branch
-FREERDP_VERSION = 17834af7bb378f85a3b3cc4dcadaa5125a337e16
+FREERDP_VERSION = 2.0.0-rc4
 FREERDP_SITE = $(call github,FreeRDP,FreeRDP,$(FREERDP_VERSION))
 FREERDP_DEPENDENCIES = libglib2 openssl zlib
 FREERDP_LICENSE = Apache-2.0
@@ -17,7 +16,7 @@ FREERDP_CONF_OPTS = -DWITH_MANPAGES=OFF -Wno-dev
 
 ifeq ($(BR2_PACKAGE_FREERDP_GSTREAMER),y)
 FREERDP_CONF_OPTS += -DWITH_GSTREAMER_0_10=ON
-FREERDP_DEPENDENCIES += gstreamer gst-plugins-base libxml2 host-pkgconf
+FREERDP_DEPENDENCIES += gstreamer gst-plugins-base libxml2
 else
 FREERDP_CONF_OPTS += -DWITH_GSTREAMER_0_10=OFF
 endif
@@ -57,6 +56,14 @@ else
 FREERDP_CONF_OPTS += -DWITH_PULSEAUDIO=OFF
 endif
 
+# For the systemd journal
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+FREERDP_CONF_OPTS += -DWITH_LIBSYSTEMD=ON
+FREERDP_DEPENDENCIES += systemd
+else
+FREERDP_CONF_OPTS += -DWITH_LIBSYSTEMD=OFF
+endif
+
 ifeq ($(BR2_ARM_CPU_HAS_NEON),y)
 FREERDP_CONF_OPTS += -DWITH_NEON=ON
 else
@@ -70,7 +77,7 @@ FREERDP_CONF_OPTS += -DWITH_SSE2=OFF
 endif
 
 ifeq ($(BR2_arm)$(BR2_armeb),y)
-FREERDP_CONF_OPTS += -DARM_FP_ABI=$(call qstrip,$(BR2_GCC_TARGET_FLOAT_ABI))
+FREERDP_CONF_OPTS += -DARM_FP_ABI=$(GCC_TARGET_FLOAT_ABI)
 endif
 
 #---------------------------------------
@@ -191,9 +198,11 @@ else
 FREERDP_CONF_OPTS += -DWITH_XV=OFF
 endif
 
-ifeq ($(BR2_PACKAGE_WAYLAND),y)
-FREERDP_DEPENDENCIES += wayland
-FREERDP_CONF_OPTS += -DWITH_WAYLAND=ON
+ifeq ($(BR2_PACKAGE_FREERDP_CLIENT_WL),y)
+FREERDP_DEPENDENCIES += wayland libxkbcommon
+FREERDP_CONF_OPTS += \
+	-DWITH_WAYLAND=ON \
+	-DWAYLAND_SCANNER=$(HOST_DIR)/bin/wayland-scanner
 else
 FREERDP_CONF_OPTS += -DWITH_WAYLAND=OFF
 endif

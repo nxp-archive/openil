@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-PCIUTILS_VERSION = 3.5.2
+PCIUTILS_VERSION = 3.5.5
 PCIUTILS_SITE = $(BR2_KERNEL_MIRROR)/software/utils/pciutils
 PCIUTILS_SOURCE = pciutils-$(PCIUTILS_VERSION).tar.xz
 PCIUTILS_INSTALL_STAGING = YES
-PCIUTILS_LICENSE = GPLv2+
+PCIUTILS_LICENSE = GPL-2.0+
 PCIUTILS_LICENSE_FILES = COPYING
 PCIUTILS_MAKE_OPTS = \
 	CC="$(TARGET_CC)" \
@@ -44,11 +44,6 @@ ifeq ($(BR2_STATIC_LIBS),y)
 PCIUTILS_MAKE_OPTS += SHARED=no
 else
 PCIUTILS_MAKE_OPTS += SHARED=yes
-endif
-
-# Build after busybox since it's got a lightweight lspci
-ifeq ($(BR2_PACKAGE_BUSYBOX),y)
-PCIUTILS_DEPENDENCIES += busybox
 endif
 
 define PCIUTILS_CONFIGURE_CMDS

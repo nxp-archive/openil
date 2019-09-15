@@ -1,3 +1,5 @@
-# md5 from https://pypi.python.org/pypi/py-ubjson/json, sha256 locally computed
-md5	09584b02508451a8133095c3b5f2bf41  py-ubjson-0.8.5.tar.gz
-sha256	e58e99753aaff3ed5d884989a6236bd98a4b0dfdb0e62f9753c20f485691fa9e  py-ubjson-0.8.5.tar.gz
+# md5, sha256 from https://pypi.org/pypi/py-ubjson/json
+md5	5dbbecd3dbecd744e45f27f14e2da5e1  py-ubjson-0.12.0.tar.gz
+sha256	b796cb5077a06c932f0d148f4eef4ce0f045a05cb14393177a6d034be9f8e364  py-ubjson-0.12.0.tar.gz
+# Locally computed sha256 checksums
+sha256	ca182abcb84ad9984c9af2e30cb70c4fe0e1772674355207e8fcdb85e8c5e75f  LICENSE

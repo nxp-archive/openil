@@ -510,7 +510,7 @@ int main(int argc, char **argv)
 
 		linenum++;
 
-		if (1 == sscanf(line, "|xattr %254s", xattr)) {
+		if (1 == sscanf(line, " |xattr %254s", xattr)) {
 #ifdef EXTENDED_ATTRIBUTES
 			if (!full_name)
 				bb_error_msg_and_die("line %d should be after a file\n", linenum);
@@ -570,9 +570,12 @@ int main(int argc, char **argv)
 				ret = EXIT_FAILURE;
 				goto loop;
 			}
-		} else if (type == 'f') {
+		} else if (type == 'f' || type == 'F') {
 			struct stat st;
 			if ((stat(full_name, &st) < 0 || !S_ISREG(st.st_mode))) {
+				if (type == 'F') {
+					continue; /*Ignore optional files*/
+				}
 				bb_perror_msg("line %d: regular file '%s' does not exist", linenum, full_name);
 				ret = EXIT_FAILURE;
 				goto loop;
