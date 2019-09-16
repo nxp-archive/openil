@@ -1,0 +1,13 @@
+config BR2_PACKAGE_IPROUTE2_NEXT
+	bool "iproute2-next"
+	depends on !BR2_PACKAGE_IPROUTE2
+	depends on BR2_USE_MMU # fork()
+	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_4 # __kernel_{u,}long_t
+	help
+	  David Ahern's -next iproute2 tree
+
+	  https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/
+
+comment "iproute2-next needs a toolchain w/ headers >= 3.4"
+	depends on BR2_USE_MMU
+	depends on !BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_4

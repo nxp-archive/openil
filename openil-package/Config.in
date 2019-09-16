@@ -1,5 +1,8 @@
 menu "OpenIL additions"
 
+menu "Networking tools"
+	source "openil-package/iproute2-next/Config.in"
+endmenu
 menu "Edge-scale service"
 	source "openil-package/qoriq-edgescale-eds/Config.in"
 	source "openil-package/qoriq-eds-kubelet/Config.in"
