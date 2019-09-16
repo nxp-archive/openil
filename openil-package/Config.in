@@ -21,6 +21,7 @@ menu "Time-Sensitive Networking tools"
 	source "openil-package/tsntool/Config.in"
 endmenu
 menu "OPC UA tools"
+	source "openil-package/ua-nodeset/Config.in"
 	source "openil-package/libopen62541/Config.in"
 	source "openil-package/opc-motor-status/Config.in"
 endmenu

@@ -1,0 +1,72 @@
+From fa69b9ec6daf5f979042908cda885674f1435232 Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <olteanv@gmail.com>
+Date: Tue, 17 Sep 2019 00:30:49 +0300
+Subject: [PATCH] Allow customization of the ua-nodeset dependency path
+
+Some build systems simply can't do a git clone with submodules, as
+open62541 currently requires. So simply allow builders to specify
+UA_NODESET_DIR as the absolute (or relative) path to the ua-nodeset
+project.
+
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+---
+Submitted upstream:
+https://github.com/open62541/open62541/pull/3110
+
+Also see:
+https://github.com/open62541/open62541/issues/3109
+
+ CMakeLists.txt | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7c0461ada979..09b0e1c2d444 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -15,7 +15,11 @@ include(GNUInstallDirs)
+ 
+ # Set when installed via make install
+ set(open62541_TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools)
+-set(open62541_NODESET_DIR ${PROJECT_SOURCE_DIR}/deps/ua-nodeset)
++if(NOT UA_NODESET_DIR)
++    set(open62541_NODESET_DIR ${PROJECT_SOURCE_DIR}/deps/ua-nodeset)
++else()
++    set(open62541_NODESET_DIR ${UA_NODESET_DIR})
++endif()
+ 
+ include(macros_internal)
+ include(macros_public)
+@@ -789,7 +793,7 @@ set(UA_FILE_NODESETS)
+ 
+ if(UA_NAMESPACE_ZERO STREQUAL "FULL")
+     if(NOT UA_FILE_NS0)
+-        set(UA_FILE_NS0 ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/Schema/Opc.Ua.NodeSet2.xml)
++        set(UA_FILE_NS0 ${open62541_NODESET_DIR}/Schema/Opc.Ua.NodeSet2.xml)
+     endif()
+     set(UA_FILE_NODESETS "${UA_FILE_NS0}")
+ 
+@@ -798,9 +802,9 @@ if(UA_NAMESPACE_ZERO STREQUAL "FULL")
+     endif()
+ 
+ 
+-    set(UA_FILE_NODEIDS ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/Schema/NodeIds.csv)
+-    set(UA_FILE_STATUSCODES ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/Schema/StatusCode.csv)
+-    set(UA_FILE_TYPES_BSD ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/Schema/Opc.Ua.Types.bsd)
++    set(UA_FILE_NODEIDS ${open62541_NODESET_DIR}/Schema/NodeIds.csv)
++    set(UA_FILE_STATUSCODES ${open62541_NODESET_DIR}/Schema/StatusCode.csv)
++    set(UA_FILE_TYPES_BSD ${open62541_NODESET_DIR}/Schema/Opc.Ua.Types.bsd)
+ else()
+     if(NOT UA_FILE_NS0)
+         set(UA_FILE_NS0 ${PROJECT_SOURCE_DIR}/tools/schema/Opc.Ua.NodeSet2.Minimal.xml)
+@@ -1224,7 +1228,7 @@ endif()
+ set(UA_install_tools_dirs "tools/certs"
+     "tools/nodeset_compiler"
+     "tools/schema"
+-    "deps/ua-nodeset")
++    ${open62541_NODESET_DIR})
+ 
+ set(UA_install_tools_files "tools/generate_datatypes.py"
+     "tools/generate_nodeid_header.py"
+-- 
+2.17.1
+

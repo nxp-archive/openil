@@ -1,0 +1,11 @@
+config BR2_PACKAGE_UA_NODESET
+	bool "ua-nodeset"
+	help
+	  OPC UA NodeSets and Other Supporting Files
+
+	  This repository contains UANodeSets and other normative files which
+	  are released with a specification. Any change to a specification
+	  (release of a new version or errata) may require a change to the
+	  files in this repository.
+
+	  https://github.com/OPCFoundation/UA-Nodeset

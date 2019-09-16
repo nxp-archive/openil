@@ -1,5 +1,6 @@
 config BR2_PACKAGE_LIBOPEN62541
 	bool "libopen62541"
+	select BR2_PACKAGE_UA_NODESET
 	help
 	  open62541 is an open source and free implementation of OPC UA (OPC
 	  Unified Architecture). open62541 is a C-based library (linking with
