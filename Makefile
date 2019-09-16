@@ -93,6 +93,7 @@ all:
 
 # Set and export the version string
 export BR2_VERSION := 2019.11-git
+export BR2_OPENIL_VERSION := 1.6
 # Actual time the release is cut (for reproducible builds)
 BR2_VERSION_EPOCH = 1567371000
 
@@ -114,6 +115,7 @@ DATE := $(shell date +%Y%m%d)
 # Compute the full local version string so packages can use it as-is
 # Need to export it, so it can be got from environment in children (eg. mconf)
 export BR2_VERSION_FULL := $(BR2_VERSION)$(shell $(TOPDIR)/support/scripts/setlocalversion)
+export BR2_OPENIL_VERSION_FULL := $(BR2_OPENIL_VERSION)$(shell $(TOPDIR)/support/scripts/setlocalversion)
 
 # List of targets and target patterns for which .config doesn't need to be read in
 noconfig_targets := menuconfig nconfig gconfig xconfig config oldconfig randconfig \
@@ -770,11 +772,11 @@ endif
 		{ echo "ERROR: we shouldn't have a /etc/ld.so.conf.d directory"; exit 1; } || true
 	mkdir -p $(TARGET_DIR)/etc
 	( \
-		echo "NAME=Buildroot"; \
-		echo "VERSION=$(BR2_VERSION_FULL)"; \
-		echo "ID=buildroot"; \
-		echo "VERSION_ID=$(BR2_VERSION)"; \
-		echo "PRETTY_NAME=\"Buildroot $(BR2_VERSION)\"" \
+		echo "NAME=OpenIL"; \
+		echo "VERSION=$(BR2_OPENIL_VERSION_FULL)"; \
+		echo "ID=OpenIL"; \
+		echo "VERSION_ID=$(BR2_OPENIL_VERSION)"; \
+		echo "PRETTY_NAME=\"OpenIL $(BR2_OPENIL_VERSION)\"" \
 	) >  $(TARGET_DIR)/usr/lib/os-release
 	ln -sf ../usr/lib/os-release $(TARGET_DIR)/etc
 
@@ -1171,7 +1173,7 @@ list-defconfigs:
 		$(call list-defconfigs,$(BR2_EXTERNAL_$(name)_PATH),\
 			$(BR2_EXTERNAL_$(name)_DESC))$(sep))
 
-release: OUT = buildroot-$(BR2_VERSION)
+release: OUT = OpenIL-$(BR2_OPENIL_VERSION)
 
 # Create release tarballs. We need to fiddle a bit to add the generated
 # documentation to the git output
@@ -1185,7 +1187,7 @@ release:
 	rm -rf $(OUT) $(OUT).tar
 
 print-version:
-	@echo $(BR2_VERSION_FULL)
+	@echo $(BR2_OPENIL_VERSION_FULL)
 
 check-package:
 	find $(TOPDIR) -type f \( -name '*.mk' -o -name '*.hash' -o -name 'Config.*' \) \
