@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-NETOPEER_VERSION = master 
-NETOPEER_SITE = https://github.com/CESNET/netopeer.git 
+NETOPEER_VERSION = ead52915c138 # DOC update README - deprecate Netopeer and advice to move to Netopeer2
+NETOPEER_SITE = https://github.com/CESNET/netopeer.git
 NETOPEER_SITE_METHOD = git
 NETOPEER_LICENSE = MIT
 NETOPEER_LICENSE_FILES = COPYING
