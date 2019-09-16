@@ -1,0 +1,5 @@
+[Match]
+Name=eth2
+
+[Network]
+LinkLocalAddressing=yes
