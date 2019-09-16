@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBNETCONF_VERSION = master
+LIBNETCONF_VERSION = 313fdadd1542 # Merge pull request #280 from adamjrichter/master
 LIBNETCONF_SITE = https://github.com/CESNET/libnetconf.git
 LIBNETCONF_SITE_METHOD = git
 LIBNETCONF_INSTALL_STAGING = YES
