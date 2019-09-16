@@ -12,6 +12,9 @@ image boot.vfat {
     files = {
       %FILES%
     }
+    file extlinux/extlinux.conf {
+      image = "extlinux.conf"
+    }
   }
   size = 256MB
 }
