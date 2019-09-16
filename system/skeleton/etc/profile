@@ -19,3 +19,5 @@ for i in /etc/profile.d/*.sh ; do
 	fi
 done
 unset i
+
+busybox resize
