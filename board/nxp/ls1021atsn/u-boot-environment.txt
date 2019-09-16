@@ -1,23 +1,64 @@
+arch=arm
 baudrate=115200
-bootcmd=setenv bootargs root=/dev/mmcblk0p2 rootwait rw console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 ${fdtaddr} ${fdtfile};bootm ${loadaddr} - ${fdtaddr}
+board=ls1021atsn
+board_name=ls1021atsn
+boot_a_script=load ${devtype} ${devnum}:${distro_bootpart} ${scriptaddr} ${prefix}${script}; env exists secureboot && load ${devtype} ${devnum}:${distro_bootpart} ${scripthdraddr} ${prefix}${boot_script_hdr} && esbc_validate ${scripthdraddr};source ${scriptaddr}
+boot_efi_binary=if fdt addr ${fdt_addr_r}; then bootefi bootmgr ${fdt_addr_r};else bootefi bootmgr ${fdtcontroladdr};fi;load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} efi/boot/bootarm.efi; if fdt addr ${fdt_addr_r}; then bootefi ${kernel_addr_r} ${fdt_addr_r};else bootefi ${kernel_addr_r} ${fdtcontroladdr};fi
+boot_extlinux=sysboot ${devtype} ${devnum}:${distro_bootpart} any ${scriptaddr} ${prefix}${boot_syslinux_conf}
+boot_net_pci_enum=pci enum
+boot_net_usb_start=usb start
+boot_prefixes=/ /boot/
+boot_script_dhcp=boot.scr.uimg
+boot_script_hdr=hdr_ls1021atsn_bs.out
+boot_scripts=ls1021atsn_boot.scr
+boot_syslinux_conf=extlinux/extlinux.conf
+boot_targets=mmc0 usb0 dhcp
+bootargs=root=/dev/ram0 rw console=ttyS0,115200
+bootcmd=run distro_bootcmd; run qspi_bootcmd; env exists secureboot && esbc_halt
+bootcmd_dhcp=run boot_net_usb_start; run boot_net_pci_enum; if dhcp ${scriptaddr} ${boot_script_dhcp}; then source ${scriptaddr}; fi;setenv efi_fdtfile ${fdtfile}; if test -z "${fdtfile}" -a -n "${soc}"; then setenv efi_fdtfile ${soc}-${board}${boardver}.dtb; fi; setenv efi_old_vci ${bootp_vci};setenv efi_old_arch ${bootp_arch};setenv bootp_vci PXEClient:Arch:00010:UNDI:003000;setenv bootp_arch 0xa;if dhcp ${kernel_addr_r}; then tftpboot ${fdt_addr_r} dtb/${efi_fdtfile};if fdt addr ${fdt_addr_r}; then bootefi ${kernel_addr_r} ${fdt_addr_r}; else bootefi ${kernel_addr_r} ${fdtcontroladdr};fi;fi;setenv bootp_vci ${efi_old_vci};setenv bootp_arch ${efi_old_arch};setenv efi_fdtfile;setenv efi_old_arch;setenv efi_old_vci;
+bootcmd_mmc0=devnum=0; run mmc_boot
+bootcmd_usb0=devnum=0; run usb_boot
 bootdelay=3
-bootfile=uImage
-eth1addr=00:04:9f:ef:07:07
-eth2addr=00:04:9f:ef:08:08
-ethact=eTSEC1
-ethaddr=00:04:9f:ef:06:06
-ethprime=eTSEC1
+cpu=armv7
+distro_bootcmd=scsi_need_init=; for target in ${boot_targets}; do run bootcmd_${target}; done
+efi_dtb_prefixes=/ /dtb/ /dtb/current/
+ethact=ethernet@2d10000
+ethprime=ethernet@2d10000
+fdt_addr=0x64f00000
+fdt_addr_r=0x8f000000
 fdt_high=0xffffffff
-fdtaddr=0x8f000000
-fdtcontroladdr=beeefe44
-fdtfile=ls1021a-tsn.dtb
+fdtcontroladdr=bef67ce8
+fdtheader_addr_r=0x80100000
 initrd_high=0xffffffff
-loadaddr=0x80008000
-scsidevs=0
-ramdiskaddr=0xa0000000
-ramdiskfile=rootfs.ext2.gz.uboot
-bootfile_old=uImage_old
-rollbackboot=setenv bootargs root=/dev/ram0 rootwait rw console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 $fdtaddr $fdtfile;fatload mmc 0:1 ${ramdiskaddr} ${ramdiskfile};bootm $loadaddr $ramdiskaddr $fdtaddr
-tftpboot=setenv bootargs root=/dev/ram0 rw console=ttyS0,115200; tftp $ramdiskaddr $ramdiskfile; tftp $loadaddr $bootfile; tftp $fdtaddr $fdtfile; bootm $loadaddr $ramdiskaddr $fdtaddr
-serverip=192.168.1.1
-ipaddr=192.168.1.100
+kernel_addr=0x61000000
+kernel_addr_r=0x80008000
+kernel_addr_sd=0x8000
+kernel_size=0x2800000
+kernel_size_sd=0x14000
+kernelhdr_addr_sd=0x4000
+kernelhdr_size_sd=0x10
+kernelheader_addr=0x60800000
+kernelheader_addr_r=0x80200000
+kernelheader_size=0x40000
+load_addr=0x80008000
+load_efi_dtb=load ${devtype} ${devnum}:${distro_bootpart} ${fdt_addr_r} ${prefix}${efi_fdtfile}
+mmc_boot=if mmc dev ${devnum}; then devtype=mmc; run scan_dev_for_boot_part; fi
+qspi_bootcmd=echo Trying load from qspi..;sf probe && sf read $load_addr $kernel_addr $kernel_size; env exists secureboot && sf read $kernelheader_addr_r $kernelheader_addr $kernelheader_size && esbc_validate ${kernelheader_addr_r}; bootm $load_addr#$board
+ramdisk_addr_r=0xa0000000
+scan_dev_for_boot=echo Scanning ${devtype} ${devnum}:${distro_bootpart}...; for prefix in ${boot_prefixes}; do run scan_dev_for_scripts; run scan_dev_for_extlinux; done;
+scan_dev_for_boot_part=part list ${devtype} ${devnum} devplist; env exists devplist || setenv devplist 1; for distro_bootpart in ${devplist}; do if fstype ${devtype} ${devnum}:${distro_bootpart} bootfstype; then run scan_dev_for_boot; fi; done
+scan_dev_for_efi=setenv efi_fdtfile ${fdtfile}; if test -z "${fdtfile}" -a -n "${soc}"; then setenv efi_fdtfile ${soc}-${board}${boardver}.dtb; fi; for prefix in ${efi_dtb_prefixes}; do if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}${efi_fdtfile}; then run load_efi_dtb; fi;done;if test -e ${devtype} ${devnum}:${distro_bootpart} efi/boot/bootarm.efi; then echo Found EFI removable media binary efi/boot/bootarm.efi; run boot_efi_binary; echo EFI LOAD FAILED: continuing...; fi; setenv efi_fdtfile
+scan_dev_for_extlinux=if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}${boot_syslinux_conf}; then echo Found ${prefix}${boot_syslinux_conf}; run boot_extlinux; echo SCRIPT FAILED: continuing...; fi
+scan_dev_for_scripts=for script in ${boot_scripts}; do if test -e ${devtype} ${devnum}:${distro_bootpart} ${prefix}${script}; then echo Found U-Boot script ${prefix}${script}; run boot_a_script; echo SCRIPT FAILED: continuing...; fi; done
+scriptaddr=0x80000000
+scripthdraddr=0x80080000
+scsi_boot=run scsi_init; if scsi dev ${devnum}; then devtype=scsi; run scan_dev_for_boot_part; fi
+scsi_init=if ${scsi_need_init}; then scsi_need_init=false; scsi scan; fi
+sd_bootcmd=echo Trying load from SD ..;mmcinfo && mmc read $load_addr $kernel_addr_sd $kernel_size_sd && env exists secureboot && mmc read $kernelheader_addr_r $kernelhdr_addr_sd $kernelhdr_size_sd  && esbc_validate ${kernelheader_addr_r};bootm $load_addr#$board
+sd_tftp_boot=tftp ${fdt_addr_r} ls1021atsn/ls1021a-tsn-rtc-gen2.dtb;tftp ${kernel_addr_r} ls1021atsn/uImage;setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait rw; bootm ${kernel_addr_r} - ${fdt_addr_r}
+soc=ls102xa
+stderr=serial
+stdin=serial
+stdout=serial
+usb_boot=usb start; if usb dev ${devnum}; then devtype=usb; run scan_dev_for_boot_part; fi
+vendor=freescale
