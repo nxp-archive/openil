@@ -1,0 +1,5 @@
+menu "OpenIL host utilities"
+
+	source "openil-package/cst/Config.in.host"
+
+endmenu

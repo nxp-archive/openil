@@ -1,0 +1,35 @@
+The Aliyun IoT SDK will get the "product key", "device name", "device secret"
+parameters from json file. The benefits are:
+	1. Remove the keys from source code for more secure.
+	2. One process file (.c) can get more than one devices and work on them.
+	3. The process file (.c) can handle different devices via update json file on board.
+
+To use the json file for devices, please following:
+	1. Create the json file as xxxx.json and put it in this directory.
+	   The OpenIl will copy all the .json files in this directory to
+	   /usr/sbin/ of target filesystem.
+	2. Before compilation, you should put all the xxxx.json files in the
+	   package/aliyun/device directory.
+
+There is a example case in aliyun IoT SDK source code:
+	aliyun-iot-sdk/sample/mqtt/mqtt-capture.c
+
+The below is a json file sample.
+NOTE: The "product_key", "dev_name", "dev_secret" charactors can NOT
+be modified, the json parsing function will use them to get devices.
+
+{
+	"product_key": "xxxxxxxxx",
+	"sensor-1": {
+			"dev_name": "xxxxxxxx",
+			"dev_secret": "xxxxxxxx"
+	},
+	"sensor-2": {
+			"dev_name": "xxxxxxxx",
+			"dev_secret": "xxxxxxxx"
+	},
+	"sensor-3": {
+			"dev_name": "xxxxxxxx",
+			"dev_secret": "xxxxxxxx"
+	}
+}

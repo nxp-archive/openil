@@ -532,7 +532,7 @@ ifneq ($(PACKAGE_OVERRIDE_FILE),)
 -include $(PACKAGE_OVERRIDE_FILE)
 endif
 
-include $(sort $(wildcard package/*/*.mk))
+include $(sort $(wildcard package/*/*.mk) $(wildcard openil-package/*/*.mk))
 
 include boot/common.mk
 include linux/linux.mk

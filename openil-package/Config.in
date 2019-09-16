@@ -1,0 +1,44 @@
+menu "OpenIL additions"
+
+menu "Edge-scale service"
+	source "openil-package/qoriq-edgescale-eds/Config.in"
+	source "openil-package/qoriq-eds-kubelet/Config.in"
+	source "openil-package/qoriq-eds-bootstrap/Config.in"
+endmenu
+menu "Netconf Supporting"
+	source "openil-package/pyang/Config.in"
+	source "openil-package/libnetconf/Config.in"
+	source "openil-package/netopeer/Config.in"
+	source "openil-package/netopeer-client/Config.in"
+	source "openil-package/yang-cfginterfaces/Config.in"
+	source "openil-package/yang-model/Config.in"
+	source "openil-package/transapi/Config.in"
+endmenu
+menu "Time-Sensitive Networking tools"
+	source "openil-package/tsntool/Config.in"
+endmenu
+menu "OPC UA tools"
+	source "openil-package/libopen62541/Config.in"
+	source "openil-package/opc-motor-status/Config.in"
+endmenu
+menu "Fman ucode"
+	source "openil-package/fmucode/Config.in"
+endmenu
+menu "ppfe firmware"
+	source "openil-package/ppfe/Config.in"
+endmenu
+menu "ppa firmware"
+	source "openil-package/ppa/Config.in"
+endmenu
+menu "display port firmware"
+	source "openil-package/dp/Config.in"
+endmenu
+menu "Baremetal"
+	source "openil-package/bm-uboot/Config.in"
+	source "openil-package/icc/Config.in"
+endmenu
+menu "felixacl"
+	source "openil-package/felixacl/Config.in"
+endmenu
+
+endmenu

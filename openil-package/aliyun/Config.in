@@ -1,0 +1,5 @@
+config BR2_PACKAGE_ALIYUN
+	bool "Aliyun IoT SDK"
+	help
+	AliCloud's IoT Connectivity Devkit Running
+	on Embedded Devices.
