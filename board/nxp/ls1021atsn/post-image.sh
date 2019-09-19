@@ -73,10 +73,6 @@ main()
 
 	rm -rf "${GENIMAGE_TMP}"
 
-	# Set default terminal
-	sed -i -e '/^\[Service\]$/a Environment=TERM=screen-256color' \
-		"${TARGET_DIR}/usr/lib/systemd/system/serial-getty@.service"
-
 	genimage \
 		--rootpath "${TARGET_DIR}" \
 		--tmppath "${GENIMAGE_TMP}" \
