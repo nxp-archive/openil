@@ -22,6 +22,8 @@ BR2_TARGET_GENERIC_ISSUE="Welcome to OpenIL"
 # Linux headers same as kernel
 BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_4_14=y
 
+BR2_GLOBAL_PATCH_DIR="board/nxp/common/patches/"
+
 # toolchain
 BR2_TOOLCHAIN_EXTERNAL=y
 
