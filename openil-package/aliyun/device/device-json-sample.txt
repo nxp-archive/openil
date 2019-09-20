@@ -9,7 +9,7 @@ To use the json file for devices, please following:
 	   The OpenIl will copy all the .json files in this directory to
 	   /usr/sbin/ of target filesystem.
 	2. Before compilation, you should put all the xxxx.json files in the
-	   package/aliyun/device directory.
+	   openil-package/aliyun/device directory.
 
 There is a example case in aliyun IoT SDK source code:
 	aliyun-iot-sdk/sample/mqtt/mqtt-capture.c

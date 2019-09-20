@@ -1,5 +1,5 @@
 NODEJS_LBT_VERSION       := 0.2.0
-NODEJS_LBT_SITE          := package/nodejs-lbt/src
+NODEJS_LBT_SITE          := $(NODEJS_LBT_PKGDIR)/src
 NODEJS_LBT_SITE_METHOD   := local
 NODEJS_LBT_LICENSE       := MIT
 NODEJS_LBT_LICENSE_FILES := LICENSE

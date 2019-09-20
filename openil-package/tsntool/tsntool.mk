@@ -22,7 +22,7 @@ endef
 define TSNTOOL_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/libtsn.so $(TARGET_DIR)/usr/lib/;
 	$(INSTALL) -D -m 0755 $(@D)/tsntool $(TARGET_DIR)/usr/bin/;
-	cp -rf package/tsntool/samples/ $(TARGET_DIR)/root
+	cp -rf $(TSNTOOL_PKGDIR)/samples/ $(TARGET_DIR)/root
 endef
 
 define TSNTOOL_INSTALL_STAGING_CMDS

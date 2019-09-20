@@ -70,13 +70,13 @@ define TRANSAPI_CREATE_CONFIGURE
 		--search-path $(@D)/$(BRIDGE_SRC_NAME)/ \
 		transapi;
 
-        cd $(TOPDIR); \
-        $(APPLY_PATCHES) $(@D) package/transapi\
+	cd $(TOPDIR); \
+	$(APPLY_PATCHES) $(@D) $(TRANSAPI_PKGDIR) \
 		0001-modify-configure.in-to-change-parameters-to-fit-the-.patch.conditional; \
-        $(APPLY_PATCHES) $(@D) package/transapi\
+	$(APPLY_PATCHES) $(@D) $(TRANSAPI_PKGDIR) \
 		0002-modify-Makefile.in-to-change-the-project.patch.conditional; \
-        cd $(@D); \
-        $(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/autoreconf --force --install
+	cd $(@D); \
+	$(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/autoreconf --force --install
 endef
 
 # create Makefile

@@ -5,7 +5,7 @@
 ################################################################################
 
 ICC_VERSION = 0.1
-ICC_SITE = package/icc/src
+ICC_SITE = $(ICC_PKGDIR)/src
 ICC_SITE_METHOD = local
 ICC_LICENSE = GPL
 ifdef BR2_PACKAGE_ICC_GIC_OFFSET_ALIGN

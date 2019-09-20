@@ -1,5 +1,5 @@
 PRL_VERSION = 0.1
-PRL_SITE = package/prl/src
+PRL_SITE = $(PRL_PKGDIR)/src
 PRL_SITE_METHOD = local
 PRL_LICENSE = BSD-3c
 PRL_LICENSE_FILES = COPYING
@@ -13,4 +13,3 @@ define PRL_INSTALL_TARGET_CMDS
 endef
 
 $(eval $(generic-package))
-
