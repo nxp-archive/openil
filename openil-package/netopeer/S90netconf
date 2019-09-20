@@ -3,7 +3,7 @@
 # System-V init script for the hardware_report
 #
 
-DESC="NXP NETCONF tool"
+DESC="NETCONF tool"
 NAME="netconf"
 
 case "$1" in
