@@ -10,6 +10,11 @@ bool "Set GIC offset aligin to 64K"
 help
 	Set GIC offset aligin to 64K, support on rev1.1 of ls1043a.
 
+config BR2_PACKAGE_ICC_GIC_IMX6Q
+bool "Set GIC support i.mx6q"
+help
+	Set GIC support i.mx6q.
+
 config BR2_PACKAGE_ICC_MAX_CPUS
 int "Max cpus on platform"
 default 2
