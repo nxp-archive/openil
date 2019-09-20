@@ -28,6 +28,9 @@ endmenu
 menu "Fman ucode"
 	source "openil-package/fmucode/Config.in"
 endmenu
+menu "rcw image"
+	source "openil-package/openil-rcw/Config.in"
+endmenu
 menu "ppfe firmware"
 	source "openil-package/ppfe/Config.in"
 endmenu

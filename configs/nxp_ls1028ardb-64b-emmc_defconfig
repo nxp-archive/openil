@@ -57,7 +57,7 @@ BR2_PACKAGE_HOST_DOSFSTOOLS=y
 BR2_PACKAGE_HOST_GENIMAGE=y
 BR2_PACKAGE_HOST_MTOOLS=y
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/nxp/ls1028ardb/post-image-64b.sh"
-BR2_ROOTFS_POST_SCRIPT_ARGS="$(LINUX_DIR) $(TOPDIR) $(UBOOT_DIR)"
+BR2_ROOTFS_POST_SCRIPT_ARGS="$(LINUX_DIR) $(TOPDIR) $(UBOOT_DIR) $(BR2_PACKAGE_OPENIL_RCW_BIN)"
 
 # busybox setting
 BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="board/nxp/common/openil-busybox.config"
@@ -67,8 +67,8 @@ BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
 BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/busybox_init_overlay"
 
 # packages for rcw
-BR2_PACKAGE_RCW=y
-BR2_PACKAGE_RCW_BIN="ls1028ardb/R_SQPP_85bb/rcw_1300_emmc.bin"
+BR2_PACKAGE_OPENIL_RCW=y
+BR2_PACKAGE_OPENIL_RCW_BIN="ls1028ardb/R_SQPP_85bb/rcw_1300_emmc.bin"
 
 # ppa firmware
 BR2_PACKAGE_PPA=y

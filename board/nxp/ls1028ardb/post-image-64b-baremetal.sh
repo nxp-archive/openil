@@ -3,6 +3,7 @@
 # $2 linux building directory
 # $3 buildroot top directory
 # $4 u-boot building directory
+# $5 BR2_PACKAGE_OPENIL_RCW_BIN
 
 main()
 {
@@ -10,7 +11,7 @@ main()
 	echo ${3}
 	echo ${4}
 
-	local RCWFILE=${BR2_PACKAGE_RCW_BIN##*/}
+	local RCWFILE=${5##*/}
 	RCWFILE=${RCWFILE%\"*}
 	local DESTRCW="rcw_1300.bin"
 

@@ -1,9 +1,9 @@
-config BR2_PACKAGE_RCW
+config BR2_PACKAGE_OPENIL_RCW
 	bool "rcw image"
 	help
 	The reset configuration word for NXP Layerscape platforms
 
-if BR2_PACKAGE_RCW
-config BR2_PACKAGE_RCW_BIN
+if BR2_PACKAGE_OPENIL_RCW
+config BR2_PACKAGE_OPENIL_RCW_BIN
 	string "Custom RCW"
 endif
