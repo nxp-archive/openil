@@ -1,57 +1,63 @@
 #!/usr/bin/env bash
 
-#
-# dtb_list extracts the list of DTB files from BR2_LINUX_KERNEL_INTREE_DTS_NAME
-# in ${BR_CONFIG}, then prints the corresponding list of file names for the
-# genimage configuration file
-#
-dtb_list()
+gen_extlinux()
 {
-	local DTB_LIST="$(sed -n 's/^BR2_LINUX_KERNEL_INTREE_DTS_NAME="\([a-z0-9 \-]*\)"$/\1/p' ${BR2_CONFIG})"
+	local board="$1"
+	local in="board/nxp/common/extlinux.conf"
+	local out="${BINARIES_DIR}/extlinux.conf"
+	local kernel=
+	local dtbs=
 
-	for dt in $DTB_LIST; do
-		echo -n "\"$dt.dtb\", "
-	done
-}
-
-#
-# linux_image extracts the Linux image format from BR2_LINUX_KERNEL_UIMAGE in
-# ${BR_CONFIG}, then prints the corresponding file name for the genimage
-# configuration file
-#
-linux_image()
-{
 	if grep -Eq "^BR2_LINUX_KERNEL_UIMAGE=y$" ${BR2_CONFIG}; then
-		echo "\"uImage\""
+		kernel="../uImage"
 	else
-		echo "\"zImage\""
+		kernel="../zImage"
 	fi
+
+	for dt in "$(sed -n 's/^BR2_LINUX_KERNEL_INTREE_DTS_NAME="\([a-z0-9 \-]*\)"$/\1/p' ${BR2_CONFIG})"; do
+		# Discard any dtb in the list except the last
+		dtb="../$dt.dtb"
+	done
+
+	cp -f "${in}" "${out}"
+	sed -i -e "s|%KERNEL%|${kernel}|g" \
+		-e "s|%DTB%|${dtb}|g" \
+		-e "s|%VERSION%|${BR2_OPENIL_VERSION}|g" \
+		-e "s|%BOARD%|${board}|g" \
+		"${out}"
 }
 
-main()
+do_genimage()
 {
-	local FILES="$(dtb_list) $(linux_image)"
-	local GENIMAGE_CFG="$(mktemp --suffix genimage.cfg)"
-	local GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
+	local template="$1"
+	local platform="$2"
+	local distro_boot_name="$3"
+	local filelist="$4"
+	local genimage_tmp="${BUILD_DIR}/genimage.tmp"
+	local genimage_cfg="$(mktemp --suffix genimage.cfg)"
+	local files=""
 
-	sed -e "s/%FILES%/${FILES}/" \
-		board/nxp/common/genimage.cfg.template > ${GENIMAGE_CFG}
+	# define board name in version.json for ota feature
+	sed -e "s/%PLATFORM%/${platform}/" board/nxp/common/version.json > \
+		${BINARIES_DIR}/version.json
 
-	rm -rf "${GENIMAGE_TMP}"
+	# Generate extlinux file for U-Boot distro boot
+	gen_extlinux "${distro_boot_name}"
+
+	rm -rf "${genimage_tmp}"
+
+	for file in ${filelist}; do
+		files="\"${file}\",\n${files}"
+	done
+
+	sed -e "s/%FILES%/${files}/" ${template} > ${genimage_cfg}
 
 	genimage \
 		--rootpath "${TARGET_DIR}" \
-		--tmppath "${GENIMAGE_TMP}" \
 		--inputpath "${BINARIES_DIR}" \
 		--outputpath "${BINARIES_DIR}" \
-		--config "${GENIMAGE_CFG}"
+		--tmppath "${genimage_tmp}" \
+		--config "${genimage_cfg}"
 
-	rm -f ${GENIMAGE_CFG}
-
-	local MKIMAGE=${HOST_DIR}/usr/bin/mkimage
-	${MKIMAGE} -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
-
-	exit $?
+	rm -rf "${genimage_tmp}"
 }
-
-main $@
