@@ -1,51 +1,34 @@
 #!/usr/bin/env bash
+
+set -e -u -o pipefail
+
+source board/nxp/common/post-image.sh
+
 # args from BR2_ROOTFS_POST_SCRIPT_ARGS
 # $2 linux building directory
 # $3 buildroot top directory
 # $4 u-boot building directory
 # $5 BR2_PACKAGE_OPENIL_RCW_BIN
-
 main()
 {
-	echo ${2}
-	echo ${3}
-	echo ${4}
-
-	local RCWFILE=${5##*/}
-	RCWFILE=${RCWFILE%\"*}
+	local RCWFILE="$5"
 	local DESTRCW="rcw_1300.bin"
 
-	cd ${3}
+	RCWFILE=${RCWFILE##*/}
+	RCWFILE=${RCWFILE%\"*}
+
 	cp ${BINARIES_DIR}/${RCWFILE} ${BINARIES_DIR}/${DESTRCW}
 
 	# build the ramdisk rootfs
-	mkimage -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
+	mkimage -A arm -T ramdisk -C gzip -d \
+		"${BINARIES_DIR}/rootfs.ext2.gz" \
+		"${BINARIES_DIR}/rootfs.ext2.gz.uboot"
 
-	# define board name in version.json for ota feature
-	local BOARDNAME="ls1028ardb-64b-ubuntu"
-	sed -e "s/%PLATFORM%/${BOARDNAME}/" board/nxp/common/version.json > ${BINARIES_DIR}/version.json
-
-	# build the SDcard image
-	local FILES=""Image", "fsl-ls1028a-rdb.dtb", "version.json", "ls1028a-dp-fw.bin""
-	local GENIMAGE_CFG="$(mktemp --suffix genimage.cfg)"
-	local GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
-
-	sed -e "s/%FILES%/${FILES}/" \
-		board/nxp/ls1028ardb/genimage.cfg.template > ${GENIMAGE_CFG}
-
-	rm -rf "${GENIMAGE_TMP}"
-
-	genimage \
-		--rootpath "${TARGET_DIR}" \
-		--tmppath "${GENIMAGE_TMP}" \
-		--inputpath "${BINARIES_DIR}" \
-		--outputpath "${BINARIES_DIR}" \
-		--config "${GENIMAGE_CFG}"
-
-	rm -f ${GENIMAGE_CFG}
-
-
-	exit $?
+	do_genimage \
+		"board/nxp/ls1028ardb/genimage.cfg.template" \
+		"ls1028ardb-64b-ubuntu" \
+		"NXP LS1028A-RDB (Ubuntu)" \
+		"Image fsl-ls1028a-rdb.dtb ls1028a-dp-fw.bin version.json rootfs.ext2.gz.uboot"
 }
 
 main $@
