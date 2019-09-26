@@ -952,6 +952,7 @@ menu "Crypto"
 	source "package/trousers/Config.in"
 	source "package/ustream-ssl/Config.in"
 	source "package/libest/Config.in"
+	source "package/tfa/Config.in"
 endmenu
 
 menu "Database"
