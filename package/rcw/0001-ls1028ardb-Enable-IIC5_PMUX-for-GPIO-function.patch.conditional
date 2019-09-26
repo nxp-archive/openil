@@ -1,20 +1,35 @@
-From 870c928fd5e030cff79a8c9daf8190a5d782d183 Mon Sep 17 00:00:00 2001
-From: Jianchao Wang <jianchao.wang@nxp.com>
-Date: Mon, 21 Jan 2019 15:19:58 +0800
-Subject: [PATCH] ls1028ardb: Enable IIC5_PMUX for GPIO function
+From 33b403cee1fa215927bc65dc14baf35a2fdbe7b3 Mon Sep 17 00:00:00 2001
+From: Jerry Huang <jerry.huang@nxp.com>
+Date: Thu, 19 Sep 2019 12:12:20 +0800
+Subject: [PATCH 1/2] ls1028ardb: Enable IIC5_PMUX for GPIO function
 
 Fix the bug that NFC cann't work.
 
 Signed-off-by: Jianchao Wang <jianchao.wang@nxp.com>
+Signed-off-by: Jerry Huang <jerry.huang@nxp.com>
 ---
- ls1028ardb/R_SQPP_85bb/rcw_1300_sd.rcw | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ ls1028ardb/R_SQPP_0x85bb/rcw_1300_emmcboot.rcw | 2 +-
+ ls1028ardb/R_SQPP_0x85bb/rcw_1300_sdboot.rcw   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/ls1028ardb/R_SQPP_85bb/rcw_1300_sd.rcw b/ls1028ardb/R_SQPP_85bb/rcw_1300_sd.rcw
-index ac24755..02f7ecb 100755
---- a/ls1028ardb/R_SQPP_85bb/rcw_1300_sd.rcw
-+++ b/ls1028ardb/R_SQPP_85bb/rcw_1300_sd.rcw
-@@ -28,7 +28,7 @@ SYSCLK_FREQ=600
+diff --git a/ls1028ardb/R_SQPP_0x85bb/rcw_1300_emmcboot.rcw b/ls1028ardb/R_SQPP_0x85bb/rcw_1300_emmcboot.rcw
+index b46ea2e..5466a63 100644
+--- a/ls1028ardb/R_SQPP_0x85bb/rcw_1300_emmcboot.rcw
++++ b/ls1028ardb/R_SQPP_0x85bb/rcw_1300_emmcboot.rcw
+@@ -26,7 +26,7 @@ SYSCLK_FREQ=600
+ IIC2_PMUX=6
+ IIC3_PMUX=2
+ IIC4_PMUX=2
+-IIC5_PMUX=2
++IIC5_PMUX=1
+ IIC6_PMUX=2
+ CLK_OUT_PMUX=2
+ EC1_SAI4_5_PMUX=5
+diff --git a/ls1028ardb/R_SQPP_0x85bb/rcw_1300_sdboot.rcw b/ls1028ardb/R_SQPP_0x85bb/rcw_1300_sdboot.rcw
+index 04e2208..1908d8c 100644
+--- a/ls1028ardb/R_SQPP_0x85bb/rcw_1300_sdboot.rcw
++++ b/ls1028ardb/R_SQPP_0x85bb/rcw_1300_sdboot.rcw
+@@ -26,7 +26,7 @@ SYSCLK_FREQ=600
  IIC2_PMUX=6
  IIC3_PMUX=2
  IIC4_PMUX=2
@@ -23,6 +38,6 @@ index ac24755..02f7ecb 100755
  IIC6_PMUX=3
  CLK_OUT_PMUX=2
  EC1_SAI4_5_PMUX=5
---
-2.7.4
+-- 
+2.17.1
 
