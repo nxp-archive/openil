@@ -1,0 +1,41 @@
+From 38f3733c534e8475f8c7087ecaa6f13d0729a2de Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <olteanv@gmail.com>
+Date: Tue, 17 Sep 2019 18:07:22 +0300
+Subject: [PATCH] sysoff: Report error if PHC does not support
+ PTP_SYS_OFFSET_EXTENDED
+
+Make sure the kernel being used implements the .gettimex64 API, which
+will always yield a more precise timestamp and less delay capturing it.
+
+The Linux kernel commit where this was added is 361800876f80 ("ptp: add
+PTP_SYS_OFFSET_EXTENDED ioctl"), which has first appeared in the 5.0 stable
+release. So builders need to make sure that the host Linux kernel headers are
+at least as recent as that commit.
+
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+---
+ sysoff.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/sysoff.c b/sysoff.c
+index b993ee98bb41..ed167165327a 100644
+--- a/sysoff.c
++++ b/sysoff.c
+@@ -105,12 +105,13 @@ static int sysoff_extended(int fd, int n_samples,
+ 	memset(&pso, 0, sizeof(pso));
+ 	pso.n_samples = n_samples;
+ 	if (ioctl(fd, PTP_SYS_OFFSET_EXTENDED, &pso)) {
+-		pr_debug("ioctl PTP_SYS_OFFSET_EXTENDED: %m");
++		pr_err("ioctl PTP_SYS_OFFSET_EXTENDED: %m");
+ 		return SYSOFF_RUN_TIME_MISSING;
+ 	}
+ 	*result = sysoff_estimate(&pso.ts[0][0], 1, n_samples, ts, delay);
+ 	return SYSOFF_EXTENDED;
+ #else
++	pr_err("ioctl PTP_SYS_OFFSET_EXTENDED missing from kernel headers");
+ 	return SYSOFF_COMPILE_TIME_MISSING;
+ #endif
+ }
+-- 
+2.7.4
+
