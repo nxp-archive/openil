@@ -95,7 +95,7 @@ BR2_PACKAGE_NANO=y
 BR2_PACKAGE_VIM=y
 
 # Add ota overlay
-BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/systemd_init_overlay"
+BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/systemd_init_overlay board/nxp/ls1028ardb/rootfs_overlay"
 
 # packages for rcw
 BR2_PACKAGE_OPENIL_RCW=y
