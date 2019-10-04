@@ -1,5 +1,0 @@
-config BR2_PACKAGE_LIBBLEP
-	bool "libblep"
-	default n
-	help
-	  MikroBUS: blep click board(nRF8001)
