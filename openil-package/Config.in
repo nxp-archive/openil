@@ -10,12 +10,7 @@ menu "Edge-scale service"
 endmenu
 menu "Netconf Supporting"
 	source "openil-package/pyang/Config.in"
-	source "openil-package/libnetconf/Config.in"
-	source "openil-package/netopeer/Config.in"
-	source "openil-package/netopeer-client/Config.in"
-	source "openil-package/yang-cfginterfaces/Config.in"
 	source "openil-package/yang-model/Config.in"
-	source "openil-package/transapi/Config.in"
 endmenu
 menu "Time-Sensitive Networking tools"
 	source "openil-package/tsntool/Config.in"
