@@ -1,0 +1,5 @@
+[Match]
+Name=eno2
+
+[Network]
+DHCP=ipv4

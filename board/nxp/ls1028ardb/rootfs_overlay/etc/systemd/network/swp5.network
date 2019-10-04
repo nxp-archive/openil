@@ -1,0 +1,6 @@
+[Match]
+Name=swp5
+
+[Network]
+BindCarrier=eno3
+Bridge=br0
