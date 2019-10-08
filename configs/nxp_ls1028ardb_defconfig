@@ -184,3 +184,6 @@ BR2_PACKAGE_I2C_TOOLS=y
 
 # haveged
 BR2_PACKAGE_HAVEGED=y
+
+# Language runtimes
+BR2_PACKAGE_PYTHON3=y
