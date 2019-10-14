@@ -31,7 +31,14 @@ endif
 ifeq ($(findstring qspiboot, $(RCW_FILE)), qspiboot)
 TFA_BOOT_MODE = \
 	BOOT_MODE=qspi
+ifeq ($(findstring sben, $(RCW_FILE)), sben)
+TFA_DEPENDENCIES += host-cst
+BOOTMODE = qspi_sec
+SECUREOPT = \
+	TRUSTED_BOARD_BOOT=1 CST_DIR=${BUILD_DIR}/host-cst-${CST_VERSION}
+else
 BOOTMODE = qspi
+endif
 endif
 
 TFA_MAKE_OPTS = \
@@ -49,8 +56,14 @@ BL2_RCW = bl2_rcw.pbl
 FIP_FILE = fip.bin
 UBOOT_FILE = fip_boot.bin
 
+define TFA_CONFIGURE_CMDS
+	if [ $(BOOTMODE) = qspi_sec ]; then \
+		cp -f ${BUILD_DIR}/host-cst-${CST_VERSION}/srk.* $(@D); \
+	fi
+endef
+
 define TFA_BUILD_CMDS
-	make -C $(@D) ${TFA_OPTS} ${TFA_PLAT} ${TFA_BOOT_MODE} ${TFA_RCW} ${TFA_BL33} ${TFA_MAKE_OPTS}
+	make -C $(@D) ${TFA_OPTS} ${TFA_PLAT} ${TFA_BOOT_MODE} ${TFA_RCW} ${TFA_BL33} ${SECUREOPT} ${TFA_MAKE_OPTS}
 	cp $(@D)/build/${BOARD_NAME}/release/${BL2_FILE} $(BINARIES_DIR)/${BL2_RCW}
 	cp $(@D)/build/${BOARD_NAME}/release/${FIP_FILE} $(BINARIES_DIR)/${UBOOT_FILE}
 endef
