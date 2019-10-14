@@ -1,0 +1,31 @@
+From 26b92ab2a5951ebdf2e0b9119a3efc3d94222753 Mon Sep 17 00:00:00 2001
+From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Date: Tue, 24 Sep 2019 07:34:26 +0800
+Subject: [PATCH] TSN: modify DSCP attribute type of netlink
+
+DSCP attribute type of netlink is inconsistency with DSCP structure,
+which can cause an invalid length of attribute type.
+
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+---
+ net/tsn/genl_tsn.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/tsn/genl_tsn.c b/net/tsn/genl_tsn.c
+index 703204718a1a..508590eeec22 100644
+--- a/net/tsn/genl_tsn.c
++++ b/net/tsn/genl_tsn.c
+@@ -235,8 +235,8 @@ static const struct nla_policy qci_fmi_policy[] = {
+ static const struct nla_policy dscp_policy[] = {
+ 	[TSN_DSCP_ATTR_INDEX]		= { .type = NLA_U32},
+ 	[TSN_DSCP_ATTR_DISABLE]		= { .type = NLA_FLAG},
+-	[TSN_DSCP_ATTR_COS]		= { .type = NLA_U32},
+-	[TSN_DSCP_ATTR_DPL]		= { .type = NLA_U32},
++	[TSN_DSCP_ATTR_COS]		= { .type = NLA_U8},
++	[TSN_DSCP_ATTR_DPL]		= { .type = NLA_U8},
+ };
+ 
+ static ATOMIC_NOTIFIER_HEAD(tsn_notif_chain);
+-- 
+2.7.4
+
