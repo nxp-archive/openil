@@ -1,7 +1,7 @@
-# From https://wpewebkit.org/releases/wpewebkit-2.24.3.tar.xz.sums
-md5 b5c6fe640b03c3e87594da2c0a0a8469 wpewebkit-2.24.3.tar.xz
-sha1 c9ccb6c4c65446e96ed6d534a1556db0fcca8268 wpewebkit-2.24.3.tar.xz
-sha256 907b20907a32a4288cbf67b56eab04cbbd997a7ca0f40b3c466cbbbbfba0e7ca wpewebkit-2.24.3.tar.xz
+# From https://wpewebkit.org/releases/wpewebkit-2.26.1.tar.xz.sums
+md5 bec094fe878e03f42de751cbaf0b3e99 wpewebkit-2.26.1.tar.xz
+sha1 53dfafab8d5ccb537e7330febb9504c390e3bf52 wpewebkit-2.26.1.tar.xz
+sha256 d1ae85dffb5bfc106c5ac6d5e73a3dfe3cb2c1df1f18c16103e1dc744cd4ac14 wpewebkit-2.26.1.tar.xz
 
 # Hashes for license files:
 sha256 0b5d3a7cc325942567373b0ecd757d07c132e0ebd7c97bfc63f7e1a76094edb4 Source/WebCore/LICENSE-APPLE

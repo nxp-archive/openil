@@ -14,9 +14,18 @@ APR_INSTALL_STAGING = YES
 # so we need to autoreconf:
 APR_AUTORECONF = YES
 
+# avoid apr_hints.m4 by setting apr_preload_done=yes and set
+# the needed CFLAGS on our own (avoids '-D_REENTRANT' in case
+# not supported by toolchain and subsequent configure failure)
+APR_CFLAGS = $(TARGET_CFLAGS) -DLINUX -D_GNU_SOURCE
+ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),y)
+APR_CFLAGS += -D_REENTRANT
+endif
+
 APR_CONF_ENV = \
 	CC_FOR_BUILD="$(HOSTCC)" \
 	CFLAGS_FOR_BUILD="$(HOST_CFLAGS)" \
+	CFLAGS="$(APR_CFLAGS)" \
 	ac_cv_file__dev_zero=yes \
 	ac_cv_func_setpgrp_void=yes \
 	apr_cv_process_shared_works=yes \
@@ -31,7 +40,8 @@ APR_CONF_ENV = \
 	apr_cv_epoll_create1=yes \
 	apr_cv_dup3=yes \
 	apr_cv_sock_cloexec=yes \
-	apr_cv_accept4=yes
+	apr_cv_accept4=yes \
+	apr_preload_done=yes
 APR_CONFIG_SCRIPTS = apr-1-config
 
 # Doesn't even try to guess when cross compiling
@@ -42,15 +52,10 @@ endif
 # Fix lfs detection when cross compiling
 APR_CONF_ENV += apr_cv_use_lfs64=yes
 
-# Use non-portable atomics when available: 8 bytes atomics are used on
-# 64-bits architectures, 4 bytes atomics on 32-bits architectures. We
-# have to override ap_cv_atomic_builtins because the test used to
-# check for atomic builtins uses AC_TRY_RUN, which doesn't work when
-# cross-compiling.
-ifeq ($(BR2_ARCH_IS_64):$(BR2_TOOLCHAIN_HAS_SYNC_8),y:y)
-APR_CONF_OPTS += --enable-nonportable-atomics
-APR_CONF_ENV += ap_cv_atomic_builtins=yes
-else ifeq ($(BR2_ARCH_IS_64):$(BR2_TOOLCHAIN_HAS_SYNC_4),:y)
+# Use non-portable atomics when available. We have to override
+# ap_cv_atomic_builtins because the test used to  check for atomic
+# builtins uses AC_TRY_RUN, which doesn't work when cross-compiling.
+ifeq ($(BR2_TOOLCHAIN_HAS_SYNC_8),y)
 APR_CONF_OPTS += --enable-nonportable-atomics
 APR_CONF_ENV += ap_cv_atomic_builtins=yes
 else
