@@ -40,6 +40,11 @@ else
 BOOTMODE = qspi
 endif
 endif
+ifeq ($(BOARD_NAME), ls1012ardb)
+TFA_BOOT_MODE = \
+	BOOT_MODE=qspi
+BOOTMODE = qspi
+endif
 
 TFA_MAKE_OPTS = \
 	CROSS_COMPILE="$(TARGET_CROSS)"
