@@ -1,0 +1,45 @@
+From 41adfc4b40fba4d26917ab88baf4346bc4b039f9 Mon Sep 17 00:00:00 2001
+From: Jerry Huang <jerry.huang@nxp.com>
+Date: Thu, 17 Oct 2019 17:19:12 +0800
+Subject: [PATCH] replace the init_timer with timer_setup function
+
+Since Linux Kernel 4.15, need to replace init_timer with timer_setup function.
+otherwise, there will be compile issue:
+./examples/mini/mini.c:495:5: error: implicit declaration of function 'init_timer' [-Werror=implicit-function-declaration]
+     init_timer(&timer);
+     ^~~~~~~~~~
+./examples/mini/mini.c:496:20: error: assignment from incompatible pointer type [-Werror=incompatible-pointer-types]
+     timer.function = cyclic_task;
+                    ^
+
+Signed-off-by: Jerry Huang <jerry.huang@nxp.com>
+---
+ examples/mini/mini.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/examples/mini/mini.c b/examples/mini/mini.c
+index 6bb38b6..eeb79ad 100644
+--- a/examples/mini/mini.c
++++ b/examples/mini/mini.c
+@@ -307,7 +307,7 @@ void read_voe(void)
+ 
+ /*****************************************************************************/
+ 
+-void cyclic_task(unsigned long data)
++void cyclic_task(struct timer_list *t)
+ {
+     // receive process data
+     down(&master_sem);
+@@ -492,8 +492,7 @@ int __init init_mini_module(void)
+ #endif
+ 
+     printk(KERN_INFO PFX "Starting cyclic sample thread.\n");
+-    init_timer(&timer);
+-    timer.function = cyclic_task;
++    timer_setup(&timer, cyclic_task, 0);
+     timer.expires = jiffies + 10;
+     add_timer(&timer);
+ 
+-- 
+2.17.1
+
