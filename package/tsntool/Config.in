@@ -1,5 +1,6 @@
 config BR2_PACKAGE_TSNTOOL
 	bool "tsntool"
+	depends on BR2_LINUX_KERNEL
 	select BR2_PACKAGE_LIBNL
 	select BR2_PACKAGE_READLINE
 	select BR2_PACKAGE_NCURSES
@@ -7,3 +8,6 @@ config BR2_PACKAGE_TSNTOOL
 	help
 	 tsntool is a tool to configure the tsn capability ethernet port.
 	 The kernel need to configure the tsn protocol.
+
+comment "tsntool needs the linux kernel sources"
+	depends on !BR2_LINUX_KERNEL
