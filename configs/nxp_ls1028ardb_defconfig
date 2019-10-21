@@ -49,10 +49,10 @@ BR2_TARGET_UBOOT_ENVIMAGE_SIZE="0x2000"
 # Kernel
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_GIT=y
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/openil/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="OpenIL-linux-201908"
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://source.codeaurora.org/external/qoriq/qoriq-components/linux"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="LSDK-19.09-V4.19"
 BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(LINUX_DIR)/arch/arm64/configs/lsdk.config board/nxp/common/linux-4_9-docker.config board/nxp/common/linux-4_9-xenomai.config board/nxp/ls1028ardb/linux.config"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(LINUX_DIR)/arch/arm64/configs/lsdk.config board/nxp/common/linux-4_9-docker.config board/nxp/ls1028ardb/linux.config"
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
 BR2_LINUX_KERNEL_INTREE_DTS_NAME="freescale/fsl-ls1028a-rdb"
 BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y
@@ -146,7 +146,6 @@ BR2_PACKAGE_CA_CERTIFICATES=y
 BR2_PACKAGE_E2FSPROGS_RESIZE2FS=y
 
 # Networking
-BR2_PACKAGE_IGH_ETHERCAT=y
 BR2_PACKAGE_TSNTOOL=y
 BR2_PACKAGE_IPUTILS=y
 BR2_PACKAGE_IPROUTE2=y
