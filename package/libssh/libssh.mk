@@ -4,17 +4,26 @@
 #
 ################################################################################
 
-LIBSSH_VERSION = 0.7.3
+LIBSSH_VERSION_MAJOR = 0.9
+LIBSSH_VERSION = $(LIBSSH_VERSION_MAJOR).0
 LIBSSH_SOURCE = libssh-$(LIBSSH_VERSION).tar.xz
-LIBSSH_SITE = https://red.libssh.org/attachments/download/195
-LIBSSH_LICENSE = LGPLv2.1
+LIBSSH_SITE = https://www.libssh.org/files/$(LIBSSH_VERSION_MAJOR)
+LIBSSH_LICENSE = LGPL-2.1
 LIBSSH_LICENSE_FILES = COPYING
 LIBSSH_INSTALL_STAGING = YES
 LIBSSH_SUPPORTS_IN_SOURCE_BUILD = NO
 LIBSSH_CONF_OPTS = \
 	-DWITH_STACK_PROTECTOR=OFF \
-	-DWITH_SERVER=OFF \
 	-DWITH_EXAMPLES=OFF
+
+# cmake older than 3.10 require this to avoid try_run() in FindThreads
+LIBSSH_CONF_OPTS += -DTHREADS_PTHREAD_ARG=OFF
+
+ifeq ($(BR2_PACKAGE_LIBSSH_SERVER),y)
+LIBSSH_CONF_OPTS += -DWITH_SERVER=ON
+else
+LIBSSH_CONF_OPTS += -DWITH_SERVER=OFF
+endif
 
 ifeq ($(BR2_PACKAGE_ZLIB),y)
 LIBSSH_CONF_OPTS += -DWITH_ZLIB=ON
@@ -31,12 +40,6 @@ LIBSSH_DEPENDENCIES += libgcrypt
 else
 LIBSSH_CONF_OPTS += -DWITH_GCRYPT=OFF
 LIBSSH_DEPENDENCIES += openssl
-endif
-
-ifeq ($(BR2_PACKAGE_NETOPEER),y)
-	LIBSSH_CONF_OPTS += -DWITH_SERVER=ON
-else
-	LIBSSH_CONF_OPTS += -DWITH_SERVER=OFF
 endif
 
 $(eval $(cmake-package))
