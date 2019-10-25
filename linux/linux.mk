@@ -209,16 +209,6 @@ define LINUX_TRY_PATCH_TIMECONST
 endef
 LINUX_POST_PATCH_HOOKS += LINUX_TRY_PATCH_TIMECONST
 
-FIND = ls1028ardb_sdcard
-ifeq ($(findstring $(FIND), $(BR2_TARGET_UBOOT_BOARDNAME)), $(FIND))
-define LINUX_TRY_PATCH_NFC
-	@if patch -p1 --dry-run -f -s -d $(@D) <$(LINUX_PKGDIR)/0002-LS1028ardb-click-board-NFC-Add-the-pn7120-driver.patch.conditional >/dev/null ; then \
-		$(APPLY_PATCHES) $(@D) $(LINUX_PKGDIR) 0002-LS1028ardb-click-board-NFC-Add-the-pn7120-driver.patch.conditional ; \
-	fi
-endef
-LINUX_POST_PATCH_HOOKS += LINUX_TRY_PATCH_NFC
-endif
-
 ifeq ($(BR2_LINUX_KERNEL_USE_DEFCONFIG),y)
 LINUX_KCONFIG_DEFCONFIG = $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig
 else ifeq ($(BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG),y)
