@@ -1,0 +1,5 @@
+config BR2_PACKAGE_MC_FW
+        bool "prebuild MC firmware binaries"
+        help
+	  The Prebuidl MC binaries for Management Complex (MC) of DPAA2 (Data Path
+	  Acceleration Architecture, second version).
