@@ -45,6 +45,17 @@ TFA_BOOT_MODE = \
 	BOOT_MODE=qspi
 BOOTMODE = qspi
 endif
+ifeq ($(BOARD_NAME), lx2160ardb)
+ifeq ($(findstring sd, $(RCW_FILE)), sd)
+TFA_BOOT_MODE = \
+	BOOT_MODE=sd
+BOOTMODE = sd
+else
+TFA_BOOT_MODE = \
+	BOOT_MODE=flexspi_nor
+BOOTMODE = flexspi_nor
+endif
+endif
 
 TFA_MAKE_OPTS = \
 	CROSS_COMPILE="$(TARGET_CROSS)"
