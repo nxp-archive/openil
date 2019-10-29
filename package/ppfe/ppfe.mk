@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PPFE_VERSION = LSDK-18.06
+PPFE_VERSION = LSDK-19.09
 PPFE_SITE = https://github.com/NXP/qoriq-engine-pfe-bin.git
 PPFE_SITE_METHOD = git
 PPFE_LICENSE = NXP-Binary-EULA
