@@ -1,0 +1,4 @@
+config BR2_PACKAGE_ETH_PHY
+        bool "prebuild ETH PHY binaries"
+        help
+	  The Prebuid ETH PHY binary

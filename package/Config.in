@@ -1319,6 +1319,7 @@ menu "Networking"
 	source "package/zyre/Config.in"
 	source "package/mc-fw/Config.in"
 	source "package/mc-utils/Config.in"
+	source "package/eth-phy/Config.in"
 endmenu
 
 menu "Other"
