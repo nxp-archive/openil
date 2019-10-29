@@ -1,0 +1,4 @@
+config BR2_PACKAGE_DDR_PHY
+        bool "prebuild DDR PHY binaries"
+        help
+	  DDR PHY firmware for qoriq platforms
