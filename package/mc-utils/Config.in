@@ -1,0 +1,8 @@
+config BR2_PACKAGE_MC_UTILS
+        bool "MC utils"
+        help
+	  The Management Complex (MC) is a key component of DPAA2 (Data Path
+	  Acceleration Architecture, second version).
+	  MC runs an NXP-supplied firmware image that abstracts and simplifies the
+	  allocation and configuration of the other hardware elements using DPAA2
+	  “objects”.

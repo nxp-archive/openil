@@ -1318,6 +1318,7 @@ menu "Networking"
 	source "package/zmqpp/Config.in"
 	source "package/zyre/Config.in"
 	source "package/mc-fw/Config.in"
+	source "package/mc-utils/Config.in"
 endmenu
 
 menu "Other"
