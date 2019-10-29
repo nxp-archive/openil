@@ -27,7 +27,7 @@ image qspi.cpio.img {
 
   partition u-boot {
     in-partition-table = "no"
-    image = "fip_boot.bin"
+    image = "fip_uboot.bin"
     offset = 1M
     size = 4M
   }

@@ -70,7 +70,7 @@ TFA_OPTS = all fip pbl
 BL2_FILE = bl2_${BOOTMODE}.pbl
 BL2_RCW = bl2_rcw.pbl
 FIP_FILE = fip.bin
-UBOOT_FILE = fip_boot.bin
+UBOOT_FILE = fip_uboot.bin
 
 define TFA_CONFIGURE_CMDS
 	if [ $(BOOTMODE) = qspi_sec ]; then \
