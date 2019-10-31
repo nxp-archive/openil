@@ -1,0 +1,82 @@
+# Minimal QSPI image for the NXP boards Template
+#
+# We mimic the .sdcard NXP's image format:
+# * the SD card must have 4 kB free space at the beginning,
+# * U-Boot is dumped as is,
+# * a FAT partition at offset 8 MB is containing zImage/uImage and DTB files
+# * a single root filesystem partition is required (ext2, ext3 or ext4)
+#
+flash xspi-64M-128K {
+        pebsize = 128K
+        numpebs = 512
+        minimum-io-unit-size = 128k
+}
+
+image xspi.cpio.img {
+  flash {
+  }
+  flashtype = "xspi-64M-128K"
+
+  partition rcw {
+    in-partition-table = "no"
+    image = "bl2_rcw.pbl"
+    offset = 0
+    size = 1M
+  }
+
+  partition u-boot {
+    in-partition-table = "no"
+    image = "fip_uboot.bin"
+    offset = 1M
+    size = 4M
+  }
+
+  partition u-boot-environment {
+    in-partition-table = "no"
+    image = "uboot-env.bin"
+    offset = 5M
+    size = 1M
+  }
+
+  partition ddr-phy {
+    in-partition-table = "no"
+    image = "fip_ddr.bin"
+    offset = 8M
+    size = 512K
+  }
+
+  partition eth-phy {
+    in-partition-table = "no"
+    image = "phy-ucode.txt"
+    offset = 0x980000
+    size = 256K
+  }
+
+  partition dpaa2-mc {
+    in-partition-table = "no"
+    image = "mc.itb"
+    offset = 10M
+    size = 3M
+  }
+
+  partition dpaa2-dpl {
+    in-partition-table = "no"
+    image = "dpl-eth.19.dtb"
+    offset = 13M
+    size = 1M
+  }
+
+  partition dpaa2-dpc {
+    in-partition-table = "no"
+    image = "dpc-usxgmii.dtb"
+    offset = 14M
+    size = 1M
+  }
+
+  partition boot {
+    in-partition-table = "no"
+    image = "kernel-lx2160a-rdb.itb"
+    offset = 16M
+    size = 40M
+  }
+}

@@ -1,0 +1,83 @@
+# Minimal SD card image for the NXP boards Template
+#
+# We mimic the .sdcard NXP's image format:
+# * the SD card must have 4 kB free space at the beginning,
+# * U-Boot is dumped as is,
+# * a FAT partition at offset 8 MB is containing zImage/uImage and DTB files
+# * a single root filesystem partition is required (ext2, ext3 or ext4)
+#
+
+image boot.vfat {
+  vfat {
+    files = {
+      %FILES%
+    }
+  }
+  size = 256M
+}
+
+image sdcard.img {
+  hdimage {
+  }
+
+  partition rcw {
+    in-partition-table = "no"
+    image = "bl2_rcw.pbl"
+    offset = 4096
+  }
+
+  partition u-boot {
+    in-partition-table = "no"
+    image = "fip_uboot.bin"
+    offset = 1M
+  }
+
+  partition u-boot-environment {
+    in-partition-table = "no"
+    image = "uboot-env.bin"
+    offset = 5M
+  }
+
+  partition ddr-phy {
+    in-partition-table = "no"
+    image = "fip_ddr.bin"
+    offset = 8M
+  }
+
+  partition eth-phy {
+    in-partition-table = "no"
+    image = "phy-ucode.txt"
+    offset = 0x980000
+  }
+
+  partition dpaa2-mc {
+    in-partition-table = "no"
+    image = "mc.itb"
+    offset = 10M
+  }
+
+  partition dpaa2-dpl {
+    in-partition-table = "no"
+    image = "dpl-eth.19.dtb"
+    offset = 13M
+  }
+
+  partition dpaa2-dpc {
+    in-partition-table = "no"
+    image = "dpc-usxgmii.dtb"
+    offset = 14M
+  }
+
+  partition boot {
+    partition-type = 0xC
+    bootable = "true"
+    image = "boot.vfat"
+    offset = 64M
+  }
+
+  partition rootfs {
+    partition-type = 0x83
+    image = "rootfs.ext2"
+    size = %PARTITION_SIZE%
+  }
+}

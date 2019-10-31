@@ -1,0 +1,21 @@
+baudrate=115200
+bootcmd=setenv bootargs console=ttyAMA0,115200 root=/dev/mmcblk0p2 rw rootwait earlycon=pl011,mmio32,0x21c0000 default_hugepagesz=1024m hugepagesz=1024m hugepages=2 pci=pcie_bus_perf; mmcinfo;mmc read $mc_fw_addr 0x05000 0x1800;mmc read $dpc_addr 0x07000 0x800;mmc read $dpl_addr 0x06800 0x800;fsl_mc start mc $mc_fw_addr $dpc_addr;fsl_mc apply dpl $dpl_addr;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 ${fdtaddr} ${fdtfile};booti ${loadaddr} - ${fdtaddr}
+bootdelay=3
+bootfile=Image
+fdtfile=fsl-lx2160a-rdb.dtb
+eth2addr=00:1F:7B:63:35:E9
+ethact=FM1@DTSEC3
+ethprime=FM1@DTSEC3
+fdt_high=0xffffffffffffffff
+fdtcontroladdr=ffc01550
+fman_ucode=ffc12090
+hwconfig=fsl_ddr:bank_intlv=auto
+initrd_high=0xffffffffffffffff
+loadaddr=0xa0000000
+fdtaddr=0xb0000000
+mc_fw_addr=0xa8000000
+dpc_addr=0xa9000000
+dpl_addr=0xaa000000
+stderr=serial
+stdin=serial
+stdout=serial
