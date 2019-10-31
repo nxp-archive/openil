@@ -1,0 +1,5 @@
+config BR2_PACKAGE_RESTOOL
+        bool "NXP restool support"
+        help
+	  restool is a user space application providing the ability to
+	  dynamically create and manage DPAA2 containers and objects from Linux.

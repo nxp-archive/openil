@@ -1320,6 +1320,7 @@ menu "Networking"
 	source "package/mc-fw/Config.in"
 	source "package/mc-utils/Config.in"
 	source "package/eth-phy/Config.in"
+	source "package/restool/Config.in"
 endmenu
 
 menu "Other"
