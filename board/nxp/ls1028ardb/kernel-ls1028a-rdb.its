@@ -33,7 +33,7 @@
 		};
 		ramdisk@1 {
 			description = "LS1028 Ramdisk";
-                        data = /incbin/("./fsl-image-core-ls1028ardb.ext2.gz");
+                        data = /incbin/("./fsl-image-core-ls1028ardb.cpio.gz");
 			type = "ramdisk";
 			arch = "arm64";
 			os = "linux";

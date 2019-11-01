@@ -1,0 +1,18 @@
+baudrate=115200
+bootcmd=setenv bootargs root=/dev/ram0 rw earlycon=uart8250,0x21c0500 console=ttyS0,115200 cma=256M video=1920x1080-32@60; sf probe 0:0; sf read $kernel_load $kernel_start $kernel_size && bootm $kernel_load
+bootdelay=3
+eth2addr=00:1F:7B:63:35:E9
+ethact=FM1@DTSEC3
+ethprime=FM1@DTSEC3
+fdt_high=0xffffffffffffffff
+fdtcontroladdr=ffc01550
+fman_ucode=ffc12090
+hwconfig=fsl_ddr:bank_intlv=auto
+initrd_high=0xffffffffffffffff
+kernel_load=0xa0000000
+kernel_size=0x2800000
+kernel_start=0x1000000
+stderr=serial
+stdin=serial
+stdout=serial
+rollbackboot=setenv bootargs root=/dev/ram0 rootwait rw earlycon=uart8250,0x21c0500 console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};bootm $loadaddr

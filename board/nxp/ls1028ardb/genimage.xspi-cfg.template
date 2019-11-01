@@ -1,0 +1,47 @@
+# Minimal QSPI image for the NXP boards Template
+#
+# We mimic the .sdcard NXP's image format:
+# * the SD card must have 4 kB free space at the beginning,
+# * U-Boot is dumped as is,
+# * a FAT partition at offset 8 MB is containing zImage/uImage and DTB files
+# * a single root filesystem partition is required (ext2, ext3 or ext4)
+#
+flash xspi-256M-128K {
+        pebsize = 128K
+        numpebs = 2048
+        minimum-io-unit-size = 128k
+}
+
+image xspi.cpio.img {
+  flash {
+  }
+  flashtype = "xspi-256M-128K"
+
+  partition rcw {
+    in-partition-table = "no"
+    image = "bl2_rcw.pbl"
+    offset = 0
+    size = 1M
+  }
+
+  partition u-boot {
+    in-partition-table = "no"
+    image = "fip_uboot.bin"
+    offset = 1M
+    size = 4M
+  }
+
+  partition u-boot-environment {
+    in-partition-table = "no"
+    image = "uboot-env.bin"
+    offset = 5M
+    size = 1M
+  }
+
+  partition boot {
+    in-partition-table = "no"
+    image = "kernel-ls1028a-rdb.itb"
+    offset = 16M
+    size = 48M
+  }
+}
