@@ -56,6 +56,13 @@ TFA_BOOT_MODE = \
 BOOTMODE = flexspi_nor
 endif
 endif
+ifeq ($(BOARD_NAME), ls1028ardb)
+ifeq ($(findstring gpu600, $(RCW_FILE)), gpu600)
+TFA_BOOT_MODE = \
+	BOOT_MODE=flexspi_nor
+BOOTMODE = flexspi_nor
+endif
+endif
 
 TFA_MAKE_OPTS = \
 	CROSS_COMPILE="$(TARGET_CROSS)"
