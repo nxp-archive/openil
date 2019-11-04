@@ -1,0 +1,47 @@
+From fe73bd9363a46ed89697fc99956c3794c9507e0f Mon Sep 17 00:00:00 2001
+From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Date: Fri, 18 Oct 2019 11:30:34 +0800
+Subject: [PATCH ocelot-tc-flower-policer 41/44] fix yangbo's patch
+
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ drivers/net/ethernet/mscc/ocelot_flower.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
+index 8778dee5a471..a0c84f50f86c 100644
+--- a/drivers/net/ethernet/mscc/ocelot_flower.c
++++ b/drivers/net/ethernet/mscc/ocelot_flower.c
+@@ -183,8 +183,8 @@ struct ocelot_ace_rule *ocelot_ace_rule_create(struct tc_cls_flower_offload *f,
+ 	if (!rule)
+ 		return NULL;
+ 
+-	rule->port = block->port;
+-	rule->chip_port = block->port->chip_port;
++	rule->ocelot = block->port->ocelot;
++	rule->ingress_port = BIT(block->port->chip_port);
+ 	return rule;
+ }
+ 
+@@ -219,7 +219,7 @@ static int ocelot_flower_destroy(struct tc_cls_flower_offload *f,
+ 	int ret;
+ 
+ 	rule.prio = get_prio(f->common.prio);
+-	rule.port = port_block->port;
++	rule.ocelot = port_block->port->ocelot;
+ 	rule.id = f->cookie;
+ 
+ 	ret = ocelot_ace_rule_offload_del(&rule);
+@@ -237,7 +237,7 @@ static int ocelot_flower_stats_update(struct tc_cls_flower_offload *f,
+ 	int ret;
+ 
+ 	rule.prio = get_prio(f->common.prio);
+-	rule.port = port_block->port;
++	rule.ocelot = port_block->port->ocelot;
+ 	rule.id = f->cookie;
+ 	ret = ocelot_ace_rule_stats_update(&rule);
+ 	if (ret)
+-- 
+2.17.1
+

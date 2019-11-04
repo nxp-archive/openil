@@ -1,0 +1,122 @@
+From bba3cc2659df6231813fc9cbb231bf42742fa303 Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed Nov 28 18:43:42 2018 +0100
+Subject: [PATCH ocelot-tc-flower-policer 26/44] net/sched: act_police: fix memory leak in case of
+ invalid control action
+
+[ upstream commit fd6d433865a2ad1f7e018ef80408cb3dc3be1ab3 ]
+
+when users set an invalid control action, kmemleak complains as follows:
+
+ # echo clear >/sys/kernel/debug/kmemleak
+ # ./tdc.py -e b48b
+ Test b48b: Add police action with exceed goto chain control action
+ All test results:
+
+ 1..1
+ ok 1 - b48b # Add police action with exceed goto chain control action
+ about to flush the tap output if tests need to be skipped
+ done flushing skipped test tap output
+ # echo scan >/sys/kernel/debug/kmemleak
+ # cat /sys/kernel/debug/kmemleak
+ unreferenced object 0xffffa0fafbc3dde0 (size 96):
+  comm "tc", pid 2358, jiffies 4294922738 (age 17.022s)
+  hex dump (first 32 bytes):
+    2a 00 00 20 00 00 00 00 00 00 7d 00 00 00 00 00  *.. ......}.....
+    f8 07 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000648803d2>] tcf_action_init_1+0x384/0x4c0
+    [<00000000cb69382e>] tcf_action_init+0x12b/0x1a0
+    [<00000000847ef0d4>] tcf_action_add+0x73/0x170
+    [<0000000093656e14>] tc_ctl_action+0x122/0x160
+    [<0000000023c98e32>] rtnetlink_rcv_msg+0x263/0x2d0
+    [<000000003493ae9c>] netlink_rcv_skb+0x4d/0x130
+    [<00000000de63f8ba>] netlink_unicast+0x209/0x2d0
+    [<00000000c3da0ebe>] netlink_sendmsg+0x2c1/0x3c0
+    [<000000007a9e0753>] sock_sendmsg+0x33/0x40
+    [<00000000457c6d2e>] ___sys_sendmsg+0x2a0/0x2f0
+    [<00000000c5c6a086>] __sys_sendmsg+0x5e/0xa0
+    [<00000000446eafce>] do_syscall_64+0x5b/0x180
+    [<000000004aa871f2>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    [<00000000450c38ef>] 0xffffffffffffffff
+
+change tcf_police_init() to avoid leaking 'new' in case TCA_POLICE_RESULT
+contains TC_ACT_GOTO_CHAIN extended action.
+
+Fixes: c08f5ed5d625 ("net/sched: act_police: disallow 'goto chain' on fallback control action")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/sched/act_police.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/net/sched/act_police.c b/net/sched/act_police.c
+index fa5ce00542fc..5f9169015389 100644
+--- a/net/sched/act_police.c
++++ b/net/sched/act_police.c
+@@ -50,7 +50,7 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 			       int ovr, int bind, bool rtnl_held,
+ 			       struct netlink_ext_ack *extack)
+ {
+-	int ret = 0, err;
++	int ret = 0, tcfp_result = TC_ACT_OK, err, size;
+ 	struct nlattr *tb[TCA_POLICE_MAX + 1];
+ 	struct tc_police *parm;
+ 	struct tcf_police *police;
+@@ -59,7 +59,6 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 	struct tcf_police_params *new;
+ 	bool exists = false;
+ 	u32 index;
+-	int size;
+ 
+ 	if (nla == NULL)
+ 		return -EINVAL;
+@@ -127,6 +126,16 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 		goto failure;
+ 	}
+ 
++	if (tb[TCA_POLICE_RESULT]) {
++		tcfp_result = nla_get_u32(tb[TCA_POLICE_RESULT]);
++		if (TC_ACT_EXT_CMP(tcfp_result, TC_ACT_GOTO_CHAIN)) {
++			NL_SET_ERR_MSG(extack,
++				       "goto chain not allowed on fallback");
++			err = -EINVAL;
++			goto failure;
++		}
++	}
++
+ 	new = kzalloc(sizeof(*new), GFP_KERNEL);
+ 	if (unlikely(!new)) {
+ 		err = -ENOMEM;
+@@ -134,6 +143,7 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 	}
+ 
+ 	/* No failure allowed after this point */
++	new->tcfp_result = tcfp_result;
+ 	new->tcfp_mtu = parm->mtu;
+ 	if (!new->tcfp_mtu) {
+ 		new->tcfp_mtu = ~0;
+@@ -163,16 +173,6 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 	if (tb[TCA_POLICE_AVRATE])
+ 		new->tcfp_ewma_rate = nla_get_u32(tb[TCA_POLICE_AVRATE]);
+ 
+-	if (tb[TCA_POLICE_RESULT]) {
+-		new->tcfp_result = nla_get_u32(tb[TCA_POLICE_RESULT]);
+-		if (TC_ACT_EXT_CMP(new->tcfp_result, TC_ACT_GOTO_CHAIN)) {
+-			NL_SET_ERR_MSG(extack,
+-				       "goto chain not allowed on fallback");
+-			err = -EINVAL;
+-			goto failure;
+-		}
+-	}
+-
+ 	spin_lock_bh(&police->tcf_lock);
+ 	spin_lock_bh(&police->tcfp_lock);
+ 	police->tcfp_t_c = ktime_get_ns();
+-- 
+2.17.1
+

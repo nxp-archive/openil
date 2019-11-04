@@ -1,0 +1,59 @@
+From 500aa2e73c4a1c78ec5db0cb8c48d93f45c7d7eb Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Sat Oct 20 23:33:08 2018 +0200
+Subject: [PATCH ocelot-tc-flower-policer 23/44] net/sched: act_police: disallow 'goto chain' on
+ fallback control action
+
+[ upstream commit c08f5ed5d625926f38552b734b587a28e947b55c ]
+
+in the following command:
+
+ # tc action add action police rate <r> burst <b> conform-exceed <c1>/<c2>
+
+'goto chain x' is allowed only for c1: setting it for c2 makes the kernel
+crash with NULL pointer dereference, since TC core doesn't initialize the
+chain handle.
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/sched/act_police.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/net/sched/act_police.c b/net/sched/act_police.c
+index 05bc1f9ac50e..6cd52a623089 100644
+--- a/net/sched/act_police.c
++++ b/net/sched/act_police.c
+@@ -154,8 +154,6 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 		new->peak_present = false;
+ 	}
+ 
+-	if (tb[TCA_POLICE_RESULT])
+-		new->tcfp_result = nla_get_u32(tb[TCA_POLICE_RESULT]);
+ 	new->tcfp_burst = PSCHED_TICKS2NS(parm->burst);
+ 	new->tcfp_toks = new->tcfp_burst;
+ 	if (new->peak_present) {
+@@ -167,6 +165,16 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 	if (tb[TCA_POLICE_AVRATE])
+ 		new->tcfp_ewma_rate = nla_get_u32(tb[TCA_POLICE_AVRATE]);
+ 
++	if (tb[TCA_POLICE_RESULT]) {
++		new->tcfp_result = nla_get_u32(tb[TCA_POLICE_RESULT]);
++		if (TC_ACT_EXT_CMP(new->tcfp_result, TC_ACT_GOTO_CHAIN)) {
++			NL_SET_ERR_MSG(extack,
++				       "goto chain not allowed on fallback");
++			err = -EINVAL;
++			goto failure;
++		}
++	}
++
+ 	spin_lock_bh(&police->tcf_lock);
+ 	new->tcfp_t_c = ktime_get_ns();
+ 	police->tcf_action = parm->action;
+-- 
+2.17.1
+

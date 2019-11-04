@@ -1,0 +1,289 @@
+From 93d29401562e18b3fa71977f1c06f2568b16ed7d Mon Sep 17 00:00:00 2001
+From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Date: Sun, 27 Oct 2019 18:54:51 +0800
+Subject: [PATCH ocelot-tc-flower-policer 42/44] ocelot: add police action support for tc flower
+
+Add police action support on ocelot flower driver.
+Usage example:
+tc filter add dev swp0 parent ffff: protocol ip flower skip_sw src_ip
+192.168.2.1 action police rate 100Mbit burst 10000
+
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ drivers/net/ethernet/mscc/ocelot_ace.c    | 30 ++++++++++++++++++++---
+ drivers/net/ethernet/mscc/ocelot_ace.h    |  3 +++
+ drivers/net/ethernet/mscc/ocelot_flower.c |  5 ++++
+ drivers/net/ethernet/mscc/ocelot_police.c | 25 ++-----------------
+ drivers/net/ethernet/mscc/ocelot_police.h | 23 +++++++++++++++++
+ drivers/net/ethernet/mscc/ocelot_vcap.h   | 23 ++++++++---------
+ 6 files changed, 72 insertions(+), 37 deletions(-)
+
+diff --git a/drivers/net/ethernet/mscc/ocelot_ace.c b/drivers/net/ethernet/mscc/ocelot_ace.c
+index 2d55c62846ea..8e670756443f 100644
+--- a/drivers/net/ethernet/mscc/ocelot_ace.c
++++ b/drivers/net/ethernet/mscc/ocelot_ace.c
+@@ -9,10 +9,13 @@
+ #include "ocelot_ace.h"
+ #include "ocelot_vcap.h"
+ #include "ocelot_s2.h"
++#include "ocelot_police.h"
+ 
+ #define OCELOT_POLICER_DISCARD 0x17f
+ 
+ static struct ocelot_acl_block *acl_block;
++static int pol_ix;
++int qos_policer_conf_set(struct ocelot_port *port, u32 pol_ix, struct qos_policer_conf *conf);
+ 
+ struct vcap_props {
+ 	const char *name; /* Symbolic name */
+@@ -304,9 +307,14 @@ static void vcap_action_set(struct vcap_data *data, u32 offset, u32 width,
+ #define VCAP_ACT_SET(fld, val) \
+ 	vcap_action_set(data, IS2_AO_##fld, IS2_AL_##fld, val)
+ 
+-static void is2_action_set(struct vcap_data *data,
+-			   enum ocelot_ace_action action)
++static void is2_action_set(struct ocelot *ocelot,
++			   struct vcap_data *data,
++			   struct ocelot_ace_rule *ace)
+ {
++	struct ocelot_port *ocelot_port = ocelot->ports[0];
++	enum ocelot_ace_action action = ace->action;
++	struct qos_policer_conf pp;
++
+ 	switch (action) {
+ 	case OCELOT_ACL_ACTION_DROP:
+ 		VCAP_ACT_SET(PORT_MASK, 0x0);
+@@ -324,6 +332,20 @@ static void is2_action_set(struct vcap_data *data,
+ 		VCAP_ACT_SET(CPU_QU_NUM, 0x0);
+ 		VCAP_ACT_SET(CPU_COPY_ENA, 0x1);
+ 		break;
++	case OCELOT_ACL_ACTION_POLICE:
++		VCAP_ACT_SET(PORT_MASK, 0x0);
++		VCAP_ACT_SET(MASK_MODE, 0x0);
++		VCAP_ACT_SET(POLICE_ENA, 0x1);
++		VCAP_ACT_SET(POLICE_IDX, pol_ix);
++		VCAP_ACT_SET(CPU_QU_NUM, 0x0);
++		VCAP_ACT_SET(CPU_COPY_ENA, 0x0);
++		memset(&pp, 0, sizeof(pp));
++		pp.mode = MSCC_QOS_RATE_MODE_DATA;
++		pp.pir = ace->pol.rate;
++		pp.pbs = ace->pol.burst;
++		qos_policer_conf_set(ocelot_port, pol_ix, &pp);
++		pol_ix--;
++		break;
+ 	}
+ }
+ 
+@@ -562,7 +584,7 @@ static void is2_entry_set(struct ocelot *ocelot, int ix,
+ 	}
+ 
+ 	VCAP_KEY_SET(TYPE, type, type_mask);
+-	is2_action_set(&data, ace->action);
++	is2_action_set(ocelot, &data, ace);
+ 	vcap_data_set(data.counter, data.counter_offset, vcap_is2.counter_width,
+ 		      ace->stats.pkts);
+ 
+@@ -650,6 +672,8 @@ int ocelot_ace_rule_offload_add(struct ocelot_ace_rule *rule)
+ 	/* Get the index of the inserted rule */
+ 	index = ocelot_ace_rule_get_index_id(acl_block, rule);
+ 
++	pol_ix = OCELOT_POLICER_DISCARD - 1;
++
+ 	/* Move down the rules to make place for the new rule */
+ 	for (i = acl_block->count - 1; i > index; i--) {
+ 		ace = ocelot_ace_rule_get_rule_index(acl_block, i);
+diff --git a/drivers/net/ethernet/mscc/ocelot_ace.h b/drivers/net/ethernet/mscc/ocelot_ace.h
+index f74702c84837..14bc7d1a8e0b 100644
+--- a/drivers/net/ethernet/mscc/ocelot_ace.h
++++ b/drivers/net/ethernet/mscc/ocelot_ace.h
+@@ -7,6 +7,7 @@
+ #define _MSCC_OCELOT_ACE_H_
+ 
+ #include "ocelot.h"
++#include "ocelot_police.h"
+ #include <net/sch_generic.h>
+ #include <net/pkt_cls.h>
+ 
+@@ -176,6 +177,7 @@ struct ocelot_ace_frame_ipv6 {
+ enum ocelot_ace_action {
+ 	OCELOT_ACL_ACTION_DROP,
+ 	OCELOT_ACL_ACTION_TRAP,
++	OCELOT_ACL_ACTION_POLICE,
+ };
+ 
+ struct ocelot_ace_stats {
+@@ -209,6 +211,7 @@ struct ocelot_ace_rule {
+ 		struct ocelot_ace_frame_ipv4 ipv4;
+ 		struct ocelot_ace_frame_ipv6 ipv6;
+ 	} frame;
++	struct ocelot_policer pol;
+ };
+ 
+ struct ocelot_acl_block {
+diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
+index a0c84f50f86c..52f1f2ec1019 100644
+--- a/drivers/net/ethernet/mscc/ocelot_flower.c
++++ b/drivers/net/ethernet/mscc/ocelot_flower.c
+@@ -36,6 +36,11 @@ static int ocelot_flower_parse_action(struct tc_cls_flower_offload *f,
+ 		case FLOW_ACTION_TRAP:
+ 			rule->action = OCELOT_ACL_ACTION_TRAP;
+ 			break;
++		case FLOW_ACTION_POLICE:
++			rule->action = OCELOT_ACL_ACTION_POLICE;
++			rule->pol.rate = (u32)div_u64(a->police.rate_bytes_ps, 1000) * 8;
++			rule->pol.burst = (u32)div_u64(a->police.rate_bytes_ps * PSCHED_NS2TICKS(a->police.burst), PSCHED_TICKS_PER_SEC);
++			break;
+ 		default:
+ 			return -EOPNOTSUPP;
+ 		}
+diff --git a/drivers/net/ethernet/mscc/ocelot_police.c b/drivers/net/ethernet/mscc/ocelot_police.c
+index 701e82dd749a..ad3ccf431584 100644
+--- a/drivers/net/ethernet/mscc/ocelot_police.c
++++ b/drivers/net/ethernet/mscc/ocelot_police.c
+@@ -6,16 +6,6 @@
+ 
+ #include "ocelot_police.h"
+ 
+-enum mscc_qos_rate_mode {
+-	MSCC_QOS_RATE_MODE_DISABLED, /* Policer/shaper disabled */
+-	MSCC_QOS_RATE_MODE_LINE, /* Measure line rate in kbps incl. IPG */
+-	MSCC_QOS_RATE_MODE_DATA, /* Measures data rate in kbps excl. IPG */
+-	MSCC_QOS_RATE_MODE_FRAME, /* Measures frame rate in fps */
+-	__MSCC_QOS_RATE_MODE_END,
+-	NUM_MSCC_QOS_RATE_MODE = __MSCC_QOS_RATE_MODE_END,
+-	MSCC_QOS_RATE_MODE_MAX = __MSCC_QOS_RATE_MODE_END - 1,
+-};
+-
+ /* Types for ANA:POL[0-192]:POL_MODE_CFG.FRM_MODE */
+ #define POL_MODE_LINERATE   0 /* Incl IPG. Unit: 33 1/3 kbps, 4096 bytes */
+ #define POL_MODE_DATARATE   1 /* Excl IPG. Unit: 33 1/3 kbps, 4096 bytes  */
+@@ -29,19 +19,8 @@ enum mscc_qos_rate_mode {
+ /* Default policer order */
+ #define POL_ORDER 0x1d3 /* Ocelot policer order: Serial (QoS -> Port -> VCAP) */
+ 
+-struct qos_policer_conf {
+-	enum mscc_qos_rate_mode mode;
+-	bool dlb; /* Enable DLB (dual leaky bucket mode */
+-	bool cf;  /* Coupling flag (ignored in SLB mode) */
+-	u32  cir; /* CIR in kbps/fps (ignored in SLB mode) */
+-	u32  cbs; /* CBS in bytes/frames (ignored in SLB mode) */
+-	u32  pir; /* PIR in kbps/fps */
+-	u32  pbs; /* PBS in bytes/frames */
+-	u8   ipg; /* Size of IPG when MSCC_QOS_RATE_MODE_LINE is chosen */
+-};
+-
+-static int qos_policer_conf_set(struct ocelot_port *port, u32 pol_ix,
+-				struct qos_policer_conf *conf)
++int qos_policer_conf_set(struct ocelot_port *port, u32 pol_ix,
++			 struct qos_policer_conf *conf)
+ {
+ 	u32 cf = 0, cir_ena = 0, frm_mode = POL_MODE_LINERATE;
+ 	u32 cir = 0, cbs = 0, pir = 0, pbs = 0;
+diff --git a/drivers/net/ethernet/mscc/ocelot_police.h b/drivers/net/ethernet/mscc/ocelot_police.h
+index d1137f79efda..f2ba6a614aa8 100644
+--- a/drivers/net/ethernet/mscc/ocelot_police.h
++++ b/drivers/net/ethernet/mscc/ocelot_police.h
+@@ -9,14 +9,37 @@
+ 
+ #include "ocelot.h"
+ 
++enum mscc_qos_rate_mode {
++	MSCC_QOS_RATE_MODE_DISABLED, /* Policer/shaper disabled */
++	MSCC_QOS_RATE_MODE_LINE, /* Measure line rate in kbps incl. IPG */
++	MSCC_QOS_RATE_MODE_DATA, /* Measures data rate in kbps excl. IPG */
++	MSCC_QOS_RATE_MODE_FRAME, /* Measures frame rate in fps */
++	__MSCC_QOS_RATE_MODE_END,
++	NUM_MSCC_QOS_RATE_MODE = __MSCC_QOS_RATE_MODE_END,
++	MSCC_QOS_RATE_MODE_MAX = __MSCC_QOS_RATE_MODE_END - 1,
++};
++
+ struct ocelot_policer {
+ 	u32 rate; /* kilobit per second */
+ 	u32 burst; /* bytes */
+ };
+ 
++struct qos_policer_conf {
++	enum mscc_qos_rate_mode mode;
++	bool dlb; /* Enable DLB (dual leaky bucket mode */
++	bool cf;  /* Coupling flag (ignored in SLB mode) */
++	u32  cir; /* CIR in kbps/fps (ignored in SLB mode) */
++	u32  cbs; /* CBS in bytes/frames (ignored in SLB mode) */
++	u32  pir; /* PIR in kbps/fps */
++	u32  pbs; /* PBS in bytes/frames */
++	u8   ipg; /* Size of IPG when MSCC_QOS_RATE_MODE_LINE is chosen */
++};
++
+ int ocelot_port_policer_add(struct ocelot_port *port,
+ 			    struct ocelot_policer *pol);
+ 
+ int ocelot_port_policer_del(struct ocelot_port *port);
+ 
++//int qos_policer_conf_set(struct ocelot_port *port, u32 pol_ix,
++//			 struct qos_policer_conf *conf);
+ #endif /* _MSCC_OCELOT_POLICE_H_ */
+diff --git a/drivers/net/ethernet/mscc/ocelot_vcap.h b/drivers/net/ethernet/mscc/ocelot_vcap.h
+index 20379939f9cb..8f62961f19cd 100644
+--- a/drivers/net/ethernet/mscc/ocelot_vcap.h
++++ b/drivers/net/ethernet/mscc/ocelot_vcap.h
+@@ -3,12 +3,12 @@
+  * Copyright (c) 2019 Microsemi Corporation
+  */
+ 
+-#ifndef _OCELOT_VCAP_H_
++#ifndef _OCELOT_VCAP_H__
+ #define _OCELOT_VCAP_H_
+ 
+-/* =================================================================
++/* ================================================================= *
+  *  VCAP Common
+- * =================================================================
++ * ================================================================= *
+  */
+ 
+ /* VCAP Type-Group values */
+@@ -17,15 +17,14 @@
+ #define VCAP_TG_HALF 2 /* Half entry */
+ #define VCAP_TG_QUARTER 3 /* Quarter entry */
+ 
+-/* =================================================================
++/* ================================================================= *
+  *  VCAP IS2
+- * =================================================================
++ * ================================================================= *
+  */
+ 
+-#define VCAP_IS2_CNT 64
+-#define VCAP_IS2_ENTRY_WIDTH 376
+-#define VCAP_IS2_ACTION_WIDTH 99
+-/* TODO: Support different VCAP_PORT_CNT values */
++#define VCAP_IS2_CNT 1024
++#define VCAP_IS2_ENTRY_WIDTH 384
++#define VCAP_IS2_ACTION_WIDTH 89
+ #define VCAP_PORT_CNT 6
+ 
+ /* IS2 half key types */
+@@ -62,9 +61,9 @@
+ #define IS2_ACT_REW_OP_PTP_ONE_SUB_DELAY_1 (IS2_ACT_REW_OP_PTP_ONE | (1 << 3))
+ #define IS2_ACT_REW_OP_PTP_ONE_SUB_DELAY_2 (IS2_ACT_REW_OP_PTP_ONE | (2 << 3))
+ #define IS2_ACT_REW_OP_PTP_ONE_ADD_DELAY (IS2_ACT_REW_OP_PTP_ONE | (1 << 5))
+-#define IS2_ACT_REW_OP_PTP_ONE_ADD_SUB BIT(7)
++#define IS2_ACT_REW_OP_PTP_ONE_ADD_SUB BIT(1 << 7)
+ 
+-#define VCAP_PORT_WIDTH 4
++#define VCAP_PORT_WIDTH 3
+ 
+ /* IS2 quarter key - SMAC_SIP4 */
+ #define IS2_QKO_IGR_PORT 0
+@@ -390,6 +389,8 @@
+ #define IS2_AL_ISDX_ENA 1
+ #define IS2_AO_ACL_ID (IS2_AO_ISDX_ENA + IS2_AL_ISDX_ENA)
+ #define IS2_AL_ACL_ID 6
++#define IS2_AO_HIT_CNT (IS2_AO_ACL_ID + IS2_AL_ACL_ID)
++#define IS2_AL_HIT_CNT 32
+ 
+ /* IS2 action - SMAC_SIP */
+ #define IS2_AO_SMAC_SIP_CPU_COPY_ENA 0
+-- 
+2.17.1
+

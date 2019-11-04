@@ -1,0 +1,96 @@
+From c4bd48699beb92d6bb99d6139d1e9737cca73480 Mon Sep 17 00:00:00 2001
+From: Vlad Buslov <vladbu@mellanox.com>
+Date: Sat, 3 Aug 2019 16:36:18 +0300
+Subject: [PATCH ocelot-tc-flower-policer 37/44] net: sched: police: allow accessing police->params with rtnl
+
+[ upstream commit c4bd48699beb92d6bb99d6139d1e9737cca73480 ]
+
+Recently implemented support for police action in flow_offload infra leads
+to following rcu usage warning:
+
+[ 1925.881092] =============================
+[ 1925.881094] WARNING: suspicious RCU usage
+[ 1925.881098] 5.3.0-rc1+ #574 Not tainted
+[ 1925.881100] -----------------------------
+[ 1925.881104] include/net/tc_act/tc_police.h:57 suspicious rcu_dereference_check() usage!
+[ 1925.881106]
+               other info that might help us debug this:
+
+[ 1925.881109]
+               rcu_scheduler_active = 2, debug_locks = 1
+[ 1925.881112] 1 lock held by tc/18591:
+[ 1925.881115]  #0: 00000000b03cb918 (rtnl_mutex){+.+.}, at: tc_new_tfilter+0x47c/0x970
+[ 1925.881124]
+               stack backtrace:
+[ 1925.881127] CPU: 2 PID: 18591 Comm: tc Not tainted 5.3.0-rc1+ #574
+[ 1925.881130] Hardware name: Supermicro SYS-2028TP-DECR/X10DRT-P, BIOS 2.0b 03/30/2017
+[ 1925.881132] Call Trace:
+[ 1925.881138]  dump_stack+0x85/0xc0
+[ 1925.881145]  tc_setup_flow_action+0x1771/0x2040
+[ 1925.881155]  fl_hw_replace_filter+0x11f/0x2e0 [cls_flower]
+[ 1925.881175]  fl_change+0xd24/0x1b30 [cls_flower]
+[ 1925.881200]  tc_new_tfilter+0x3e0/0x970
+[ 1925.881231]  ? tc_del_tfilter+0x720/0x720
+[ 1925.881243]  rtnetlink_rcv_msg+0x389/0x4b0
+[ 1925.881250]  ? netlink_deliver_tap+0x95/0x400
+[ 1925.881257]  ? rtnl_dellink+0x2d0/0x2d0
+[ 1925.881264]  netlink_rcv_skb+0x49/0x110
+[ 1925.881275]  netlink_unicast+0x171/0x200
+[ 1925.881284]  netlink_sendmsg+0x224/0x3f0
+[ 1925.881299]  sock_sendmsg+0x5e/0x60
+[ 1925.881305]  ___sys_sendmsg+0x2ae/0x330
+[ 1925.881309]  ? task_work_add+0x43/0x50
+[ 1925.881314]  ? fput_many+0x45/0x80
+[ 1925.881329]  ? __lock_acquire+0x248/0x1930
+[ 1925.881342]  ? find_held_lock+0x2b/0x80
+[ 1925.881347]  ? task_work_run+0x7b/0xd0
+[ 1925.881359]  __sys_sendmsg+0x59/0xa0
+[ 1925.881375]  do_syscall_64+0x5c/0xb0
+[ 1925.881381]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1925.881384] RIP: 0033:0x7feb245047b8
+[ 1925.881388] Code: 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 65 8f 0c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83
+ ec 28 89 54
+[ 1925.881391] RSP: 002b:00007ffc2d2a5788 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+[ 1925.881395] RAX: ffffffffffffffda RBX: 000000005d4497ed RCX: 00007feb245047b8
+[ 1925.881398] RDX: 0000000000000000 RSI: 00007ffc2d2a57f0 RDI: 0000000000000003
+[ 1925.881400] RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000006
+[ 1925.881403] R10: 0000000000404ec2 R11: 0000000000000246 R12: 0000000000000001
+[ 1925.881406] R13: 0000000000480640 R14: 0000000000000012 R15: 0000000000000001
+
+Change tcf_police_rate_bytes_ps() and tcf_police_tcfp_burst() helpers to
+allow using them from both rtnl and rcu protected contexts.
+
+Fixes: 8c8cfc6ed274 ("net/sched: add police action to the hardware intermediate representation")
+Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
+Reviewed-by: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/tc_act/tc_police.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/net/tc_act/tc_police.h b/include/net/tc_act/tc_police.h
+index 8b9ef3664262..cfdc7cb82cad 100644
+--- a/include/net/tc_act/tc_police.h
++++ b/include/net/tc_act/tc_police.h
+@@ -54,7 +54,7 @@ static inline u64 tcf_police_rate_bytes_ps(const struct tc_action *act)
+ 	struct tcf_police *police = to_police(act);
+ 	struct tcf_police_params *params;
+ 
+-	params = rcu_dereference_bh(police->params);
++	params = rcu_dereference_bh_rtnl(police->params);
+ 	return params->rate.rate_bytes_ps;
+ }
+ 
+@@ -63,7 +63,7 @@ static inline s64 tcf_police_tcfp_burst(const struct tc_action *act)
+ 	struct tcf_police *police = to_police(act);
+ 	struct tcf_police_params *params;
+ 
+-	params = rcu_dereference_bh(police->params);
++	params = rcu_dereference_bh_rtnl(police->params);
+ 	return params->tcfp_burst;
+ }
+ 
+-- 
+2.7.4
+

@@ -1,0 +1,116 @@
+From 0ee90e8200c18cc6a7c38c3f389c3ef73a7df405 Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Thu Sep 13 19:29:12 2018 +0200
+Subject: [PATCH ocelot-tc-flower-policer 19/44] net/sched: act_police: use per-cpu counters
+
+[ upstream commit 93be42f9173bbc133bd72915b658394308437d00 ]
+
+use per-CPU counters, instead of sharing a single set of stats with all
+cores. This removes the need of using spinlock when statistics are read
+or updated.
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/sched/act_police.c | 46 ++++++++++++++++++++----------------------
+ 1 file changed, 22 insertions(+), 24 deletions(-)
+
+diff --git a/net/sched/act_police.c b/net/sched/act_police.c
+index 452eea14bef2..c0093e147fb8 100644
+--- a/net/sched/act_police.c
++++ b/net/sched/act_police.c
+@@ -84,7 +84,7 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 
+ 	if (!exists) {
+ 		ret = tcf_idr_create(tn, index, NULL, a,
+-				     &act_police_ops, bind, false);
++				     &act_police_ops, bind, true);
+ 		if (ret) {
+ 			tcf_idr_cleanup(tn, index);
+ 			return ret;
+@@ -111,7 +111,8 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 	}
+ 
+ 	if (est) {
+-		err = gen_replace_estimator(&police->tcf_bstats, NULL,
++		err = gen_replace_estimator(&police->tcf_bstats,
++					    police->common.cpu_bstats,
+ 					    &police->tcf_rate_est,
+ 					    &police->tcf_lock,
+ 					    NULL, est);
+@@ -181,32 +182,27 @@ static int tcf_police_act(struct sk_buff *skb, const struct tc_action *a,
+ 			  struct tcf_result *res)
+ {
+ 	struct tcf_police *police = to_police(a);
+-	s64 now;
+-	s64 toks;
+-	s64 ptoks = 0;
++	s64 now, toks, ptoks = 0;
++	int ret;
+ 
+-	spin_lock(&police->tcf_lock);
+-
+-	bstats_update(&police->tcf_bstats, skb);
+ 	tcf_lastuse_update(&police->tcf_tm);
++	bstats_cpu_update(this_cpu_ptr(police->common.cpu_bstats), skb);
+ 
++	spin_lock(&police->tcf_lock);
+ 	if (police->tcfp_ewma_rate) {
+ 		struct gnet_stats_rate_est64 sample;
+ 
+ 		if (!gen_estimator_read(&police->tcf_rate_est, &sample) ||
+ 		    sample.bps >= police->tcfp_ewma_rate) {
+-			police->tcf_qstats.overlimits++;
+-			if (police->tcf_action == TC_ACT_SHOT)
+-				police->tcf_qstats.drops++;
+-			spin_unlock(&police->tcf_lock);
+-			return police->tcf_action;
++			ret = police->tcf_action;
++			goto inc_overlimits;
+ 		}
+ 	}
+ 
+ 	if (qdisc_pkt_len(skb) <= police->tcfp_mtu) {
+ 		if (!police->rate_present) {
+-			spin_unlock(&police->tcf_lock);
+-			return police->tcfp_result;
++			ret = police->tcfp_result;
++			goto unlock;
+ 		}
+ 
+ 		now = ktime_get_ns();
+@@ -227,18 +223,20 @@ static int tcf_police_act(struct sk_buff *skb, const struct tc_action *a,
+ 			police->tcfp_t_c = now;
+ 			police->tcfp_toks = toks;
+ 			police->tcfp_ptoks = ptoks;
+-			if (police->tcfp_result == TC_ACT_SHOT)
+-				police->tcf_qstats.drops++;
+-			spin_unlock(&police->tcf_lock);
+-			return police->tcfp_result;
++			ret = police->tcfp_result;
++			goto inc_drops;
+ 		}
+ 	}
+-
+-	police->tcf_qstats.overlimits++;
+-	if (police->tcf_action == TC_ACT_SHOT)
+-		police->tcf_qstats.drops++;
++	ret = police->tcf_action;
++
++inc_overlimits:
++	qstats_overlimit_inc(this_cpu_ptr(police->common.cpu_qstats));
++inc_drops:
++	if (ret == TC_ACT_SHOT)
++		qstats_drop_inc(this_cpu_ptr(police->common.cpu_qstats));
++unlock:
+ 	spin_unlock(&police->tcf_lock);
+-	return police->tcf_action;
++	return ret;
+ }
+ 
+ static void tcf_police_stats_update(struct tc_action *a,
+-- 
+2.17.1
+

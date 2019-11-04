@@ -1,0 +1,106 @@
+From 9b63a3e505e626a926e22568931d22c9313367bd Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed Nov 21 18:23:53 2018 +0100
+Subject: [PATCH ocelot-tc-flower-policer 24/44] net/sched: act_police: fix race condition on state
+ variables
+
+[ upstream commit 484afd1bd3fc6f9f5347289fc8b285aa65f67054 ]
+
+after 'police' configuration parameters were converted to use RCU instead
+of spinlock, the state variables used to compute the traffic rate (namely
+'tcfp_toks', 'tcfp_ptoks' and 'tcfp_t_c') are erroneously read/updated in
+the traffic path without any protection.
+
+Use a dedicated spinlock to avoid race conditions on these variables, and
+ensure proper cache-line alignment. In this way, 'police' is still faster
+than what we observed when 'tcf_lock' was used in the traffic path _ i.e.
+reverting commit 2d550dbad83c ("net/sched: act_police: don't use spinlock
+in the data path"). Moreover, we preserve the throughput improvement that
+was obtained after 'police' started using per-cpu counters, when 'avrate'
+is used instead of 'rate'.
+
+Changes since v1 (thanks to Eric Dumazet):
+- call ktime_get_ns() before acquiring the lock in the traffic path
+- use a dedicated spinlock instead of tcf_lock
+- improve cache-line usage
+
+Fixes: 2d550dbad83c ("net/sched: act_police: don't use spinlock in the data path")
+Reported-and-suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/sched/act_police.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
+
+diff --git a/net/sched/act_police.c b/net/sched/act_police.c
+index 6cd52a623089..791583f116c5 100644
+--- a/net/sched/act_police.c
++++ b/net/sched/act_police.c
+@@ -155,12 +155,9 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 	}
+ 
+ 	new->tcfp_burst = PSCHED_TICKS2NS(parm->burst);
+-	new->tcfp_toks = new->tcfp_burst;
+-	if (new->peak_present) {
++	if (new->peak_present)
+ 		new->tcfp_mtu_ptoks = (s64)psched_l2t_ns(&new->peak,
+ 							 new->tcfp_mtu);
+-		new->tcfp_ptoks = new->tcfp_mtu_ptoks;
+-	}
+ 
+ 	if (tb[TCA_POLICE_AVRATE])
+ 		new->tcfp_ewma_rate = nla_get_u32(tb[TCA_POLICE_AVRATE]);
+@@ -176,7 +173,12 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 	}
+ 
+ 	spin_lock_bh(&police->tcf_lock);
+-	new->tcfp_t_c = ktime_get_ns();
++	spin_lock_bh(&police->tcfp_lock);
++	police->tcfp_t_c = ktime_get_ns();
++	police->tcfp_toks = new->tcfp_burst;
++	if (new->peak_present)
++		police->tcfp_ptoks = new->tcfp_mtu_ptoks;
++	spin_unlock_bh(&police->tcfp_lock);
+ 	police->tcf_action = parm->action;
+ 	rcu_swap_protected(police->params,
+ 			   new,
+@@ -226,26 +228,28 @@ static int tcf_police_act(struct sk_buff *skb, const struct tc_action *a,
+ 		}
+ 
+ 		now = ktime_get_ns();
+-		toks = min_t(s64, now - p->tcfp_t_c,
++		spin_lock_bh(&police->tcfp_lock);
++		toks = min_t(s64, now - police->tcfp_t_c,
+ 			     p->tcfp_burst);
+ 		if (p->peak_present) {
+-			ptoks = toks + p->tcfp_ptoks;
++			ptoks = toks + police->tcfp_ptoks;
+ 			if (ptoks > p->tcfp_mtu_ptoks)
+ 				ptoks = p->tcfp_mtu_ptoks;
+ 			ptoks -= (s64) psched_l2t_ns(&p->peak,
+ 						     qdisc_pkt_len(skb));
+ 		}
+-		toks += p->tcfp_toks;
++		toks += police->tcfp_toks;
+ 		if (toks > p->tcfp_burst)
+ 			toks = p->tcfp_burst;
+ 		toks -= (s64) psched_l2t_ns(&p->rate, qdisc_pkt_len(skb));
+ 		if ((toks|ptoks) >= 0) {
+-			p->tcfp_t_c = now;
+-			p->tcfp_toks = toks;
+-			p->tcfp_ptoks = ptoks;
++			police->tcfp_t_c = now;
++			police->tcfp_toks = toks;
++			police->tcfp_ptoks = ptoks;
+ 			ret = p->tcfp_result;
+ 			goto inc_drops;
+ 		}
++		spin_unlock_bh(&police->tcfp_lock);
+ 	}
+ 
+ inc_overlimits:
+-- 
+2.17.1
+

@@ -1,0 +1,86 @@
+From 67cbf7dedd03a63ca2fbd9df2049eabba7a37edf Mon Sep 17 00:00:00 2001
+From: Vlad Buslov <vladbu@mellanox.com>
+Date: Sat, 3 Aug 2019 16:36:19 +0300
+Subject: [PATCH ocelot-tc-flower-policer 36/44] net: sched: sample: allow accessing psample_group with rtnl
+
+[ upstream commit 67cbf7dedd03a63ca2fbd9df2049eabba7a37edf ]
+
+Recently implemented support for sample action in flow_offload infra leads
+to following rcu usage warning:
+
+[ 1938.234856] =============================
+[ 1938.234858] WARNING: suspicious RCU usage
+[ 1938.234863] 5.3.0-rc1+ #574 Not tainted
+[ 1938.234866] -----------------------------
+[ 1938.234869] include/net/tc_act/tc_sample.h:47 suspicious rcu_dereference_check() usage!
+[ 1938.234872]
+               other info that might help us debug this:
+
+[ 1938.234875]
+               rcu_scheduler_active = 2, debug_locks = 1
+[ 1938.234879] 1 lock held by tc/19540:
+[ 1938.234881]  #0: 00000000b03cb918 (rtnl_mutex){+.+.}, at: tc_new_tfilter+0x47c/0x970
+[ 1938.234900]
+               stack backtrace:
+[ 1938.234905] CPU: 2 PID: 19540 Comm: tc Not tainted 5.3.0-rc1+ #574
+[ 1938.234908] Hardware name: Supermicro SYS-2028TP-DECR/X10DRT-P, BIOS 2.0b 03/30/2017
+[ 1938.234911] Call Trace:
+[ 1938.234922]  dump_stack+0x85/0xc0
+[ 1938.234930]  tc_setup_flow_action+0xed5/0x2040
+[ 1938.234944]  fl_hw_replace_filter+0x11f/0x2e0 [cls_flower]
+[ 1938.234965]  fl_change+0xd24/0x1b30 [cls_flower]
+[ 1938.234990]  tc_new_tfilter+0x3e0/0x970
+[ 1938.235021]  ? tc_del_tfilter+0x720/0x720
+[ 1938.235028]  rtnetlink_rcv_msg+0x389/0x4b0
+[ 1938.235038]  ? netlink_deliver_tap+0x95/0x400
+[ 1938.235044]  ? rtnl_dellink+0x2d0/0x2d0
+[ 1938.235053]  netlink_rcv_skb+0x49/0x110
+[ 1938.235063]  netlink_unicast+0x171/0x200
+[ 1938.235073]  netlink_sendmsg+0x224/0x3f0
+[ 1938.235091]  sock_sendmsg+0x5e/0x60
+[ 1938.235097]  ___sys_sendmsg+0x2ae/0x330
+[ 1938.235111]  ? __handle_mm_fault+0x12cd/0x19e0
+[ 1938.235125]  ? __handle_mm_fault+0x12cd/0x19e0
+[ 1938.235138]  ? find_held_lock+0x2b/0x80
+[ 1938.235147]  ? do_user_addr_fault+0x22d/0x490
+[ 1938.235160]  __sys_sendmsg+0x59/0xa0
+[ 1938.235178]  do_syscall_64+0x5c/0xb0
+[ 1938.235187]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1938.235192] RIP: 0033:0x7ff9a4d597b8
+[ 1938.235197] Code: 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 65 8f 0c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83
+ ec 28 89 54
+[ 1938.235200] RSP: 002b:00007ffcfe381c48 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+[ 1938.235205] RAX: ffffffffffffffda RBX: 000000005d4497f9 RCX: 00007ff9a4d597b8
+[ 1938.235208] RDX: 0000000000000000 RSI: 00007ffcfe381cb0 RDI: 0000000000000003
+[ 1938.235211] RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000006
+[ 1938.235214] R10: 0000000000404ec2 R11: 0000000000000246 R12: 0000000000000001
+[ 1938.235217] R13: 0000000000480640 R14: 0000000000000012 R15: 0000000000000001
+
+Change tcf_sample_psample_group() helper to allow using it from both rtnl
+and rcu protected contexts.
+
+Fixes: a7a7be6087b0 ("net/sched: add sample action to the hardware intermediate representation")
+Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
+Reviewed-by: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/tc_act/tc_sample.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/net/tc_act/tc_sample.h b/include/net/tc_act/tc_sample.h
+index 0a559d4b6f0f..b4fce0fae645 100644
+--- a/include/net/tc_act/tc_sample.h
++++ b/include/net/tc_act/tc_sample.h
+@@ -44,7 +44,7 @@ static inline int tcf_sample_trunc_size(const struct tc_action *a)
+ static inline struct psample_group *
+ tcf_sample_psample_group(const struct tc_action *a)
+ {
+-	return rcu_dereference(to_sample(a)->psample_group);
++	return rcu_dereference_rtnl(to_sample(a)->psample_group);
+ }
+ 
+ #endif /* __NET_TC_SAMPLE_H */
+-- 
+2.7.4
+

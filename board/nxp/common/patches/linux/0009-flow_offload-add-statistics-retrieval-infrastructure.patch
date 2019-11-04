@@ -1,0 +1,77 @@
+From b8471423f1413893a338af58c486ef60d74885e3 Mon Sep 17 00:00:00 2001
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Date: Sat Feb 2 12:50:47 2019 +0100
+Subject: [PATCH ocelot-tc-flower-policer 04/44] flow_offload: add statistics retrieval infrastructure
+ and use it
+
+[ upstream commit 3b1903ef97c080a80ead3a6a2305f55108e08269 ]
+
+This patch provides the flow_stats structure that acts as container for
+tc_cls_flower_offload, then we can use to restore the statistics on the
+existing TC actions. Hence, tcf_exts_stats_update() is not used from
+drivers anymore.
+
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/flow_offload.h | 14 ++++++++++++++
+ include/net/pkt_cls.h      |  1 +
+ net/sched/cls_flower.c     |  4 ++++
+ 3 files changed, 19 insertions(+)
+
+diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
+index dabc819b6cc9..f9ce39992dbd 100644
+--- a/include/net/flow_offload.h
++++ b/include/net/flow_offload.h
+@@ -179,4 +179,18 @@ static inline bool flow_rule_match_key(const struct flow_rule *rule,
+ 	return dissector_uses_key(rule->match.dissector, key);
+ }
+ 
++struct flow_stats {
++	u64	pkts;
++	u64	bytes;
++	u64	lastused;
++};
++
++static inline void flow_stats_update(struct flow_stats *flow_stats,
++				     u64 bytes, u64 pkts, u64 lastused)
++{
++	flow_stats->pkts	= pkts;
++	flow_stats->bytes	= bytes;
++	flow_stats->lastused	= lastused;
++}
++
+ #endif /* _NET_FLOW_OFFLOAD_H */
+diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
+index 790dc510ff90..8d9330579e81 100644
+--- a/include/net/pkt_cls.h
++++ b/include/net/pkt_cls.h
+@@ -740,6 +740,7 @@ struct tc_cls_flower_offload {
+ 	enum tc_fl_command command;
+ 	unsigned long cookie;
+ 	struct flow_rule *rule;
++	struct flow_stats stats;
+ 	struct tcf_exts *exts;
+ 	u32 classid;
+ };
+diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
+index fa0004ef9372..5228e45ffce3 100644
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -353,6 +353,10 @@ static void fl_hw_update_stats(struct tcf_proto *tp, struct cls_fl_filter *f)
+ 
+ 	tc_setup_cb_call(block, &f->exts, TC_SETUP_CLSFLOWER,
+ 			 &cls_flower, false);
++
++	tcf_exts_stats_update(&f->exts, cls_flower.stats.bytes,
++			      cls_flower.stats.pkts,
++			      cls_flower.stats.lastused);
+ }
+ 
+ static bool __fl_delete(struct tcf_proto *tp, struct cls_fl_filter *f,
+-- 
+2.17.1
+

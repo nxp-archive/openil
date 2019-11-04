@@ -1,0 +1,48 @@
+From 9f9dc493f724b311c84d88b8e77dad14abd06bcc Mon Sep 17 00:00:00 2001
+From: John Hurley <john.hurley@netronome.com>
+Date: Wed, 13 Feb 2019 00:23:52 +0000
+Subject: [PATCH ocelot-tc-flower-policer 31/44] flow_offload: fix block stats
+
+[ upstream commit 9f9dc493f724b311c84d88b8e77dad14abd06bcc ]
+
+With the introduction of flow_stats_update(), drivers now update the stats
+fields of the passed tc_cls_flower_offload struct, rather than call
+tcf_exts_stats_update() directly to update the stats of offloaded TC
+flower rules. However, if multiple qdiscs are registered to a TC shared
+block and a flower rule is applied, then, when getting stats for the rule,
+multiple callbacks may be made.
+
+Take this into consideration by modifying flow_stats_update to gather the
+stats from all callbacks. Currently, the values in tc_cls_flower_offload
+only account for the last stats callback in the list.
+
+Fixes: 3b1903ef97c0 ("flow_offload: add statistics retrieval infrastructure and use it")
+Signed-off-by: John Hurley <john.hurley@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/flow_offload.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
+index a307ccb18015..d035183c8d03 100644
+--- a/include/net/flow_offload.h
++++ b/include/net/flow_offload.h
+@@ -195,9 +195,9 @@ struct flow_stats {
+ static inline void flow_stats_update(struct flow_stats *flow_stats,
+ 				     u64 bytes, u64 pkts, u64 lastused)
+ {
+-	flow_stats->pkts	= pkts;
+-	flow_stats->bytes	= bytes;
+-	flow_stats->lastused	= lastused;
++	flow_stats->pkts	+= pkts;
++	flow_stats->bytes	+= bytes;
++	flow_stats->lastused	= max_t(u64, flow_stats->lastused, lastused);
+ }
+ 
+ #endif /* _NET_FLOW_OFFLOAD_H */
+-- 
+2.7.4
+

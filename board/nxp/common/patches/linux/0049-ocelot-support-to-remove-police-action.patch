@@ -1,0 +1,160 @@
+From 4712f1a991d8d4e79ca50914da1444e9ea85adea Mon Sep 17 00:00:00 2001
+From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Date: Wed, 30 Oct 2019 12:12:08 +0800
+Subject: [PATCH ocelot-tc-flower-policer 44/44] ocelot: support to remove police action
+
+Example:
+Using this command to get the filter list and pref ID:
+	tc filter list dev eth3 parent ffff:
+Then delete one filter by using this command:
+	tc filter del dev eth3 parent ffff: pref pref_ID
+Using this command to delete all filters:
+	tc filter del dev eth3 parent ffff:
+
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ drivers/net/ethernet/mscc/ocelot_ace.c | 55 ++++++++++++++++++++------
+ drivers/net/ethernet/mscc/ocelot_ace.h |  1 +
+ 2 files changed, 44 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/net/ethernet/mscc/ocelot_ace.c b/drivers/net/ethernet/mscc/ocelot_ace.c
+index 8e670756443f..11f0bf461425 100644
+--- a/drivers/net/ethernet/mscc/ocelot_ace.c
++++ b/drivers/net/ethernet/mscc/ocelot_ace.c
+@@ -14,7 +14,7 @@
+ #define OCELOT_POLICER_DISCARD 0x17f
+ 
+ static struct ocelot_acl_block *acl_block;
+-static int pol_ix;
++static int pol_lpr;
+ int qos_policer_conf_set(struct ocelot_port *port, u32 pol_ix, struct qos_policer_conf *conf);
+ 
+ struct vcap_props {
+@@ -311,9 +311,7 @@ static void is2_action_set(struct ocelot *ocelot,
+ 			   struct vcap_data *data,
+ 			   struct ocelot_ace_rule *ace)
+ {
+-	struct ocelot_port *ocelot_port = ocelot->ports[0];
+ 	enum ocelot_ace_action action = ace->action;
+-	struct qos_policer_conf pp;
+ 
+ 	switch (action) {
+ 	case OCELOT_ACL_ACTION_DROP:
+@@ -336,15 +334,9 @@ static void is2_action_set(struct ocelot *ocelot,
+ 		VCAP_ACT_SET(PORT_MASK, 0x0);
+ 		VCAP_ACT_SET(MASK_MODE, 0x0);
+ 		VCAP_ACT_SET(POLICE_ENA, 0x1);
+-		VCAP_ACT_SET(POLICE_IDX, pol_ix);
++		VCAP_ACT_SET(POLICE_IDX, ace->pol_ix);
+ 		VCAP_ACT_SET(CPU_QU_NUM, 0x0);
+ 		VCAP_ACT_SET(CPU_COPY_ENA, 0x0);
+-		memset(&pp, 0, sizeof(pp));
+-		pp.mode = MSCC_QOS_RATE_MODE_DATA;
+-		pp.pir = ace->pol.rate;
+-		pp.pbs = ace->pol.burst;
+-		qos_policer_conf_set(ocelot_port, pol_ix, &pp);
+-		pol_ix--;
+ 		break;
+ 	}
+ }
+@@ -616,6 +608,18 @@ static void ocelot_ace_rule_add(struct ocelot_acl_block *block,
+ {
+ 	struct ocelot_ace_rule *tmp;
+ 	struct list_head *pos, *n;
++	struct qos_policer_conf pp;
++	struct ocelot_port *ocelot_port = rule->ocelot->ports[0];
++
++	if (rule->action == OCELOT_ACL_ACTION_POLICE) {
++		pol_lpr--;
++		rule->pol_ix = pol_lpr;
++		memset(&pp, 0, sizeof(pp));
++		pp.mode = MSCC_QOS_RATE_MODE_DATA;
++		pp.pir = rule->pol.rate;
++		pp.pbs = rule->pol.burst;
++		qos_policer_conf_set(ocelot_port, rule->pol_ix, &pp);
++	}
+ 
+ 	block->count++;
+ 
+@@ -672,7 +676,6 @@ int ocelot_ace_rule_offload_add(struct ocelot_ace_rule *rule)
+ 	/* Get the index of the inserted rule */
+ 	index = ocelot_ace_rule_get_index_id(acl_block, rule);
+ 
+-	pol_ix = OCELOT_POLICER_DISCARD - 1;
+ 
+ 	/* Move down the rules to make place for the new rule */
+ 	for (i = acl_block->count - 1; i > index; i--) {
+@@ -685,6 +688,30 @@ int ocelot_ace_rule_offload_add(struct ocelot_ace_rule *rule)
+ 	return 0;
+ }
+ 
++static void ocelot_ace_police_del(struct ocelot_acl_block *block, u32 ix)
++{
++	struct ocelot_port *ocelot_port;
++	struct ocelot_ace_rule *tmp;
++	struct qos_policer_conf pp;
++	int index = -1;
++
++	list_for_each_entry(tmp, &block->rules, list) {
++		++index;
++		if (tmp->action == OCELOT_ACL_ACTION_POLICE &&
++		    tmp->pol_ix < ix) {
++			tmp->pol_ix += 1;
++			memset(&pp, 0, sizeof(pp));
++			pp.mode = MSCC_QOS_RATE_MODE_DATA;
++			pp.pir = tmp->pol.rate;
++			pp.pbs = tmp->pol.burst;
++			ocelot_port = tmp->ocelot->ports[0];
++			qos_policer_conf_set(ocelot_port, tmp->pol_ix, &pp);
++			is2_entry_set(tmp->ocelot, index, tmp);
++		}
++	}
++	pol_lpr++;
++}
++
+ static void ocelot_ace_rule_del(struct ocelot_acl_block *block,
+ 				struct ocelot_ace_rule *rule)
+ {
+@@ -694,6 +721,9 @@ static void ocelot_ace_rule_del(struct ocelot_acl_block *block,
+ 	list_for_each_safe(pos, q, &block->rules) {
+ 		tmp = list_entry(pos, struct ocelot_ace_rule, list);
+ 		if (tmp->id == rule->id) {
++			if (tmp->action == OCELOT_ACL_ACTION_POLICE)
++				ocelot_ace_police_del(block, tmp->pol_ix);
++
+ 			list_del(pos);
+ 			kfree(tmp);
+ 		}
+@@ -710,7 +740,6 @@ int ocelot_ace_rule_offload_del(struct ocelot_ace_rule *rule)
+ 
+ 	/* Gets index of the rule */
+ 	index = ocelot_ace_rule_get_index_id(acl_block, rule);
+-
+ 	/* Delete rule */
+ 	ocelot_ace_rule_del(acl_block, rule);
+ 
+@@ -790,6 +819,8 @@ int ocelot_ace_init(struct ocelot *ocelot)
+ 	ocelot_write_gix(ocelot, 0x3fffff, ANA_POL_CIR_STATE,
+ 			 OCELOT_POLICER_DISCARD);
+ 
++	pol_lpr = OCELOT_POLICER_DISCARD - 1;
++
+ 	acl_block = ocelot_acl_block_create(ocelot);
+ 
+ 	return 0;
+diff --git a/drivers/net/ethernet/mscc/ocelot_ace.h b/drivers/net/ethernet/mscc/ocelot_ace.h
+index 14bc7d1a8e0b..5965ad255b91 100644
+--- a/drivers/net/ethernet/mscc/ocelot_ace.h
++++ b/drivers/net/ethernet/mscc/ocelot_ace.h
+@@ -212,6 +212,7 @@ struct ocelot_ace_rule {
+ 		struct ocelot_ace_frame_ipv6 ipv6;
+ 	} frame;
+ 	struct ocelot_policer pol;
++	u32 pol_ix;
+ };
+ 
+ struct ocelot_acl_block {
+-- 
+2.17.1
+

@@ -1,0 +1,41 @@
+From 6663cf821c133b36dee65fb9eb2d976abc706512 Mon Sep 17 00:00:00 2001
+From: Eli Britstein <elibr@mellanox.com>
+Date: Mon, 11 Feb 2019 09:52:59 +0200
+Subject: [PATCH ocelot-tc-flower-policer 29/44] flow_offload: Fix flow action infrastructure
+
+[ upstream commit 6663cf821c133b36dee65fb9eb2d976abc706512 ]
+
+Implementation of macro "flow_action_for_each" introduced in
+commit e3ab786b42535 ("flow_offload: add flow action infrastructure")
+and used in commit 738678817573c ("drivers: net: use flow action
+infrastructure") iterated the first item twice and did not reach the
+last one. Fix it.
+
+Fixes: e3ab786b42535 ("flow_offload: add flow action infrastructure")
+Fixes: 738678817573c ("drivers: net: use flow action infrastructure")
+Signed-off-by: Eli Britstein <elibr@mellanox.com>
+Reviewed-by: Roi Dayan <roid@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/flow_offload.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
+index 23166caa0da5..a307ccb18015 100644
+--- a/include/net/flow_offload.h
++++ b/include/net/flow_offload.h
+@@ -171,7 +171,7 @@ static inline bool flow_action_has_entries(const struct flow_action *action)
+ }
+ 
+ #define flow_action_for_each(__i, __act, __actions)			\
+-        for (__i = 0, __act = &(__actions)->entries[0]; __i < (__actions)->num_entries; __act = &(__actions)->entries[__i++])
++        for (__i = 0, __act = &(__actions)->entries[0]; __i < (__actions)->num_entries; __act = &(__actions)->entries[++__i])
+ 
+ struct flow_rule {
+ 	struct flow_match	match;
+-- 
+2.7.4
+

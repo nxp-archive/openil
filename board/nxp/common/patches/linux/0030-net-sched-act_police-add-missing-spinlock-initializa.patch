@@ -1,0 +1,86 @@
+From 82e6440f6ce33e86aa9ffad3fce0431d22ca14d7 Mon Sep 17 00:00:00 2001
+From: Davide Caratti <dcaratti@redhat.com>
+Date: Wed Nov 21 18:23:53 2018 +0100
+Subject: [PATCH ocelot-tc-flower-policer 25/44] net/sched: act_police: add missing spinlock
+ initialization
+
+[ upstream commit 484afd1bd3fc6f9f5347289fc8b285aa65f67054 ]
+
+commit f2cbd4852820 ("net/sched: act_police: fix race condition on state
+variables") introduces a new spinlock, but forgets its initialization.
+Ensure that tcf_police_init() initializes 'tcfp_lock' every time a 'police'
+action is newly created, to avoid the following lockdep splat:
+
+ INFO: trying to register non-static key.
+ the code is fine but needs lockdep annotation.
+ turning off the locking correctness validator.
+ <...>
+ Call Trace:
+  dump_stack+0x85/0xcb
+  register_lock_class+0x581/0x590
+  __lock_acquire+0xd4/0x1330
+  ? tcf_police_init+0x2fa/0x650 [act_police]
+  ? lock_acquire+0x9e/0x1a0
+  lock_acquire+0x9e/0x1a0
+  ? tcf_police_init+0x2fa/0x650 [act_police]
+  ? tcf_police_init+0x55a/0x650 [act_police]
+  _raw_spin_lock_bh+0x34/0x40
+  ? tcf_police_init+0x2fa/0x650 [act_police]
+  tcf_police_init+0x2fa/0x650 [act_police]
+  tcf_action_init_1+0x384/0x4c0
+  tcf_action_init+0xf6/0x160
+  tcf_action_add+0x73/0x170
+  tc_ctl_action+0x122/0x160
+  rtnetlink_rcv_msg+0x2a4/0x490
+  ? netlink_deliver_tap+0x99/0x400
+  ? validate_linkmsg+0x370/0x370
+  netlink_rcv_skb+0x4d/0x130
+  netlink_unicast+0x196/0x230
+  netlink_sendmsg+0x2e5/0x3e0
+  sock_sendmsg+0x36/0x40
+  ___sys_sendmsg+0x280/0x2f0
+  ? _raw_spin_unlock+0x24/0x30
+  ? handle_pte_fault+0xafe/0xf30
+  ? find_held_lock+0x2d/0x90
+  ? syscall_trace_enter+0x1df/0x360
+  ? __sys_sendmsg+0x5e/0xa0
+  __sys_sendmsg+0x5e/0xa0
+  do_syscall_64+0x60/0x210
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ RIP: 0033:0x7f1841c7cf10
+ Code: c3 48 8b 05 82 6f 2c 00 f7 db 64 89 18 48 83 cb ff eb dd 0f 1f 80 00 00 00 00 83 3d 8d d0 2c 00 00 75 10 b8 2e 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 31 c3 48 83 ec 08 e8 ae cc 00 00 48 89 04 24
+ RSP: 002b:00007ffcf9df4d68 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007f1841c7cf10
+ RDX: 0000000000000000 RSI: 00007ffcf9df4dc0 RDI: 0000000000000003
+ RBP: 000000005bf56105 R08: 0000000000000002 R09: 00007ffcf9df8edc
+ R10: 00007ffcf9df47e0 R11: 0000000000000246 R12: 0000000000671be0
+ R13: 00007ffcf9df4e84 R14: 0000000000000008 R15: 0000000000000000
+
+Fixes: f2cbd4852820 ("net/sched: act_police: fix race condition on state
+variables")
+Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/sched/act_police.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/net/sched/act_police.c b/net/sched/act_police.c
+index 791583f116c5..fa5ce00542fc 100644
+--- a/net/sched/act_police.c
++++ b/net/sched/act_police.c
+@@ -91,6 +91,7 @@ static int tcf_police_init(struct net *net, struct nlattr *nla,
+ 			return ret;
+ 		}
+ 		ret = ACT_P_CREATED;
++		spin_lock_init(&(to_police(*a)->tcfp_lock));
+ 	} else if (!ovr) {
+ 		tcf_idr_release(*a, bind);
+ 		return -EEXIST;
+-- 
+2.17.1
+

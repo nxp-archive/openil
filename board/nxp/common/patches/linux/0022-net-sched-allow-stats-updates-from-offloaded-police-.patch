@@ -1,0 +1,57 @@
+From 9b324e42ad92bde36ebbfa144637e00458744350 Mon Sep 17 00:00:00 2001
+From: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Date: Sat May 4 04:46:24 2019 -0700
+Subject: [PATCH ocelot-tc-flower-policer 17/44] net/sched: allow stats updates from offloaded police
+ actions
+
+[ upstream commit 12f02b6b1548367fb548e61105fac6778c1a9173 ]
+
+Implement the stats_update callback for the police action that
+will be used by drivers for hardware offload.
+
+Signed-off-by: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/sched/act_police.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/net/sched/act_police.c b/net/sched/act_police.c
+index 4eb727a0bdb5..452eea14bef2 100644
+--- a/net/sched/act_police.c
++++ b/net/sched/act_police.c
+@@ -241,6 +241,20 @@ static int tcf_police_act(struct sk_buff *skb, const struct tc_action *a,
+ 	return police->tcf_action;
+ }
+ 
++static void tcf_police_stats_update(struct tc_action *a,
++				    u64 bytes, u32 packets,
++				    u64 lastuse, bool hw)
++{
++	struct tcf_police *police = to_police(a);
++	struct tcf_t *tm = &police->tcf_tm;
++
++	_bstats_cpu_update(this_cpu_ptr(a->cpu_bstats), bytes, packets);
++	if (hw)
++		_bstats_cpu_update(this_cpu_ptr(a->cpu_bstats_hw),
++				   bytes, packets);
++	tm->lastuse = max_t(u64, tm->lastuse, lastuse);
++}
++
+ static int tcf_police_dump(struct sk_buff *skb, struct tc_action *a,
+ 			       int bind, int ref)
+ {
+@@ -302,6 +316,7 @@ static struct tc_action_ops act_police_ops = {
+ 	.kind		=	"police",
+ 	.type		=	TCA_ID_POLICE,
+ 	.owner		=	THIS_MODULE,
++	.stats_update	=	tcf_police_stats_update,
+ 	.act		=	tcf_police_act,
+ 	.dump		=	tcf_police_dump,
+ 	.init		=	tcf_police_init,
+-- 
+2.17.1
+

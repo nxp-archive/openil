@@ -1,0 +1,40 @@
+From 5d70a6701860ec10e0f807c353700f439fbdd90b Mon Sep 17 00:00:00 2001
+From: Wei Yongjun <weiyongjun1@huawei.com>
+Date: Wed, 26 Sep 2018 12:09:45 +0000
+Subject: [PATCH ocelot-tc-flower-policer 38/44] net/core: make function ___gnet_stats_copy_basic() static
+
+[ upstream commit 5d70a6701860ec10e0f807c353700f439fbdd90b ]
+[ rebased on top of 4.19.72-rt26 patchset ]
+
+Fixes the following sparse warning:
+
+net/core/gen_stats.c:166:1: warning:
+ symbol '___gnet_stats_copy_basic' was not declared. Should it be static?
+
+Fixes: 5e111210a443 ("net/core: Add new basic hardware counter")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/core/gen_stats.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/core/gen_stats.c b/net/core/gen_stats.c
+index 65a2e820364f..9bf1b9ad1780 100644
+--- a/net/core/gen_stats.c
++++ b/net/core/gen_stats.c
+@@ -162,7 +162,7 @@ __gnet_stats_copy_basic(const seqcount_t *running,
+ }
+ EXPORT_SYMBOL(__gnet_stats_copy_basic);
+ 
+-int
++static int
+ ___gnet_stats_copy_basic(net_seqlock_t *running,
+ 			 struct gnet_dump *d,
+ 			 struct gnet_stats_basic_cpu __percpu *cpu,
+ 			 struct gnet_stats_basic_packed *b,
+ 			 int type)
+-- 
+2.7.4
+

@@ -1,0 +1,254 @@
+From c04caa51f5be56bab947e022cabd04de1a22ddb9 Mon Sep 17 00:00:00 2001
+From: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Date: Sat May 4 04:46:25 2019 -0700
+Subject: [PATCH ocelot-tc-flower-policer 18/44] net/sched: add block pointer to tc_cls_common_offload
+ structure
+
+[ upstream commit 88c44a5200849c8182eaf36535b4ceae6b90b19d ]
+
+Some actions like the police action are stateful and could share state
+between devices. This is incompatible with offloading to multiple devices
+and drivers might want to test for shared blocks when offloading.
+Store a pointer to the tcf_block structure in the tc_cls_common_offload
+structure to allow drivers to determine when offloads apply to a shared
+block.
+
+Signed-off-by: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/pkt_cls.h    |  8 ++++++++
+ net/sched/cls_bpf.c      |  7 ++++---
+ net/sched/cls_flower.c   | 11 +++++++----
+ net/sched/cls_matchall.c | 12 ++++++++----
+ net/sched/cls_u32.c      | 17 +++++++++++------
+ 5 files changed, 38 insertions(+), 17 deletions(-)
+
+diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
+index a0b8cd46851b..ecd8b145cf63 100644
+--- a/include/net/pkt_cls.h
++++ b/include/net/pkt_cls.h
+@@ -92,6 +92,11 @@ int tcf_classify(struct sk_buff *skb, const struct tcf_proto *tp,
+ 		 struct tcf_result *res, bool compat_mode);
+ 
+ #else
++static inline bool tcf_block_shared(struct tcf_block *block)
++{
++	return false;
++}
++
+ static inline
+ int tcf_block_get(struct tcf_block **p_block,
+ 		  struct tcf_proto __rcu **p_filter_chain, struct Qdisc *q,
+@@ -594,6 +599,7 @@ struct tc_cls_common_offload {
+ 	u32 chain_index;
+ 	__be16 protocol;
+ 	u32 prio;
++	struct tcf_block *block;
+ 	struct netlink_ext_ack *extack;
+ };
+ 
+@@ -694,11 +700,13 @@ static inline bool tc_in_hw(u32 flags)
+ static inline void
+ tc_cls_common_offload_init(struct tc_cls_common_offload *cls_common,
+ 			   const struct tcf_proto *tp, u32 flags,
++			   struct tcf_block *block,
+ 			   struct netlink_ext_ack *extack)
+ {
+ 	cls_common->chain_index = tp->chain->index;
+ 	cls_common->protocol = tp->protocol;
+ 	cls_common->prio = tp->prio;
++	cls_common->block = block;
+ 	if (tc_skip_sw(flags) || flags & TCA_CLS_FLAGS_VERBOSE)
+ 		cls_common->extack = extack;
+ }
+diff --git a/net/sched/cls_bpf.c b/net/sched/cls_bpf.c
+index fa6fe2fe0f32..a5a7e26d1058 100644
+--- a/net/sched/cls_bpf.c
++++ b/net/sched/cls_bpf.c
+@@ -157,7 +157,7 @@ static int cls_bpf_offload_cmd(struct tcf_proto *tp, struct cls_bpf_prog *prog,
+ 	skip_sw = prog && tc_skip_sw(prog->gen_flags);
+ 	obj = prog ?: oldprog;
+ 
+-	tc_cls_common_offload_init(&cls_bpf.common, tp, obj->gen_flags,
++	tc_cls_common_offload_init(&cls_bpf.common, tp, obj->gen_flags, block,
+ 				   extack);
+ 	cls_bpf.command = TC_CLSBPF_OFFLOAD;
+ 	cls_bpf.exts = &obj->exts;
+@@ -227,7 +227,8 @@ static void cls_bpf_offload_update_stats(struct tcf_proto *tp,
+ 	struct tcf_block *block = tp->chain->block;
+ 	struct tc_cls_bpf_offload cls_bpf = {};
+ 
+-	tc_cls_common_offload_init(&cls_bpf.common, tp, prog->gen_flags, NULL);
++	tc_cls_common_offload_init(&cls_bpf.common, tp, prog->gen_flags, block,
++				   NULL);
+ 	cls_bpf.command = TC_CLSBPF_STATS;
+ 	cls_bpf.exts = &prog->exts;
+ 	cls_bpf.prog = prog->filter;
+@@ -666,7 +667,7 @@ static int cls_bpf_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
+ 			continue;
+ 
+ 		tc_cls_common_offload_init(&cls_bpf.common, tp, prog->gen_flags,
+-					   extack);
++					   block, extack);
+ 		cls_bpf.command = TC_CLSBPF_OFFLOAD;
+ 		cls_bpf.exts = &prog->exts;
+ 		cls_bpf.prog = add ? prog->filter : NULL;
+diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
+index c1cc8dd1680a..1e4625f522a3 100644
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -285,7 +285,8 @@ static void fl_hw_destroy_filter(struct tcf_proto *tp, struct cls_fl_filter *f,
+ 	struct tc_cls_flower_offload cls_flower = {};
+ 	struct tcf_block *block = tp->chain->block;
+ 
+-	tc_cls_common_offload_init(&cls_flower.common, tp, f->flags, extack);
++	tc_cls_common_offload_init(&cls_flower.common, tp, f->flags, block,
++				   extack);
+ 	cls_flower.command = TC_CLSFLOWER_DESTROY;
+ 	cls_flower.cookie = (unsigned long) f;
+ 
+@@ -307,7 +308,8 @@ static int fl_hw_replace_filter(struct tcf_proto *tp,
+ 	if (!cls_flower.rule)
+ 		return -ENOMEM;
+ 
+-	tc_cls_common_offload_init(&cls_flower.common, tp, f->flags, extack);
++	tc_cls_common_offload_init(&cls_flower.common, tp, f->flags, block,
++				   extack);
+ 	cls_flower.command = TC_CLSFLOWER_REPLACE;
+ 	cls_flower.cookie = (unsigned long) f;
+ 	cls_flower.rule->match.dissector = &f->mask->dissector;
+@@ -344,7 +346,8 @@ static void fl_hw_update_stats(struct tcf_proto *tp, struct cls_fl_filter *f)
+ 	struct tc_cls_flower_offload cls_flower = {};
+ 	struct tcf_block *block = tp->chain->block;
+ 
+-	tc_cls_common_offload_init(&cls_flower.common, tp, f->flags, NULL);
++	tc_cls_common_offload_init(&cls_flower.common, tp, f->flags, block,
++				   NULL);
+ 	cls_flower.command = TC_CLSFLOWER_STATS;
+ 	cls_flower.cookie = (unsigned long) f;
+ 	cls_flower.classid = f->res.classid;
+@@ -1374,7 +1377,7 @@ static int fl_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
+ 				return -ENOMEM;
+ 
+ 			tc_cls_common_offload_init(&cls_flower.common, tp,
+-						   f->flags, extack);
++						   f->flags, block, extack);
+ 			cls_flower.command = add ?
+ 				TC_CLSFLOWER_REPLACE : TC_CLSFLOWER_DESTROY;
+ 			cls_flower.cookie = (unsigned long)f;
+diff --git a/net/sched/cls_matchall.c b/net/sched/cls_matchall.c
+index 1b75e3f597d7..f261d0d63b5e 100644
+--- a/net/sched/cls_matchall.c
++++ b/net/sched/cls_matchall.c
+@@ -67,7 +67,8 @@ static void mall_destroy_hw_filter(struct tcf_proto *tp,
+ 	struct tc_cls_matchall_offload cls_mall = {};
+ 	struct tcf_block *block = tp->chain->block;
+ 
+-	tc_cls_common_offload_init(&cls_mall.common, tp, head->flags, extack);
++	tc_cls_common_offload_init(&cls_mall.common, tp, head->flags, block,
++				   extack);
+ 	cls_mall.command = TC_CLSMATCHALL_DESTROY;
+ 	cls_mall.cookie = cookie;
+ 
+@@ -89,7 +90,8 @@ static int mall_replace_hw_filter(struct tcf_proto *tp,
+ 	if (!cls_mall.rule)
+ 		return -ENOMEM;
+ 
+-	tc_cls_common_offload_init(&cls_mall.common, tp, head->flags, extack);
++	tc_cls_common_offload_init(&cls_mall.common, tp, head->flags, block,
++				   extack);
+ 	cls_mall.command = TC_CLSMATCHALL_REPLACE;
+ 	cls_mall.cookie = cookie;
+ 
+@@ -275,7 +277,8 @@ static int mall_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
+ 	if (!cls_mall.rule)
+ 		return -ENOMEM;
+ 
+-	tc_cls_common_offload_init(&cls_mall.common, tp, head->flags, extack);
++	tc_cls_common_offload_init(&cls_mall.common, tp, head->flags, block,
++				   extack);
+ 	cls_mall.command = add ?
+ 		TC_CLSMATCHALL_REPLACE : TC_CLSMATCHALL_DESTROY;
+ 	cls_mall.cookie = (unsigned long)head;
+@@ -310,7 +313,8 @@ static void mall_stats_hw_filter(struct tcf_proto *tp,
+ 	struct tc_cls_matchall_offload cls_mall = {};
+ 	struct tcf_block *block = tp->chain->block;
+ 
+-	tc_cls_common_offload_init(&cls_mall.common, tp, head->flags, NULL);
++	tc_cls_common_offload_init(&cls_mall.common, tp, head->flags, block,
++				   NULL);
+ 	cls_mall.command = TC_CLSMATCHALL_STATS;
+ 	cls_mall.cookie = cookie;
+ 
+diff --git a/net/sched/cls_u32.c b/net/sched/cls_u32.c
+index b2c3406a2cf2..bfa57ff58c34 100644
+--- a/net/sched/cls_u32.c
++++ b/net/sched/cls_u32.c
+@@ -491,7 +491,8 @@ static void u32_clear_hw_hnode(struct tcf_proto *tp, struct tc_u_hnode *h,
+ 	struct tcf_block *block = tp->chain->block;
+ 	struct tc_cls_u32_offload cls_u32 = {};
+ 
+-	tc_cls_common_offload_init(&cls_u32.common, tp, h->flags, extack);
++	tc_cls_common_offload_init(&cls_u32.common, tp, h->flags, block,
++				   extack);
+ 	cls_u32.command = TC_CLSU32_DELETE_HNODE;
+ 	cls_u32.hnode.divisor = h->divisor;
+ 	cls_u32.hnode.handle = h->handle;
+@@ -509,7 +510,7 @@ static int u32_replace_hw_hnode(struct tcf_proto *tp, struct tc_u_hnode *h,
+ 	bool offloaded = false;
+ 	int err;
+ 
+-	tc_cls_common_offload_init(&cls_u32.common, tp, flags, extack);
++	tc_cls_common_offload_init(&cls_u32.common, tp, flags, block, extack);
+ 	cls_u32.command = TC_CLSU32_NEW_HNODE;
+ 	cls_u32.hnode.divisor = h->divisor;
+ 	cls_u32.hnode.handle = h->handle;
+@@ -535,7 +536,8 @@ static void u32_remove_hw_knode(struct tcf_proto *tp, struct tc_u_knode *n,
+ 	struct tcf_block *block = tp->chain->block;
+ 	struct tc_cls_u32_offload cls_u32 = {};
+ 
+-	tc_cls_common_offload_init(&cls_u32.common, tp, n->flags, extack);
++	tc_cls_common_offload_init(&cls_u32.common, tp, n->flags, block,
++				   extack);
+ 	cls_u32.command = TC_CLSU32_DELETE_KNODE;
+ 	cls_u32.knode.handle = n->handle;
+ 
+@@ -552,7 +554,7 @@ static int u32_replace_hw_knode(struct tcf_proto *tp, struct tc_u_knode *n,
+ 	bool skip_sw = tc_skip_sw(flags);
+ 	int err;
+ 
+-	tc_cls_common_offload_init(&cls_u32.common, tp, flags, extack);
++	tc_cls_common_offload_init(&cls_u32.common, tp, flags, block, extack);
+ 	cls_u32.command = TC_CLSU32_REPLACE_KNODE;
+ 	cls_u32.knode.handle = n->handle;
+ 	cls_u32.knode.fshift = n->fshift;
+@@ -1211,10 +1213,12 @@ static int u32_reoffload_hnode(struct tcf_proto *tp, struct tc_u_hnode *ht,
+ 			       bool add, tc_setup_cb_t *cb, void *cb_priv,
+ 			       struct netlink_ext_ack *extack)
+ {
++	struct tcf_block *block = tp->chain->block;
+ 	struct tc_cls_u32_offload cls_u32 = {};
+ 	int err;
+ 
+-	tc_cls_common_offload_init(&cls_u32.common, tp, ht->flags, extack);
++	tc_cls_common_offload_init(&cls_u32.common, tp, ht->flags, block,
++				   extack);
+ 	cls_u32.command = add ? TC_CLSU32_NEW_HNODE : TC_CLSU32_DELETE_HNODE;
+ 	cls_u32.hnode.divisor = ht->divisor;
+ 	cls_u32.hnode.handle = ht->handle;
+@@ -1236,7 +1240,8 @@ static int u32_reoffload_knode(struct tcf_proto *tp, struct tc_u_knode *n,
+ 	struct tc_cls_u32_offload cls_u32 = {};
+ 	int err;
+ 
+-	tc_cls_common_offload_init(&cls_u32.common, tp, n->flags, extack);
++	tc_cls_common_offload_init(&cls_u32.common, tp, n->flags, block,
++				   extack);
+ 	cls_u32.command = add ?
+ 		TC_CLSU32_REPLACE_KNODE : TC_CLSU32_DELETE_KNODE;
+ 	cls_u32.knode.handle = n->handle;
+-- 
+2.17.1
+

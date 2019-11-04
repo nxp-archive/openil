@@ -1,0 +1,80 @@
+From 71c4c8e1a7db0ae98f75cc7b08d540fc0885da76 Mon Sep 17 00:00:00 2001
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Date: Sat Feb 2 12:50:49 2019 +0100
+Subject: [PATCH ocelot-tc-flower-policer 05/44] cls_flower: don't expose TC actions to drivers anymore
+
+[ upstream commit 2cd173e6d542f8e96369608db849b71135d65afb ]
+
+Now that drivers have been converted to use the flow action
+infrastructure, remove this field from the tc_cls_flower_offload
+structure.
+
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/pkt_cls.h  | 1 -
+ net/sched/cls_flower.c | 5 -----
+ 2 files changed, 6 deletions(-)
+
+diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
+index 8d9330579e81..c6d1dc9541ed 100644
+--- a/include/net/pkt_cls.h
++++ b/include/net/pkt_cls.h
+@@ -741,7 +741,6 @@ struct tc_cls_flower_offload {
+ 	unsigned long cookie;
+ 	struct flow_rule *rule;
+ 	struct flow_stats stats;
+-	struct tcf_exts *exts;
+ 	u32 classid;
+ };
+ 
+diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
+index 5228e45ffce3..c1cc8dd1680a 100644
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -313,7 +313,6 @@ static int fl_hw_replace_filter(struct tcf_proto *tp,
+ 	cls_flower.rule->match.dissector = &f->mask->dissector;
+ 	cls_flower.rule->match.mask = &f->mask->key;
+ 	cls_flower.rule->match.key = &f->mkey;
+-	cls_flower.exts = &f->exts;
+ 	cls_flower.classid = f->res.classid;
+ 
+ 	err = tc_setup_flow_action(&cls_flower.rule->action, &f->exts);
+@@ -348,7 +347,6 @@ static void fl_hw_update_stats(struct tcf_proto *tp, struct cls_fl_filter *f)
+ 	tc_cls_common_offload_init(&cls_flower.common, tp, f->flags, NULL);
+ 	cls_flower.command = TC_CLSFLOWER_STATS;
+ 	cls_flower.cookie = (unsigned long) f;
+-	cls_flower.exts = &f->exts;
+ 	cls_flower.classid = f->res.classid;
+ 
+ 	tc_setup_cb_call(block, &f->exts, TC_SETUP_CLSFLOWER,
+@@ -1383,7 +1381,6 @@ static int fl_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
+ 			cls_flower.rule->match.dissector = &mask->dissector;
+ 			cls_flower.rule->match.mask = &mask->key;
+ 			cls_flower.rule->match.key = &f->mkey;
+-			cls_flower.exts = &f->exts;
+ 
+ 			err = tc_setup_flow_action(&cls_flower.rule->action,
+ 						   &f->exts);
+@@ -1416,7 +1413,6 @@ static int fl_hw_create_tmplt(struct tcf_chain *chain,
+ {
+ 	struct tc_cls_flower_offload cls_flower = {};
+ 	struct tcf_block *block = chain->block;
+-	struct tcf_exts dummy_exts = { 0, };
+ 
+ 	cls_flower.rule = flow_rule_alloc(0);
+ 	if (!cls_flower.rule)
+@@ -1428,7 +1424,6 @@ static int fl_hw_create_tmplt(struct tcf_chain *chain,
+ 	cls_flower.rule->match.dissector = &tmplt->dissector;
+ 	cls_flower.rule->match.mask = &tmplt->mask;
+ 	cls_flower.rule->match.key = &tmplt->dummy_key;
+-	cls_flower.exts = &dummy_exts;
+ 
+ 	/* We don't care if driver (any of them) fails to handle this
+ 	 * call. It serves just as a hint for it.
+-- 
+2.17.1
+

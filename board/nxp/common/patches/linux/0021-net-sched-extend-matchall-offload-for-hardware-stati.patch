@@ -1,0 +1,82 @@
+From ecd0cac2c8ce79eb64a1babcede9fa2559ae8fb4 Mon Sep 17 00:00:00 2001
+From: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Date: Sat May 4 04:46:23 2019 -0700
+Subject: [PATCH ocelot-tc-flower-policer 16/44] net/sched: extend matchall offload for hardware
+ statistics
+
+[ upstream commit b7fe4ab8a6013c3c721bed91f73e76eec8fb5d89 ]
+
+Introduce a new command for matchall classifiers that allows hardware
+to update statistics.
+
+Signed-off-by: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/pkt_cls.h    |  2 ++
+ net/sched/cls_matchall.c | 20 ++++++++++++++++++++
+ 2 files changed, 22 insertions(+)
+
+diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
+index 7c1806896daf..a0b8cd46851b 100644
+--- a/include/net/pkt_cls.h
++++ b/include/net/pkt_cls.h
+@@ -729,12 +729,14 @@ tc_cls_flower_offload_flow_rule(struct tc_cls_flower_offload *tc_flow_cmd)
+ enum tc_matchall_command {
+ 	TC_CLSMATCHALL_REPLACE,
+ 	TC_CLSMATCHALL_DESTROY,
++	TC_CLSMATCHALL_STATS,
+ };
+ 
+ struct tc_cls_matchall_offload {
+ 	struct tc_cls_common_offload common;
+ 	enum tc_matchall_command command;
+ 	struct flow_rule *rule;
++	struct flow_stats stats;
+ 	unsigned long cookie;
+ };
+ 
+diff --git a/net/sched/cls_matchall.c b/net/sched/cls_matchall.c
+index 2e1b2fbb8b24..1b75e3f597d7 100644
+--- a/net/sched/cls_matchall.c
++++ b/net/sched/cls_matchall.c
+@@ -303,6 +303,23 @@ static int mall_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
+ 	return 0;
+ }
+ 
++static void mall_stats_hw_filter(struct tcf_proto *tp,
++				 struct cls_mall_head *head,
++				 unsigned long cookie)
++{
++	struct tc_cls_matchall_offload cls_mall = {};
++	struct tcf_block *block = tp->chain->block;
++
++	tc_cls_common_offload_init(&cls_mall.common, tp, head->flags, NULL);
++	cls_mall.command = TC_CLSMATCHALL_STATS;
++	cls_mall.cookie = cookie;
++
++	tc_setup_cb_call(block, TC_SETUP_CLSMATCHALL, &cls_mall, false);
++
++	tcf_exts_stats_update(&head->exts, cls_mall.stats.bytes,
++			      cls_mall.stats.pkts, cls_mall.stats.lastused);
++}
++
+ static int mall_dump(struct net *net, struct tcf_proto *tp, void *fh,
+ 		     struct sk_buff *skb, struct tcmsg *t)
+ {
+@@ -312,6 +329,9 @@ static int mall_dump(struct net *net, struct tcf_proto *tp, void *fh,
+ 	if (!head)
+ 		return skb->len;
+ 
++	if (!tc_skip_hw(head->flags))
++		mall_stats_hw_filter(tp, head, (unsigned long)head);
++
+ 	t->tcm_handle = head->handle;
+ 
+ 	nest = nla_nest_start(skb, TCA_OPTIONS);
+-- 
+2.17.1
+

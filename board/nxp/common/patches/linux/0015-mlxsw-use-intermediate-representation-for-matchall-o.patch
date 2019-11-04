@@ -1,0 +1,46 @@
+From f48d826facc4faf27796e540b1d1cffda97280a0 Mon Sep 17 00:00:00 2001
+From: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Date: Sat May 4 04:46:18 2019 -0700
+Subject: [PATCH ocelot-tc-flower-policer 10/44] mlxsw: use intermediate representation for matchall
+ offload
+
+[ upstream commit ab79af32b0a5606324ce04c0f04a0d2f90b94464 ]
+
+Updates the Mellanox spectrum driver to use the newer intermediate
+representation for flow actions in matchall offloads.
+
+Signed-off-by: Pieter Jansen van Vuuren<pieter.jansenvanvuuren@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/flow_offload.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
+index 23166caa0da5..64ef2f064f64 100644
+--- a/include/net/flow_offload.h
++++ b/include/net/flow_offload.h
+@@ -170,6 +170,17 @@ static inline bool flow_action_has_entries(const struct flow_action *action)
+ 	return action->num_entries;
+ }
+ 
++/**
++ * flow_action_has_one_action() - check if exactly one action is present
++ * @action: tc filter flow offload action
++ *
++ * Returns true if exactly one action is present.
++ */
++static inline bool flow_offload_has_one_action(const struct flow_action *action)
++{
++	return action->num_entries == 1;
++}
++
+ #define flow_action_for_each(__i, __act, __actions)			\
+         for (__i = 0, __act = &(__actions)->entries[0]; __i < (__actions)->num_entries; __act = &(__actions)->entries[__i++])
+ 
+-- 
+2.17.1
+

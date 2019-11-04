@@ -1,0 +1,216 @@
+From 68a9c6f5e80cd7e6f777ac972348448ae82485b3 Mon Sep 17 00:00:00 2001
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Date: Thu, 17 Oct 2019 13:54:03 +0800
+Subject: [PATCH ocelot-tc-flower-policer 02/44] flow_offload: add flow action infrastructure
+
+[ upstream commit e3ab786b42535da00c731c3585165e88bf35ab09 ]
+
+This new infrastructure defines the nic actions that you can perform
+from existing network drivers. This infrastructure allows us to avoid a
+direct dependency with the native software TC action representation.
+
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/flow_offload.h | 69 +++++++++++++++++++++++++++++++++++++-
+ include/net/pkt_cls.h      |  1 +
+ net/core/flow_offload.c    | 14 ++++++--
+ net/sched/cls_api.c        | 17 ++++++++++
+ net/sched/cls_flower.c     |  7 ++--
+ 5 files changed, 102 insertions(+), 6 deletions(-)
+
+diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
+index 461c66595763..dabc819b6cc9 100644
+--- a/include/net/flow_offload.h
++++ b/include/net/flow_offload.h
+@@ -100,11 +100,78 @@ void flow_rule_match_enc_keyid(const struct flow_rule *rule,
+ void flow_rule_match_enc_opts(const struct flow_rule *rule,
+ 			      struct flow_match_enc_opts *out);
+ 
++enum flow_action_id {
++	FLOW_ACTION_ACCEPT		= 0,
++	FLOW_ACTION_DROP,
++	FLOW_ACTION_TRAP,
++	FLOW_ACTION_GOTO,
++	FLOW_ACTION_REDIRECT,
++	FLOW_ACTION_MIRRED,
++	FLOW_ACTION_VLAN_PUSH,
++	FLOW_ACTION_VLAN_POP,
++	FLOW_ACTION_VLAN_MANGLE,
++	FLOW_ACTION_TUNNEL_ENCAP,
++	FLOW_ACTION_TUNNEL_DECAP,
++	FLOW_ACTION_MANGLE,
++	FLOW_ACTION_ADD,
++	FLOW_ACTION_CSUM,
++	FLOW_ACTION_MARK,
++};
++
++/* This is mirroring enum pedit_header_type definition for easy mapping between
++ * tc pedit action. Legacy TCA_PEDIT_KEY_EX_HDR_TYPE_NETWORK is mapped to
++ * FLOW_ACT_MANGLE_UNSPEC, which is supported by no driver.
++ */
++enum flow_action_mangle_base {
++	FLOW_ACT_MANGLE_UNSPEC		= 0,
++	FLOW_ACT_MANGLE_HDR_TYPE_ETH,
++	FLOW_ACT_MANGLE_HDR_TYPE_IP4,
++	FLOW_ACT_MANGLE_HDR_TYPE_IP6,
++	FLOW_ACT_MANGLE_HDR_TYPE_TCP,
++	FLOW_ACT_MANGLE_HDR_TYPE_UDP,
++};
++
++struct flow_action_entry {
++	enum flow_action_id		id;
++	union {
++		u32			chain_index;	/* FLOW_ACTION_GOTO */
++		struct net_device	*dev;		/* FLOW_ACTION_REDIRECT */
++		struct {				/* FLOW_ACTION_VLAN */
++			u16		vid;
++			__be16		proto;
++			u8		prio;
++		} vlan;
++		struct {				/* FLOW_ACTION_PACKET_EDIT */
++			enum flow_action_mangle_base htype;
++			u32		offset;
++			u32		mask;
++			u32		val;
++		} mangle;
++		const struct ip_tunnel_info *tunnel;	/* FLOW_ACTION_TUNNEL_ENCAP */
++		u32			csum_flags;	/* FLOW_ACTION_CSUM */
++		u32			mark;		/* FLOW_ACTION_MARK */
++	};
++};
++
++struct flow_action {
++	unsigned int			num_entries;
++	struct flow_action_entry 	entries[0];
++};
++
++static inline bool flow_action_has_entries(const struct flow_action *action)
++{
++	return action->num_entries;
++}
++
++#define flow_action_for_each(__i, __act, __actions)			\
++        for (__i = 0, __act = &(__actions)->entries[0]; __i < (__actions)->num_entries; __act = &(__actions)->entries[__i++])
++
+ struct flow_rule {
+ 	struct flow_match	match;
++	struct flow_action	action;
+ };
+ 
+-struct flow_rule *flow_rule_alloc(void);
++struct flow_rule *flow_rule_alloc(unsigned int num_actions);
+ 
+ static inline bool flow_rule_match_key(const struct flow_rule *rule,
+ 				       enum flow_dissector_key_id key)
+diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
+index f6fe76178cad..dbb886a628ee 100644
+--- a/include/net/pkt_cls.h
++++ b/include/net/pkt_cls.h
+@@ -598,6 +598,7 @@ tcf_match_indev(struct sk_buff *skb, int ifindex)
+ 
+ int tc_setup_cb_call(struct tcf_block *block, struct tcf_exts *exts,
+ 		     enum tc_setup_type type, void *type_data, bool err_stop);
++unsigned int tcf_exts_num_actions(struct tcf_exts *exts);
+ 
+ enum tc_block_command {
+ 	TC_BLOCK_BIND,
+diff --git a/net/core/flow_offload.c b/net/core/flow_offload.c
+index 2fbf6903d2f6..c3a00eac4804 100644
+--- a/net/core/flow_offload.c
++++ b/net/core/flow_offload.c
+@@ -3,9 +3,19 @@
+ #include <linux/slab.h>
+ #include <net/flow_offload.h>
+ 
+-struct flow_rule *flow_rule_alloc(void)
++struct flow_rule *flow_rule_alloc(unsigned int num_actions)
+ {
+-	return kzalloc(sizeof(struct flow_rule), GFP_KERNEL);
++	struct flow_rule *rule;
++
++	rule = kzalloc(sizeof(struct flow_rule) +
++		       sizeof(struct flow_action_entry) * num_actions,
++		       GFP_KERNEL);
++	if (!rule)
++		return NULL;
++
++	rule->action.num_entries = num_actions;
++
++	return rule;
+ }
+ EXPORT_SYMBOL(flow_rule_alloc);
+ 
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index 4159bcb479c6..be8f89cbda74 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -30,6 +30,7 @@
+ #include <net/netlink.h>
+ #include <net/pkt_sched.h>
+ #include <net/pkt_cls.h>
++#include <net/tc_act/tc_pedit.h>
+ 
+ extern const struct nla_policy rtm_tca_policy[TCA_MAX + 1];
+ 
+@@ -2214,6 +2215,22 @@ int tc_setup_cb_call(struct tcf_block *block, struct tcf_exts *exts,
+ }
+ EXPORT_SYMBOL(tc_setup_cb_call);
+ 
++unsigned int tcf_exts_num_actions(struct tcf_exts *exts)
++{
++	unsigned int num_acts = 0;
++	struct tc_action *act;
++	int i;
++
++	tcf_exts_for_each_action(i, act, exts) {
++		if (is_tcf_pedit(act))
++			num_acts += tcf_pedit_nkeys(act);
++		else
++			num_acts++;
++	}
++	return num_acts;
++}
++EXPORT_SYMBOL(tcf_exts_num_actions);
++
+ static __net_init int tcf_net_init(struct net *net)
+ {
+ 	struct tcf_net *tn = net_generic(net, tcf_net_id);
+diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
+index 88f610d5321a..3fdf4838ab7d 100644
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -303,7 +303,7 @@ static int fl_hw_replace_filter(struct tcf_proto *tp,
+ 	bool skip_sw = tc_skip_sw(f->flags);
+ 	int err;
+ 
+-	cls_flower.rule = flow_rule_alloc();
++	cls_flower.rule = flow_rule_alloc(tcf_exts_num_actions(&f->exts));
+ 	if (!cls_flower.rule)
+ 		return -ENOMEM;
+ 
+@@ -1360,7 +1360,8 @@ static int fl_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
+ 			if (tc_skip_hw(f->flags))
+ 				continue;
+ 
+-			cls_flower.rule = flow_rule_alloc();
++			cls_flower.rule =
++				flow_rule_alloc(tcf_exts_num_actions(&f->exts));
+ 			if (!cls_flower.rule)
+ 				return -ENOMEM;
+ 
+@@ -1399,7 +1400,7 @@ static int fl_hw_create_tmplt(struct tcf_chain *chain,
+ 	struct tcf_block *block = chain->block;
+ 	struct tcf_exts dummy_exts = { 0, };
+ 
+-	cls_flower.rule = flow_rule_alloc();
++	cls_flower.rule = flow_rule_alloc(0);
+ 	if (!cls_flower.rule)
+ 		return -ENOMEM;
+ 
+-- 
+2.17.1
+

@@ -1,0 +1,433 @@
+From ae4509c1c977ad09fa045b3b4946733d3645b2b5 Mon Sep 17 00:00:00 2001
+From: Eli Cohen <eli@mellanox.com>
+Date: Sun Feb 10 14:25:00 2019 +0200
+Subject: [PATCH ocelot-tc-flower-policer 21/44] net: Change TCA_ACT_* to TCA_ID_* to match that of
+ TCA_ID_POLICE
+
+[ upstream commit eddd2cf195d6fb5e4bbc91a0fe4be55110f559ab ]
+
+Modify the kernel users of the TCA_ACT_* macros to use TCA_ID_*. For
+example, use TCA_ID_GACT instead of TCA_ACT_GACT. This will align with
+TCA_ID_POLICE and also differentiates these identifier, used in struct
+tc_action_ops type field, from other macros starting with TCA_ACT_.
+
+To make things clearer, we name the enum defining the TCA_ID_*
+identifiers and also change the "type" field of struct tc_action to
+id.
+
+Signed-off-by: Eli Cohen <eli@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/act_api.h              | 2 +-
+ include/net/tc_act/tc_csum.h       | 2 +-
+ include/net/tc_act/tc_gact.h       | 2 +-
+ include/net/tc_act/tc_mirred.h     | 4 ++--
+ include/net/tc_act/tc_pedit.h      | 2 +-
+ include/net/tc_act/tc_sample.h     | 2 +-
+ include/net/tc_act/tc_skbedit.h    | 2 +-
+ include/net/tc_act/tc_tunnel_key.h | 4 ++--
+ include/net/tc_act/tc_vlan.h       | 2 +-
+ include/uapi/linux/pkt_cls.h       | 2 +-
+ net/sched/act_api.c                | 2 +-
+ net/sched/act_bpf.c                | 2 +-
+ net/sched/act_connmark.c           | 2 +-
+ net/sched/act_csum.c               | 2 +-
+ net/sched/act_gact.c               | 2 +-
+ net/sched/act_ife.c                | 2 +-
+ net/sched/act_ipt.c                | 4 ++--
+ net/sched/act_mirred.c             | 2 +-
+ net/sched/act_nat.c                | 2 +-
+ net/sched/act_pedit.c              | 2 +-
+ net/sched/act_police.c             | 2 +-
+ net/sched/act_sample.c             | 2 +-
+ net/sched/act_simple.c             | 2 +-
+ net/sched/act_skbedit.c            | 2 +-
+ net/sched/act_skbmod.c             | 2 +-
+ net/sched/act_tunnel_key.c         | 2 +-
+ net/sched/act_vlan.c               | 2 +-
+ 27 files changed, 30 insertions(+), 30 deletions(-)
+
+diff --git a/include/net/act_api.h b/include/net/act_api.h
+index 970303448c90..a453836649e4 100644
+--- a/include/net/act_api.h
++++ b/include/net/act_api.h
+@@ -78,7 +78,7 @@ static inline void tcf_tm_dump(struct tcf_t *dtm, const struct tcf_t *stm)
+ struct tc_action_ops {
+ 	struct list_head head;
+ 	char    kind[IFNAMSIZ];
+-	__u32   type; /* TBD to match kind */
++	enum tca_id  id; /* identifier should match kind */
+ 	size_t	size;
+ 	struct module		*owner;
+ 	int     (*act)(struct sk_buff *, const struct tc_action *,
+diff --git a/include/net/tc_act/tc_csum.h b/include/net/tc_act/tc_csum.h
+index 32d2454c0479..68269e4581b7 100644
+--- a/include/net/tc_act/tc_csum.h
++++ b/include/net/tc_act/tc_csum.h
+@@ -21,7 +21,7 @@ struct tcf_csum {
+ static inline bool is_tcf_csum(const struct tc_action *a)
+ {
+ #ifdef CONFIG_NET_CLS_ACT
+-	if (a->ops && a->ops->type == TCA_ACT_CSUM)
++	if (a->ops && a->ops->id == TCA_ID_CSUM)
+ 		return true;
+ #endif
+ 	return false;
+diff --git a/include/net/tc_act/tc_gact.h b/include/net/tc_act/tc_gact.h
+index 56935bf027a7..eb8f01c819e6 100644
+--- a/include/net/tc_act/tc_gact.h
++++ b/include/net/tc_act/tc_gact.h
+@@ -22,7 +22,7 @@ static inline bool __is_tcf_gact_act(const struct tc_action *a, int act,
+ #ifdef CONFIG_NET_CLS_ACT
+ 	struct tcf_gact *gact;
+ 
+-	if (a->ops && a->ops->type != TCA_ACT_GACT)
++	if (a->ops && a->ops->id != TCA_ID_GACT)
+ 		return false;
+ 
+ 	gact = to_gact(a);
+diff --git a/include/net/tc_act/tc_mirred.h b/include/net/tc_act/tc_mirred.h
+index a2e9cbca5c9e..c757585a05b0 100644
+--- a/include/net/tc_act/tc_mirred.h
++++ b/include/net/tc_act/tc_mirred.h
+@@ -17,7 +17,7 @@ struct tcf_mirred {
+ static inline bool is_tcf_mirred_egress_redirect(const struct tc_action *a)
+ {
+ #ifdef CONFIG_NET_CLS_ACT
+-	if (a->ops && a->ops->type == TCA_ACT_MIRRED)
++	if (a->ops && a->ops->id == TCA_ID_MIRRED)
+ 		return to_mirred(a)->tcfm_eaction == TCA_EGRESS_REDIR;
+ #endif
+ 	return false;
+@@ -26,7 +26,7 @@ static inline bool is_tcf_mirred_egress_redirect(const struct tc_action *a)
+ static inline bool is_tcf_mirred_egress_mirror(const struct tc_action *a)
+ {
+ #ifdef CONFIG_NET_CLS_ACT
+-	if (a->ops && a->ops->type == TCA_ACT_MIRRED)
++	if (a->ops && a->ops->id == TCA_ID_MIRRED)
+ 		return to_mirred(a)->tcfm_eaction == TCA_EGRESS_MIRROR;
+ #endif
+ 	return false;
+diff --git a/include/net/tc_act/tc_pedit.h b/include/net/tc_act/tc_pedit.h
+index fac3ad4a86de..748cf87a4d7e 100644
+--- a/include/net/tc_act/tc_pedit.h
++++ b/include/net/tc_act/tc_pedit.h
+@@ -23,7 +23,7 @@ struct tcf_pedit {
+ static inline bool is_tcf_pedit(const struct tc_action *a)
+ {
+ #ifdef CONFIG_NET_CLS_ACT
+-	if (a->ops && a->ops->type == TCA_ACT_PEDIT)
++	if (a->ops && a->ops->id == TCA_ID_PEDIT)
+ 		return true;
+ #endif
+ 	return false;
+diff --git a/include/net/tc_act/tc_sample.h b/include/net/tc_act/tc_sample.h
+index 01dbfea32672..0a559d4b6f0f 100644
+--- a/include/net/tc_act/tc_sample.h
++++ b/include/net/tc_act/tc_sample.h
+@@ -20,7 +20,7 @@ struct tcf_sample {
+ static inline bool is_tcf_sample(const struct tc_action *a)
+ {
+ #ifdef CONFIG_NET_CLS_ACT
+-	return a->ops && a->ops->type == TCA_ACT_SAMPLE;
++	return a->ops && a->ops->id == TCA_ID_SAMPLE;
+ #else
+ 	return false;
+ #endif
+diff --git a/include/net/tc_act/tc_skbedit.h b/include/net/tc_act/tc_skbedit.h
+index 911bbac838a2..85c5c4756d92 100644
+--- a/include/net/tc_act/tc_skbedit.h
++++ b/include/net/tc_act/tc_skbedit.h
+@@ -44,7 +44,7 @@ static inline bool is_tcf_skbedit_mark(const struct tc_action *a)
+ #ifdef CONFIG_NET_CLS_ACT
+ 	u32 flags;
+ 
+-	if (a->ops && a->ops->type == TCA_ACT_SKBEDIT) {
++	if (a->ops && a->ops->id == TCA_ID_SKBEDIT) {
+ 		rcu_read_lock();
+ 		flags = rcu_dereference(to_skbedit(a)->params)->flags;
+ 		rcu_read_unlock();
+diff --git a/include/net/tc_act/tc_tunnel_key.h b/include/net/tc_act/tc_tunnel_key.h
+index 46b8c7f1c8d5..23d5b8b19f3e 100644
+--- a/include/net/tc_act/tc_tunnel_key.h
++++ b/include/net/tc_act/tc_tunnel_key.h
+@@ -34,7 +34,7 @@ static inline bool is_tcf_tunnel_set(const struct tc_action *a)
+ 	struct tcf_tunnel_key *t = to_tunnel_key(a);
+ 	struct tcf_tunnel_key_params *params = rtnl_dereference(t->params);
+ 
+-	if (a->ops && a->ops->type == TCA_ACT_TUNNEL_KEY)
++	if (a->ops && a->ops->id == TCA_ID_TUNNEL_KEY)
+ 		return params->tcft_action == TCA_TUNNEL_KEY_ACT_SET;
+ #endif
+ 	return false;
+@@ -46,7 +46,7 @@ static inline bool is_tcf_tunnel_release(const struct tc_action *a)
+ 	struct tcf_tunnel_key *t = to_tunnel_key(a);
+ 	struct tcf_tunnel_key_params *params = rtnl_dereference(t->params);
+ 
+-	if (a->ops && a->ops->type == TCA_ACT_TUNNEL_KEY)
++	if (a->ops && a->ops->id == TCA_ID_TUNNEL_KEY)
+ 		return params->tcft_action == TCA_TUNNEL_KEY_ACT_RELEASE;
+ #endif
+ 	return false;
+diff --git a/include/net/tc_act/tc_vlan.h b/include/net/tc_act/tc_vlan.h
+index 22ae260d6869..fe39ed502bef 100644
+--- a/include/net/tc_act/tc_vlan.h
++++ b/include/net/tc_act/tc_vlan.h
+@@ -30,7 +30,7 @@ struct tcf_vlan {
+ static inline bool is_tcf_vlan(const struct tc_action *a)
+ {
+ #ifdef CONFIG_NET_CLS_ACT
+-	if (a->ops && a->ops->type == TCA_ACT_VLAN)
++	if (a->ops && a->ops->id == TCA_ID_VLAN)
+ 		return true;
+ #endif
+ 	return false;
+diff --git a/include/uapi/linux/pkt_cls.h b/include/uapi/linux/pkt_cls.h
+index be382fb0592d..de1da96489d9 100644
+--- a/include/uapi/linux/pkt_cls.h
++++ b/include/uapi/linux/pkt_cls.h
+@@ -64,7 +64,7 @@ enum {
+ #define TC_ACT_EXT_OPCODE_MAX	TC_ACT_GOTO_CHAIN
+ 
+ /* Action type identifiers*/
+-enum {
++enum tca_id {
+ 	TCA_ID_UNSPEC=0,
+ 	TCA_ID_POLICE=1,
+ 	/* other actions go here */
+diff --git a/net/sched/act_api.c b/net/sched/act_api.c
+index 7c4a4b874248..7ff5b68e62df 100644
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -521,7 +521,7 @@ int tcf_register_action(struct tc_action_ops *act,
+ 
+ 	write_lock(&act_mod_lock);
+ 	list_for_each_entry(a, &act_base, head) {
+-		if (act->type == a->type || (strcmp(act->kind, a->kind) == 0)) {
++		if (act->id == a->id || (strcmp(act->kind, a->kind) == 0)) {
+ 			write_unlock(&act_mod_lock);
+ 			unregister_pernet_subsys(ops);
+ 			return -EEXIST;
+diff --git a/net/sched/act_bpf.c b/net/sched/act_bpf.c
+index 20fae5ca87fa..ceaa1647d170 100644
+--- a/net/sched/act_bpf.c
++++ b/net/sched/act_bpf.c
+@@ -398,7 +398,7 @@ static int tcf_bpf_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_bpf_ops __read_mostly = {
+ 	.kind		=	"bpf",
+-	.type		=	TCA_ACT_BPF,
++	.id		=	TCA_ID_BPF,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_bpf_act,
+ 	.dump		=	tcf_bpf_dump,
+diff --git a/net/sched/act_connmark.c b/net/sched/act_connmark.c
+index 605436747978..7f2b43c1dabc 100644
+--- a/net/sched/act_connmark.c
++++ b/net/sched/act_connmark.c
+@@ -201,7 +201,7 @@ static int tcf_connmark_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_connmark_ops = {
+ 	.kind		=	"connmark",
+-	.type		=	TCA_ACT_CONNMARK,
++	.id		=	TCA_ID_CONNMARK,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_connmark_act,
+ 	.dump		=	tcf_connmark_dump,
+diff --git a/net/sched/act_csum.c b/net/sched/act_csum.c
+index 40437197e053..46a73f0fbff0 100644
+--- a/net/sched/act_csum.c
++++ b/net/sched/act_csum.c
+@@ -662,7 +662,7 @@ static size_t tcf_csum_get_fill_size(const struct tc_action *act)
+ 
+ static struct tc_action_ops act_csum_ops = {
+ 	.kind		= "csum",
+-	.type		= TCA_ACT_CSUM,
++	.id		= TCA_ID_CSUM,
+ 	.owner		= THIS_MODULE,
+ 	.act		= tcf_csum_act,
+ 	.dump		= tcf_csum_dump,
+diff --git a/net/sched/act_gact.c b/net/sched/act_gact.c
+index 72d3347bdd41..bfdd5475176e 100644
+--- a/net/sched/act_gact.c
++++ b/net/sched/act_gact.c
+@@ -247,7 +247,7 @@ static size_t tcf_gact_get_fill_size(const struct tc_action *act)
+ 
+ static struct tc_action_ops act_gact_ops = {
+ 	.kind		=	"gact",
+-	.type		=	TCA_ACT_GACT,
++	.id		=	TCA_ID_GACT,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_gact_act,
+ 	.stats_update	=	tcf_gact_stats_update,
+diff --git a/net/sched/act_ife.c b/net/sched/act_ife.c
+index 24047e0e5db0..939e3a4bad1e 100644
+--- a/net/sched/act_ife.c
++++ b/net/sched/act_ife.c
+@@ -872,7 +872,7 @@ static int tcf_ife_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_ife_ops = {
+ 	.kind = "ife",
+-	.type = TCA_ACT_IFE,
++	.id = TCA_ID_IFE,
+ 	.owner = THIS_MODULE,
+ 	.act = tcf_ife_act,
+ 	.dump = tcf_ife_dump,
+diff --git a/net/sched/act_ipt.c b/net/sched/act_ipt.c
+index 334f3a057671..acb24f1583db 100644
+--- a/net/sched/act_ipt.c
++++ b/net/sched/act_ipt.c
+@@ -338,7 +338,7 @@ static int tcf_ipt_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_ipt_ops = {
+ 	.kind		=	"ipt",
+-	.type		=	TCA_ACT_IPT,
++	.id		=	TCA_ID_IPT,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_ipt_act,
+ 	.dump		=	tcf_ipt_dump,
+@@ -388,7 +388,7 @@ static int tcf_xt_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_xt_ops = {
+ 	.kind		=	"xt",
+-	.type		=	TCA_ACT_XT,
++	.id		=	TCA_ID_XT,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_ipt_act,
+ 	.dump		=	tcf_ipt_dump,
+diff --git a/net/sched/act_mirred.c b/net/sched/act_mirred.c
+index 548614bd9366..21811b452a8b 100644
+--- a/net/sched/act_mirred.c
++++ b/net/sched/act_mirred.c
+@@ -401,7 +401,7 @@ static void tcf_mirred_put_dev(struct net_device *dev)
+ 
+ static struct tc_action_ops act_mirred_ops = {
+ 	.kind		=	"mirred",
+-	.type		=	TCA_ACT_MIRRED,
++	.id		=	TCA_ID_MIRRED,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_mirred_act,
+ 	.stats_update	=	tcf_stats_update,
+diff --git a/net/sched/act_nat.c b/net/sched/act_nat.c
+index 619828920b97..302abae0d9ee 100644
+--- a/net/sched/act_nat.c
++++ b/net/sched/act_nat.c
+@@ -303,7 +303,7 @@ static int tcf_nat_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_nat_ops = {
+ 	.kind		=	"nat",
+-	.type		=	TCA_ACT_NAT,
++	.id		=	TCA_ID_NAT,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_nat_act,
+ 	.dump		=	tcf_nat_dump,
+diff --git a/net/sched/act_pedit.c b/net/sched/act_pedit.c
+index 82d258b2a75a..4cac247b45ac 100644
+--- a/net/sched/act_pedit.c
++++ b/net/sched/act_pedit.c
+@@ -473,7 +473,7 @@ static int tcf_pedit_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_pedit_ops = {
+ 	.kind		=	"pedit",
+-	.type		=	TCA_ACT_PEDIT,
++	.id		=	TCA_ID_PEDIT,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_pedit_act,
+ 	.dump		=	tcf_pedit_dump,
+diff --git a/net/sched/act_police.c b/net/sched/act_police.c
+index e3dce1d7a370..05bc1f9ac50e 100644
+--- a/net/sched/act_police.c
++++ b/net/sched/act_police.c
+@@ -335,7 +335,7 @@ MODULE_LICENSE("GPL");
+ 
+ static struct tc_action_ops act_police_ops = {
+ 	.kind		=	"police",
+-	.type		=	TCA_ID_POLICE,
++	.id		=	TCA_ID_POLICE,
+ 	.owner		=	THIS_MODULE,
+ 	.stats_update	=	tcf_police_stats_update,
+ 	.act		=	tcf_police_act,
+diff --git a/net/sched/act_sample.c b/net/sched/act_sample.c
+index ac37654ca292..8a155deee0c2 100644
+--- a/net/sched/act_sample.c
++++ b/net/sched/act_sample.c
+@@ -240,7 +240,7 @@ static int tcf_sample_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_sample_ops = {
+ 	.kind	  = "sample",
+-	.type	  = TCA_ACT_SAMPLE,
++	.id	  = TCA_ID_SAMPLE,
+ 	.owner	  = THIS_MODULE,
+ 	.act	  = tcf_sample_act,
+ 	.dump	  = tcf_sample_dump,
+diff --git a/net/sched/act_simple.c b/net/sched/act_simple.c
+index 658efae71a09..a15d70fff8d6 100644
+--- a/net/sched/act_simple.c
++++ b/net/sched/act_simple.c
+@@ -200,7 +200,7 @@ static int tcf_simp_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_simp_ops = {
+ 	.kind		=	"simple",
+-	.type		=	TCA_ACT_SIMP,
++	.id		=	TCA_ID_SIMP,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_simp_act,
+ 	.dump		=	tcf_simp_dump,
+diff --git a/net/sched/act_skbedit.c b/net/sched/act_skbedit.c
+index 7709710a41f7..ae29f30a4423 100644
+--- a/net/sched/act_skbedit.c
++++ b/net/sched/act_skbedit.c
+@@ -301,7 +301,7 @@ static int tcf_skbedit_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_skbedit_ops = {
+ 	.kind		=	"skbedit",
+-	.type		=	TCA_ACT_SKBEDIT,
++	.id		=	TCA_ID_SKBEDIT,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_skbedit_act,
+ 	.dump		=	tcf_skbedit_dump,
+diff --git a/net/sched/act_skbmod.c b/net/sched/act_skbmod.c
+index 3038493d18ca..cde80e1e0d21 100644
+--- a/net/sched/act_skbmod.c
++++ b/net/sched/act_skbmod.c
+@@ -262,7 +262,7 @@ static int tcf_skbmod_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_skbmod_ops = {
+ 	.kind		=	"skbmod",
+-	.type		=	TCA_ACT_SKBMOD,
++	.id		=	TCA_ACT_SKBMOD,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_skbmod_act,
+ 	.dump		=	tcf_skbmod_dump,
+diff --git a/net/sched/act_tunnel_key.c b/net/sched/act_tunnel_key.c
+index 66bfe57e74ae..3aa54e434789 100644
+--- a/net/sched/act_tunnel_key.c
++++ b/net/sched/act_tunnel_key.c
+@@ -564,7 +564,7 @@ static int tunnel_key_search(struct net *net, struct tc_action **a, u32 index,
+ 
+ static struct tc_action_ops act_tunnel_key_ops = {
+ 	.kind		=	"tunnel_key",
+-	.type		=	TCA_ACT_TUNNEL_KEY,
++	.id		=	TCA_ID_TUNNEL_KEY,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tunnel_key_act,
+ 	.dump		=	tunnel_key_dump,
+diff --git a/net/sched/act_vlan.c b/net/sched/act_vlan.c
+index da993edd2e40..905e0b2a2662 100644
+--- a/net/sched/act_vlan.c
++++ b/net/sched/act_vlan.c
+@@ -308,7 +308,7 @@ static size_t tcf_vlan_get_fill_size(const struct tc_action *act)
+ 
+ static struct tc_action_ops act_vlan_ops = {
+ 	.kind		=	"vlan",
+-	.type		=	TCA_ACT_VLAN,
++	.id		=	TCA_ID_VLAN,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_vlan_act,
+ 	.dump		=	tcf_vlan_dump,
+-- 
+2.17.1
+

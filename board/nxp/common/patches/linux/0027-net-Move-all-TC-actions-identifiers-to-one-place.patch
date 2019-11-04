@@ -1,0 +1,291 @@
+From 37ea7537662c0d4dfe0dfad2f17b5408c66eb6b5 Mon Sep 17 00:00:00 2001
+From: Eli Cohen <eli@mellanox.com>
+Date: Sun Feb 10 14:24:59 2019 +0200
+Subject: [PATCH ocelot-tc-flower-policer 22/44] net: Move all TC actions identifiers to one place
+
+[ upstream commit 257eeded20b34219d5484cfc415b3e39093f37b8 ]
+
+Move all the TC identifiers to one place, to the same enum that defines
+the identifier of police action. This makes it easier choose numbers for
+new actions since they are now defined in one place. We preserve the
+original values for binary compatibility. New IDs should be added inside
+the enum.
+
+Signed-off-by: Eli Cohen <eli@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/uapi/linux/pkt_cls.h              | 44 +++++++++++++++++++++--
+ include/uapi/linux/tc_act/tc_bpf.h        |  2 --
+ include/uapi/linux/tc_act/tc_connmark.h   |  2 --
+ include/uapi/linux/tc_act/tc_csum.h       |  2 --
+ include/uapi/linux/tc_act/tc_gact.h       |  1 -
+ include/uapi/linux/tc_act/tc_ife.h        |  1 -
+ include/uapi/linux/tc_act/tc_ipt.h        |  3 --
+ include/uapi/linux/tc_act/tc_mirred.h     |  1 -
+ include/uapi/linux/tc_act/tc_nat.h        |  2 --
+ include/uapi/linux/tc_act/tc_pedit.h      |  2 --
+ include/uapi/linux/tc_act/tc_sample.h     |  2 --
+ include/uapi/linux/tc_act/tc_skbedit.h    |  2 --
+ include/uapi/linux/tc_act/tc_skbmod.h     |  2 --
+ include/uapi/linux/tc_act/tc_tunnel_key.h |  2 --
+ include/uapi/linux/tc_act/tc_vlan.h       |  2 --
+ net/sched/act_simple.c                    |  2 --
+ 16 files changed, 41 insertions(+), 31 deletions(-)
+
+diff --git a/include/uapi/linux/pkt_cls.h b/include/uapi/linux/pkt_cls.h
+index de1da96489d9..beecc8ad06dd 100644
+--- a/include/uapi/linux/pkt_cls.h
++++ b/include/uapi/linux/pkt_cls.h
+@@ -63,12 +63,50 @@ enum {
+ #define TC_ACT_GOTO_CHAIN __TC_ACT_EXT(2)
+ #define TC_ACT_EXT_OPCODE_MAX	TC_ACT_GOTO_CHAIN
+ 
++/* These macros are put here for binary compatibility with userspace apps that
++ * make use of them. For kernel code and new userspace apps, use the TCA_ID_*
++ * versions.
++ */
++#define TCA_ACT_GACT 5
++#define TCA_ACT_IPT 6
++#define TCA_ACT_PEDIT 7
++#define TCA_ACT_MIRRED 8
++#define TCA_ACT_NAT 9
++#define TCA_ACT_XT 10
++#define TCA_ACT_SKBEDIT 11
++#define TCA_ACT_VLAN 12
++#define TCA_ACT_BPF 13
++#define TCA_ACT_CONNMARK 14
++#define TCA_ACT_SKBMOD 15
++#define TCA_ACT_CSUM 16
++#define TCA_ACT_TUNNEL_KEY 17
++#define TCA_ACT_SIMP 22
++#define TCA_ACT_IFE 25
++#define TCA_ACT_SAMPLE 26
++
+ /* Action type identifiers*/
+ enum tca_id {
+-	TCA_ID_UNSPEC=0,
+-	TCA_ID_POLICE=1,
++	TCA_ID_UNSPEC = 0,
++	TCA_ID_POLICE = 1,
++	TCA_ID_GACT = TCA_ACT_GACT,
++	TCA_ID_IPT = TCA_ACT_IPT,
++	TCA_ID_PEDIT = TCA_ACT_PEDIT,
++	TCA_ID_MIRRED = TCA_ACT_MIRRED,
++	TCA_ID_NAT = TCA_ACT_NAT,
++	TCA_ID_XT = TCA_ACT_XT,
++	TCA_ID_SKBEDIT = TCA_ACT_SKBEDIT,
++	TCA_ID_VLAN = TCA_ACT_VLAN,
++	TCA_ID_BPF = TCA_ACT_BPF,
++	TCA_ID_CONNMARK = TCA_ACT_CONNMARK,
++	TCA_ID_SKBMOD = TCA_ACT_SKBMOD,
++	TCA_ID_CSUM = TCA_ACT_CSUM,
++	TCA_ID_TUNNEL_KEY = TCA_ACT_TUNNEL_KEY,
++	TCA_ID_SIMP = TCA_ACT_SIMP,
++	TCA_ID_IFE = TCA_ACT_IFE,
++	TCA_ID_SAMPLE = TCA_ACT_SAMPLE,
+ 	/* other actions go here */
+-	__TCA_ID_MAX=255
++	TCA_ID_CTINFO,
++	__TCA_ID_MAX = 255
+ };
+ 
+ #define TCA_ID_MAX __TCA_ID_MAX
+diff --git a/include/uapi/linux/tc_act/tc_bpf.h b/include/uapi/linux/tc_act/tc_bpf.h
+index 6e89a5df49a4..653c4f94f76e 100644
+--- a/include/uapi/linux/tc_act/tc_bpf.h
++++ b/include/uapi/linux/tc_act/tc_bpf.h
+@@ -13,8 +13,6 @@
+ 
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_BPF 13
+-
+ struct tc_act_bpf {
+ 	tc_gen;
+ };
+diff --git a/include/uapi/linux/tc_act/tc_connmark.h b/include/uapi/linux/tc_act/tc_connmark.h
+index 80caa47b1933..9f8f6f709feb 100644
+--- a/include/uapi/linux/tc_act/tc_connmark.h
++++ b/include/uapi/linux/tc_act/tc_connmark.h
+@@ -5,8 +5,6 @@
+ #include <linux/types.h>
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_CONNMARK 14
+-
+ struct tc_connmark {
+ 	tc_gen;
+ 	__u16 zone;
+diff --git a/include/uapi/linux/tc_act/tc_csum.h b/include/uapi/linux/tc_act/tc_csum.h
+index 0ecf4d29e2f3..94b2044929de 100644
+--- a/include/uapi/linux/tc_act/tc_csum.h
++++ b/include/uapi/linux/tc_act/tc_csum.h
+@@ -5,8 +5,6 @@
+ #include <linux/types.h>
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_CSUM 16
+-
+ enum {
+ 	TCA_CSUM_UNSPEC,
+ 	TCA_CSUM_PARMS,
+diff --git a/include/uapi/linux/tc_act/tc_gact.h b/include/uapi/linux/tc_act/tc_gact.h
+index 94273c3b81b0..37e5392e02c7 100644
+--- a/include/uapi/linux/tc_act/tc_gact.h
++++ b/include/uapi/linux/tc_act/tc_gact.h
+@@ -5,7 +5,6 @@
+ #include <linux/types.h>
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_GACT 5
+ struct tc_gact {
+ 	tc_gen;
+ 
+diff --git a/include/uapi/linux/tc_act/tc_ife.h b/include/uapi/linux/tc_act/tc_ife.h
+index 2f48490ef386..8c401f185675 100644
+--- a/include/uapi/linux/tc_act/tc_ife.h
++++ b/include/uapi/linux/tc_act/tc_ife.h
+@@ -6,7 +6,6 @@
+ #include <linux/pkt_cls.h>
+ #include <linux/ife.h>
+ 
+-#define TCA_ACT_IFE 25
+ /* Flag bits for now just encoding/decoding; mutually exclusive */
+ #define IFE_ENCODE 1
+ #define IFE_DECODE 0
+diff --git a/include/uapi/linux/tc_act/tc_ipt.h b/include/uapi/linux/tc_act/tc_ipt.h
+index b743c8bddd13..c48d7da6750d 100644
+--- a/include/uapi/linux/tc_act/tc_ipt.h
++++ b/include/uapi/linux/tc_act/tc_ipt.h
+@@ -4,9 +4,6 @@
+ 
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_IPT 6
+-#define TCA_ACT_XT 10
+-
+ enum {
+ 	TCA_IPT_UNSPEC,
+ 	TCA_IPT_TABLE,
+diff --git a/include/uapi/linux/tc_act/tc_mirred.h b/include/uapi/linux/tc_act/tc_mirred.h
+index 5dd671cf5776..2500a0005d05 100644
+--- a/include/uapi/linux/tc_act/tc_mirred.h
++++ b/include/uapi/linux/tc_act/tc_mirred.h
+@@ -5,7 +5,6 @@
+ #include <linux/types.h>
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_MIRRED 8
+ #define TCA_EGRESS_REDIR 1  /* packet redirect to EGRESS*/
+ #define TCA_EGRESS_MIRROR 2 /* mirror packet to EGRESS */
+ #define TCA_INGRESS_REDIR 3  /* packet redirect to INGRESS*/
+diff --git a/include/uapi/linux/tc_act/tc_nat.h b/include/uapi/linux/tc_act/tc_nat.h
+index 086be842587b..21399c2c6130 100644
+--- a/include/uapi/linux/tc_act/tc_nat.h
++++ b/include/uapi/linux/tc_act/tc_nat.h
+@@ -5,8 +5,6 @@
+ #include <linux/pkt_cls.h>
+ #include <linux/types.h>
+ 
+-#define TCA_ACT_NAT 9
+-
+ enum {
+ 	TCA_NAT_UNSPEC,
+ 	TCA_NAT_PARMS,
+diff --git a/include/uapi/linux/tc_act/tc_pedit.h b/include/uapi/linux/tc_act/tc_pedit.h
+index 24ec792dacc1..f3e61b04fa01 100644
+--- a/include/uapi/linux/tc_act/tc_pedit.h
++++ b/include/uapi/linux/tc_act/tc_pedit.h
+@@ -5,8 +5,6 @@
+ #include <linux/types.h>
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_PEDIT 7
+-
+ enum {
+ 	TCA_PEDIT_UNSPEC,
+ 	TCA_PEDIT_TM,
+diff --git a/include/uapi/linux/tc_act/tc_sample.h b/include/uapi/linux/tc_act/tc_sample.h
+index bd7e9f03abd2..fee1bcc20793 100644
+--- a/include/uapi/linux/tc_act/tc_sample.h
++++ b/include/uapi/linux/tc_act/tc_sample.h
+@@ -6,8 +6,6 @@
+ #include <linux/pkt_cls.h>
+ #include <linux/if_ether.h>
+ 
+-#define TCA_ACT_SAMPLE 26
+-
+ struct tc_sample {
+ 	tc_gen;
+ };
+diff --git a/include/uapi/linux/tc_act/tc_skbedit.h b/include/uapi/linux/tc_act/tc_skbedit.h
+index 6de6071ebed6..800e93377218 100644
+--- a/include/uapi/linux/tc_act/tc_skbedit.h
++++ b/include/uapi/linux/tc_act/tc_skbedit.h
+@@ -23,8 +23,6 @@
+ 
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_SKBEDIT 11
+-
+ #define SKBEDIT_F_PRIORITY		0x1
+ #define SKBEDIT_F_QUEUE_MAPPING		0x2
+ #define SKBEDIT_F_MARK			0x4
+diff --git a/include/uapi/linux/tc_act/tc_skbmod.h b/include/uapi/linux/tc_act/tc_skbmod.h
+index 38c072f66f2f..c525b3503797 100644
+--- a/include/uapi/linux/tc_act/tc_skbmod.h
++++ b/include/uapi/linux/tc_act/tc_skbmod.h
+@@ -13,8 +13,6 @@
+ 
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_SKBMOD 15
+-
+ #define SKBMOD_F_DMAC	0x1
+ #define SKBMOD_F_SMAC	0x2
+ #define SKBMOD_F_ETYPE	0x4
+diff --git a/include/uapi/linux/tc_act/tc_tunnel_key.h b/include/uapi/linux/tc_act/tc_tunnel_key.h
+index be384d63e1b5..41c8b462c177 100644
+--- a/include/uapi/linux/tc_act/tc_tunnel_key.h
++++ b/include/uapi/linux/tc_act/tc_tunnel_key.h
+@@ -14,8 +14,6 @@
+ 
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_TUNNEL_KEY 17
+-
+ #define TCA_TUNNEL_KEY_ACT_SET	    1
+ #define TCA_TUNNEL_KEY_ACT_RELEASE  2
+ 
+diff --git a/include/uapi/linux/tc_act/tc_vlan.h b/include/uapi/linux/tc_act/tc_vlan.h
+index 0d7b5fd6605b..168995b54a70 100644
+--- a/include/uapi/linux/tc_act/tc_vlan.h
++++ b/include/uapi/linux/tc_act/tc_vlan.h
+@@ -13,8 +13,6 @@
+ 
+ #include <linux/pkt_cls.h>
+ 
+-#define TCA_ACT_VLAN 12
+-
+ #define TCA_VLAN_ACT_POP	1
+ #define TCA_VLAN_ACT_PUSH	2
+ #define TCA_VLAN_ACT_MODIFY	3
+diff --git a/net/sched/act_simple.c b/net/sched/act_simple.c
+index a15d70fff8d6..8a4cffdf13ed 100644
+--- a/net/sched/act_simple.c
++++ b/net/sched/act_simple.c
+@@ -19,8 +19,6 @@
+ #include <net/netlink.h>
+ #include <net/pkt_sched.h>
+ 
+-#define TCA_ACT_SIMP 22
+-
+ #include <linux/tc_act/tc_defact.h>
+ #include <net/tc_act/tc_defact.h>
+ 
+-- 
+2.17.1
+

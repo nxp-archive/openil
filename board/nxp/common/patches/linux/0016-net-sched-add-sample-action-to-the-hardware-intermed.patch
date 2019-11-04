@@ -1,0 +1,76 @@
+From c6dd50050be5d36d8ca34197f4caf297c1d0579b Mon Sep 17 00:00:00 2001
+From: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Date: Sat May 4 04:46:16 2019 -0700
+Subject: [PATCH ocelot-tc-flower-policer 11/44] net/sched: add sample action to the hardware
+ intermediate representation
+
+[ upstream commit a7a7be6087b07563490725f61f4dbf4826f099e2 ]
+
+Add sample action to the hardware intermediate representation model which
+would subsequently allow it to be used by drivers for offload.
+
+Signed-off-by: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/flow_offload.h | 7 +++++++
+ net/sched/cls_api.c        | 8 ++++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
+index 64ef2f064f64..c13b757745f2 100644
+--- a/include/net/flow_offload.h
++++ b/include/net/flow_offload.h
+@@ -118,6 +118,7 @@ enum flow_action_id {
+ 	FLOW_ACTION_MARK,
+ 	FLOW_ACTION_WAKE,
+ 	FLOW_ACTION_QUEUE,
++	FLOW_ACTION_SAMPLE,
+ };
+ 
+ /* This is mirroring enum pedit_header_type definition for easy mapping between
+@@ -157,6 +158,12 @@ struct flow_action_entry {
+ 			u32		index;
+ 			u8		vf;
+ 		} queue;
++		struct {				/* FLOW_ACTION_SAMPLE */
++			struct psample_group	*psample_group;
++			u32			rate;
++			u32			trunc_size;
++			bool			truncate;
++		} sample;
+ 	};
+ };
+ 
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index 9142f3fb6123..28fe05052763 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -36,6 +36,7 @@
+ #include <net/tc_act/tc_tunnel_key.h>
+ #include <net/tc_act/tc_csum.h>
+ #include <net/tc_act/tc_gact.h>
++#include <net/tc_act/tc_sample.h>
+ #include <net/tc_act/tc_skbedit.h>
+ #include <net/tc_act/tc_mirred.h>
+ 
+@@ -2301,6 +2302,13 @@ int tc_setup_flow_action(struct flow_action *flow_action,
+ 		} else if (is_tcf_skbedit_mark(act)) {
+ 			entry->id = FLOW_ACTION_MARK;
+ 			entry->mark = tcf_skbedit_mark(act);
++		} else if (is_tcf_sample(act)) {
++			entry->id = FLOW_ACTION_SAMPLE;
++			entry->sample.psample_group =
++				tcf_sample_psample_group(act);
++			entry->sample.trunc_size = tcf_sample_trunc_size(act);
++			entry->sample.truncate = tcf_sample_truncate(act);
++			entry->sample.rate = tcf_sample_rate(act);
+ 		} else {
+ 			goto err_out;
+ 		}
+-- 
+2.17.1
+

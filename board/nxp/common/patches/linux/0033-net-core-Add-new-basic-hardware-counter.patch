@@ -1,0 +1,167 @@
+From fcdabbad4e8460844c72158cb5cd5f5011a8a612 Mon Sep 17 00:00:00 2001
+From: Eelco Chaudron <echaudro@redhat.com>
+Date: Fri, 21 Sep 2018 07:13:54 -0400
+Subject: [PATCH ocelot-tc-flower-policer 28/44] net/core: Add new basic hardware counter
+
+[ upstream commit 5e111210a44301304f9054e995bf33f69b6de76f ]
+[ rebased on top of 4.19.72-rt26 patchset ]
+
+Add a new hardware specific basic counter, TCA_STATS_BASIC_HW. This can
+be used to count packets/bytes processed by hardware offload.
+
+Signed-off-by: Eelco Chaudron <echaudro@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ include/net/gen_stats.h        |  4 ++
+ include/uapi/linux/gen_stats.h |  1 +
+ net/core/gen_stats.c           | 73 +++++++++++++++++++++++++---------
+ net/sched/cls_matchall.c       |  2 +-
+ 4 files changed, 60 insertions(+), 20 deletions(-)
+
+diff --git a/include/net/gen_stats.h b/include/net/gen_stats.h
+index 883bb9085f15..946bd53a9f81 100644
+--- a/include/net/gen_stats.h
++++ b/include/net/gen_stats.h
+@@ -44,6 +44,10 @@ void __gnet_stats_copy_basic(net_seqlock_t *running,
+ 			     struct gnet_stats_basic_packed *bstats,
+ 			     struct gnet_stats_basic_cpu __percpu *cpu,
+ 			     struct gnet_stats_basic_packed *b);
++int gnet_stats_copy_basic_hw(net_seqlock_t *running,
++			     struct gnet_dump *d,
++			     struct gnet_stats_basic_cpu __percpu *cpu,
++			     struct gnet_stats_basic_packed *b);
+ int gnet_stats_copy_rate_est(struct gnet_dump *d,
+ 			     struct net_rate_estimator __rcu **ptr);
+ int gnet_stats_copy_queue(struct gnet_dump *d,
+diff --git a/include/uapi/linux/gen_stats.h b/include/uapi/linux/gen_stats.h
+index 24a861c0d29d..065408e16a80 100644
+--- a/include/uapi/linux/gen_stats.h
++++ b/include/uapi/linux/gen_stats.h
+@@ -12,6 +12,7 @@ enum {
+ 	TCA_STATS_APP,
+ 	TCA_STATS_RATE_EST64,
+ 	TCA_STATS_PAD,
++	TCA_STATS_BASIC_HW,
+ 	__TCA_STATS_MAX,
+ };
+ #define TCA_STATS_MAX (__TCA_STATS_MAX - 1)
+diff --git a/net/core/gen_stats.c b/net/core/gen_stats.c
+index e2fd8baec65f..08a411d07cf4 100644
+--- a/net/core/gen_stats.c
++++ b/net/core/gen_stats.c
+@@ -162,30 +162,18 @@ __gnet_stats_copy_basic(const seqcount_t *running,
+ }
+ EXPORT_SYMBOL(__gnet_stats_copy_basic);
+ 
+-/**
+- * gnet_stats_copy_basic - copy basic statistics into statistic TLV
+- * @running: seqcount_t pointer
+- * @d: dumping handle
+- * @cpu: copy statistic per cpu
+- * @b: basic statistics
+- *
+- * Appends the basic statistics to the top level TLV created by
+- * gnet_stats_start_copy().
+- *
+- * Returns 0 on success or -1 with the statistic lock released
+- * if the room in the socket buffer was not sufficient.
+- */
+ int
+-gnet_stats_copy_basic(net_seqlock_t *running,
+-		      struct gnet_dump *d,
+-		      struct gnet_stats_basic_cpu __percpu *cpu,
+-		      struct gnet_stats_basic_packed *b)
++___gnet_stats_copy_basic(net_seqlock_t *running,
++			 struct gnet_dump *d,
++			 struct gnet_stats_basic_cpu __percpu *cpu,
++			 struct gnet_stats_basic_packed *b,
++			 int type)
+ {
+ 	struct gnet_stats_basic_packed bstats = {0};
+ 
+ 	__gnet_stats_copy_basic(running, &bstats, cpu, b);
+ 
+-	if (d->compat_tc_stats) {
++	if (d->compat_tc_stats && type == TCA_STATS_BASIC) {
+ 		d->tc_stats.bytes = bstats.bytes;
+ 		d->tc_stats.packets = bstats.packets;
+ 	}
+@@ -196,13 +184,60 @@ gnet_stats_copy_basic(const seqcount_t *running,
+ 		memset(&sb, 0, sizeof(sb));
+ 		sb.bytes = bstats.bytes;
+ 		sb.packets = bstats.packets;
+-		return gnet_stats_copy(d, TCA_STATS_BASIC, &sb, sizeof(sb),
++		return gnet_stats_copy(d, type, &sb, sizeof(sb),
+ 				       TCA_STATS_PAD);
+ 	}
+ 	return 0;
+ }
++
++/**
++ * gnet_stats_copy_basic - copy basic statistics into statistic TLV
++ * @running: seqcount_t pointer
++ * @d: dumping handle
++ * @cpu: copy statistic per cpu
++ * @b: basic statistics
++ *
++ * Appends the basic statistics to the top level TLV created by
++ * gnet_stats_start_copy().
++ *
++ * Returns 0 on success or -1 with the statistic lock released
++ * if the room in the socket buffer was not sufficient.
++ */
++int
++gnet_stats_copy_basic(net_seqlock_t *running,
++		      struct gnet_dump *d,
++		      struct gnet_stats_basic_cpu __percpu *cpu,
++		      struct gnet_stats_basic_packed *b)
++{
++	return ___gnet_stats_copy_basic(running, d, cpu, b,
++					TCA_STATS_BASIC);
++}
+ EXPORT_SYMBOL(gnet_stats_copy_basic);
+ 
++/**
++ * gnet_stats_copy_basic_hw - copy basic hw statistics into statistic TLV
++ * @running: seqcount_t pointer
++ * @d: dumping handle
++ * @cpu: copy statistic per cpu
++ * @b: basic statistics
++ *
++ * Appends the basic statistics to the top level TLV created by
++ * gnet_stats_start_copy().
++ *
++ * Returns 0 on success or -1 with the statistic lock released
++ * if the room in the socket buffer was not sufficient.
++ */
++int
++gnet_stats_copy_basic_hw(net_seqlock_t *running,
++			 struct gnet_dump *d,
++			 struct gnet_stats_basic_cpu __percpu *cpu,
++			 struct gnet_stats_basic_packed *b)
++{
++	return ___gnet_stats_copy_basic(running, d, cpu, b,
++					TCA_STATS_BASIC_HW);
++}
++EXPORT_SYMBOL(gnet_stats_copy_basic_hw);
++
+ /**
+  * gnet_stats_copy_rate_est - copy rate estimator statistics into statistics TLV
+  * @d: dumping handle
+diff --git a/net/sched/cls_matchall.c b/net/sched/cls_matchall.c
+index f261d0d63b5e..a449725a6121 100644
+--- a/net/sched/cls_matchall.c
++++ b/net/sched/cls_matchall.c
+@@ -318,7 +318,7 @@ static void mall_stats_hw_filter(struct tcf_proto *tp,
+ 	cls_mall.command = TC_CLSMATCHALL_STATS;
+ 	cls_mall.cookie = cookie;
+ 
+-	tc_setup_cb_call(block, TC_SETUP_CLSMATCHALL, &cls_mall, false);
++	tc_setup_cb_call(block, NULL, TC_SETUP_CLSMATCHALL, &cls_mall, false);
+ 
+ 	tcf_exts_stats_update(&head->exts, cls_mall.stats.bytes,
+ 			      cls_mall.stats.pkts, cls_mall.stats.lastused);
+-- 
+2.17.1
+

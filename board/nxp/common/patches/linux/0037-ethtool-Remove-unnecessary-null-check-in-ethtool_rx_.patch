@@ -1,0 +1,60 @@
+From 8b34ec65b3d070c492cc6aca960097ae74d6143a Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <natechancellor@gmail.com>
+Date: Thu, 7 Feb 2019 21:46:53 -0700
+Subject: [PATCH ocelot-tc-flower-policer 32/44] ethtool: Remove unnecessary null check in
+ ethtool_rx_flow_rule_create
+
+[ upstream commit 8b34ec65b3d070c492cc6aca960097ae74d6143a ]
+
+net/core/ethtool.c:3023:19: warning: address of array
+'ext_m_spec->h_dest' will always evaluate to 'true'
+[-Wpointer-bool-conversion]
+                if (ext_m_spec->h_dest) {
+                ~~  ~~~~~~~~~~~~^~~~~~
+
+h_dest is an array, it can't be null so remove this check.
+
+Fixes: eca4205f9ec3 ("ethtool: add ethtool_rx_flow_spec to flow_rule structure translator")
+Link: https://github.com/ClangBuiltLinux/linux/issues/353
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/core/ethtool.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
+
+diff --git a/net/core/ethtool.c b/net/core/ethtool.c
+index 0fbf39239b29..d2c47cdf25da 100644
+--- a/net/core/ethtool.c
++++ b/net/core/ethtool.c
+@@ -3020,17 +3020,15 @@ ethtool_rx_flow_rule_create(const struct ethtool_rx_flow_spec_input *input)
+ 		const struct ethtool_flow_ext *ext_h_spec = &fs->h_ext;
+ 		const struct ethtool_flow_ext *ext_m_spec = &fs->m_ext;
+ 
+-		if (ext_m_spec->h_dest) {
+-			memcpy(match->key.eth_addrs.dst, ext_h_spec->h_dest,
+-			       ETH_ALEN);
+-			memcpy(match->mask.eth_addrs.dst, ext_m_spec->h_dest,
+-			       ETH_ALEN);
+-
+-			match->dissector.used_keys |=
+-				BIT(FLOW_DISSECTOR_KEY_ETH_ADDRS);
+-			match->dissector.offset[FLOW_DISSECTOR_KEY_ETH_ADDRS] =
+-				offsetof(struct ethtool_rx_flow_key, eth_addrs);
+-		}
++		memcpy(match->key.eth_addrs.dst, ext_h_spec->h_dest,
++		       ETH_ALEN);
++		memcpy(match->mask.eth_addrs.dst, ext_m_spec->h_dest,
++		       ETH_ALEN);
++
++		match->dissector.used_keys |=
++			BIT(FLOW_DISSECTOR_KEY_ETH_ADDRS);
++		match->dissector.offset[FLOW_DISSECTOR_KEY_ETH_ADDRS] =
++			offsetof(struct ethtool_rx_flow_key, eth_addrs);
+ 	}
+ 
+ 	act = &flow->rule->action.entries[0];
+-- 
+2.7.4
+
