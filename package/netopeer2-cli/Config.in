@@ -1,0 +1,8 @@
+config BR2_PACKAGE_NETOPEER2_CLI
+	bool "netopeer2-cli"
+	select BR2_PACKAGE_LIBYANG
+	select BR2_PACKAGE_LIBNETCONF2
+	help
+	  A CLI utility for talking to NETCONF servers
+
+	  https://github.com/CESNET/Netopeer2

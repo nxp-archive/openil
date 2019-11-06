@@ -1,0 +1,12 @@
+config BR2_PACKAGE_NETOPEER2_SERVER
+	bool "netopeer2-server"
+	select BR2_PACKAGE_LIBYANG
+	select BR2_PACKAGE_LIBNETCONF2
+	select BR2_PACKAGE_SYSREPO
+	select BR2_PACKAGE_NETOPEER2_KEYSTORED
+	help
+	  A NETCONF server with a modular datastore allowing interconnection
+	  and control of various applications. NETCONF is an Internet protocol
+	  for remote management of network devices.
+
+	  https://github.com/CESNET/Netopeer2

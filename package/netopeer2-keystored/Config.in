@@ -1,0 +1,9 @@
+config BR2_PACKAGE_NETOPEER2_KEYSTORED
+	bool "netopeer2-keystored"
+	select BR2_PACKAGE_OPENSSH
+	select BR2_PACKAGE_SYSREPO
+	help
+	  Management of SSH keys for Netopeer2, a NETCONF server. NETCONF is an
+	  Internet protocol for remote management of network devices.
+
+	  https://github.com/CESNET/Netopeer2
