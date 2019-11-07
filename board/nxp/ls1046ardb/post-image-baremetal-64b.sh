@@ -21,7 +21,7 @@ main()
 	sed -e "s/%PLATFORM%/${BOARDNAME}/" board/nxp/common/version.json > ${BINARIES_DIR}/version.json
 
 	# build the SDcard image
-	local FILES=""Image", "fsl-ls1046a-rdb-sdk.dtb", "version.json", "bm-u-boot.bin""
+	local FILES=""Image", "fsl-ls1046a-rdb-sdk-bm.dtb", "version.json", "bm-u-boot.bin""
 	local GENIMAGE_CFG="$(mktemp --suffix genimage.cfg)"
 	local GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 
