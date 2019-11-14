@@ -38,6 +38,11 @@ config BR2_PACKAGE_HOSTAPD_WPS
 	help
 	  Enable support for Wi-Fi Protected Setup.
 
+config BR2_PACKAGE_HOSTAPD_WIRED
+	bool "Using wired driver"
+	help
+	  Using wired driver to support 802.1x on switch.
+
 endif
 
 comment "hostapd needs a toolchain w/ threads"
