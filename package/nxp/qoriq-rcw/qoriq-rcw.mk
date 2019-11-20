@@ -45,6 +45,21 @@ endef
 define HOST_QORIQ_RCW_INSTALL_DELIVERY_FILE
 	$(INSTALL) -D -m 0644 $(@D)/PBL.bin $(BINARIES_DIR)/PBL.bin
 endef
+else
+QORIQ_RCW_PATH_FILE_BIN = $(call qstrip,$(BR2_PACKAGE_HOST_QORIQ_RCW_BIN))
+
+ifneq ($(QORIQ_RCW_PATH_FILE_BIN),)
+QORIQ_RCW_PLATFORM = $(firstword $(subst /, ,$(QORIQ_RCW_PATH_FILE_BIN)))
+QORIQ_RCW_FILE_BIN = $(lastword $(subst /, ,$(QORIQ_RCW_PATH_FILE_BIN)))
+
+define HOST_QORIQ_RCW_BUILD_CMDS
+	$(MAKE) -C $(@D)/$(QORIQ_RCW_PLATFORM)
+endef
+
+define HOST_QORIQ_RCW_INSTALL_DELIVERY_FILE
+	$(INSTALL) -D -m 0644 $(@D)/$(QORIQ_RCW_PATH_FILE_BIN) $(BINARIES_DIR)/$(QORIQ_RCW_FILE_BIN)
+endef
+endif
 endif
 
 # Copy source files and script into $(HOST_DIR)/share/rcw/ so a developer
