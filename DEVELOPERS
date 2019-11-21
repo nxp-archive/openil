@@ -528,6 +528,9 @@ F:	configs/nanopi_m1_plus_defconfig
 F:	configs/olimex_a13_olinuxino_defconfig
 F:	configs/orangepi_plus_defconfig
 
+N:	Changming Huang <jerry.huang@nxp.com>
+F:	package/nxp/qoriq-cadence-dp-firmware/
+
 N:	Chris Packham <judge.packham@gmail.com>
 F:	package/gstreamer1/gst1-shark/
 F:	package/micropython/
