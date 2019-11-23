@@ -92,10 +92,10 @@ all:
 .PHONY: all
 
 # Set and export the version string
-export BR2_VERSION := 2019.11-git
+export BR2_VERSION := 2019.11-rc2
 export BR2_OPENIL_VERSION := 1.6-community
 # Actual time the release is cut (for reproducible builds)
-BR2_VERSION_EPOCH = 1567371000
+BR2_VERSION_EPOCH = 1573941000
 
 # Save running make version since it's clobbered by the make package
 RUNNING_MAKE_VERSION := $(MAKE_VERSION)
@@ -739,9 +739,6 @@ staging-finalize:
 target-finalize: $(PACKAGES) host-finalize
 	@$(call MESSAGE,"Finalizing target directory")
 	# Check files that are touched by more than one package
-	./support/scripts/check-uniq-files -t target $(BUILD_DIR)/packages-file-list.txt
-	./support/scripts/check-uniq-files -t staging $(BUILD_DIR)/packages-file-list-staging.txt
-	./support/scripts/check-uniq-files -t host $(BUILD_DIR)/packages-file-list-host.txt
 	$(foreach hook,$(TARGET_FINALIZE_HOOKS),$($(hook))$(sep))
 	rm -rf $(TARGET_DIR)/usr/include $(TARGET_DIR)/usr/share/aclocal \
 		$(TARGET_DIR)/usr/lib/pkgconfig $(TARGET_DIR)/usr/share/pkgconfig \

@@ -163,7 +163,9 @@ copy_toolchain_sysroot = \
 # $3: kernel version string, in the form: X.Y
 #
 check_kernel_headers_version = \
-	support/scripts/check-kernel-headers.sh $(1) $(2) $(3)
+	if ! support/scripts/check-kernel-headers.sh $(1) $(2) $(3); then \
+		exit 1; \
+	fi
 
 #
 # Check the specific gcc version actually matches the version in the
@@ -339,6 +341,24 @@ check_cplusplus = \
 		echo "C++ support is selected but is not available in external toolchain" ; \
 		exit 1 ; \
 	fi
+
+#
+#
+# Check that the external toolchain supports D language
+#
+# $1: cross-gdc path
+#
+check_dlang = \
+	__CROSS_GDC=$(strip $1) ; \
+	__o=$(BUILD_DIR)/.br-toolchain-test-dlang.tmp ; \
+	printf 'import std.stdio;\nvoid main() { writeln("Hello World!"); }\n' | \
+	$${__CROSS_GDC} -x d -o $${__o} - ; \
+	if test $$? -ne 0 ; then \
+		rm -f $${__o}* ; \
+		echo "D language support is selected but is not available in external toolchain" ; \
+		exit 1 ; \
+	fi ; \
+	rm -f $${__o}* \
 
 #
 #

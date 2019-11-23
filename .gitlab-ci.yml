@@ -4,7 +4,7 @@
 # It needs to be regenerated every time a defconfig is added, using
 # "make .gitlab-ci.yml".
 
-image: buildroot/base:20180318.1724
+image: buildroot/base:20191027.2027
 
 .check_base:
     except:
@@ -185,6 +185,7 @@ freescale_t1040d4rdb_defconfig: { extends: .defconfig }
 freescale_t2080_qds_rdb_defconfig: { extends: .defconfig }
 friendlyarm_nanopi_a64_defconfig: { extends: .defconfig }
 friendlyarm_nanopi_neo2_defconfig: { extends: .defconfig }
+friendlyarm_nanopi_neo_plus2_defconfig: { extends: .defconfig }
 galileo_defconfig: { extends: .defconfig }
 grinn_chiliboard_defconfig: { extends: .defconfig }
 grinn_liteboard_defconfig: { extends: .defconfig }
@@ -253,6 +254,7 @@ qemu_aarch64_virt_defconfig: { extends: .defconfig }
 qemu_arm_versatile_defconfig: { extends: .defconfig }
 qemu_arm_versatile_nommu_defconfig: { extends: .defconfig }
 qemu_arm_vexpress_defconfig: { extends: .defconfig }
+qemu_arm_vexpress_tz_defconfig: { extends: .defconfig }
 qemu_csky610_virt_defconfig: { extends: .defconfig }
 qemu_csky807_virt_defconfig: { extends: .defconfig }
 qemu_csky810_virt_defconfig: { extends: .defconfig }
@@ -314,7 +316,7 @@ solidrun_macchiatobin_mainline_defconfig: { extends: .defconfig }
 solidrun_macchiatobin_marvell_defconfig: { extends: .defconfig }
 stm32f429_disco_defconfig: { extends: .defconfig }
 stm32f469_disco_defconfig: { extends: .defconfig }
-stm32mp157_dk_defconfig: { extends: .defconfig }
+stm32mp157c_dk2_defconfig: { extends: .defconfig }
 toradex_apalis_imx6_defconfig: { extends: .defconfig }
 ts4900_defconfig: { extends: .defconfig }
 ts5500_defconfig: { extends: .defconfig }
@@ -385,8 +387,12 @@ tests.package.test_lua_cqueues.TestLuaLuaCqueues: { extends: .runtime_test }
 tests.package.test_lua_cqueues.TestLuajitLuaCqueues: { extends: .runtime_test }
 tests.package.test_lua_curl.TestLuaLuacURL: { extends: .runtime_test }
 tests.package.test_lua_curl.TestLuajitLuacURL: { extends: .runtime_test }
+tests.package.test_lua_gd.TestLuaLuaGD: { extends: .runtime_test }
+tests.package.test_lua_gd.TestLuajitLuaGD: { extends: .runtime_test }
 tests.package.test_lua_http.TestLuaHttp: { extends: .runtime_test }
 tests.package.test_lua_http.TestLuajitHttp: { extends: .runtime_test }
+tests.package.test_lua_sdl2.TestLuaLuaSDL2: { extends: .runtime_test }
+tests.package.test_lua_sdl2.TestLuajitLuaSDL2: { extends: .runtime_test }
 tests.package.test_lua_utf8.TestLuaUtf8: { extends: .runtime_test }
 tests.package.test_lua_utf8.TestLuajitUtf8: { extends: .runtime_test }
 tests.package.test_luaexpat.TestLuaLuaExpat: { extends: .runtime_test }
@@ -403,6 +409,8 @@ tests.package.test_luasocket.TestLuaLuaSocket: { extends: .runtime_test }
 tests.package.test_luasocket.TestLuajitLuaSocket: { extends: .runtime_test }
 tests.package.test_luasyslog.TestLuaLuasyslog: { extends: .runtime_test }
 tests.package.test_luasyslog.TestLuajitLuasyslog: { extends: .runtime_test }
+tests.package.test_luvi.TestLuvi: { extends: .runtime_test }
+tests.package.test_lzlib.TestLuaLzlib: { extends: .runtime_test }
 tests.package.test_openjdk.TestOpenJdk: { extends: .runtime_test }
 tests.package.test_perl.TestPerl: { extends: .runtime_test }
 tests.package.test_perl_class_load.TestPerlClassLoad: { extends: .runtime_test }

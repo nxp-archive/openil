@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CLAMAV_VERSION = 0.102.0
+CLAMAV_VERSION = 0.102.1
 CLAMAV_SITE = https://www.clamav.net/downloads/production
 CLAMAV_LICENSE = GPL-2.0
 CLAMAV_LICENSE_FILES = COPYING COPYING.bzip2 COPYING.file COPYING.getopt \
@@ -22,7 +22,8 @@ CLAMAV_DEPENDENCIES = \
 # mmap cannot be detected when cross-compiling, needed for mempool support
 CLAMAV_CONF_ENV = \
 	ac_cv_c_mmap_private=yes \
-	have_cv_ipv6=yes
+	have_cv_ipv6=yes \
+	OBJC=$(TARGET_CC)
 
 ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
 CLAMAV_LIBS += -latomic

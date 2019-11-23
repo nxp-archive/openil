@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-SYSTEMD_VERSION = 243
-SYSTEMD_SITE = $(call github,systemd,systemd,v$(SYSTEMD_VERSION))
+SYSTEMD_VERSION = 243-78-gef677436aa
+SYSTEMD_SITE = $(call github,systemd,systemd-stable,v$(SYSTEMD_VERSION))
 SYSTEMD_LICENSE = LGPL-2.1+, GPL-2.0+ (udev), Public Domain (few source files, see README)
 SYSTEMD_LICENSE_FILES = LICENSE.GPL2 LICENSE.LGPL2.1 README
 SYSTEMD_INSTALL_STAGING = YES
@@ -26,6 +26,7 @@ SYSTEMD_CONF_OPTS += \
 	-Dima=false \
 	-Dldconfig=false \
 	-Ddefault-dnssec=no \
+	-Ddefault-hierarchy=hybrid \
 	-Dtests=false \
 	-Dsplit-bin=true \
 	-Dsplit-usr=false \
@@ -353,10 +354,13 @@ define SYSTEMD_INSTALL_SERVICE_NETWORKD
 	mkdir -p $(TARGET_DIR)/etc/systemd/system/network-pre.target.wants
 	ln -sf ../../../../lib/systemd/system/systemd-network-generator.service \
 		$(TARGET_DIR)/etc/systemd/system/network-pre.target.wants/systemd-network-generator.service
+<<<<<<< HEAD
 endef
 define SYSTEMD_INSTALL_RESOLVCONF_HOOK
 	ln -sf ../run/systemd/resolve/resolv.conf \
 		$(TARGET_DIR)/etc/resolv.conf
+=======
+>>>>>>> buildroot/master
 endef
 SYSTEMD_NETWORKD_DHCP_IFACE = $(call qstrip,$(BR2_SYSTEM_DHCP))
 ifneq ($(SYSTEMD_NETWORKD_DHCP_IFACE),)
@@ -371,6 +375,10 @@ SYSTEMD_CONF_OPTS += -Dnetworkd=false
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_RESOLVED),y)
+define SYSTEMD_INSTALL_RESOLVCONF_HOOK
+	ln -sf ../run/systemd/resolve/resolv.conf \
+		$(TARGET_DIR)/etc/resolv.conf
+endef
 SYSTEMD_CONF_OPTS += -Dresolve=true
 SYSTEMD_RESOLVED_USER = systemd-resolve -1 systemd-resolve -1 * - - - Network Name Resolution Manager
 define SYSTEMD_INSTALL_SERVICE_RESOLVED
@@ -512,6 +520,7 @@ define SYSTEMD_INSTALL_SERVICE_TTY
 		TARGET="serial-getty@.service"; \
 		LINK_NAME="serial-getty@$(call qstrip,$(BR2_TARGET_GENERIC_GETTY_PORT)).service"; \
 	fi; \
+	mkdir -p $(TARGET_DIR)/etc/systemd/system/getty.target.wants/; \
 	ln -fs ../../../../lib/systemd/system/$${TARGET} \
 		$(TARGET_DIR)/etc/systemd/system/getty.target.wants/$${LINK_NAME}; \
 	if [ $(call qstrip,$(BR2_TARGET_GENERIC_GETTY_BAUDRATE)) -gt 0 ] ; \

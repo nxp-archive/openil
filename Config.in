@@ -30,29 +30,9 @@ config BR2_HOST_GCC_VERSION
 	string
 	option env="HOST_GCC_VERSION"
 
-config BR2_HOST_GCC_AT_LEAST_4_5
-	bool
-	default y if BR2_HOST_GCC_VERSION = "4 5"
-
-config BR2_HOST_GCC_AT_LEAST_4_6
-	bool
-	default y if BR2_HOST_GCC_VERSION = "4 6"
-	select BR2_HOST_GCC_AT_LEAST_4_5
-
-config BR2_HOST_GCC_AT_LEAST_4_7
-	bool
-	default y if BR2_HOST_GCC_VERSION = "4 7"
-	select BR2_HOST_GCC_AT_LEAST_4_6
-
-config BR2_HOST_GCC_AT_LEAST_4_8
-	bool
-	default y if BR2_HOST_GCC_VERSION = "4 8"
-	select BR2_HOST_GCC_AT_LEAST_4_7
-
 config BR2_HOST_GCC_AT_LEAST_4_9
 	bool
 	default y if BR2_HOST_GCC_VERSION = "4 9"
-	select BR2_HOST_GCC_AT_LEAST_4_8
 
 config BR2_HOST_GCC_AT_LEAST_5
 	bool
@@ -560,7 +540,6 @@ endchoice
 config BR2_GOOGLE_BREAKPAD_ENABLE
 	bool "Enable google-breakpad support"
 	depends on BR2_INSTALL_LIBSTDCPP
-	depends on BR2_HOST_GCC_AT_LEAST_4_8 # C++11
 	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_8 # C++11
 	depends on BR2_USE_WCHAR
 	depends on BR2_TOOLCHAIN_HAS_THREADS
@@ -722,9 +701,14 @@ comment "Security Hardening Options"
 config BR2_PIC_PIE
 	bool "Build code with PIC/PIE"
 	depends on BR2_SHARED_LIBS
+	depends on BR2_TOOLCHAIN_SUPPORTS_PIE
 	help
 	  Generate Position-Independent Code (PIC) and link
 	  Position-Independent Executables (PIE).
+
+comment "PIC/PIE needs a toolchain w/ PIE"
+	depends on BR2_SHARED_LIBS
+	depends on !BR2_TOOLCHAIN_SUPPORTS_PIE
 
 choice
 	bool "Stack Smashing Protection"
@@ -808,11 +792,15 @@ config BR2_RELRO_PARTIAL
 
 config BR2_RELRO_FULL
 	bool "Full"
+	depends on BR2_TOOLCHAIN_SUPPORTS_PIE
 	select BR2_PIC_PIE
 	help
 	  This option includes the partial configuration, but also marks
 	  the GOT as read-only at the cost of initialization time during
 	  program loading, i.e every time an executable is started.
+
+comment "RELRO Full needs a toolchain w/ PIE"
+	depends on !BR2_TOOLCHAIN_SUPPORTS_PIE
 
 endchoice
 
