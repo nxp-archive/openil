@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LINUXPTP_VERSION = 48e605ef015c # master ("pmc.8: Mention PORT_STATS_NP")
+LINUXPTP_VERSION = e20d8228f951 # master ("port: Avoid calling freed servo after switching PHC.")
 LINUXPTP_SITE = http://git.code.sf.net/p/linuxptp/code
 LINUXPTP_SITE_METHOD = git
 LINUXPTP_LICENSE = GPL-2.0+
