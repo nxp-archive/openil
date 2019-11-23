@@ -1,0 +1,111 @@
+From 6d43326ce3a3fd147a1099eb7e0a61a60a9d517c Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <olteanv@gmail.com>
+Date: Tue, 19 Nov 2019 14:44:36 +0200
+Subject: [PATCH] Debug reordering between sync and follow-up frames
+
+This patch makes ptp4l more verbose in case of exceptional conditions,
+which otherwise would manifest as application freezes. The context is
+the ongoing debug done for the sja1105 driver.
+
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+---
+ e2e_tc.c |  1 +
+ p2p_tc.c |  3 ++-
+ port.c   | 15 ++++++++++++++-
+ 3 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/e2e_tc.c b/e2e_tc.c
+index 6aaf57206067..e4950efd62b1 100644
+--- a/e2e_tc.c
++++ b/e2e_tc.c
+@@ -89,6 +89,7 @@ enum fsm_event e2e_event(struct port *p, int fd_index)
+ 			fc_clear(p->best);
+ 		}
+ 		port_set_announce_tmo(p);
++		pr_err("%s %d: returning EV_ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES", __func__, __LINE__);
+ 		return EV_ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES;
+ 
+ 	case FD_DELAY_TIMER:
+diff --git a/p2p_tc.c b/p2p_tc.c
+index acf9e51df486..59386153f457 100644
+--- a/p2p_tc.c
++++ b/p2p_tc.c
+@@ -99,12 +99,13 @@ enum fsm_event p2p_event(struct port *p, int fd_index)
+ 	switch (fd_index) {
+ 	case FD_ANNOUNCE_TIMER:
+ 	case FD_SYNC_RX_TIMER:
+-		pr_debug("port %hu: %s timeout", portnum(p),
++		pr_err("port %hu: %s timeout", portnum(p),
+ 			 fd_index == FD_SYNC_RX_TIMER ? "rx sync" : "announce");
+ 		if (p->best) {
+ 			fc_clear(p->best);
+ 		}
+ 		port_set_announce_tmo(p);
++		pr_err("%s %d: returning EV_ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES", __func__, __LINE__);
+ 		return EV_ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES;
+ 
+ 	case FD_DELAY_TIMER:
+diff --git a/port.c b/port.c
+index d2bed376f3f3..ae66d1d76eea 100644
+--- a/port.c
++++ b/port.c
+@@ -1246,6 +1246,9 @@ static void port_syfufsm(struct port *p, enum syfu_event event,
+ 	case SF_HAVE_SYNC:
+ 		switch (event) {
+ 		case SYNC_MISMATCH:
++			pr_err("Have sync %d, expecting fup but got sync %d, dropping.",
++				p->last_syncfup->header.sequenceId,
++				m->header.sequenceId);
+ 			msg_put(p->last_syncfup);
+ 			msg_get(m);
+ 			p->last_syncfup = m;
+@@ -1253,6 +1256,9 @@ static void port_syfufsm(struct port *p, enum syfu_event event,
+ 		case SYNC_MATCH:
+ 			break;
+ 		case FUP_MISMATCH:
++			pr_err("Have sync %d, expecting fup but got reordered fup seqid %d, dropping.",
++				p->last_syncfup->header.sequenceId,
++				m->header.sequenceId);
+ 			msg_put(p->last_syncfup);
+ 			msg_get(m);
+ 			p->last_syncfup = m;
+@@ -1277,6 +1283,9 @@ static void port_syfufsm(struct port *p, enum syfu_event event,
+ 	case SF_HAVE_FUP:
+ 		switch (event) {
+ 		case SYNC_MISMATCH:
++			pr_err("Have fup %d, expecting sync but got invalid sync seqid %d, dropping.",
++				p->last_syncfup->header.sequenceId,
++				m->header.sequenceId);
+ 			msg_put(p->last_syncfup);
+ 			msg_get(m);
+ 			p->last_syncfup = m;
+@@ -1296,6 +1305,9 @@ static void port_syfufsm(struct port *p, enum syfu_event event,
+ 			p->syfu = SF_EMPTY;
+ 			break;
+ 		case FUP_MISMATCH:
++			pr_err("Have fup %d, expecting sync but got fup %d, dropping.",
++				p->last_syncfup->header.sequenceId,
++				m->header.sequenceId);
+ 			msg_put(p->last_syncfup);
+ 			msg_get(m);
+ 			p->last_syncfup = m;
+@@ -2638,7 +2650,7 @@ static enum fsm_event bc_event(struct port *p, int fd_index)
+ 	switch (fd_index) {
+ 	case FD_ANNOUNCE_TIMER:
+ 	case FD_SYNC_RX_TIMER:
+-		pr_debug("port %hu: %s timeout", portnum(p),
++		pr_err("port %hu: %s timeout", portnum(p),
+ 			 fd_index == FD_SYNC_RX_TIMER ? "rx sync" : "announce");
+ 		if (p->best) {
+ 			fc_clear(p->best);
+@@ -2668,6 +2680,7 @@ static enum fsm_event bc_event(struct port *p, int fd_index)
+ 		if (p->inhibit_announce) {
+ 			return EV_NONE;
+ 		}
++		pr_err("%s %d: returning EV_ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES", __func__, __LINE__);
+ 		return EV_ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES;
+ 
+ 	case FD_DELAY_TIMER:
+-- 
+2.17.1
+
