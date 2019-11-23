@@ -1,0 +1,295 @@
+From 1f39df985739eaf69583a80b55156f7c2a4645b6 Mon Sep 17 00:00:00 2001
+From: Yangbo Lu <yangbo.lu@nxp.com>
+Date: Wed, 13 Nov 2019 10:46:34 +0800
+Subject: [PATCH 1/4] Add IEEE 802.1AS-2011 time-aware bridge support
+
+This patch is to add IEEE 802.1AS-2011 time-aware bridge support
+based on current BC clock type. It implements only time information
+relay, and BMCA was not touched. To run it, the profile gPTP.cfg could
+be used with multiple interfaces specified using -i option.
+
+The main code changes are,
+- Create syfu_relay_info structure for time information relay.
+- Implement port_syfu_relay_info_insert() to update follow_up (with TLV)
+  message with time information for relay.
+
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+---
+ clock.c | 43 ++++++++++++++++++++++++++++++++-
+ clock.h | 45 ++++++++++++++++++++++++++++++++++
+ port.c  | 75 ++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 3 files changed, 158 insertions(+), 5 deletions(-)
+
+diff --git a/clock.c b/clock.c
+index 146576ac589c..1865ecb16e9a 100644
+--- a/clock.c
++++ b/clock.c
+@@ -45,7 +45,6 @@
+ #include "util.h"
+ 
+ #define N_CLOCK_PFD (N_POLLFD + 1) /* one extra per port, for the fault timer */
+-#define POW2_41 ((double)(1ULL << 41))
+ 
+ struct port {
+ 	LIST_ENTRY(port) list;
+@@ -123,6 +122,7 @@ struct clock {
+ 	int stats_interval;
+ 	struct clockcheck *sanity_check;
+ 	struct interface uds_interface;
++	struct syfu_relay_info syfu_relay;
+ 	LIST_HEAD(clock_subscribers_head, clock_subscriber) subscribers;
+ };
+ 
+@@ -1117,6 +1117,8 @@ struct clock *clock_create(enum clock_type type, struct config *config,
+ 		}
+ 	}
+ 
++	memset(&c->syfu_relay, 0, sizeof(struct syfu_relay_info));
++
+ 	/* Initialize the parentDS. */
+ 	clock_update_grandmaster(c);
+ 	c->dad.pds.parentStats                           = 0;
+@@ -1208,6 +1210,15 @@ void clock_follow_up_info(struct clock *c, struct follow_up_info_tlv *f)
+ 	       sizeof(c->status.lastGmPhaseChange));
+ }
+ 
++static void clock_get_follow_up_info(struct clock *c, struct follow_up_info_tlv *f)
++{
++	f->cumulativeScaledRateOffset = c->status.cumulativeScaledRateOffset;
++	f->scaledLastGmPhaseChange = c->status.scaledLastGmPhaseChange;
++	f->gmTimeBaseIndicator = c->status.gmTimeBaseIndicator;
++	memcpy(&f->lastGmPhaseChange, &c->status.lastGmPhaseChange,
++	       sizeof(f->lastGmPhaseChange));
++}
++
+ int clock_free_running(struct clock *c)
+ {
+ 	return c->free_running ? 1 : 0;
+@@ -1583,6 +1594,16 @@ void clock_peer_delay(struct clock *c, tmv_t ppd, tmv_t req, tmv_t rx,
+ 		stats_add_value(c->stats.delay, tmv_dbl(ppd));
+ }
+ 
++tmv_t clock_get_path_delay(struct clock *c)
++{
++	return c->path_delay;
++}
++
++double clock_get_nrr(struct clock *c)
++{
++	return c->nrr;
++}
++
+ int clock_slave_only(struct clock *c)
+ {
+ 	return c->dds.flags & DDS_SLAVE_ONLY;
+@@ -1776,6 +1797,7 @@ static void handle_state_decision_event(struct clock *c)
+ 		c->path_delay = c->initial_delay;
+ 		c->nrr = 1.0;
+ 		fresh_best = 1;
++		clock_disable_syfu_relay(c);
+ 	}
+ 
+ 	c->best = best;
+@@ -1847,3 +1869,22 @@ enum servo_state clock_servo_state(struct clock *c)
+ {
+ 	return c->servo_state;
+ }
++
++void clock_prepare_syfu_relay(struct clock *c, struct ptp_message *sync,
++			      struct ptp_message *fup)
++{
++	c->syfu_relay.precise_origin_ts = timestamp_to_tmv(fup->ts.pdu);
++	c->syfu_relay.correction = fup->header.correction;
++	clock_get_follow_up_info(c, &c->syfu_relay.fup_info_tlv);
++	c->syfu_relay.avail = 1;
++}
++
++void clock_disable_syfu_relay(struct clock *c)
++{
++	c->syfu_relay.avail = 0;
++}
++
++struct syfu_relay_info *clock_get_syfu_relay(struct clock *c)
++{
++	return &c->syfu_relay;
++}
+diff --git a/clock.h b/clock.h
+index 9d3133a60934..8ff11815296f 100644
+--- a/clock.h
++++ b/clock.h
+@@ -29,8 +29,18 @@
+ #include "tmv.h"
+ #include "transport.h"
+ 
++#define POW2_41 ((double)(1ULL << 41))
++
+ struct ptp_message; /*forward declaration*/
+ 
++struct syfu_relay_info {
++	tmv_t precise_origin_ts;
++	Integer64 correction;
++	struct follow_up_info_tlv fup_info_tlv;
++	/* Auxiliary info */
++	int avail;
++};
++
+ /** Opaque type. */
+ struct clock;
+ 
+@@ -239,6 +249,20 @@ void clock_path_delay(struct clock *c, tmv_t req, tmv_t rx);
+ void clock_peer_delay(struct clock *c, tmv_t ppd, tmv_t req, tmv_t rx,
+ 		      double nrr);
+ 
++/**
++ * Get the path delay as measured on a slave port.
++ * @param c           The clock instance.
++ * @return            The path delay as measured on a slave port.
++ */
++tmv_t clock_get_path_delay(struct clock *c);
++
++/**
++ * Get the neighbor rate ratio as measured on a slave port.
++ * @param c           The clock instance.
++ * @return            The neighbor rate ratio as measured on a slave port.
++ */
++double clock_get_nrr(struct clock *c);
++
+ /**
+  * Set clock sde
+  * @param c     A pointer to a clock instance obtained with clock_create().
+@@ -359,4 +383,25 @@ void clock_check_ts(struct clock *c, uint64_t ts);
+  */
+ double clock_rate_ratio(struct clock *c);
+ 
++/**
++ * Prepare sync/follow_up relay.
++ * @param c     The clock instance.
++ * @param sync  The sync message.
++ * @param fup   The follow_up message.
++ */
++void clock_prepare_syfu_relay(struct clock *c, struct ptp_message *sync,
++			      struct ptp_message *fup);
++
++/**
++ * Disable sync/follow_up relay.
++ * @param c     The clock instance.
++ */
++void clock_disable_syfu_relay(struct clock *c);
++
++/**
++ * Get sync/follow_up relay information.
++ * @param c  The clock instance.
++ * @return   The sync/follow_up relay information.
++ */
++struct syfu_relay_info *clock_get_syfu_relay(struct clock *c);
+ #endif
+diff --git a/port.c b/port.c
+index 58fbe669af14..39dedb02286e 100644
+--- a/port.c
++++ b/port.c
+@@ -1239,6 +1239,10 @@ static void port_syfufsm(struct port *p, enum syfu_event event,
+ 			break;
+ 		case FUP_MATCH:
+ 			syn = p->last_syncfup;
++			if (port_is_ieee8021as(p))
++				clock_prepare_syfu_relay(p->clock, syn, m);
++			else
++				clock_disable_syfu_relay(p->clock);
+ 			port_synchronize(p, syn->hwts.ts, m->ts.pdu,
+ 					 syn->header.correction,
+ 					 m->header.correction,
+@@ -1259,6 +1263,10 @@ static void port_syfufsm(struct port *p, enum syfu_event event,
+ 			break;
+ 		case SYNC_MATCH:
+ 			fup = p->last_syncfup;
++			if (port_is_ieee8021as(p))
++				clock_prepare_syfu_relay(p->clock, m, fup);
++			else
++				clock_disable_syfu_relay(p->clock);
+ 			port_synchronize(p, m->hwts.ts, fup->ts.pdu,
+ 					 m->header.correction,
+ 					 fup->header.correction,
+@@ -1448,6 +1456,60 @@ int port_tx_announce(struct port *p, struct address *dst)
+ 	return err;
+ }
+ 
++static void port_syfu_relay_info_insert(struct port *p,
++					struct ptp_message *sync,
++					struct ptp_message *fup)
++{
++	struct syfu_relay_info *syfu_relay = clock_get_syfu_relay(p->clock);
++	struct follow_up_info_tlv *fui_relay = &syfu_relay->fup_info_tlv;
++	struct follow_up_info_tlv *fui = follow_up_info_extract(fup);
++	tmv_t ingress, egress, residence, path_delay;
++	double gm_rr, nrr, rr;
++	struct timestamp ts;
++
++	if (syfu_relay->avail == 0)
++		return;
++
++	fup->follow_up.preciseOriginTimestamp =
++		tmv_to_Timestamp(syfu_relay->precise_origin_ts);
++	fup->header.correction = syfu_relay->correction;
++
++	/* Calculate residence time. */
++	ingress = clock_ingress_time(p->clock);
++	egress = sync->hwts.ts;
++	residence = tmv_sub(egress, ingress);
++	rr = clock_rate_ratio(p->clock);
++	if (rr != 1.0) {
++		residence = dbl_tmv(tmv_dbl(residence) * rr);
++	}
++
++	gm_rr = 1.0 + (fui_relay->cumulativeScaledRateOffset + 0.0) / POW2_41;
++	nrr = clock_get_nrr(p->clock);
++
++	/* Add corrected residence time into correction. */
++	fup->header.correction += tmv_to_TimeInterval(residence) * gm_rr * nrr;
++
++	/* Add corrected path delay into correction. */
++	path_delay = clock_get_path_delay(p->clock);
++	fup->header.correction += tmv_to_TimeInterval(path_delay) * gm_rr;
++
++	/* Update follow_up TLV */
++	gm_rr *= nrr;
++	fui->cumulativeScaledRateOffset = gm_rr * POW2_41 - POW2_41;
++	fui->scaledLastGmPhaseChange = fui_relay->scaledLastGmPhaseChange;
++	fui->gmTimeBaseIndicator = fui_relay->gmTimeBaseIndicator;
++	memcpy(&fui->lastGmPhaseChange, &fui_relay->lastGmPhaseChange,
++	       sizeof(fui->lastGmPhaseChange));
++
++	ts.sec = fup->follow_up.preciseOriginTimestamp.seconds_msb;
++	ts.sec = ts.sec << 32 | fup->follow_up.preciseOriginTimestamp.seconds_lsb;
++	ts.nsec = fup->follow_up.preciseOriginTimestamp.nanoseconds;
++	pr_debug("port %hu: syfu_relay info:", portnum(p));
++	pr_debug("port %hu:   precise_origin_ts %" PRIu64 ".%u", portnum(p), ts.sec, ts.nsec);
++	pr_debug("port %hu:   correction %" PRId64, portnum(p), fup->header.correction >> 16);
++	pr_debug("port %hu:   fup_info %.9f", portnum(p), gm_rr);
++}
++
+ int port_tx_sync(struct port *p, struct address *dst)
+ {
+ 	struct ptp_message *msg, *fup;
+@@ -1541,10 +1603,15 @@ int port_tx_sync(struct port *p, struct address *dst)
+ 		fup->address = *dst;
+ 		fup->header.flagField[0] |= UNICAST;
+ 	}
+-	if (p->follow_up_info && follow_up_info_append(fup)) {
+-		pr_err("port %hu: append fup info failed", portnum(p));
+-		err = -1;
+-		goto out;
++
++	if (p->follow_up_info) {
++		if (follow_up_info_append(fup)) {
++			pr_err("port %hu: append fup info failed", portnum(p));
++			err = -1;
++			goto out;
++		}
++
++		port_syfu_relay_info_insert(p, msg, fup);
+ 	}
+ 
+ 	err = port_prepare_and_send(p, fup, TRANS_GENERAL);
+-- 
+2.17.1
+

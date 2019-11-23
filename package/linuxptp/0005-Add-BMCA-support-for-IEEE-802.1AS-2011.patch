@@ -1,0 +1,198 @@
+From d973fe8b4c1760dd35b4003942f34404431cf23f Mon Sep 17 00:00:00 2001
+From: Yangbo Lu <yangbo.lu@nxp.com>
+Date: Wed, 23 Oct 2019 18:08:36 +0800
+Subject: [PATCH 2/4] Add BMCA support for IEEE 802.1AS-2011
+
+According to IEEE 802.1AS-2011, the BMCA used in gPTP is the same
+as that used in IEEE 1588 with the following exceptions:
+
+(1) Announce messages received on a slave port that were not sent
+by the receiving time-aware system are used immediately,
+i.e., there is no foreign-master qualification.
+
+(2) A port that the BMCA determines should be a master port enters
+the master state immediately, i.e., there is no pre-master state.
+
+(3) The uncalibrated state is not needed and, therefore, not used.
+
+(4) All time-aware systems are required to participate in best master
+selection (even if it is not grandmaster capable).
+
+This patch is to support (1) by using a specific FOREIGN_MASTER_THRESHOLD
+case. (Treat FOREIGN_MASTER_THRESHOLD as 1.)
+To support (2) and (3), reuse ptp_fsm and drop pre-master/uncalibrated
+states. The (4) item is supported since IEEE 802.1AS reuses OC/BC.
+
+Signed-off-by: Erik Hons <erik.hons@ni.com>
+Signed-off-by: Rodney Greenstreet <rodney.greenstreet@ni.com>
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+---
+ fsm.c  | 13 +++++++++++++
+ fsm.h  | 10 ++++++++++
+ port.c | 57 +++++++++++++++++++++++++++++++++++++++------------------
+ 3 files changed, 62 insertions(+), 18 deletions(-)
+
+diff --git a/fsm.c b/fsm.c
+index ce6efad30937..917dcaeb46b1 100644
+--- a/fsm.c
++++ b/fsm.c
+@@ -335,3 +335,16 @@ enum port_state ptp_slave_fsm(enum port_state state, enum fsm_event event,
+ 
+ 	return next;
+ }
++
++enum port_state ieee8021as_fsm(enum port_state state, enum fsm_event event,
++			       int mdiff)
++{
++	enum port_state next = ptp_fsm(state, event, mdiff);
++
++	if (next == PS_UNCALIBRATED)
++		return PS_SLAVE;
++	if (next == PS_PRE_MASTER)
++		return PS_MASTER;
++
++	return next;
++}
+diff --git a/fsm.h b/fsm.h
+index 857af0522c97..7f22dc1aa367 100644
+--- a/fsm.h
++++ b/fsm.h
+@@ -79,4 +79,14 @@ enum port_state ptp_fsm(enum port_state state, enum fsm_event event, int mdiff);
+ enum port_state ptp_slave_fsm(enum port_state state, enum fsm_event event,
+ 			      int mdiff);
+ 
++/**
++ * Run the state machine for a ieee8021as port.
++ * @param state  The current state of the port.
++ * @param event  The event to be processed.
++ * @param mdiff  Whether a new master has been selected.
++ * @return       The new state for the port.
++ */
++enum port_state ieee8021as_fsm(enum port_state state, enum fsm_event event,
++			       int mdiff);
++
+ #endif
+diff --git a/port.c b/port.c
+index 39dedb02286e..7db768d781f0 100644
+--- a/port.c
++++ b/port.c
+@@ -278,12 +278,16 @@ void fc_clear(struct foreign_clock *fc)
+ 
+ static void fc_prune(struct foreign_clock *fc)
+ {
++	int threshold = FOREIGN_MASTER_THRESHOLD;
+ 	struct timespec now;
+ 	struct ptp_message *m;
+ 
+ 	clock_gettime(CLOCK_MONOTONIC, &now);
+ 
+-	while (fc->n_messages > FOREIGN_MASTER_THRESHOLD) {
++	if (port_is_ieee8021as(fc->port))
++		threshold = 1;
++
++	while (fc->n_messages > threshold) {
+ 		m = TAILQ_LAST(&fc->messages, messages);
+ 		TAILQ_REMOVE(&fc->messages, m, list);
+ 		fc->n_messages--;
+@@ -339,6 +343,7 @@ void ts_add(tmv_t *ts, Integer64 correction)
+  */
+ static int add_foreign_master(struct port *p, struct ptp_message *m)
+ {
++	int threshold = FOREIGN_MASTER_THRESHOLD;
+ 	struct foreign_clock *fc;
+ 	struct ptp_message *tmp;
+ 	int broke_threshold = 0, diff = 0;
+@@ -362,15 +367,20 @@ static int add_foreign_master(struct port *p, struct ptp_message *m)
+ 		LIST_INSERT_HEAD(&p->foreign_masters, fc, list);
+ 		fc->port = p;
+ 		fc->dataset.sender = m->header.sourcePortIdentity;
+-		/* We do not count this first message, see 9.5.3(b) */
+-		return 0;
++		/* For 1588, we do not count this first message, see 9.5.3(b) */
++		if (!port_is_ieee8021as(fc->port))
++			return 0;
+ 	}
+ 
+ 	/*
+ 	 * If this message breaks the threshold, that is an important change.
+ 	 */
+ 	fc_prune(fc);
+-	if (FOREIGN_MASTER_THRESHOLD - 1 == fc->n_messages) {
++
++	if (port_is_ieee8021as(fc->port))
++		threshold = 1;
++
++	if (threshold - 1 == fc->n_messages) {
+ 		broke_threshold = 1;
+ 	}
+ 
+@@ -2390,6 +2400,7 @@ void port_close(struct port *p)
+ struct foreign_clock *port_compute_best(struct port *p)
+ {
+ 	int (*dscmp)(struct dataset *a, struct dataset *b);
++	int threshold = FOREIGN_MASTER_THRESHOLD;
+ 	struct foreign_clock *fc;
+ 	struct ptp_message *tmp;
+ 
+@@ -2408,7 +2419,10 @@ struct foreign_clock *port_compute_best(struct port *p)
+ 
+ 		fc_prune(fc);
+ 
+-		if (fc->n_messages < FOREIGN_MASTER_THRESHOLD)
++		if (port_is_ieee8021as(fc->port))
++			threshold = 1;
++
++		if (fc->n_messages < threshold)
+ 			continue;
+ 
+ 		if (!p->best)
+@@ -3044,19 +3058,6 @@ struct port *port_open(int phc_index,
+ 	p->master_only = config_get_int(cfg, interface->name, "masterOnly");
+ 	p->bmca = config_get_int(cfg, interface->name, "BMCA");
+ 
+-	if (p->bmca == BMCA_NOOP && transport != TRANS_UDS) {
+-		if (p->master_only) {
+-			p->state_machine = designated_master_fsm;
+-		} else if (clock_slave_only(clock)) {
+-			p->state_machine = designated_slave_fsm;
+-		} else {
+-			pr_err("Please enable at least one of masterOnly or slaveOnly when BMCA == noop.\n");
+-			goto err_port;
+-		}
+-	} else {
+-		p->state_machine = clock_slave_only(clock) ? ptp_slave_fsm : ptp_fsm;
+-	}
+-
+ 	if (transport == TRANS_UDS) {
+ 		; /* UDS cannot have a PHC. */
+ 	} else if (!interface->ts_info.valid) {
+@@ -3100,6 +3101,26 @@ struct port *port_open(int phc_index,
+ 	p->delayMechanism = config_get_int(cfg, p->name, "delay_mechanism");
+ 	p->versionNumber = PTP_VERSION;
+ 
++	if (config_get_int(cfg, p->name, "asCapable") == AS_CAPABLE_TRUE) {
++		p->asCapable = ALWAYS_CAPABLE;
++	} else {
++		p->asCapable = NOT_CAPABLE;
++	}
++
++	if (p->bmca == BMCA_NOOP && transport != TRANS_UDS) {
++		if (p->master_only) {
++			p->state_machine = designated_master_fsm;
++		} else if (clock_slave_only(clock)) {
++			p->state_machine = designated_slave_fsm;
++		} else {
++			pr_err("Please enable at least one of masterOnly or slaveOnly when BMCA == noop.\n");
++			goto err_port;
++		}
++	} else {
++		p->state_machine = clock_slave_only(clock) ? ptp_slave_fsm :
++				   port_is_ieee8021as(p) ? ieee8021as_fsm : ptp_fsm;
++	}
++
+ 	if (number && unicast_client_claim_table(p)) {
+ 		goto err_transport;
+ 	}
+-- 
+2.17.1
+

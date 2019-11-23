@@ -1,0 +1,37 @@
+From 5be1c2a51fb8d5814e32bd397aa33d1737915e52 Mon Sep 17 00:00:00 2001
+From: Rodney Greenstreet <rodney.greenstreet@ni.com>
+Date: Thu, 24 Oct 2019 12:45:17 +0800
+Subject: [PATCH 4/4] clock: redecide state if get EV_FAULT_DETECTED event
+
+IEEE 802.1AS-2011's methodology for faults is to avoid waiting
+in that FAULTY state in hopes that management will notice.
+Instead, move on to search for a valid non-faulty state. If
+supported, the fault is logged so that management can notice
+later, but that logging isn't a requirement.
+
+This patch is to invoke BMCA to redecide state if get
+EV_FAULT_DETECTED event.
+
+Signed-off-by: Rodney Greenstreet <rodney.greenstreet@ni.com>
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+---
+ clock.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/clock.c b/clock.c
+index 1865ecb16e9a..dc4f4d16fa30 100644
+--- a/clock.c
++++ b/clock.c
+@@ -1527,6 +1527,9 @@ int clock_poll(struct clock *c)
+ 				if (EV_ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES == event) {
+ 					c->sde = 1;
+ 				}
++				if (EV_FAULT_DETECTED == event) {
++					c->sde = 1;
++				}
+ 				port_dispatch(p, event, 0);
+ 				/* Clear any fault after a little while. */
+ 				if (PS_FAULTY == port_state(p)) {
+-- 
+2.17.1
+

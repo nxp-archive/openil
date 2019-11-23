@@ -1,0 +1,63 @@
+From 282f22471b9a8433384f2ade1a126da3c4edb32d Mon Sep 17 00:00:00 2001
+From: Rodney Greenstreet <rodney.greenstreet@ni.com>
+Date: Thu, 24 Oct 2019 12:43:19 +0800
+Subject: [PATCH 3/4] port: drop erroneous neighbor rate ratio
+
+When a connected peer introduces a time discontinuities in between
+consecutive peer-delay measurements (i.e. a jump in time in
+consecutive PDelay response), an erroneous neighbor rate ratio is
+calculated. This change disqualifies any neighbor rate ratio that
+exceeds +/- 100 ppm, as required by IEEE 802.1AS-2011 Anex B.1.1.
+
+This patch is to check and drop erroneous neighbor rate ratio to
+ensure IEEE 802.1AS-2011 Anex B.1.1.
+
+Signed-off-by: Rodney Greenstreet <rodney.greenstreet@ni.com>
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+---
+ port.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/port.c b/port.c
+index 7db768d781f0..d2bed376f3f3 100644
+--- a/port.c
++++ b/port.c
+@@ -47,6 +47,7 @@
+ 
+ #define ALLOWED_LOST_RESPONSES 3
+ #define ANNOUNCE_SPAN 1
++#define MAX_NEIGHBOR_FREQ_OFFSET 0.0002
+ 
+ enum syfu_event {
+ 	SYNC_MISMATCH,
+@@ -1022,6 +1023,7 @@ static int port_management_set(struct port *target,
+ static void port_nrate_calculate(struct port *p, tmv_t origin, tmv_t ingress)
+ {
+ 	struct nrate_estimator *n = &p->nrate;
++	double ratio;
+ 
+ 	/*
+ 	 * We experienced a successful exchanges of peer delay request
+@@ -1042,9 +1044,18 @@ static void port_nrate_calculate(struct port *p, tmv_t origin, tmv_t ingress)
+ 		pr_warning("bad timestamps in nrate calculation");
+ 		return;
+ 	}
+-	n->ratio =
++
++	ratio =
+ 		tmv_dbl(tmv_sub(origin, n->origin1)) /
+ 		tmv_dbl(tmv_sub(ingress, n->ingress1));
++
++	if ((ratio <= (1.0 + MAX_NEIGHBOR_FREQ_OFFSET)) &&
++	    (ratio >= (1.0 - MAX_NEIGHBOR_FREQ_OFFSET)))
++		n->ratio = ratio;
++	else
++		pr_debug("port %hu: drop erroneous nratio %lf, max offset %lf",
++			 portnum(p), ratio, MAX_NEIGHBOR_FREQ_OFFSET);
++
+ 	n->ingress1 = ingress;
+ 	n->origin1 = origin;
+ 	n->count = 0;
+-- 
+2.17.1
+
