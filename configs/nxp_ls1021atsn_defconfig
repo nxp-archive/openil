@@ -50,10 +50,10 @@ BR2_TARGET_UBOOT_ENVIMAGE_SIZE="0x20000"
 # Kernel
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_GIT=y
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/vladimiroltean/ls1021atsn-linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="b6dfea52f6fa" # master ("net: dsa: sja1105: Pass struct dsa_switch to setup_rgmii_delay function")
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="9520aea75b88" # master ("Merge tag 'mlx5-updates-2019-11-22' of git://git.kernel.org/pub/scm/linux/kernel/git/saeed/")
 BR2_LINUX_KERNEL_DEFCONFIG="multi_v7"
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(LINUX_DIR)/arch/arm/configs/lsdk.config"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="board/nxp/ls1021atsn/linux.config"
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
 BR2_LINUX_KERNEL_INTREE_DTS_NAME="ls1021a-tsn"
 BR2_LINUX_KERNEL_UIMAGE=y
