@@ -354,13 +354,10 @@ define SYSTEMD_INSTALL_SERVICE_NETWORKD
 	mkdir -p $(TARGET_DIR)/etc/systemd/system/network-pre.target.wants
 	ln -sf ../../../../lib/systemd/system/systemd-network-generator.service \
 		$(TARGET_DIR)/etc/systemd/system/network-pre.target.wants/systemd-network-generator.service
-<<<<<<< HEAD
 endef
 define SYSTEMD_INSTALL_RESOLVCONF_HOOK
 	ln -sf ../run/systemd/resolve/resolv.conf \
 		$(TARGET_DIR)/etc/resolv.conf
-=======
->>>>>>> buildroot/master
 endef
 SYSTEMD_NETWORKD_DHCP_IFACE = $(call qstrip,$(BR2_SYSTEM_DHCP))
 ifneq ($(SYSTEMD_NETWORKD_DHCP_IFACE),)
