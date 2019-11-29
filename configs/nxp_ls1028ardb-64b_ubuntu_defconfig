@@ -92,7 +92,7 @@ BR2_PACKAGE_RCW_BIN="ls1028ardb/R_SQPP_0x85bb/rcw_1300_sdboot.bin"
 
 #Display port firmware
 BR2_PACKAGE_DP=y
-BR2_PACKAGE_DP_BIN="mhdp_fw_1_0_51-dptx-hdcp-mcu2.bin"
+BR2_PACKAGE_DP_BIN="ls1028a-dp-fw.bin"
 
 # dhcpd/net/ip packages
 BR2_PACKAGE_DHCPCD=y
