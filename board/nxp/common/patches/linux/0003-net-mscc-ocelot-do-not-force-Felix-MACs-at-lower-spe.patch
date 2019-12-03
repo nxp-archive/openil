@@ -1,0 +1,59 @@
+From 2d7c349b9f7643896ef96437013559968dc1262b Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Thu, 21 Nov 2019 16:37:54 +0200
+Subject: [PATCH] net: mscc: ocelot: do not force Felix MACs at lower speeds
+ than gigabit
+
+In the LS1028A, the VSC9959 switch was integrated with an NXP PCS which
+performs SGMII AN and rate adaptation autonomously. The MAC does not
+need to know about this, and forcing the MAC speed to something else,
+when connected to a 10/100 link partner, actually breaks the GMII
+internal link between the MAC and the PCS.
+
+This should be described better with PHYLINK, by configuring 'managed =
+"in-band-status";' in the device tree, so that the PHY library core will
+avoid even attempting to force the link speed. This is not possible with
+PHYLIB. For now, this workaround will have to do.
+
+Signed-off-by: Catalin Horghidan <catalin.horghidan@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ drivers/net/ethernet/mscc/ocelot.c | 22 ++--------------------
+ 1 file changed, 2 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index 7190fe4c1095..d0429dda5840 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -363,26 +363,8 @@ static void ocelot_port_adjust_link(struct net_device *dev)
+ 	u8 p = port->chip_port;
+ 	int speed, atop_wm, mode = 0;
+ 
+-	switch (dev->phydev->speed) {
+-	case SPEED_10:
+-		speed = OCELOT_SPEED_10;
+-		break;
+-	case SPEED_100:
+-		speed = OCELOT_SPEED_100;
+-		break;
+-	case SPEED_1000:
+-		speed = OCELOT_SPEED_1000;
+-		mode = DEV_MAC_MODE_CFG_GIGA_MODE_ENA;
+-		break;
+-	case SPEED_2500:
+-		speed = OCELOT_SPEED_2500;
+-		mode = DEV_MAC_MODE_CFG_GIGA_MODE_ENA;
+-		break;
+-	default:
+-		netdev_err(dev, "Unsupported PHY speed: %d\n",
+-			   dev->phydev->speed);
+-		return;
+-	}
++	speed = OCELOT_SPEED_1000;
++	mode = DEV_MAC_MODE_CFG_GIGA_MODE_ENA;
+ 
+ 	phy_print_status(dev->phydev);
+ 
+-- 
+2.7.4
+
