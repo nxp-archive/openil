@@ -4,6 +4,8 @@ config BR2_PACKAGE_LIBNETCONF2
 	depends on !BR2_STATIC_LIBS
 	depends on BR2_USE_MMU
 	select BR2_PACKAGE_LIBYANG
+	select BR2_PACKAGE_LIBSSH
+	select BR2_PACKAGE_LIBSSH_SERVER
 	help
 	  libnetconf2 is a NETCONF library in C intended for building
 	  NETCONF clients and servers.
