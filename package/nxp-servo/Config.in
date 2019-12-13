@@ -1,0 +1,5 @@
+config BR2_PACKAGE_NXP_SERVO
+        bool "nxp-servo"
+        default y
+        depends on BR2_PACKAGE_IGH_ETHERCAT && BR2_PACKAGE_LIBXML2
+
