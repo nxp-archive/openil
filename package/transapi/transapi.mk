@@ -16,6 +16,9 @@ TRANSAPI_CONF_ENV += PKG_CONFIG_PATH="$(STAGING_DIR)/usr/lib/pkgconfig"
 TRANSAPI_CONF_ENV += PYTHON_CONFIG="$(STAGING_DIR)/usr/bin/python-config"
 TRANSAPI_CONF_ENV += ac_cv_path_NETOPEER_MANAGER="$(HOST_DIR)/usr/bin/netopeer-manager.host"
 
+LXML_MODULE_DIR = lxml-$(PYTHON_LXML_VERSION)-py2.7-linux-x86_64.egg
+TRANSAPI_CONF_ENV += PYTHONPATH=$(HOST_DIR)/usr/lib/python$(PYTHON_VERSION_MAJOR)/site-packages/$(LXML_MODULE_DIR)
+
 LIBNL_HEADER_DIR = $(HOST_DIR)/usr/aarch64-buildroot-linux-gnu/sysroot/usr/include/libnl3
 TSNTOOL_HEADER_DIR = $(BUILD_DIR)/tsntool-$(TSNTOOL_VERSION)/include
 
@@ -60,12 +63,12 @@ endef
 # create configure
 define TRANSAPI_CREATE_CONFIGURE
         cd $(@D); \
-	$(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/lnctool \
+	$(TARGET_MAKE_ENV) $(TRANSAPI_CONF_ENV) $(HOST_DIR)/usr/bin/lnctool \
 		--model $(@D)/$(BRIDGE_SRC_NAME)/ietf-interfaces@2014-05-08.yang \
 		--search-path $(@D)/$(BRIDGE_SRC_NAME)/ \
 		--output-dir $(@D)/$(BRIDGE_SRC_NAME)/ \
 		convert;\
-	$(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/lnctool \
+	$(TARGET_MAKE_ENV) $(TRANSAPI_CONF_ENV) $(HOST_DIR)/usr/bin/lnctool \
 		--model $(@D)/$(BRIDGE_SRC_NAME)/ietf-interfaces@2014-05-08.yang \
 		--search-path $(@D)/$(BRIDGE_SRC_NAME)/ \
 		transapi;
@@ -76,7 +79,7 @@ define TRANSAPI_CREATE_CONFIGURE
         $(APPLY_PATCHES) $(@D) package/transapi\
 		0002-modify-Makefile.in-to-change-the-project.patch.conditional; \
         cd $(@D); \
-        $(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/autoreconf --force --install
+        $(TARGET_MAKE_ENV) $(TRANSAPI_CONF_ENV) $(HOST_DIR)/usr/bin/autoreconf --force --install
 endef
 
 # create Makefile
@@ -99,7 +102,7 @@ endef
 # create validator for each transapi, this is needed for netopeer-server
 define TRANSAPI_LNCTOOL_CREATE_FILES
         cd $(@D)/$(IF_SRC_NAME); \
-        $(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/lnctool \
+        $(TARGET_MAKE_ENV) $(TRANSAPI_CONF_ENV) $(HOST_DIR)/usr/bin/lnctool \
 		--model ietf-interfaces@2014-05-08.yang \
 		--augment-model ietf-yang-types.yang \
 		--augment-model ieee802-dot1q-preemption.yang \
@@ -109,7 +112,7 @@ define TRANSAPI_LNCTOOL_CREATE_FILES
 		--search-path cfginterfaces/ \
 		validation;
         cd $(@D)/$(BRIDGE_SRC_NAME); \
-        $(TARGET_MAKE_ENV) $(HOST_DIR)/usr/bin/lnctool \
+        $(TARGET_MAKE_ENV) $(TRANSAPI_CONF_ENV) $(HOST_DIR)/usr/bin/lnctool \
 		--model ieee802-dot1q-bridge.yang \
 		--augment-model ietf-interfaces@2014-05-08.yang \
 		--augment-model ietf-yang-types.yang \
