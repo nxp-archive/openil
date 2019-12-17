@@ -44,4 +44,11 @@ image qspi.cpio.img {
     offset = 10M
     size = 1M
   }
+
+  partition boot {
+    in-partition-table = "no"
+    image = "kernel-ls1012a-rdb.itb"
+    offset = 16M
+    size = 40M
+  }
 }

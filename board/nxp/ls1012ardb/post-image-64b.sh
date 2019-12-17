@@ -46,21 +46,6 @@ main()
 
 	rm -f ${GENIMAGE_CFG}
 
-	# Build the SD card image
-	sed -e "s/%FILES%/${FILES}/" \
-		board/nxp/ls1012ardb/genimage.sd.cfg.template > ${GENIMAGE_CFG}
-
-	rm -rf "${GENIMAGE_TMP}"
-
-	genimage \
-		--rootpath "${TARGET_DIR}" \
-		--tmppath "${GENIMAGE_TMP}" \
-		--inputpath "${BINARIES_DIR}" \
-		--outputpath "${BINARIES_DIR}" \
-		--config "${GENIMAGE_CFG}"
-
-	rm -f ${GENIMAGE_CFG}
-
 	exit $?
 }
 
