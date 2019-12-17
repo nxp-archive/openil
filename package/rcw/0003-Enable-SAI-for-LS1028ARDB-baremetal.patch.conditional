@@ -1,0 +1,47 @@
+diff -ruN rcw-LSDK-19.09/ls1028ardb/R_SQPP_0x85bb/rcw_1300_sai_sdboot.rcw rcw-LSDK-19.09-sai/ls1028ardb/R_SQPP_0x85bb/rcw_1300_sai_sdboot.rcw
+--- rcw-LSDK-19.09/ls1028ardb/R_SQPP_0x85bb/rcw_1300_sai_sdboot.rcw	1970-01-01 08:00:00.000000000 +0800
++++ rcw-LSDK-19.09-sai/ls1028ardb/R_SQPP_0x85bb/rcw_1300_sai_sdboot.rcw	2019-11-28 17:14:43.334946801 +0800
+@@ -0,0 +1,43 @@
++/*
++ * SerDes Protocol -  0x85bb
++ *
++ * Frequencies:
++ * Core     -- 1300 MHz
++ * Platform -- 400  MHz
++ * DDR      -- 1600 MHz
++ * DDR Data Rate -- 1.600 GT/s
++ */
++
++#include <../ls1028asi/ls1028a.rcwi>
++
++SYS_PLL_RAT=4
++MEM_PLL_RAT=16
++CGA_PLL1_RAT=13
++CGA_PLL2_RAT=12
++HWA_CGA_M1_CLK_SEL=1
++HWA_CGA_M2_CLK_SEL=7
++HWA_CGA_M3_CLK_SEL=2
++HWA_CGA_M4_CLK_SEL=3
++DDR_REFCLK_SEL=2
++DRAM_LAT=1
++BOOT_LOC=21
++FLASH_CFG1=3
++SYSCLK_FREQ=600
++IIC2_PMUX=6
++IIC3_PMUX=2
++IIC4_PMUX=2
++IIC5_PMUX=1
++IIC6_PMUX=3
++CLK_OUT_PMUX=1
++EC1_SAI4_5_PMUX=2
++EC1_SAI3_6_PMUX=5
++USB3_CLK_FSEL=39
++ENETC_RCW=3
++GTX_CLK125_PMUX=2
++SRDS_PRTCL_S1_L0=8
++SRDS_PRTCL_S1_L1=5
++SRDS_PRTCL_S1_L2=11
++SRDS_PRTCL_S1_L3=11
++
++/* Errata for PCIe controller */
++#include <../ls1028asi/pex_gen3_link_ls1028a.rcw>

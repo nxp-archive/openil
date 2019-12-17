@@ -17,7 +17,8 @@ FIND = ls1028ardb
 ifeq ($(findstring $(FIND), $(BR2_TARGET_UBOOT_BOARDNAME)), $(FIND))
 define RCW_CONFIGURE_CMDS
 	patch -p1 -s -d $(@D) < $(TARGET_DIR)/../../package/rcw/0001-ls1028ardb-Enable-IIC5_PMUX-for-GPIO-function.patch.conditional;\
-	patch -p1 -s -d $(@D) < $(TARGET_DIR)/../../package/rcw/0002-ls1028ardb-Enable-CLK_OUT_PMUX-for-GPIO-function.patch.conditional
+	patch -p1 -s -d $(@D) < $(TARGET_DIR)/../../package/rcw/0002-ls1028ardb-Enable-CLK_OUT_PMUX-for-GPIO-function.patch.conditional;\
+	patch -p1 -s -d $(@D) < $(TARGET_DIR)/../../package/rcw/0003-Enable-SAI-for-LS1028ARDB-baremetal.patch.conditional
 endef
 endif
 
