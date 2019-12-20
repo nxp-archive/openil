@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-BM_UBOOT_VERSION = OpenIL-Baremetal-201908
+BM_UBOOT_VERSION = OpenIL-v1.7-Baremetal-202001
 BM_UBOOT_SITE = https://github.com/openil/u-boot.git
 BM_UBOOT_SITE_METHOD = git
 BM_UBOOT_LICENSE = GPL-2.0+

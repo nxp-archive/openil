@@ -11,12 +11,7 @@ main()
 	echo ${4}
 	echo ${BR2_ROOTFS_PARTITION_SIZE}
 
-	local RCWFILE=${BR2_PACKAGE_RCW_BIN##*/}
-	RCWFILE=${RCWFILE%\"*}
-	local DESTRCW="rcw_1300.bin"
-
 	cd ${3}
-	cp ${BINARIES_DIR}/${RCWFILE} ${BINARIES_DIR}/${DESTRCW}
 
 	# build the ramdisk rootfs
 	mkimage -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot

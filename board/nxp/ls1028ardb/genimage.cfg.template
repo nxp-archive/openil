@@ -22,26 +22,20 @@ image sdcard.img {
 
   partition rcw {
     in-partition-table = "no"
-    image = "rcw_1300.bin"
+    image = "bl2_rcw.pbl"
     offset = 4096
   }
 
   partition u-boot {
     in-partition-table = "no"
-    image = "u-boot-with-spl.bin"
+    image = "fip_boot.bin"
     offset = 1M
   }
 
   partition u-boot-environment {
     in-partition-table = "no"
     image = "uboot-env.bin"
-    offset = 3M
-  }
-
-  partition ppa {
-    in-partition-table = "no"
-    image = "ppa.itb"
-    offset = 4M
+    offset = 5M
   }
 
   partition boot {

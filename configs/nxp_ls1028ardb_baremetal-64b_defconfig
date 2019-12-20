@@ -19,14 +19,14 @@ BR2_TOOLCHAIN_EXTERNAL=y
 
 # bootloader
 BR2_TARGET_UBOOT=y
-BR2_TARGET_UBOOT_BOARDNAME="ls1028ardb_sdcard_baremetal"
+BR2_TARGET_UBOOT_BOARDNAME="ls1028ardb_tfa_baremetal"
 BR2_TARGET_UBOOT_CUSTOM_GIT=y
 BR2_TARGET_UBOOT_CUSTOM_REPO_URL="https://github.com/openil/u-boot.git"
-BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="OpenIL-u-boot-201908"
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="OpenIL-v1.7-u-boot-202001"
 BR2_TARGET_UBOOT_NEEDS_DTC=y
 BR2_TARGET_UBOOT_FORMAT_BIN=n
 BR2_TARGET_UBOOT_FORMAT_CUSTOM=y
-BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME="u-boot-with-spl.bin"
+BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME="u-boot-dtb.bin"
 BR2_PACKAGE_UBOOT_TOOLS_MKIMAGE=y
 BR2_TARGET_UBOOT_ENVIMAGE=y
 BR2_TARGET_UBOOT_ENVIMAGE_SOURCE="board/nxp/ls1028ardb/u-boot-environment-64b-baremetal.txt"
@@ -36,7 +36,7 @@ BR2_TARGET_UBOOT_ENVIMAGE_SIZE="0x2000"
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_GIT=y
 BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/openil/linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="OpenIL-linux-201908"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="OpenIL-v1.7-linux-202001"
 BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
 BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(LINUX_DIR)/arch/arm64/configs/lsdk.config board/nxp/common/linux-4_9-docker.config board/nxp/common/linux-4_9-xenomai.config board/nxp/common/linux-4_9-xenomai.config board/nxp/ls1028ardb/linux-baremetal.config"
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
@@ -69,10 +69,7 @@ BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/busybox_init_o
 
 # packages for rcw
 BR2_PACKAGE_RCW=y
-BR2_PACKAGE_RCW_BIN="ls1028ardb/R_SQPP_85bb/rcw_1300_sd.bin"
-
-# ppa firmware
-BR2_PACKAGE_PPA=y
+BR2_PACKAGE_RCW_BIN="ls1028ardb/R_SQPP_0x85bb/rcw_1300_sdboot.bin"
 
 #Display port firmware
 BR2_PACKAGE_DP=y
@@ -153,3 +150,6 @@ BR2_PACKAGE_LIBBEE=y
 
 # i2c-tools
 BR2_PACKAGE_I2C_TOOLS=y
+
+#TFA support
+BR2_PACKAGE_TFA=y
