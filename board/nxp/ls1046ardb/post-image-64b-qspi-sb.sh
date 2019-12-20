@@ -15,18 +15,15 @@ main()
 	# build the itb image
 	cp board/nxp/ls1046ardb/kernel-ls1046a-rdb.its ${2}/
 	cp output/images/fsl-ls1046a-rdb-sdk.dtb ${2}/
-	cp ${BINARIES_DIR}/rootfs.ext2.gz ${2}/fsl-image-core-ls1046ardb.ext2.gz
+	cp ${BINARIES_DIR}/rootfs.cpio.gz ${2}/fsl-image-core-ls1046ardb.cpio.gz
 	cd ${2}/
-	mkimage -f kernel-ls1046a-rdb.its kernel-ls1046a-rdb.itb
+	/usr/bin/mkimage -f kernel-ls1046a-rdb.its kernel-ls1046a-rdb.itb
 	cd ${3}
 	cp ${2}/kernel-ls1046a-rdb.itb ${BINARIES_DIR}/
-	rm ${2}/fsl-image-core-ls1046ardb.ext2.gz
+	rm ${2}/fsl-image-core-ls1046ardb.cpio.gz
 	rm ${2}/fsl-ls1046a-rdb-sdk.dtb
 	rm ${2}/kernel-ls1046a-rdb.itb
 	rm ${2}/kernel-ls1046a-rdb.its
-
-	# build the ramdisk rootfs
-	mkimage -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
 
 	# define board name in version.json for ota feature
 	local BOARDNAME="ls1046ardb-64b"
@@ -50,9 +47,7 @@ main()
 	fi
 	cd ${BUILD_DIR}/host-cst-${CST_VERSION}
 	# copy all needed images
-	cp ${BINARIES_DIR}/u-boot-dtb.bin ./
 	cp ${BINARIES_DIR}/kernel-ls1046a-rdb.itb ./kernel.itb
-	cp ${BINARIES_DIR}/ppa.itb ./
 	if [ -f "$FILE_SRKPRI" ] && [ -f "$FILE_SRKPUB" ]; then
 		echo "There are srk.pri and srk.pub, don't need to run gen_keys"
 	else
@@ -63,8 +58,6 @@ main()
 	# create csf header for all the images
 	./platforms/ls104x_1012_qspi.sh
 	# copy all the created images to binary directory
-	cp hdr_uboot.out ${BINARIES_DIR}
-	cp hdr_ppa.out ${BINARIES_DIR}
 	cp hdr_kernel.out ${BINARIES_DIR}
 	cp hdr_bs.out ${BINARIES_DIR}
 	cp bootscript ${BINARIES_DIR}
@@ -91,8 +84,6 @@ main()
 		--config "${GENIMAGE_CFG}"
 
 	rm -f ${GENIMAGE_CFG}
-
-	mv ${BINARIES_DIR}/sdcard.img ${BINARIES_DIR}/qspi.img
 
 	exit $?
 }

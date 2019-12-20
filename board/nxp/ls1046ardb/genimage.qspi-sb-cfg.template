@@ -7,52 +7,49 @@
 # * a single root filesystem partition is required (ext2, ext3 or ext4)
 #
 
-image boot.vfat {
-  vfat {
-    files = {
-      %FILES%
-    }
-  }
-  size = 128M
+flash qspi-64M-256K {
+        pebsize = 256K
+        numpebs = 256
+        minimum-io-unit-size = 256k
 }
 
-image sdcard.img {
-  hdimage {
+image qspi.cpio.img {
+  flash {
   }
+  flashtype = "qspi-64M-256K"
 
   partition rcw {
     in-partition-table = "no"
-    image = "rcw_1600_qspiboot_sben.bin.swapped"
+    image = "bl2_rcw.pbl"
     offset = 0
+    size = 1M
   }
 
   partition u-boot {
     in-partition-table = "no"
-    image = "u-boot-dtb.bin"
+    image = "fip_boot.bin"
     offset = 1M
-  }
-
-  partition ppa {
-    in-partition-table = "no"
-    image = "ppa.itb"
-    offset = 4M
+    size = 4M
   }
 
   partition secboot_hdrs {
     in-partition-table = "no"
     image = "secboot_hdrs_qspiboot.bin"
     offset = 6M
+    size = 3M
   }
 
   partition fman-ucode {
     in-partition-table = "no"
     image = "fmucode.bin"
     offset = 9M
+    size = 1M
   }
 
   partition boot {
     in-partition-table = "no"
     image = "kernel-ls1046a-rdb.itb"
     offset = 16M
+    size = 40M
   }
 }
