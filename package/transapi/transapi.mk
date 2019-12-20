@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-TRANSAPI_VERSION = v0.1
+TRANSAPI_VERSION = v0.2
 TRANSAPI_SITE = https://github.com/openil/transAPI.git
 TRANSAPI_SITE_METHOD = git
 TRANSAPI_LICENSE = MIT/GPL2.0
