@@ -11,19 +11,7 @@ main()
 	echo ${4}
 	echo ${BR2_ROOTFS_PARTITION_SIZE}
 
-	# build the itb image
-	cp board/nxp/ls1046ardb/kernel-ls1046a-rdb.its ${2}/
-	cp output/images/fsl-ls1046a-rdb-sdk.dtb ${2}/
-	cp ${BINARIES_DIR}/rootfs.ext2.gz ${2}/fsl-image-core-ls1046ardb.ext2.gz
-	cd ${2}/
-	mkimage -f kernel-ls1046a-rdb.its kernel-ls1046a-rdb.itb
 	cd ${3}
-	cp ${2}/kernel-ls1046a-rdb.itb ${BINARIES_DIR}/
-	rm ${2}/fsl-image-core-ls1046ardb.ext2.gz
-	rm ${2}/fsl-ls1046a-rdb-sdk.dtb
-	rm ${2}/kernel-ls1046a-rdb.itb
-	rm ${2}/kernel-ls1046a-rdb.its
-
 	# build the ramdisk rootfs
 	mkimage -A arm -T ramdisk -C gzip -d ${BINARIES_DIR}/rootfs.ext2.gz ${BINARIES_DIR}/rootfs.ext2.gz.uboot
 
@@ -32,7 +20,7 @@ main()
 	sed -e "s/%PLATFORM%/${BOARDNAME}/" board/nxp/common/version.json > ${BINARIES_DIR}/version.json
 
 	# build the SDcard image
-	local FILES=""kernel-ls1046a-rdb.itb", "version.json""
+	local FILES=""Image", "fsl-ls1046a-rdb-sdk.dtb", "version.json""
 	local GENIMAGE_CFG="$(mktemp --suffix genimage.cfg)"
 	local GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 
