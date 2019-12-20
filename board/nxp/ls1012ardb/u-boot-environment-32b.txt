@@ -1,0 +1,21 @@
+baudrate=115200
+bootfile=kernel-ls1012a-rdb-aarch32.itb
+bootcmd=setenv bootargs root=/dev/ram0 rw earlycon=uart8250,0x21c0500 console=ttyS0,115200;pfe stop;sf probe 0:0; sf read $kernel_load $kernel_start $kernel_size && bootm $kernel_load
+bootdelay=3
+eth1addr=00:04:9f:04:9f:b6
+ethact=pfe_eth0
+ethaddr=00:04:9f:04:9f:b5
+fdt_high=0xffffffffffffffff
+fdtcontroladdr=bfc78348
+hwconfig=fsl_ddr:bank_intlv=auto
+initrd_high=0xffffffffffffffff
+ipaddr=192.168.1.3
+kernel_load=0xa0000000
+kernel_size=0x2800000
+kernel_start=0x1000000
+loadaddr=0xa0000000
+scsidevs=0
+serverip=192.168.1.1
+stderr=serial
+stdin=serial
+stdout=serial
