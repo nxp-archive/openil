@@ -33,7 +33,7 @@
 		};
 		ramdisk@1 {
 			description = "LS2 Ramdisk";
-                        data = /incbin/("./fsl-image-core-ls1012ardb.rootfs.ext2.gz");
+                        data = /incbin/("./fsl-image-core-ls1012ardb.rootfs.cpio.gz");
 			type = "ramdisk";
 			arch = "arm64";
 			os = "linux";
