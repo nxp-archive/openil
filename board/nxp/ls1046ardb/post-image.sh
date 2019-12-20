@@ -18,7 +18,7 @@ main()
 	cp output/images/fsl-ls1046a-rdb-sdk.dtb ${2}/
 	cp ${BINARIES_DIR}/rootfs.ext2.gz ${2}/fsl-image-core-ls1046ardb-32b.ext2.gz
 	cd ${2}/
-	mkimage -f kernel-ls1046a-rdb-aarch32.its kernel-ls1046a-rdb-aarch32.itb
+	/usr/bin/mkimage -f kernel-ls1046a-rdb-aarch32.its kernel-ls1046a-rdb-aarch32.itb
 	cd ${3}
 	cp ${2}/kernel-ls1046a-rdb-aarch32.itb ${BINARIES_DIR}/
 	rm ${2}/fsl-image-core-ls1046ardb-32b.ext2.gz
