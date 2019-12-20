@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-TSNTOOL_VERSION = v0.3
+TSNTOOL_VERSION = v0.4
 TSNTOOL_SITE = https://github.com/openil/tsntool.git
 TSNTOOL_SITE_METHOD = git
 TSNTOOL_LICENSE = MIT/GPL2.0
