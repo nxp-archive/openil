@@ -69,6 +69,10 @@ BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/busybox_init_o
 BR2_PACKAGE_RCW=y
 BR2_PACKAGE_RCW_BIN="ls1028ardb/R_SQPP_0x85bb/rcw_1500_gpu600.bin"
 
+#Display port firmware
+BR2_PACKAGE_DP=y
+BR2_PACKAGE_DP_BIN="ls1028a-dp-fw.bin"
+
 # basic packages and tools
 BR2_PACKAGE_MTD=y
 BR2_PACKAGE_MTD_MTD_DEBUG=y
