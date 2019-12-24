@@ -68,7 +68,7 @@ BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
 
 # packages for rcw
 BR2_PACKAGE_RCW=y
-BR2_PACKAGE_RCW_BIN="ls1046ardb/RR_FFSSPPPH_1133_5559/rcw_1600_qspiboot.bin"
+BR2_PACKAGE_RCW_BIN="ls1046ardb/RR_FFSSPPPH_1133_5559/rcw_1800_qspiboot.bin"
 
 # Add ota overlay
 BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/busybox_init_overlay"
