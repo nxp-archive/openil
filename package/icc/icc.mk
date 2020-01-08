@@ -20,7 +20,7 @@ endif
 
 define ICC_BUILD_CMDS
 	echo $(ICC_CONFIGURE_OFFSET) > $(@D)/icc_configure.h
-	echo $(ICC_CONFIGURE_IMX6Q) > $(@D)/icc_configure.h
+	echo $(ICC_CONFIGURE_IMX6Q) >> $(@D)/icc_configure.h
 	echo $(ICC_CONFIGURE_CPUS) >> $(@D)/icc_configure.h
 	$(TARGET_MAKE_ENV) $(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)
 endef
