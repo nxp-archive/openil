@@ -5,7 +5,7 @@
 ################################################################################
 
 LIBEV_VERSION = 4.27
-LIBEV_SITE = http://dist.schmorp.de/libev/Attic
+LIBEV_SITE = https://sources.voidlinux.org/libev-$(LIBEV_VERSION)
 LIBEV_INSTALL_STAGING = YES
 LIBEV_LICENSE = BSD-2-Clause or GPL-2.0+
 LIBEV_LICENSE_FILES = LICENSE
