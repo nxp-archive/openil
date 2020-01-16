@@ -79,18 +79,12 @@ BR2_ROOTFS_OVERLAY="board/nxp/common/ota_overlay board/nxp/common/systemd_init_o
 
 # basic packages and tools
 BR2_PACKAGE_NET_TOOLS=y
-BR2_PACKAGE_IPUTILS=y
-BR2_PACKAGE_OPENSSL=y
-BR2_PACKAGE_WGET=y
 
 # ptp4l package
 BR2_PACKAGE_PTP4L=y
 
 # dhcpd package
 BR2_PACKAGE_DHCPCD=y
-
-# Text editors
-BR2_PACKAGE_NANO=y
 
 # IGH ETHERCAT
 BR2_PACKAGE_IGH_ETHERCAT=y
