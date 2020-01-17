@@ -15,7 +15,7 @@ NETOPEER2_SERVER_POST_INSTALL_TARGET_HOOKS = NETOPEER2_SERVER_INSTALL_DAEMON_SCR
 
 # prevent an attempted chown to root:root
 NETOPEER2_SERVER_CONF_OPTS += -DSYSREPOCTL_ROOT_PERMS="-p 666"
-NETOPEER2_SERVER_MAKE_ENV = LD_LIBRARY_PATH+=$(HOST_DIR)/usr/lib
+NETOPEER2_SERVER_MAKE_ENV = LD_LIBRARY_PATH+=$(HOST_DIR)/usr/lib:$(HOST_DIR)/lib
 # the .pc file is for the target, and therefore not consulted during the build
 NETOPEER2_SERVER_CONF_OPTS += -DKEYSTORED_KEYS_DIR=/etc/keystored/keys
 
