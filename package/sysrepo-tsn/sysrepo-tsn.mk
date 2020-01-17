@@ -11,7 +11,7 @@ SYSREPO_TSN_LICENSE = GPL2.0
 SYSREPO_TSN_LICENSE_FILES = LICENSE
 SYSREPO_TSN_DEPENDENCIES = netopeer2-server tsntool yang-model cjson
 
-SYSREPO_TSN_MAKE_ENV = LD_LIBRARY_PATH=$(HOST_DIR)/usr/lib
+SYSREPO_TSN_MAKE_ENV = LD_LIBRARY_PATH=$(HOST_DIR)/usr/lib:$(HOST_DIR)/lib
 
 # copying models from standard model repo
 define SYSREPO_TSN_COPY_BRIDGE_MODELS
