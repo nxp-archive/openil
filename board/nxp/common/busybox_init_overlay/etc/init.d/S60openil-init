@@ -6,7 +6,7 @@
 start() {
 	printf "Starting openil-init: "
 	/sbin/dhcpcd 1>/dev/null 2>&1 &
-	/usr/sbin/resize2fs /dev/mmcblk0p2 1>/dev/null 2>&1 &
+	/sbin/resize2fs /dev/mmcblk0p2 1>/dev/null 2>&1 &
 	/usr/bin/ota-versioncheck 1>/dev/null 2>&1 &
 	echo "OK"
 }
