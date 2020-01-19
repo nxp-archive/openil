@@ -14,6 +14,9 @@ main()
 	# enable the root user login
 	sed -i 's/root:\*:/root::/' etc/shadow
 
+	#resize the partition2
+	sed -i "/exit 0/i\resize2fs /dev/mmcblk0p2" etc/rc.local
+
 	# create the link for mount and umount for the systemd
 	ln -s /bin/mount usr/bin/mount
 	ln -s /bin/umount usr/bin/umount
