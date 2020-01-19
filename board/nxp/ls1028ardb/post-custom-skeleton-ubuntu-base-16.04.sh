@@ -17,6 +17,9 @@ main()
 	# workaround for ls1028ardb enetc phy issue in Linux kernel 4.19
 	sed -i "/exit 0/i\echo '7 4 1 7' > /proc/sys/kernel/printk" etc/rc.local
 
+	#resize the partition2
+	sed -i "/exit 0/i\resize2fs /dev/mmcblk0p2" etc/rc.local
+
 	# create the link for mount and umount for the systemd
 	ln -s /bin/mount usr/bin/mount
 	ln -s /bin/umount usr/bin/umount
