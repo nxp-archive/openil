@@ -5,7 +5,7 @@
 ################################################################################
 
 SYSREPO_TSN_VERSION = v0.1
-SYSREPO_TSN_SITE = ssh://git@bitbucket.sw.nxp.com/dnind/sysrepo-tsn.git
+SYSREPO_TSN_SITE = https://github.com/openil/sysrepo-tsn.git
 SYSREPO_TSN_SITE_METHOD = git
 SYSREPO_TSN_LICENSE = GPL2.0
 SYSREPO_TSN_LICENSE_FILES = LICENSE
