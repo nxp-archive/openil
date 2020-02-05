@@ -529,6 +529,9 @@ F:	configs/olimex_a13_olinuxino_defconfig
 F:	configs/orangepi_plus_defconfig
 
 N:	Changming Huang <jerry.huang@nxp.com>
+F:	board/nxp/common/ls/
+F:	board/nxp/ls1028ardb/
+F:	configs/nxp_ls1028ardb-64b_defconfig
 F:	package/nxp/qoriq-cadence-dp-firmware/
 
 N:	Chris Packham <judge.packham@gmail.com>
