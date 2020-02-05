@@ -37,4 +37,10 @@ config BR2_PACKAGE_HOST_QORIQ_RCW_BIN
 
 	  If this option is empty, no rcw file is used.
 
+config BR2_PACKAGE_HOST_QORIQ_RCW_BOOT_MODE
+	string "QorIQ RCW Boot mode"
+	depends on !BR2_PACKAGE_HOST_QORIQ_RCW_CUSTOM_PATH
+	help
+	  Specify the boot mode, for example, sd, emmc, flexspi_nor.
+
 endif
