@@ -142,6 +142,11 @@ config BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_TARGETS
 	  E.G. When using the QorIQ custom ATF repository from NXP,
 	  the target 'pbl' can be used to build the pbl binary.
 
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_DEPENDENCIES
+	string "Additional AFT dependencies"
+	help
+	  Additional dependencies for ATF build, E.G. "host-qoriq-rcw"
+
 config BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_VARIABLES
 	string "Additional ATF build variables"
 	help
