@@ -1,0 +1,55 @@
+# Minimal XSPI (FlexSPI) image for the NXP boards Template
+#
+# FlexSPI image (xspi.cpio.img) format:
+# * For ls1028ardb, the FlexSPI flash size is 256MB, erase size is 128KB
+# * bl2_flexspi_nor.bpl: the RCW with ATF header
+# * fib.bin: u-boot-dtb.bin binary with ATF header
+# * Kernel.itb:
+# *   offset 16MB, include Kernel, ramdisk file system and DTB file
+#
+flash xspi-256M-128K {
+        pebsize = 128K
+        numpebs = 2048
+        minimum-io-unit-size = 128k
+}
+
+image xspi.cpio.img {
+  flash {
+  }
+  flashtype = "xspi-256M-128K"
+
+  partition rcw {
+    in-partition-table = "no"
+    image = "bl2_flexspi_nor.pbl"
+    offset = 0
+    size = 1M
+  }
+
+  partition u-boot {
+    in-partition-table = "no"
+    image = "fip.bin"
+    offset = 1M
+    size = 4M
+  }
+
+  partition u-boot-environment {
+    in-partition-table = "no"
+    image = "uboot-env.bin"
+    offset = 5M
+    size = 1M
+  }
+
+  partition dp-firmware {
+    in-partition-table = "no"
+    image = "ls1028a-dp-fw.bin"
+    offset = 0x940000
+    size = 256K
+  }
+
+  partition boot {
+    in-partition-table = "no"
+    image = "kernel.itb"
+    offset = 16M
+    size = 48M
+  }
+}

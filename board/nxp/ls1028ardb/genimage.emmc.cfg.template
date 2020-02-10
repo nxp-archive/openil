@@ -1,0 +1,52 @@
+# Minimal eMMC boot image for the NXP boards Template
+#
+# eMMC image (sdcard.img) format:
+# * the eMMC must have 4 kB free space at the beginning,
+# * U-Boot is dumped as is,
+# * a FAT partition at offset 64 MB is containing Image and DTB files
+# * a single root filesystem partition is required (ext2, ext3 or ext4)
+#
+
+image boot.vfat {
+  vfat {
+    files = {
+      %FILES%
+    }
+  }
+  size = 256M
+}
+
+image sdcard.img {
+  hdimage {
+  }
+
+  partition rcw {
+    in-partition-table = "no"
+    image = "bl2_emmc.pbl"
+    offset = 4096
+  }
+
+  partition u-boot {
+    in-partition-table = "no"
+    image = "fip.bin"
+    offset = 1M
+  }
+
+  partition u-boot-environment {
+    in-partition-table = "no"
+    image = "uboot-env.bin"
+    offset = 5M
+  }
+
+  partition boot {
+    partition-type = 0xC
+    bootable = "true"
+    image = "boot.vfat"
+    offset = 64M
+  }
+
+  partition rootfs {
+    partition-type = 0x83
+    image = "rootfs.ext2"
+  }
+}
