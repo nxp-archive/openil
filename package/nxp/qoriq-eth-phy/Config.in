@@ -1,0 +1,11 @@
+config BR2_PACKAGE_QORIQ_ETH_PHY
+        bool "qoriq-eth-phy"
+        help
+	  The Prebuid ETH PHY binary
+
+if BR2_PACKAGE_QORIQ_ETH_PHY
+
+config BR2_PACKAGE_QORIQ_ETH_PHY_VERSION
+	string "eth-phy version"
+
+endif
