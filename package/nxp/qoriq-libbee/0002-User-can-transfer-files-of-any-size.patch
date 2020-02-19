@@ -1,0 +1,76 @@
+diff -ruN tmp/bee.c libbee/bee.c
+--- tmp/bee.c	2019-09-03 18:00:54.518177651 +0800
++++ libbee/bee.c	2019-09-03 18:42:43.774211477 +0800
+@@ -14,9 +14,12 @@
+ #include <string.h>
+ #include <stdint.h>
+ #include <stdbool.h>
++#include <stdlib.h>
+ #include <unistd.h>
+ #include <stdio.h>
+ #include <fcntl.h>
++#include <sys/types.h>
++#include <sys/stat.h>
+ #include "Init_Routines.h"
+ #include "ReadWrite_Routines.h"
+ #include "Misc_Routines.h"
+@@ -111,7 +114,6 @@
+ 	return 0;
+ }
+ 
+-#define BUFFER_SIZE (1024*1024)	/* 1.0MB */
+ #define MAX_TX      DATA_LENGTH
+ /* SEQ_NUMBER */
+ #define SEQ_DATA    0x0A    /* file content, server */
+@@ -119,7 +121,22 @@
+ #define SEQ_INFO    0x0C    /* total size(4bytes) + file name, server */
+ #define SEQ_START   0x0D    /* start, client */
+ #define SEQ_END     0x0E    /* finish, server */
+-unsigned char file_buffer[BUFFER_SIZE];
++int BUFFER_SIZE = 0;
++unsigned char *file_buffer;
++
++unsigned char get_file_size(void)
++{
++	struct stat buf;
++
++	if (stat(file, &buf) < 0)
++		return 1;
++
++	BUFFER_SIZE = buf.st_size;
++	file_buffer = (unsigned char *)malloc(BUFFER_SIZE + 32);
++	return 0;
++}
++
++
+ void get_file(int *readSize)
+ {
+ 	int fd = 0;
+@@ -225,6 +242,10 @@
+ 	draw_frame(server_flag);
+ 
+ 	if (server_flag) {
++		if (get_file_size()) {
++			printf("Failed to obtain file size\n");
++			return 4;
++		}
+ 		get_file(&file_size);
+ 		if (file_size == -1)
+ 			return 2;
+@@ -251,6 +272,8 @@
+ 				memcpy(&name_len, &buffer[4], 1);
+ 				memcpy(file_name, &buffer[5], name_len);
+ 				file_name[name_len] = '\0';
++				file_buffer = (unsigned char *)
++						malloc(file_size + 32);
+ 				recv_size = 0;
+ 				buffer = file_buffer;
+ 				printf("Send the SEQ_START command.\n");
+@@ -272,6 +295,7 @@
+ 				if (file_size == recv_size) {
+ 					buffer = DATA_RX;
+ 					recv_file(file_size);
++					free(file_buffer);
+ 					return 0;
+ 				} else {
+ 					try++;

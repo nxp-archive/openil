@@ -1,0 +1,5 @@
+config BR2_PACKAGE_QORIQ_LIBBEE
+	bool "qoriq-libbee"
+	default n
+	help
+	  MikroBUS: bee click board(MRF24J40MA)

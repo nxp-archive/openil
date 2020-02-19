@@ -6,5 +6,6 @@ source "package/nxp/qoriq-bm-uboot/Config.in"
 source "package/nxp/qoriq-ddr-phy/Config.in"
 source "package/nxp/qoriq-eth-phy/Config.in"
 source "package/nxp/qoriq-fmucode/Config.in"
+source "package/nxp/qoriq-libbee/Config.in"
 
 endmenu

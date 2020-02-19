@@ -1,0 +1,1631 @@
+diff -ruN tmp/bee.c libbee/bee.c
+--- tmp/bee.c	1970-01-01 08:00:00.000000000 +0800
++++ libbee/bee.c	2019-08-14 19:39:39.974963766 +0800
+@@ -0,0 +1,293 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <string.h>
++#include <stdint.h>
++#include <stdbool.h>
++#include <unistd.h>
++#include <stdio.h>
++#include <fcntl.h>
++#include "Init_Routines.h"
++#include "ReadWrite_Routines.h"
++#include "Misc_Routines.h"
++#include "registers.h"
++
++bool server_flag = false;
++bool client_flag = false;
++char *file = NULL;
++char file_name[30] = {0};
++uint8_t name_len = 0;
++
++void draw_frame(bool server_flag)
++{
++	printf("BEE  Click  Board  Demo.\n");
++	if (server_flag) {
++		printf("This node is a server node.\n");
++		printf("Waiting for a client\n");
++	} else {
++		printf("This node is a client node.\n");
++		printf("Starting to get a file\n");
++	}
++}
++
++void help_str(void)
++{
++	printf("Usage: bee_demo -s/-c [-f=XXX]\n");
++	printf("    -s: server node\n");
++	printf("    -c: client node\n");
++	printf("    -f=XXX: XXX is a path of the file to send\n");
++	printf("        This parameter is valid if this is  a server node.\n");
++}
++
++char *get_name(char *path)
++{
++	char *name = strchr(path, '/');
++
++	if (name == NULL)
++		return path;
++	else
++		return get_name(name + 1);
++}
++
++
++/*
++ * -s: server
++ * -c: client
++ * -f=XX: file
++ */
++uint8_t parser_args(int argc, char *argv[])
++{
++	uint8_t i = 1;
++	char *name = NULL;
++
++	if (argc == 1) {
++		help_str();
++		return 1;
++	}
++
++	for (i = 1; i < argc; i++) {
++		switch (argv[i][1]) {
++		case 's':
++			server_flag = true;
++			break;
++
++		case 'c':
++			client_flag = true;
++			break;
++
++		case 'f':
++			file = &argv[i][3];
++			name = get_name(file);
++			name_len = strlen(name);
++			memcpy(file_name, name, name_len);
++			break;
++
++		default:
++			printf("Parameter is invalid\n");
++			return 2;
++		}
++	}
++
++	if (server_flag && client_flag) {
++		printf("‘-s’ and ‘-c’ cann‘t exist at the same time\n");
++		return 3;
++	}
++
++	if (server_flag && (file == NULL)) {
++		printf("Please input a file\n");
++		return 4;
++	}
++
++	return 0;
++}
++
++#define BUFFER_SIZE (1024*1024)	/* 1.0MB */
++#define MAX_TX      DATA_LENGTH
++/* SEQ_NUMBER */
++#define SEQ_DATA    0x0A    /* file content, server */
++#define SEQ_REQ     0x0B    /* require, client */
++#define SEQ_INFO    0x0C    /* total size(4bytes) + file name, server */
++#define SEQ_START   0x0D    /* start, client */
++#define SEQ_END     0x0E    /* finish, server */
++unsigned char file_buffer[BUFFER_SIZE];
++void get_file(int *readSize)
++{
++	int fd = 0;
++
++	printf("Reading the content of the file\n");
++	fd = open(file, O_RDONLY);
++	if (fd == -1) {
++		printf("Test file open faild !\n");
++		*readSize = -1;
++		return;
++	}
++	memset(file_buffer, 0, BUFFER_SIZE);
++	*readSize = read(fd, file_buffer, BUFFER_SIZE);
++	if (*readSize == -1) {
++		printf("Read file faild !\n");
++	}
++	close(fd);
++}
++
++void recv_file(int file_size)
++{
++	int fd = 0;
++
++	fd = open(file_name, O_WRONLY | O_CREAT, 0777);
++	write(fd, file_buffer, file_size);
++	close(fd);
++}
++
++bool send_file(int file_size, int *send_size)
++{
++	int remain_size;
++
++	if (*send_size == 0)
++		printf("Start to send the file\n");
++	if (*send_size < file_size) {
++		remain_size = file_size - (*send_size);
++		if (remain_size >= MAX_TX) {
++			write_TX_normal_FIFO(&file_buffer[*send_size], MAX_TX,
++					     SEQ_DATA, server_flag);
++			*send_size += MAX_TX;
++		} else {
++			write_TX_normal_FIFO(&file_buffer[*send_size],
++					    remain_size, SEQ_DATA, server_flag);
++			*send_size += remain_size;
++		}
++		return false; /* continue */
++	} else {
++		*send_size = 0;
++		write_TX_normal_FIFO(DATA_TX, 1, SEQ_END, server_flag);
++		printf("It's completed to send a file.\n");
++		return true; /* finish */
++	}
++}
++
++void send_cmd(uint8_t cmd, int arg)
++{
++	uint8_t data_len = 0;
++
++	switch (cmd) {
++	case SEQ_REQ:   /* client */
++	case SEQ_START: /* client */
++		data_len = 1;
++		break;
++
++	case SEQ_INFO: /* server */
++		memcpy(DATA_TX, &arg, 4);
++		memcpy(&DATA_TX[4], &name_len, 1);
++		memcpy(&DATA_TX[5], file_name, name_len);
++		data_len = 5 + name_len;
++		break;
++	}
++	write_TX_normal_FIFO(DATA_TX, data_len, cmd, server_flag);
++}
++
++/*   client                   server
++ *     |        require         |
++ *     |----------------------->|
++ *     |  file_info(size+name)  |
++ *     |<-----------------------|
++ *     |         start          |
++ *     |----------------------->|
++ *     |         data0          |
++ *     |<-----------------------|
++ *     |         start          |
++ *     |----------------------->|
++ *     |         dataN          |
++ *     |<-----------------------|
++ *     |         start          |
++ *     |----------------------->|
++ *     |      send_finish       |
++ *     |<-----------------------|
++ * */
++int main(int argc, char *argv[])
++{
++	int file_size = 0, send_size = 0, recv_size = 0;
++	uint8_t temp, try = 0;
++	uint8_t *buffer = DATA_RX;
++
++	if (parser_args(argc, argv))
++		return 1;
++
++	Initialize(server_flag);
++	draw_frame(server_flag);
++
++	if (server_flag) {
++		get_file(&file_size);
++		if (file_size == -1)
++			return 2;
++	} else {
++		printf("Send the SEQ_REQ command.\n");
++		send_cmd(SEQ_REQ, 0);
++	}
++
++	/* Infinite loop */
++	for (;;) {
++		if (int_status()) {
++			/* Read and flush register INTSTAT */
++			temp = read_ZIGBEE_short(INTSTAT);
++			read_RX_FIFO(buffer);	/* Read receive data */
++			switch (SEQ_NUMBER) {
++			case SEQ_REQ:	/* server */
++				send_size = 0;
++				printf("Send the SEQ_INFO command.\n");
++				send_cmd(SEQ_INFO, file_size);
++				break;
++
++			case SEQ_INFO:	/* client */
++				memcpy(&file_size, buffer, 4);
++				memcpy(&name_len, &buffer[4], 1);
++				memcpy(file_name, &buffer[5], name_len);
++				file_name[name_len] = '\0';
++				recv_size = 0;
++				buffer = file_buffer;
++				printf("Send the SEQ_START command.\n");
++				send_cmd(SEQ_START, 0);
++				break;
++
++			case SEQ_START:	/* server */
++				send_file(file_size, &send_size);
++				break;
++
++			case SEQ_DATA: /* client */
++				recv_size += RX_SIZE - HEADER_LENGTH - 2;
++				buffer += recv_size;
++				printf("Send the SEQ_START command.\n");
++				send_cmd(SEQ_START, 0);
++				break;
++
++			case SEQ_END: /* client */
++				if (file_size == recv_size) {
++					buffer = DATA_RX;
++					recv_file(file_size);
++					return 0;
++				} else {
++					try++;
++					printf("Received file is invalid\n");
++					if (try > 3) {
++						printf("Try again\n");
++						send_cmd(SEQ_REQ, 0);
++					} else {
++						printf("Exit!\n");
++						return 3;
++					}
++				}
++				break;
++			}
++		}
++
++		usleep(500000);
++	}
++}
+diff -ruN tmp/Init_Routines.c libbee/Init_Routines.c
+--- tmp/Init_Routines.c	1970-01-01 08:00:00.000000000 +0800
++++ libbee/Init_Routines.c	2019-08-14 19:06:51.850937235 +0800
+@@ -0,0 +1,90 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <stdint.h>
++#include <unistd.h>
++#include <linux/spi/spidev.h>
++#include "registers.h"
++#include "ReadWrite_Routines.h"
++#include "Reset_Routines.h"
++#include "Misc_Routines.h"
++
++extern uint8_t ADDRESS_short_1[], ADDRESS_short_2[], ADDRESS_long_1[],
++	ADDRESS_long_2[], PAN_ID_1[], PAN_ID_2[];
++extern uint8_t LQI, RSSI2, SEQ_NUMBER, lost_data;
++extern uint16_t address_RX_FIFO, address_TX_normal_FIFO;
++extern uint8_t DATA_TX[];
++
++void Initialize(bool server_flag)
++{
++	uint8_t i = 0;
++
++	/* variable initialization */
++	LQI = 0;
++	RSSI2 = 0;
++	SEQ_NUMBER = 0x23;
++	lost_data = 0;
++	address_RX_FIFO = 0x300;
++	address_TX_normal_FIFO = 0;
++
++	for (i = 0; i < 2; i++) {
++		ADDRESS_short_1[i] = 1;
++		ADDRESS_short_2[i] = 2;
++		PAN_ID_1[i] = 3;
++		PAN_ID_2[i] = 3;
++	}
++
++	for (i = 0; i < 8; i++) {
++		ADDRESS_long_1[i] = 1;
++		ADDRESS_long_2[i] = 2;
++	}
++
++	usleep(5000);
++
++	/*
++	 * SPI config
++	 * Default: mode 0, speed 500k, bit 8
++	 */
++	struct spi_config config = {
++		.mode = 0,
++		.speed = 500000,
++		.bits = 8,
++		.device = "/dev/spidev2.0"
++	};
++	spidev_init(&config);
++
++	pin_reset();				/* Activate reset from pin */
++	software_reset();			/* Activate software reset */
++	RF_reset();				/* RF reset */
++	wakepin_init();
++	set_wake_from_pin();			/* Set wake from pin */
++
++	if (server_flag) {
++		set_long_address(ADDRESS_long_1);	/* Set long address */
++		set_short_address(ADDRESS_short_1);	/* Set short address */
++		set_PAN_ID(PAN_ID_1);			/* Set PAN_ID */
++	} else {
++		set_long_address(ADDRESS_long_2);	/* Set long address */
++		set_short_address(ADDRESS_short_2);	/* Set short address */
++		set_PAN_ID(PAN_ID_2);			/* Set PAN_ID */
++	}
++
++	init_ZIGBEE_nonbeacon();		/* Initialize ZigBee module */
++	nonbeacon_PAN_coordinator_device();
++	set_TX_power(31);			/* Set max TX power */
++	/* 1 all frames, 3 data frame only */
++	set_frame_format_filter(1);
++	set_reception_mode(1);			/* 1 normal mode */
++
++	pin_wake();				/* Wake from pin */
++}
+diff -ruN tmp/Init_Routines.h libbee/Init_Routines.h
+--- tmp/Init_Routines.h	1970-01-01 08:00:00.000000000 +0800
++++ libbee/Init_Routines.h	2019-08-14 16:29:38.338810070 +0800
+@@ -0,0 +1,21 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#ifndef __INIT_ROUTINES_H__
++#define __INIT_ROUTINES_H__
++
++#include <stdbool.h>
++
++void Initialize(bool server_flag);
++
++#endif
+diff -ruN tmp/Makefile libbee/Makefile
+--- tmp/Makefile	1970-01-01 08:00:00.000000000 +0800
++++ libbee/Makefile	2019-08-14 16:29:38.338810070 +0800
+@@ -0,0 +1,13 @@
++#CC = ../../host/usr/bin/aarch64-linux-gnu-gcc
++#CC = gcc
++LIBS = -lpthread
++OBJS = ReadWrite_Routines.o  Reset_Routines.o Misc_Routines.o Init_Routines.o bee.o
++
++bee_demo : $(OBJS)
++	$(CC) -o $@ $^ $(LIBS)
++
++%.o : %.c
++	$(CC) -c $< -o $@ $(LIBS)
++
++clean :
++	rm -rf *.o bee_demo
+diff -ruN tmp/Misc_Routines.c libbee/Misc_Routines.c
+--- tmp/Misc_Routines.c	1970-01-01 08:00:00.000000000 +0800
++++ libbee/Misc_Routines.c	2019-08-14 19:09:28.466939346 +0800
+@@ -0,0 +1,537 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <stdio.h>
++#include <stdint.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include "registers.h"
++#include "ReadWrite_Routines.h"
++#include "Reset_Routines.h"
++#include "Misc_Routines.h"
++
++void wakepin_init(void)
++{
++	if (access("/sys/class/gpio/gpio479", F_OK))
++		system("echo 479 > /sys/class/gpio/export");
++
++	system("echo out > /sys/class/gpio/gpio479/direction");
++}
++
++void wakepin_deinit(void)
++{
++	system("echo 479 > /sys/class/gpio/unexport");
++}
++
++void set_wakepin(uint8_t value)
++{
++	char cmd[40] = {0};
++
++	value = (value == 0) ? 0 : 1;
++	sprintf(cmd, "echo %d > /sys/class/gpio/gpio479/value", value);
++	system(cmd);
++}
++
++/*
++ *  Interrupt
++ */
++void enable_interrupt(void)
++{
++	/* 0xF7 Only reception interrupt is enable */
++	write_ZIGBEE_short(INTCON_M, 0xF7);
++}
++
++/*
++ *  Set channel
++ */
++void set_channel(uint8_t channel_number)
++{
++	/* 11-26 possible channels */
++	if ((channel_number > 26) || (channel_number < 11))
++		channel_number = 11;
++
++	switch (channel_number) {
++	case 11:
++		write_ZIGBEE_long(RFCON0, 0x02);  /* 0x02 for 11. channel */
++		break;
++	case 12:
++		write_ZIGBEE_long(RFCON0, 0x12);  /* 0x12 for 12. channel */
++		break;
++	case 13:
++		write_ZIGBEE_long(RFCON0, 0x22);  /* 0x22 for 13. channel */
++		break;
++	case 14:
++		write_ZIGBEE_long(RFCON0, 0x32);  /* 0x32 for 14. channel */
++		break;
++	case 15:
++		write_ZIGBEE_long(RFCON0, 0x42);  /* 0x42 for 15. channel */
++		break;
++	case 16:
++		write_ZIGBEE_long(RFCON0, 0x52);  /* 0x52 for 16. channel */
++		break;
++	case 17:
++		write_ZIGBEE_long(RFCON0, 0x62);  /* 0x62 for 17. channel */
++		break;
++	case 18:
++		write_ZIGBEE_long(RFCON0, 0x72);  /* 0x72 for 18. channel */
++		break;
++	case 19:
++		write_ZIGBEE_long(RFCON0, 0x82);  /* 0x82 for 19. channel */
++		break;
++	case 20:
++		write_ZIGBEE_long(RFCON0, 0x92);  /* 0x92 for 20. channel */
++		break;
++	case 21:
++		write_ZIGBEE_long(RFCON0, 0xA2);  /* 0xA2 for 21. channel */
++		break;
++	case 22:
++		write_ZIGBEE_long(RFCON0, 0xB2);  /* 0xB2 for 22. channel */
++		break;
++	case 23:
++		write_ZIGBEE_long(RFCON0, 0xC2);  /* 0xC2 for 23. channel */
++		break;
++	case 24:
++		write_ZIGBEE_long(RFCON0, 0xD2);  /* 0xD2 for 24. channel */
++		break;
++	case 25:
++		write_ZIGBEE_long(RFCON0, 0xE2);  /* 0xE2 for 25. channel */
++		break;
++	case 26:
++		write_ZIGBEE_long(RFCON0, 0xF2);  /* 0xF2 for 26. channel */
++		break;
++	}
++	RF_reset();
++}
++
++/*
++ *  Set CCA mode
++ */
++void set_CCA_mode(uint8_t CCA_mode)
++{
++	uint8_t temp = 0;
++
++	switch (CCA_mode) {
++	case 1: {	/* ENERGY ABOVE THRESHOLD */
++		temp = read_ZIGBEE_short(BBREG2);
++		temp = temp | 0x80;	/* 0x80 mask */
++		temp = temp & 0xDF;	/* 0xDF mask */
++		write_ZIGBEE_short(BBREG2, temp);
++		/* Set CCA ED threshold to -69 dBm */
++		write_ZIGBEE_short(CCAEDTH, 0x60);
++	}
++	break;
++
++	case 2: {	/* CARRIER SENSE ONLY */
++		temp = read_ZIGBEE_short(BBREG2);
++		temp = temp | 0x40;	/* 0x40 mask */
++		temp = temp & 0x7F;	/* 0x7F mask */
++		write_ZIGBEE_short(BBREG2, temp);
++		/* carrier sense threshold */
++		temp = read_ZIGBEE_short(BBREG2);
++		temp = temp | 0x38;
++		temp = temp & 0xFB;
++		write_ZIGBEE_short(BBREG2, temp);
++	}
++	break;
++
++	case 3: {	/* CARRIER SENSE AND ENERGY ABOVE THRESHOLD */
++		temp = read_ZIGBEE_short(BBREG2);
++		temp = temp | 0xC0;	/* 0xC0 mask */
++		write_ZIGBEE_short(BBREG2, temp);
++		/* carrier sense threshold */
++		temp = read_ZIGBEE_short(BBREG2);
++		temp = temp | 0x38;	/* 0x38 mask */
++		temp = temp & 0xFB;	/* 0xFB mask */
++		write_ZIGBEE_short(BBREG2, temp);
++		/* Set CCA ED threshold to -69 dBm */
++		write_ZIGBEE_short(CCAEDTH, 0x60);
++	}
++	break;
++	}
++}
++
++/*
++ *  Set RSSI mode
++ */
++void set_RSSI_mode(uint8_t RSSI_mode)
++{
++	/* 1 for RSSI1, 2 for RSSI2 mode */
++	uint8_t temp = 0;
++
++	switch (RSSI_mode) {
++	case 1: {
++		temp = read_ZIGBEE_short(BBREG6);
++		temp = temp | 0x80;	/* 0x80 mask for RSSI1 mode */
++		write_ZIGBEE_short(BBREG6, temp);
++	}
++	break;
++
++	case 2:	/* 0x40 data for RSSI2 mode */
++		write_ZIGBEE_short(BBREG6, 0x40);
++		break;
++	}
++}
++
++/*
++ * Set type of device
++ */
++void nonbeacon_PAN_coordinator_device(void)
++{
++	uint8_t temp = 0;
++
++	temp = read_ZIGBEE_short(RXMCR);
++	temp = temp | 0x08;	/* 0x08 mask for PAN coordinator */
++	write_ZIGBEE_short(RXMCR, temp);
++
++	temp = read_ZIGBEE_short(TXMCR);
++	temp = temp & 0xDF;	/* 0xDF mask for CSMA-CA mode */
++	write_ZIGBEE_short(TXMCR, temp);
++
++	write_ZIGBEE_short(ORDER, 0xFF);	/* BO, SO are 15 */
++}
++
++void nonbeacon_coordinator_device(void)
++{
++	uint8_t temp = 0;
++
++	temp = read_ZIGBEE_short(RXMCR);
++	temp = temp | 0x04;	/* 0x04 mask for coordinator */
++	write_ZIGBEE_short(RXMCR, temp);
++
++	temp = read_ZIGBEE_short(TXMCR);
++	temp = temp & 0xDF;	/* 0xDF mask for CSMA-CA mode */
++	write_ZIGBEE_short(TXMCR, temp);
++
++	write_ZIGBEE_short(ORDER, 0xFF);	/* BO, SO  are 15 */
++}
++
++void nonbeacon_device(void)
++{
++	uint8_t temp = 0;
++
++	temp = read_ZIGBEE_short(RXMCR);
++	/* 0xF3 mask for PAN coordinator and coordinator */
++	temp = temp & 0xF3;
++	write_ZIGBEE_short(RXMCR, temp);
++
++	temp = read_ZIGBEE_short(TXMCR);
++	temp = temp & 0xDF;	/* 0xDF mask for CSMA-CA mode */
++	write_ZIGBEE_short(TXMCR, temp);
++}
++
++/*
++ * ACK request
++ */
++void set_ACK(void)
++{
++	uint8_t temp = 0;
++
++	temp = read_ZIGBEE_short(TXNCON);
++	temp = temp | 0x04;	/* 0x04 mask for set ACK */
++	write_ZIGBEE_short(TXNCON, temp);
++}
++
++void set_not_ACK(void)
++{
++	uint8_t temp = 0;
++
++	temp = read_ZIGBEE_short(TXNCON);
++	temp = temp & (uint8_t)(~0x04);	/* 0x04 mask for set not ACK */
++	write_ZIGBEE_short(TXNCON, temp);
++}
++
++/*
++ *  Encrypt
++ */
++void set_encrypt(void)
++{
++	uint8_t temp = 0;
++
++	temp = read_ZIGBEE_short(TXNCON);
++	temp = temp | 0x02;	/* mask for set encrypt */
++	write_ZIGBEE_short(TXNCON, temp);
++}
++
++void set_not_encrypt(void)
++{
++	uint8_t temp = 0;
++
++	temp = read_ZIGBEE_short(TXNCON);
++	temp = temp & (uint8_t)(~0x02);	/* mask for set not encrypt */
++	write_ZIGBEE_short(TXNCON, temp);
++}
++
++/*
++ * Interframe spacing
++ */
++void set_IFS_recomended(void)
++{
++	uint8_t temp = 0;
++
++	write_ZIGBEE_short(RXMCR, 0x93);	/* Min SIFS Period */
++
++	temp = read_ZIGBEE_short(TXPEND);
++	temp = temp | 0x7C;			/* MinLIFSPeriod */
++	write_ZIGBEE_short(TXPEND, temp);
++
++	temp = read_ZIGBEE_short(TXSTBL);
++	temp = temp | 0x90;			/* MinLIFSPeriod */
++	write_ZIGBEE_short(TXSTBL, temp);
++
++	temp = read_ZIGBEE_short(TXTIME);
++	temp = temp | 0x31;			/* TurnaroundTime */
++	write_ZIGBEE_short(TXTIME, temp);
++}
++
++void set_IFS_default(void)
++{
++	uint8_t temp = 0;
++
++	write_ZIGBEE_short(RXMCR, 0x75);	/* Min SIFS Period */
++
++	temp = read_ZIGBEE_short(TXPEND);
++	temp = temp | 0x84;			/* Min LIFS Period */
++	write_ZIGBEE_short(TXPEND, temp);
++
++	temp = read_ZIGBEE_short(TXSTBL);
++	temp = temp | 0x50;			/* Min LIFS Period */
++	write_ZIGBEE_short(TXSTBL, temp);
++
++	temp = read_ZIGBEE_short(TXTIME);
++	temp = temp | 0x41;			/* Turnaround Time */
++	write_ZIGBEE_short(TXTIME, temp);
++}
++
++/*
++ * Reception mode
++ */
++void set_reception_mode(uint8_t r_mode)
++{
++	/* 1 normal, 2 error, 3 promiscuous mode */
++	uint8_t temp = 0;
++
++	switch (r_mode) {
++	case 1: {
++		temp = read_ZIGBEE_short(RXMCR);/* normal mode */
++		temp = temp & (uint8_t)(~0x03);	/* mask for normal mode */
++		write_ZIGBEE_short(RXMCR, temp);
++	}
++	break;
++
++	case 2: {
++		temp = read_ZIGBEE_short(RXMCR);/* error mode */
++		temp = temp & (uint8_t)(~0x01);	/* mask for error mode */
++		temp = temp | 0x02;		/* mask for error mode */
++		write_ZIGBEE_short(RXMCR, temp);
++	}
++	break;
++
++	case 3: {
++		temp = read_ZIGBEE_short(RXMCR);/* promiscuous mode */
++		temp = temp & (uint8_t)(~0x02);	/* mask for promiscuous mode */
++		temp = temp | 0x01;		/* mask for promiscuous mode */
++		write_ZIGBEE_short(RXMCR, temp);
++	}
++	break;
++	}
++}
++
++/*
++ *  Frame format filter
++ */
++void set_frame_format_filter(uint8_t fff_mode)
++{
++	/* 1 all frames, 2 command only, 3 data only, 4 beacon only */
++	uint8_t temp = 0;
++
++	switch (fff_mode) {
++	case 1: {
++		temp = read_ZIGBEE_short(RXFLUSH);	/* all frames */
++		/* mask for all frames */
++		temp = temp & (uint8_t)(~0x0E);
++		write_ZIGBEE_short(RXFLUSH, temp);
++	}
++	break;
++
++	case 2: {
++		temp = read_ZIGBEE_short(RXFLUSH);	/* command only */
++		temp = temp & (uint8_t)(~0x06);	/* mask for command only */
++		temp = temp | 0x08;		/* mask for command only */
++		write_ZIGBEE_short(RXFLUSH, temp);
++	}
++	break;
++
++	case 3: {
++		temp = read_ZIGBEE_short(RXFLUSH);	/* data only */
++		temp = temp & (uint8_t)(~0x0A);	/* mask for data only */
++		temp = temp | 0x04;		/* mask for data only */
++		write_ZIGBEE_short(RXFLUSH, temp);
++	}
++	break;
++
++	case 4: {
++		temp = read_ZIGBEE_short(RXFLUSH);	/* beacon only */
++		temp = temp & (uint8_t)(~0x0C);	/* mask for beacon only */
++		temp = temp | 0x02;		/* mask for beacon only */
++		write_ZIGBEE_short(RXFLUSH, temp);
++	}
++	break;
++	}
++}
++
++/*
++ *  Flush RX FIFO pointer
++ */
++void flush_RX_FIFO_pointer(void)
++{
++	uint8_t temp;
++
++	temp = read_ZIGBEE_short(RXFLUSH);
++	temp = temp | 0x01;	/* mask for flush RX FIFO */
++	write_ZIGBEE_short(RXFLUSH, temp);
++}
++
++/*
++ * Address
++ */
++void set_short_address(uint8_t *address)
++{
++	write_ZIGBEE_short(SADRL, address[0]);
++	write_ZIGBEE_short(SADRH, address[1]);
++}
++
++void set_long_address(uint8_t *address)
++{
++	uint8_t i = 0;
++
++	for (i = 0; i < 8; i++) {
++		/* 0x05 address of EADR0 */
++		write_ZIGBEE_short(EADR0 + i, address[i]);
++	}
++}
++
++void set_PAN_ID(uint8_t *address)
++{
++	write_ZIGBEE_short(PANIDL, address[0]);
++	write_ZIGBEE_short(PANIDH, address[1]);
++}
++
++/*
++ * Wake
++ */
++void set_wake_from_pin(void)
++{
++	uint8_t temp = 0;
++
++	set_wakepin(0);
++	temp = read_ZIGBEE_short(RXFLUSH);
++	temp = temp | 0x60;	/* mask */
++	write_ZIGBEE_short(RXFLUSH, temp);
++
++	temp = read_ZIGBEE_short(WAKECON);
++	temp = temp | 0x80;
++	write_ZIGBEE_short(WAKECON, temp);
++}
++
++void pin_wake(void)
++{
++	set_wakepin(1);
++	usleep(5000);
++}
++
++/*
++ * PLL
++ */
++void enable_PLL(void)
++{
++	/* mask for PLL enable */
++	write_ZIGBEE_long(RFCON2, 0x80);
++}
++
++void disable_PLL(void)
++{
++	/* mask for PLL disable */
++	write_ZIGBEE_long(RFCON2, 0x00);
++}
++
++/*
++ * Tx power
++ */
++void set_TX_power(uint8_t power)
++{
++	/* 0-31 possible variants */
++	if ((power < 0) || (power > 31))
++		power = 31;
++	/* 0 max, 31 min -> 31 max, 0 min */
++	power = 31 - power;
++	/* calculating power */
++	power = ((power & 0b00011111) << 3) & 0b11111000;
++	write_ZIGBEE_long(RFCON3, power);
++}
++
++/*
++ * Init ZIGBEE module
++ */
++void init_ZIGBEE_basic(void)
++{
++	/* Initialize FIFOEN = 1 and TXONTS = 0x6 */
++	write_ZIGBEE_short(PACON2, 0x98);
++	/* Initialize RFSTBL = 0x9 */
++	write_ZIGBEE_short(TXSTBL, 0x95);
++	/* Initialize VCOOPT = 0x01 */
++	write_ZIGBEE_long(RFCON1, 0x01);
++	/* Enable PLL (PLLEN = 1) */
++	enable_PLL();
++	/* Initialize TXFIL = 1 and 20MRECVR = 1 */
++	write_ZIGBEE_long(RFCON6, 0x90);
++	/* Initialize SLPCLKSEL = 0x2 (100 kHz Internal oscillator) */
++	write_ZIGBEE_long(RFCON7, 0x80);
++	/* Initialize RFVCO = 1 */
++	write_ZIGBEE_long(RFCON8, 0x10);
++	/* Initialize CLKOUTEN = 1 and SLPCLKDIV = 0x01 */
++	write_ZIGBEE_long(SLPCON1, 0x21);
++}
++
++void init_ZIGBEE_nonbeacon(void)
++{
++	init_ZIGBEE_basic();
++	set_CCA_mode(1);	/* Set CCA mode to ED and set threshold */
++	set_RSSI_mode(2);	/* RSSI2 mode */
++	enable_interrupt();	/* Enables all interrupts */
++	set_channel(11);	/* Channel 11 */
++	RF_reset();
++}
++
++bool int_status(void)
++{
++	char data[5] = {0};
++	int res;
++	FILE *fp;
++
++	fp = popen("i2cget -y 0 0x66 0x55 b", "r");
++	if (fp == NULL) {
++		printf("popen error!\n");
++		return false;
++	}
++
++	if (fgets(data, sizeof(data), fp) != NULL)
++		res = strtol(data, NULL, 0);
++
++	pclose(fp);
++
++	if (res & 0x40)
++		return false;
++	else
++		return true;
++}
++
+diff -ruN tmp/Misc_Routines.h libbee/Misc_Routines.h
+--- tmp/Misc_Routines.h	1970-01-01 08:00:00.000000000 +0800
++++ libbee/Misc_Routines.h	2019-08-14 16:29:38.338810070 +0800
+@@ -0,0 +1,51 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#ifndef __MISC_ROUTINES_H__
++#define __MISC_ROUTINES_H__
++
++#include <stdint.h>
++#include <stdbool.h>
++
++void wakepin_init(void);
++void wakepin_deinit(void);
++void init_ZIGBEE_nonbeacon(void);
++void init_ZIGBEE_basic(void);
++void set_TX_power(uint8_t power);
++void disable_PLL(void);
++void enable_PLL(void);
++void pin_wake(void);
++void set_wake_from_pin(void);
++void set_PAN_ID(uint8_t *address);
++void set_PAN_ID(uint8_t *address);
++void set_long_address(uint8_t *address);
++void set_short_address(uint8_t *address);
++void flush_RX_FIFO_pointer(void);
++void set_frame_format_filter(uint8_t fff_mode);
++void set_reception_mode(uint8_t r_mode);
++void set_IFS_default(void);
++void set_IFS_recomended(void);
++void set_not_encrypt(void);
++void set_encrypt(void);
++void set_not_ACK(void);
++void set_ACK(void);
++void nonbeacon_device(void);
++void nonbeacon_coordinator_device(void);
++void nonbeacon_PAN_coordinator_device(void);
++void set_RSSI_mode(uint8_t RSSI_mode);
++void set_CCA_mode(uint8_t CCA_mode);
++void set_channel(uint8_t channel_number);
++void enable_interrupt(void);
++bool int_status(void);
++
++#endif
+diff -ruN tmp/ReadWrite_Routines.c libbee/ReadWrite_Routines.c
+--- tmp/ReadWrite_Routines.c	1970-01-01 08:00:00.000000000 +0800
++++ libbee/ReadWrite_Routines.c	2019-08-14 16:29:38.338810070 +0800
+@@ -0,0 +1,306 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <stdio.h>
++#include <string.h>
++#include <sys/ioctl.h>
++#include <stdlib.h>
++#include <linux/spi/spidev.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include "registers.h"
++#include "Misc_Routines.h"
++#include "ReadWrite_Routines.h"
++
++int address_RX_FIFO, address_TX_normal_FIFO;
++uint8_t data_RX_FIFO[1 + HEADER_LENGTH + DATA_LENGTH + 2 + 1 + 1], lost_data;
++
++uint8_t ADDRESS_short_1[2], ADDRESS_long_1[8];	/* Source address */
++uint8_t ADDRESS_short_2[2], ADDRESS_long_2[8];	/* Destination address */
++uint8_t PAN_ID_1[2];				/* Source PAN ID */
++uint8_t PAN_ID_2[2];				/* Destination PAN ID */
++uint8_t DATA_RX[DATA_LENGTH], DATA_TX[DATA_LENGTH],
++	data_TX_normal_FIFO[DATA_LENGTH + HEADER_LENGTH + 2];
++uint8_t LQI, RSSI2, SEQ_NUMBER, RX_SIZE;
++
++static const char *device = "/dev/spidev2.0";
++static uint32_t mode = 0;	/* MSB */
++static uint8_t bits = 8;
++static uint32_t speed = 500000;
++static int fd;
++static uint8_t buf_tx[40] = {0, };
++static uint8_t buf_rx[40] = {0, };
++volatile bool event_flag = false;
++
++static void pabort(const char *s)
++{
++	perror(s);
++	abort();
++}
++
++static uint8_t byte_M2L(uint8_t byte)
++{
++	uint8_t res = 0;
++
++	for (uint8_t i = 0; i < 8; i++) {
++		if (byte & (0x01 << i))
++			res |= 0x80 >> i;
++	}
++
++	return res;
++}
++
++static void transfer(int fd, uint8_t len)
++{
++	int ret;
++	uint8_t i;
++
++	struct spi_ioc_transfer tr = {
++		.tx_buf = (unsigned long)buf_tx,
++		.rx_buf = (unsigned long)buf_rx,
++		.len = len,
++		//.delay_usecs = 1000,
++		.speed_hz = speed,
++		.bits_per_word = bits,
++	};
++
++	memset(&buf_rx, 0, 40);
++
++	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
++	if (ret < 1)
++		pabort("can't send spi message");
++}
++
++void spidev_init(struct spi_config *config)
++{
++	int ret = 0;
++
++	if (config != NULL) {
++		device  = config->device;
++		mode    = config->mode;
++		bits    = config->bits;
++		speed   = config->speed;
++	}
++
++	fd = open(device, O_RDWR);
++	if (fd < 0)
++		pabort("can't open device");
++
++	/*
++	 * spi mode
++	 */
++	ret = ioctl(fd, SPI_IOC_WR_MODE32, &mode);
++	if (ret == -1)
++		pabort("can't set spi mode");
++
++	ret = ioctl(fd, SPI_IOC_RD_MODE32, &mode);
++	if (ret == -1)
++		pabort("can't get spi mode");
++
++	/*
++	 * bits per word
++	 */
++	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
++	if (ret == -1)
++		pabort("can't set bits per word");
++
++	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
++	if (ret == -1)
++		pabort("can't get bits per word");
++
++	/*
++	 * max speed hz
++	 */
++	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
++	if (ret == -1)
++		pabort("can't set max speed hz");
++
++	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
++	if (ret == -1)
++		pabort("can't get max speed hz");
++
++	event_flag = true;
++	printf("spi mode: 0x%x\n", mode);
++	printf("bits per word: %d\n", bits);
++	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
++}
++
++/*
++ * Functions for reading and writing registers
++ * in short address memory space
++ */
++
++/* write data in short address register */
++void write_ZIGBEE_short(uint8_t address, uint8_t data_r)
++{
++	/* calculating addressing mode */
++	address = ((address << 1) & 0b01111111) | 0x01;
++	buf_tx[0] = address;	/* addressing register */
++	buf_tx[1] = data_r;	/* write data in register */
++	transfer(fd, 2);
++}
++
++/* read data from short address register */
++uint8_t read_ZIGBEE_short(uint8_t address)
++{
++	uint8_t data_r = 0;
++	/* calculating addressing mode */
++	address = (address << 1) & 0b01111110;
++	buf_tx[0] = address;	/* addressing register */
++	buf_tx[1] = 0;
++	transfer(fd, 2);
++	data_r = buf_rx[1];	/* read data from register */
++
++	return data_r;
++}
++
++/*
++ * Functions for reading and writing registers in long address memory space
++ */
++/* Write data in long address register */
++void write_ZIGBEE_long(uint16_t address, uint8_t data_r)
++{
++	uint8_t address_high = 0, address_low = 0;
++
++	/* calculating addressing mode */
++	address_high = (((uint8_t)(address >> 3)) & 0b01111111) | 0x80;
++	address_low  = (((uint8_t)(address << 5)) & 0b11100000) | 0x10;
++	buf_tx[0] = address_high;	/* addressing register */
++	buf_tx[1] = address_low;	/* addressing register */
++	buf_tx[2] = data_r;		/* write data in registerr */
++	transfer(fd, 3);
++}
++
++/* Read data from long address register */
++uint8_t read_ZIGBEE_long(uint16_t address)
++{
++	uint8_t data_r = 0;
++	uint8_t address_high = 0, address_low = 0;
++
++	/*calculating addressing mode */
++	address_high = ((uint8_t)(address >> 3) & 0b01111111) | 0x80;
++	address_low  = ((uint8_t)(address << 5) & 0b11100000);
++	buf_tx[0] = address_high;	/* addressing register */
++	buf_tx[1] = address_low;	/* addressing register */
++	buf_tx[2] = 0;
++	transfer(fd, 3);
++	data_r = buf_rx[2];		/* read data from register */
++
++	return data_r;
++}
++
++/*
++ * Transmit packet
++ */
++void start_transmit(void)
++{
++	uint8_t temp = 0;
++
++	temp = read_ZIGBEE_short(TXNCON);
++	temp = temp | 0x01;	/* mask for start transmit */
++	write_ZIGBEE_short(TXNCON, temp);
++}
++
++/*
++ * FIFO
++ *         ---------------------------------------------------------------------
++ * RXFIFO  | Frame Length (m + n + 2) | Header | Data Payload | FCS | LQI | RSSI
++ *         ---------------------------------------------------------------------
++ *         |          1               |   m    |      n       |  2  |  1  |   1
++ *         ---------------------------------------------------------------------
++ */
++void read_RX_FIFO(uint8_t *data_rx)
++{
++	uint8_t temp = 0;
++	int i = 0;
++	/* disable receiving packets off air. */
++	temp = read_ZIGBEE_short(BBREG1);
++	temp = temp | 0x04;	/* mask for disable receiving packets */
++	write_ZIGBEE_short(BBREG1, temp);
++
++	data_RX_FIFO[0] = DATA_LENGTH + HEADER_LENGTH + 2;
++	//DATA_LENGTH + HEADER_LENGTH + 2
++	for (i = 0; i < 128; i++) {
++		if (i <  (1 + data_RX_FIFO[0] + 1 + 1))
++			/* reading valid data from RX FIFO */
++			data_RX_FIFO[i] = read_ZIGBEE_long(address_RX_FIFO + i);
++		if (i >= (1 + data_RX_FIFO[0] + 1 + 1))
++			/* reading invalid data from RX FIFO */
++			lost_data = read_ZIGBEE_long(address_RX_FIFO + i);
++	}
++
++	RX_SIZE = data_RX_FIFO[0];
++	/* coping valid data */
++	memcpy(data_rx, &data_RX_FIFO[HEADER_LENGTH + 1],
++	       data_RX_FIFO[0] - HEADER_LENGTH - 2);
++	SEQ_NUMBER = data_RX_FIFO[3];
++	/* coping valid data HEADER_LENGTH + DATA_LENGTH + 2*/
++	LQI   = data_RX_FIFO[1 + data_RX_FIFO[0]];
++	/* coping valid data HEADER_LENGTH + DATA_LENGTH + 3*/
++	RSSI2 = data_RX_FIFO[1 + data_RX_FIFO[0] + 1];
++	/* enable receiving packets off air. */
++	temp = read_ZIGBEE_short(BBREG1);
++	/* mask for enable receiving */
++	temp = temp & (uint8_t)(~0x04);
++	write_ZIGBEE_short(BBREG1, temp);
++}
++
++/*          ------------------------------------------------------------------
++ * TXFIFO   | Header Length(m) | Frame Length(m + n) | Header | Data Payload |
++ *          ------------------------------------------------------------------
++ *          |         1        |           1         |    m   |       n      |
++ *          ------------------------------------------------------------------
++ */
++void write_TX_normal_FIFO(char *data, uint8_t length, uint8_t cmd, bool server)
++{
++	int i = 0;
++
++	data_TX_normal_FIFO[0]  = HEADER_LENGTH;
++	data_TX_normal_FIFO[1]  = HEADER_LENGTH + length;//DATA_LENGTH
++	data_TX_normal_FIFO[2]  = 0x01;			/* control frame */
++	data_TX_normal_FIFO[3]  = 0x88;
++	data_TX_normal_FIFO[4]  = cmd;		/* sequence number SEQ_NUMBER*/
++	data_TX_normal_FIFO[5]  = PAN_ID_2[1];		/* destinatoin pan */
++	data_TX_normal_FIFO[6]  = PAN_ID_2[0];
++	if (server) {
++		/* destination address */
++		data_TX_normal_FIFO[7]  = ADDRESS_short_2[0];
++		data_TX_normal_FIFO[8]  = ADDRESS_short_2[1];
++		/* source address */
++		data_TX_normal_FIFO[11] = ADDRESS_short_1[0];
++		data_TX_normal_FIFO[12] = ADDRESS_short_1[1];
++	} else {
++		/* destination address */
++		data_TX_normal_FIFO[7]  = ADDRESS_short_1[0];
++		data_TX_normal_FIFO[8]  = ADDRESS_short_1[1];
++		/* source address */
++		data_TX_normal_FIFO[11] = ADDRESS_short_2[0];
++		data_TX_normal_FIFO[12] = ADDRESS_short_2[1];
++	}
++	data_TX_normal_FIFO[9]  = PAN_ID_1[0];		/* source pan */
++	data_TX_normal_FIFO[10] = PAN_ID_1[1];
++	//data_TX_normal_FIFO[13] = DATA_TX[0];		/* data */
++	memcpy(&data_TX_normal_FIFO[13], data, length);
++
++	//DATA_LENGTH
++	for (i = 0; i < (HEADER_LENGTH + length + 2); i++) {
++		/* write frame into normal FIFO */
++		write_ZIGBEE_long(address_TX_normal_FIFO + i,
++				data_TX_normal_FIFO[i]);
++	}
++
++	set_not_ACK();
++	set_not_encrypt();
++	start_transmit();
++}
+diff -ruN tmp/ReadWrite_Routines.h libbee/ReadWrite_Routines.h
+--- tmp/ReadWrite_Routines.h	1970-01-01 08:00:00.000000000 +0800
++++ libbee/ReadWrite_Routines.h	2019-08-14 16:29:38.338810070 +0800
+@@ -0,0 +1,42 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#ifndef __READWRITE_ROUTINES_H__
++#define __READWRITE_ROUTINES_H__
++
++#include <stdint.h>
++#include <stdbool.h>
++
++#define DATA_LENGTH	100
++#define HEADER_LENGTH	11
++
++struct spi_config {
++	uint32_t mode;
++	uint32_t speed;
++	char *device;
++	uint8_t bits;
++};
++
++extern uint8_t DATA_RX[DATA_LENGTH], DATA_TX[DATA_LENGTH];
++extern uint8_t LQI, RSSI2, SEQ_NUMBER, RX_SIZE;
++
++void spidev_init(struct spi_config *config);
++uint8_t read_ZIGBEE_long(uint16_t address);
++void write_ZIGBEE_long(uint16_t address, uint8_t data_r);
++uint8_t read_ZIGBEE_short(uint8_t address);
++void write_ZIGBEE_short(uint8_t address, uint8_t data_r);
++void read_RX_FIFO(uint8_t *data_rx);
++void start_transmit(void);
++void write_TX_normal_FIFO(char *data, uint8_t length, uint8_t cmd, bool server);
++
++#endif
+diff -ruN tmp/registers.h libbee/registers.h
+--- tmp/registers.h	1970-01-01 08:00:00.000000000 +0800
++++ libbee/registers.h	2019-08-14 16:29:38.338810070 +0800
+@@ -0,0 +1,131 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#ifndef __REGISTERS_H__
++#define __REGISTERS_H__
++
++/////////////////////////////////////////
++////// short address registers  /////////
++/////////////////////////////////////////
++
++#define RXMCR     0x00
++#define PANIDL    0x01
++#define PANIDH    0x02
++#define SADRL     0x03
++#define SADRH     0x04
++#define EADR0     0x05
++#define EADR1     0x06
++#define EADR2     0x07
++#define EADR3     0x08
++#define EADR4     0x09
++#define EADR5     0x0A
++#define EADR6     0x0B
++#define EADR7     0x0C
++#define RXFLUSH   0x0D
++#define ORDER     0x10
++#define TXMCR     0x11
++#define ACKTMOUT  0x12
++#define ESLOTG1   0x13
++#define SYMTICKL  0x14
++#define SYMTICKH  0x15
++#define PACON0    0x16
++#define PACON1    0x17
++#define PACON2    0x18
++#define TXBCON0   0x1A
++#define TXNCON    0x1B
++#define TXG1CON   0x1C
++#define TXG2CON   0x1D
++#define ESLOTG23  0x1E
++#define ESLOTG45  0x1F
++#define ESLOTG67  0x20
++#define TXPEND    0x21
++#define WAKECON   0x22
++#define FRMOFFSET 0x23
++#define TXSTAT    0x24
++#define TXBCON1   0x25
++#define GATECLK   0x26
++#define TXTIME    0x27
++#define HSYMTMRL  0x28
++#define HSYMTMRH  0x29
++#define SOFTRST   0x2A
++#define SECCON0   0x2C
++#define SECCON1   0x2D
++#define TXSTBL    0x2E
++#define RXSR      0x30
++#define INTSTAT   0x31
++#define INTCON_M  0x32
++#define GPIO      0x33
++#define TRISGPIO  0x34
++#define SLPACK    0x35
++#define RFCTL     0x36
++#define SECCR2    0x37
++#define BBREG0    0x38
++#define BBREG1    0x39
++#define BBREG2    0x3A
++#define BBREG3    0x3B
++#define BBREG4    0x3C
++#define BBREG6    0x3E
++#define CCAEDTH   0x3F
++
++///////////////////////////////////////////
++//////// long address registers  //////////
++///////////////////////////////////////////
++
++#define RFCON0    0x200
++#define RFCON1    0x201
++#define RFCON2    0x202
++#define RFCON3    0x203
++#define RFCON5    0x205
++#define RFCON6    0x206
++#define RFCON7    0x207
++#define RFCON8    0x208
++#define SLPCAL0   0x209
++#define SLPCAL1   0x20A
++#define SLPCAL2   0x20B
++#define RFSTATE   0x20F
++#define RSSI      0x210
++#define SLPCON0   0x211
++#define SLPCON1   0x220
++#define WAKETIMEL 0x222
++#define WAKETIMEH 0x223
++#define REMCNTL   0x224
++#define REMCNTH   0x225
++#define MAINCNT0  0x226
++#define MAINCNT1  0x227
++#define MAINCNT2  0x228
++#define MAINCNT3  0x229
++#define ASSOEADR0 0x230
++#define ASSOEADR1 0x231
++#define ASSOEADR2 0x232
++#define ASSOEADR3 0x233
++#define ASSOEADR4 0x234
++#define ASSOEADR5 0x235
++#define ASSOEADR6 0x236
++#define ASSOEADR7 0x237
++#define ASSOSADR0 0x238
++#define ASSOSADR1 0x239
++#define UPNONCE0  0x240
++#define UPNONCE1  0x241
++#define UPNONCE2  0x242
++#define UPNONCE3  0x243
++#define UPNONCE4  0x244
++#define UPNONCE5  0x245
++#define UPNONCE6  0x246
++#define UPNONCE7  0x247
++#define UPNONCE8  0x248
++#define UPNONCE9  0x249
++#define UPNONCE10 0x24A
++#define UPNONCE11 0x24B
++#define UPNONCE12 0x24C
++
++#endif
+diff -ruN tmp/Reset_Routines.c libbee/Reset_Routines.c
+--- tmp/Reset_Routines.c	1970-01-01 08:00:00.000000000 +0800
++++ libbee/Reset_Routines.c	2019-08-14 16:29:38.338810070 +0800
+@@ -0,0 +1,79 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <stdlib.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <unistd.h>
++#include "registers.h"
++#include "ReadWrite_Routines.h"
++
++/* RST pin */
++static void set_rstpin(uint8_t val)
++{
++	char cmd[50];
++
++	val = (val > 0) ? 0x03 : 0x02;
++	sprintf(cmd, "i2cset -y 0 0x66 0x55 0x%02X b", val);
++	system(cmd);
++}
++
++
++/*
++ * Reset functions
++ */
++
++/* Reset from pin */
++void pin_reset(void)
++{
++	set_rstpin(0);	/* activate reset */
++	usleep(5000);
++	set_rstpin(1);	/* deactivate reset */
++	usleep(5000);
++}
++
++void PWR_reset(void)
++{
++	/* 0x04  mask for RSTPWR bit */
++	write_ZIGBEE_short(SOFTRST, 0x04);
++}
++
++void BB_reset(void)
++{
++	/* 0x02 mask for RSTBB bit */
++	write_ZIGBEE_short(SOFTRST, 0x02);
++}
++
++void MAC_reset(void)
++{
++	/* 0x01 mask for RSTMAC bit */
++	write_ZIGBEE_short(SOFTRST, 0x01);
++}
++
++void software_reset(void)
++{
++	/* PWR_reset,BB_reset and MAC_reset at once */
++	write_ZIGBEE_short(SOFTRST, 0x07);
++}
++
++void RF_reset(void)
++{
++	uint8_t temp = 0;
++
++	temp = read_ZIGBEE_short(RFCTL);
++	temp = temp | 0x04;		/* mask for RFRST bit */
++	write_ZIGBEE_short(RFCTL, temp);
++	temp = temp & ((uint8_t)~0x04);	/* mask for RFRST bit */
++	write_ZIGBEE_short(RFCTL, temp);
++	usleep(1000);
++}
+diff -ruN tmp/Reset_Routines.h libbee/Reset_Routines.h
+--- tmp/Reset_Routines.h	1970-01-01 08:00:00.000000000 +0800
++++ libbee/Reset_Routines.h	2019-08-14 16:29:38.338810070 +0800
+@@ -0,0 +1,24 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: bee click board(MRF24J40MA) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#ifndef __RESET_ROUTINES_H__
++#define __RESET_ROUTINES_H__
++
++void RF_reset(void);
++void software_reset(void);
++void MAC_reset(void);
++void BB_reset(void);
++void PWR_reset(void);
++void pin_reset(void);
++
++#endif
