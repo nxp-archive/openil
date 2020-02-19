@@ -1,0 +1,12 @@
+config BR2_PACKAGE_QORIQ_PPFE
+	bool "qoriq-ppfe"
+	help
+	ls1012a/slow_path : This folder contains pfe firmware
+	binaries which supports slow path only.
+
+if BR2_PACKAGE_QORIQ_PPFE
+
+config BR2_PACKAGE_QORIQ_PPFE_VERSION
+	string "ppfe version"
+
+endif
