@@ -1,0 +1,15 @@
+config BR2_PACKAGE_QORIQ_MC_FW
+        bool "qoriq-mc-fw"
+        help
+	  The Prebuidl MC binaries for Management Complex (MC) of DPAA2 (Data Path
+	  Acceleration Architecture, second version).
+
+if BR2_PACKAGE_QORIQ_MC_FW
+
+config BR2_PACKAGE_QORIQ_MC_FW_VERSION
+	string "mc-fw version"
+
+config BR2_PACKAGE_QORIQ_MC_FW_BIN
+	string "mc-fw binary"
+
+endif
