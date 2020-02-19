@@ -1,0 +1,1288 @@
+diff -ruN kong/acilib.c blep/acilib.c
+--- kong/acilib.c	1970-01-01 08:00:00.000000000 +0800
++++ blep/acilib.c	2019-04-05 22:53:07.368548477 +0800
+@@ -0,0 +1,478 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: blep click board(nRF8001) aci library
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <string.h>
++#include <stdint.h>
++#include <stdbool.h>
++#include <unistd.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <fcntl.h>
++#include <sys/ioctl.h>
++#include <linux/types.h>
++#include <linux/spi/spidev.h>
++#include <signal.h>
++#include "services.h"
++#include "acilib.h"
++
++static const char *device = "/dev/spidev2.0";
++static uint32_t mode = 0;
++static uint8_t bits = 8;
++static uint32_t speed = 500000;
++static int fd;
++static uint8_t buf_tx[40] = {0, };
++static uint8_t buf_rx[40] = {0, };
++struct cmd_params_connect adv_params = {
++/* 0x0000 (no timeout) to 0x3FFF */
++	.timeout = 0,
++/* 16 bits of advertising interval for general discovery */
++	.adv_interval = 0x0050
++};
++volatile bool event_flag = false;
++const struct setup_data setup_msgs[NB_SETUP_MESSAGES] = SETUP_MESSAGES_CONTENT;
++
++hook_func event_get_addr_hook = NULL;
++hook_func event_get_version_hook = NULL;
++hook_func event_timing_hook = NULL;
++hook_func event_data_receive_hook = NULL;
++
++static void pabort(const char *s)
++{
++	perror(s);
++	abort();
++}
++
++static uint8_t byte_M2L(uint8_t byte)
++{
++	uint8_t res = 0;
++
++	for (uint8_t i = 0; i < 8; i++) {
++		if (byte & (0x01 << i))
++			res |= 0x80 >> i;
++	}
++
++	return res;
++}
++
++static void set_rstpin (uint8_t val)
++{
++	char cmd[50];
++
++	val = (val > 0) ? 0x03 : 0x02;
++	sprintf(cmd, "i2cset -y 0 0x66 0x55 0x%02X b", val);
++	system(cmd);
++}
++
++static bool get_rdypin(void)
++{
++	FILE *fp = NULL;
++	char data[10] = {'0'};
++	int res;
++
++	fp = popen("i2cget -y 0 0x66 0x55 b", "r");
++	if (fp == NULL) {
++		printf("popen error!\n");
++		return false;
++	}
++
++	if (fgets(data, sizeof(data), fp) != NULL)
++		res = strtol(data, NULL, 0);
++
++	pclose(fp);
++
++	if (res & 0x40)
++		return false;
++	else
++		return true;
++}
++
++static void transfer(int fd, uint8_t len)
++{
++	int ret;
++	uint8_t i;
++
++	struct spi_ioc_transfer tr = {
++		.tx_buf = (unsigned long)buf_tx,
++		.rx_buf = (unsigned long)buf_rx,
++		.len = len,
++		//.delay_usecs = 1000,
++		.speed_hz = speed,
++		.bits_per_word = bits,
++	};
++
++	for (i = 0; i < len; i++)
++		buf_tx[i] = byte_M2L(buf_tx[i]);
++
++	memset(&buf_rx, 0, 40);
++
++	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
++	if (ret < 1)
++		pabort("can't send spi message");
++	/* buf_rx[1] is effective data length */
++	for (i = 1; i < len; i++)
++		if (i <= (buf_rx[1] + 1))
++			buf_rx[i] = byte_M2L(buf_rx[i]);
++		else
++			buf_rx[i] = 0;
++}
++
++void spidev_init(struct spi_config *config)
++{
++	int ret = 0;
++
++	if (config != NULL) {
++		device	= config->device;
++		mode 	= config->mode;
++		bits	= config->bits;
++		speed	= config->speed;
++	}
++
++	set_rstpin(0);
++	usleep(100);
++	set_rstpin(1);
++
++	fd = open(device, O_RDWR);
++	if (fd < 0)
++		pabort("can't open device");
++
++	/*
++	 * spi mode
++	 */
++	ret = ioctl(fd, SPI_IOC_WR_MODE32, &mode);
++	if (ret == -1)
++		pabort("can't set spi mode");
++
++	ret = ioctl(fd, SPI_IOC_RD_MODE32, &mode);
++	if (ret == -1)
++		pabort("can't get spi mode");
++
++	/*
++	 * bits per word
++	 */
++	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
++	if (ret == -1)
++		pabort("can't set bits per word");
++
++	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
++	if (ret == -1)
++		pabort("can't get bits per word");
++
++	/*
++	 * max speed hz
++	 */
++	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
++	if (ret == -1)
++		pabort("can't set max speed hz");
++
++	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
++	if (ret == -1)
++		pabort("can't get max speed hz");
++
++	event_flag = true;
++	printf("spi mode: 0x%x\n", mode);
++	printf("bits per word: %d\n", bits);
++	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
++}
++
++void aci_send_cmd(uint8_t cmd, void *param, uint8_t len)
++{
++	memset(buf_tx, 0, 40);
++	buf_tx[1] = cmd;
++
++	switch (cmd) {
++	case ACI_CMD_GET_DEVICE_ADDRESS:
++		buf_tx[0] = 0x01;
++		while (get_rdypin());
++		break;
++
++	case ACI_CMD_GET_DEVICE_VERSION:
++		buf_tx[0] = 0x01;
++		while (get_rdypin());
++		break;
++
++	case ACI_CMD_SET_LOCAL_DATA:
++		buf_tx[0] = 2 + len;
++		buf_tx[2] = PIPE_GAP_DEVICE_NAME_SET;
++		memcpy(&buf_tx[3], param, len);
++		printf("Name set.\033[0;31m New name: %s\033[0;39m, %d\n",
++			&buf_tx[3], len);
++		while (get_rdypin());
++		break;
++
++	case ACI_CMD_SEND_DATA:
++		buf_tx[0] = 2 + len;
++		buf_tx[2] = PIPE_UART_OVER_BTLE_UART_TX_TX;
++		memcpy(&buf_tx[3], param, len);
++		break;
++
++	case ACI_CMD_CONNECT:
++		buf_tx[0] = 0x05;
++		memcpy(&buf_tx[2], param, 4);
++		break;
++	}
++	transfer(fd, buf_tx[0] + 1);
++	event_flag = true;
++}
++
++static uint8_t aci_setup_loop(uint8_t *cmd_status, uint8_t *setup_offset)
++{
++	switch (*cmd_status) {
++	case ACI_STATUS_SUCCESS:
++	case ACI_STATUS_TRANSACTION_CONTINUE:
++		(*setup_offset)++;
++		if (*setup_offset < NB_SETUP_MESSAGES) {
++			memcpy(buf_tx, &setup_msgs[*setup_offset].buffer[0],
++				setup_msgs[*setup_offset].buffer[0] + 1);
++			transfer(fd, setup_msgs[*setup_offset].buffer[0] +1);
++			printf(".");
++		} else
++			*cmd_status = ACI_STATUS_TRANSACTION_COMPLETE;
++		break;
++
++	case ACI_STATUS_TRANSACTION_COMPLETE:
++		/*
++		 * Break out of the while loop
++		 * when this status code appears
++		 */
++		printf("Setup complete\n");
++		break;
++
++	default:
++		/*
++		 * An event with any other status code
++		 * should be handled by the application
++		 */
++		printf("Setup status error: 0x%02X; setup_offset = %d\n",
++			*cmd_status, *setup_offset);
++		return 1;
++	}
++
++	return 0;
++}
++
++uint8_t do_aci_setup(void)
++{
++	struct aci_packet setup_event;
++	uint8_t setup_offset = 0;
++	uint32_t i = 0;
++	uint8_t cmd_status = ACI_STATUS_TRANSACTION_CONTINUE;
++	bool wait_event = false;
++
++	memcpy(buf_tx, &setup_msgs[setup_offset].buffer[0],
++		setup_msgs[setup_offset].buffer[0] + 1);
++	transfer(fd, setup_msgs[setup_offset].buffer[0] + 1);
++	wait_event = true;
++
++	while (cmd_status != ACI_STATUS_TRANSACTION_COMPLETE) {
++	/*
++	 * This counter is used to ensure that this function does not loop
++	 * forever. When the device returns a valid response, we reset the
++	 * counter.
++	 */
++		if (i++ > 0xFFFFFE) {
++			printf("Setup timeout\n");
++			return SETUP_FAIL_TIMEOUT;
++		}
++
++		if (wait_event && get_rdypin()) {
++			wait_event = false;
++			transfer(fd, HAL_ACI_MAX_LENGTH);
++			memcpy(&setup_event, buf_rx, HAL_ACI_MAX_LENGTH);
++
++			/*
++			 * Receiving something other than a Command Response
++			 * Event is an error.
++			 */
++			if (setup_event.opcode != ACI_EVT_CMD_RSP) {
++				printf("Setup event is not cmdresponse\n");
++				return SETUP_FAIL_NOT_COMMAND_RESPONSE;
++			}
++
++			cmd_status = setup_event.params.cmd_rsp.cmd_status;
++
++			if(aci_setup_loop(&cmd_status, &setup_offset))
++				return SETUP_FAIL_NOT_SETUP_EVENT;
++
++			/* As the device is responding, reset guard counter */
++			i = 0;
++			wait_event = true;
++		}
++	}
++	return SETUP_SUCCESS;
++}
++
++static void aci_evt_cmd_rsp_handle(struct aci_packet *packet_rx)
++{
++	switch (packet_rx->params.cmd_rsp.cmd_opcode) {
++	case ACI_CMD_GET_DEVICE_ADDRESS:
++		if (packet_rx->params.cmd_rsp.cmd_status == ACI_STATUS_SUCCESS)
++			if (event_get_addr_hook != NULL)
++				event_get_addr_hook(packet_rx);
++		else
++			printf("Get device address faild!\n");
++		break;
++
++	case ACI_CMD_SETUP:
++		if (packet_rx->params.cmd_rsp.cmd_status ==
++			ACI_STATUS_TRANSACTION_COMPLETE)
++			printf("\nSetup complete\n");
++		break;
++
++	case ACI_CMD_CONNECT:
++		if (packet_rx->params.cmd_rsp.cmd_status == ACI_STATUS_SUCCESS)
++			printf("Send broadcast command successfully\n");
++		break;
++
++	case ACI_CMD_SET_LOCAL_DATA:
++		if (packet_rx->params.cmd_rsp.cmd_status == ACI_STATUS_SUCCESS)
++			printf("Set local data successfully\n");
++		break;
++
++	case ACI_CMD_GET_DEVICE_VERSION:
++		if (packet_rx->params.cmd_rsp.cmd_status == ACI_STATUS_SUCCESS)
++			if (event_get_version_hook != NULL)
++				event_get_version_hook(packet_rx);
++		break;
++
++	case ACI_CMD_CHANGE_TIMING:
++		if (packet_rx->params.cmd_rsp.cmd_status != ACI_STATUS_SUCCESS)
++			printf("ChangeTimingRequest is error: 0x%02X\n",
++					packet_rx->params.cmd_rsp.cmd_status);
++			break;
++
++	default:
++		break;
++	}
++}
++
++void aci_event_handle_loop(void)
++{
++	struct aci_packet packet_rx;
++	bool setup_required = false;
++	struct evt_params_pipe_error pipe_error;
++	bool timing_change_done = false;
++	uint8_t tmp = 0;
++
++	if (event_flag && get_rdypin()) {
++		event_flag = false;
++		memset(&packet_rx, 0, REV_PKG_SIZE);
++		memset(buf_tx, 0, 40);
++		transfer(fd, HAL_ACI_MAX_LENGTH);
++		memcpy(&packet_rx, buf_rx, HAL_ACI_MAX_LENGTH);
++
++		switch (packet_rx.opcode) {
++		case ACI_EVT_DEVICE_STARTED:
++			printf("\033[0;33m Event device started: \033[0;39m");
++
++			switch (packet_rx.params.device_started.device_mode) {
++			case ACI_DEVICE_TEST:
++				printf("\033[0;33mTest\033[0;39m");
++				break;
++
++			case ACI_DEVICE_SETUP:
++				setup_required = true;
++				printf("\033[0;33mSetup\033[0;39m");
++				break;
++
++			case ACI_DEVICE_STANDBY:
++				aci_send_cmd(ACI_CMD_CONNECT, &adv_params, 4);
++				printf("\033[0;33mStandby\033[0;39m\n");
++				printf(" Advertising started :");
++				printf(" Tap Connect on the nRF UART app ");
++				break;
++			}
++			printf("\n");
++			printf("Error:%s\n",
++				packet_rx.params.device_started.hw_error ?
++				"fatal" : "no");
++			break;
++
++		case ACI_EVT_CMD_RSP:
++			aci_evt_cmd_rsp_handle(&packet_rx);
++			break;
++
++		case ACI_EVT_CONNECTED:
++			timing_change_done = false;
++			printf("\033[0;33m Evt Connected\033[0;39m\n");
++			break;
++
++		case ACI_EVT_DISCONNECTED:
++			printf("\033[0;33m Evt Disconnected\033[0;39m\n");
++			aci_send_cmd(ACI_CMD_CONNECT, &adv_params, 4);
++			printf(" Advertising started :");
++			printf(" Tap Connect on the nRF UART app ");
++			break;
++
++		case ACI_EVT_PIPE_STATUS:
++			printf(" Evt Pipe Status\n");
++			if (timing_change_done == false)
++				timing_change_done = true;
++			break;
++
++		case ACI_EVT_TIMING:
++			if (event_timing_hook != NULL)
++				event_timing_hook(&packet_rx);
++			break;
++
++		case ACI_EVT_DATA_RECEIVED:
++			if ((packet_rx.params.payload[0] ==
++					PIPE_UART_OVER_BTLE_UART_RX_RX) &&
++					(event_data_receive_hook != NULL))
++					event_data_receive_hook(&packet_rx);
++			break;
++ 
++		case ACI_EVT_DATA_CREDIT:
++			printf("\033[0;31mThe number of data\033[0;39m");
++			printf("\033[0;31m command buffer is %d\033[0;39m\n",
++					packet_rx.params.payload[0]);
++			break;
++
++		case ACI_EVT_PIPE_ERROR:
++			memcpy(&pipe_error, &packet_rx.params.payload[0], 29);
++			printf("\033[0;31m ACI Evt Pipe Error:\033[0;39m");
++			printf("\033[0;31m Pipe #%d\033[0;39m\n",
++					pipe_error.pipe_number);
++			printf("\033[0;31m Pipe Error Code:\033[0;39m");
++			printf("\033[0;31m 0x%02X\033[0;39m\n",
++					pipe_error.error_code);
++			printf("\033[0;31m Pipe Error Data:\033[0;39m");
++			for (tmp = 0; tmp < (packet_rx.length - 3); tmp++)
++				printf(" 0x%02X", pipe_error.error_data[tmp]);
++			printf("\n");
++			if (pipe_error.error_code ==
++					ACI_STATUS_ERROR_DEVICE_STATE_INVALID)
++				printf(" Please connect the device");
++				printf(" before sending data\n");
++			break;
++
++		default:
++			printf("Unknow event:0x%02X\n", packet_rx.opcode);
++			break;
++		}
++		event_flag = true;
++	}
++
++	if (setup_required) {
++		printf("Start setup command\n");
++		if (SETUP_SUCCESS == do_aci_setup()) {
++			event_flag = true;
++			setup_required = false;
++		}
++	}
++}
++
++void close_spidev(void)
++{
++	close(fd);
++}
+diff -ruN kong/acilib.h blep/acilib.h
+--- kong/acilib.h	1970-01-01 08:00:00.000000000 +0800
++++ blep/acilib.h	2019-04-05 22:59:39.115404980 +0800
+@@ -0,0 +1,320 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: blep click board(nRF8001) aci library
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#ifndef __ACILIB_H__
++#define __ACILIB_H__
++
++#define HAL_ACI_MAX_LENGTH 32
++
++/********************* Setup command status *********************/
++#define SETUP_SUCCESS                        0
++#define SETUP_FAIL_COMMAND_QUEUE_NOT_EMPTY   1
++#define SETUP_FAIL_EVENT_QUEUE_NOT_EMPTY     2
++#define SETUP_FAIL_TIMEOUT                   3
++#define SETUP_FAIL_NOT_SETUP_EVENT           4
++#define SETUP_FAIL_NOT_COMMAND_RESPONSE      5
++
++/******************** Device operation modes ********************/
++#define ACI_DEVICE_INVALID	0x00
++#define ACI_DEVICE_TEST		0x01
++#define ACI_DEVICE_SETUP	0x02
++#define ACI_DEVICE_STANDBY	0x03
++#define ACI_DEVICE_SLEEP	0x04
++
++/********************** Device address type **********************/
++#define ACI_BD_ADDR_TYPE_INVALID			0x00
++#define ACI_BD_ADDR_TYPE_PUBLIC				0x01
++#define ACI_BD_ADDR_TYPE_RANDOM_STATIC			0x02
++#define ACI_BD_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE	0x03
++#define ACI_BD_ADDR_TYPE_RANDOM_PRIVATE_UNRESOLVABLE	0x04
++
++/*********************** ACI status codes ***********************/
++/* Success */
++#define ACI_STATUS_SUCCESS				0x00
++/* Transaction continuation status */
++#define ACI_STATUS_TRANSACTION_CONTINUE			0x01
++/* Transaction completed */
++#define ACI_STATUS_TRANSACTION_COMPLETE			0x02
++/* Extended status, further checks needed */
++#define ACI_STATUS_EXTENDED				0x03
++/* Unknown error */
++#define ACI_STATUS_ERROR_UNKNOWN			0x80
++/* Internal error */
++#define ACI_STATUS_ERROR_INTERNAL			0x81
++/* Unknown command */
++#define ACI_STATUS_ERROR_CMD_UNKNOWN			0x82
++/* Command invalid in the current device state*/
++#define ACI_STATUS_ERROR_DEVICE_STATE_INVALID		0x83
++/* Invalid length */
++#define ACI_STATUS_ERROR_INVALID_LENGTH			0x84
++/* Invalid input parameters */
++#define ACI_STATUS_ERROR_INVALID_PARAMETER		0x85
++/* Busy */
++#define ACI_STATUS_ERROR_BUSY				0x86
++/* Invalid data format or contents */
++#define ACI_STATUS_ERROR_INVALID_DATA			0x87
++/* CRC mismatch */
++#define ACI_STATUS_ERROR_CRC_MISMATCH			0x88
++/* Unsupported setup format */
++#define ACI_STATUS_ERROR_UNSUPPORTED_SETUP_FORMAT	0x89
++/* Invalid sequence number during a write dynamic data sequence */
++#define ACI_STATUS_ERROR_INVALID_SEQ_NO			0x8A
++/* Setup data is locked and cannot be modified */
++#define ACI_STATUS_ERROR_SETUP_LOCKED			0x8B
++/* Setup error due to lock verification failure */
++#define ACI_STATUS_ERROR_LOCK_FAILED			0x8C
++/* Bond required: Local Pipes need bonded/trusted peer */
++#define ACI_STATUS_ERROR_BOND_REQUIRED			0x8D
++/* Command rejected as a transaction is still pending */
++#define ACI_STATUS_ERROR_REJECTED			0x8E
++/*
++ * Pipe Error Event : Data size exceeds size specified for pipe
++ *                  : Transmit failed
++ */
++#define ACI_STATUS_ERROR_DATA_SIZE			0x8F
++/* Pipe Error Event : Invalid pipe */
++#define ACI_STATUS_ERROR_PIPE_INVALID			0x90
++/* Pipe Error Event : Credit not available */
++#define ACI_STATUS_ERROR_CREDIT_NOT_AVAILABLE		0x91
++/* Pipe Error Event : Peer device has sent an error on an pipe operation
++ * on the remote characteristic
++ */
++#define ACI_STATUS_ERROR_PEER_ATT_ERROR			0x92
++/* Connection was not established before the BTLE advertising was stopped */
++#define ACI_STATUS_ERROR_ADVT_TIMEOUT			0x93
++/* Peer has triggered a Security Manager Protocol Error */
++#define ACI_STATUS_ERROR_PEER_SMP_ERROR			0x94
++/* Pipe Error Event : Pipe type invalid for the selected operation */
++#define ACI_STATUS_ERROR_PIPE_TYPE_INVALID		0x95
++/* Pipe Error Event : Pipe state invalid for the selected operation */
++#define ACI_STATUS_ERROR_PIPE_STATE_INVALID		0x96
++/* Invalid key size provided */
++#define ACI_STATUS_ERROR_INVALID_KEY_SIZE		0x97
++/* Invalid key data provided */
++#define ACI_STATUS_ERROR_INVALID_KEY_DATA		0x98
++/* Reserved range start */
++#define ACI_STATUS_RESERVED_START			0xF0
++/* Reserved range end */
++#define ACI_STATUS_RESERVED_END				0xFF
++
++/********************* system command code *********************/
++/* Enter test mode */
++#define ACI_CMD_TEST			0x01
++/* Echo (loopback) test command */
++#define ACI_CMD_ECHO			0x02
++/* Send a BTLE DTM command to the radio */
++#define ACI_CMD_DTM_CMD			0x03
++/* Put the device to sleep */
++#define ACI_CMD_SLEEP			0x04
++/* Wakeup the device from deep sleep */
++#define ACI_CMD_WAKEUP			0x05
++/*
++ * Replace the contents of the internal database with
++ * user provided data
++ */
++#define ACI_CMD_SETUP			0x06
++/* Read the portions of memory required to be restored after a power cycle */
++#define ACI_CMD_READ_DYNAMIC_DATA	0x07
++/* Write back the data retrieved using ACI_CMD_READ_DYNAMIC_DATA */
++#define ACI_CMD_WRITE_DYNAMIC_DATA	0x08
++/* Retrieve the device's version information */
++#define ACI_CMD_GET_DEVICE_VERSION	0x09
++/* Request the Bluetooth address and its type */
++#define ACI_CMD_GET_DEVICE_ADDRESS	0x0A
++/* Request the battery level measured by nRF8001 */
++#define ACI_CMD_GET_BATTERY_LEVEL	0x0B
++/* Request the temperature value measured by nRF8001 */
++#define ACI_CMD_GET_TEMPERATURE		0x0C
++/* Write to the local Attribute Database */
++#define ACI_CMD_SET_LOCAL_DATA		0x0D
++/* Reset the baseband and radio and go back to idle */
++#define ACI_CMD_RADIO_RESET		0x0E
++/* Start advertising and wait for a master connection */
++#define ACI_CMD_CONNECT			0x0F
++/* Start advertising and wait for a master connection */
++#define ACI_CMD_BOND			0x10
++/* Start advertising and wait for a master connection */
++#define ACI_CMD_DISCONNECT		0x11
++/* Throttles the Radio transmit power */
++#define ACI_CMD_SET_TX_POWER		0x12
++/* Trigger a connection parameter update */
++#define ACI_CMD_CHANGE_TIMING		0x13
++/* Open a remote pipe for data reception */
++#define ACI_CMD_OPEN_REMOTE_PIPE	0x14
++/* Transmit data over an open pipe */
++#define ACI_CMD_SEND_DATA		0x15
++/* Send an acknowledgment of received data */
++#define ACI_CMD_SEND_DATA_ACK		0x16
++/* Request data over an open pipe */
++#define ACI_CMD_REQUEST_DATA		0x17
++/* NACK a data reception */
++#define ACI_CMD_SEND_DATA_NACK		0x18
++/* Set application latency */
++#define ACI_CMD_SET_APP_LATENCY		0x19
++/* Set a security key */
++#define ACI_CMD_SET_KEY			0x1A
++/* Open Advertising Pipes */
++#define ACI_CMD_OPEN_ADV_PIPE		0x1B
++/* Start non-connectable advertising */
++#define ACI_CMD_BROADCAST		0x1C
++/* Start a security request in bonding mode */
++#define ACI_CMD_BOND_SECURITY_REQUEST	0x1D
++/* Start Directed advertising towards a Bonded Peer */
++#define ACI_CMD_CONNECT_DIRECT		0x1E
++/* Close a previously opened remote pipe */
++#define ACI_CMD_CLOSE_REMOTE_PIPE	0x1F
++/* Invalid ACI command opcode */
++#define ACI_CMD_INVALID			0xFF
++
++/*********************** system event code ***********************/
++/* Invalid event code */
++#define ACI_EVT_INVALID		0x00
++/* Sent every time the device starts */
++#define ACI_EVT_DEVICE_STARTED	0x81
++/* Mirrors the ACI_CMD_ECHO */
++#define ACI_EVT_ECHO		0x82
++/* Asynchronous hardware error event */
++#define ACI_EVT_HW_ERROR	0x83
++/* Event opcode used as a event response for all commands */
++#define ACI_EVT_CMD_RSP		0x84
++/* Link connected */
++#define ACI_EVT_CONNECTED	0x85
++/* Link disconnected */
++#define ACI_EVT_DISCONNECTED	0x86
++/* Bond completion result */
++#define ACI_EVT_BOND_STATUS	0x87
++/* Pipe bitmap for available pipes */
++#define ACI_EVT_PIPE_STATUS	0x88
++/*
++ * Sent to the application when the radio enters a connected state
++ * or when the timing of the radio connection changes
++ */
++#define ACI_EVT_TIMING		0x89
++/*
++ * Notification to the application that transmit credits are
++ * available
++ */
++#define ACI_EVT_DATA_CREDIT	0x8A
++/* Data acknowledgement event */
++#define ACI_EVT_DATA_ACK	0x8B
++/* Data received notification event */
++#define ACI_EVT_DATA_RECEIVED	0x8C
++/* Error notification event */
++#define ACI_EVT_PIPE_ERROR	0x8D
++/* Display Passkey Event */
++#define ACI_EVT_DISPLAY_PASSKEY	0x8E
++/* Security Key request */
++#define ACI_EVT_KEY_REQUEST	0x8F
++
++/********** the ACI_CMD_CONNECT ACI command parameters **********/
++struct cmd_params_connect {
++	/* 0x0000 (no timeout) to 0x3FFF */
++	uint16_t timeout;
++	/* 16 bits of advertising interval for general discovery */
++	uint16_t adv_interval;
++};
++
++/********************* setup command struct *********************/
++struct setup_data {
++	uint8_t status_byte;
++	uint8_t buffer[HAL_ACI_MAX_LENGTH];
++};
++
++/******************** device address content *********************/
++struct getaddr_response {
++	uint8_t addr[6];
++	uint8_t addr_type;
++};
++
++/******************** device version content *********************/
++struct getversion_response {
++	uint16_t configuration_id;
++	uint8_t  aci_version;
++	uint8_t  setup_format;
++	uint32_t setup_id;
++	uint8_t  setup_status;
++};
++
++/***************** CommandResponseEvent content *****************/
++struct evt_params_response {
++	uint8_t cmd_opcode;
++	uint8_t cmd_status;
++	union {
++		struct getaddr_response get_device_address;
++		uint8_t response_data[27];
++	} content;
++};
++
++/****************** DeviceStartedEvent content ******************/
++struct evt_params_started {
++	uint8_t device_mode;
++	uint8_t hw_error;
++	uint8_t credit_available;/*Number of DataCommand buffers available*/
++};
++
++/********** The ACI_EVT_TIMING event return parameters **********/
++struct evt_params_timing {
++	/* rf_interval = conn_rf_interval * 1.25 ms Range:0x0006 to 0x0C80 */
++	uint16_t conn_rf_interval;
++	/* Number of RF events the slave can skip */
++	uint16_t conn_slave_rf_latency;
++	/*
++	 * Timeout as a multiple of 10ms
++	 * i.e timeout = conn_rf_timeout * 10ms Range: 0x000A to 0x0C80
++	 */
++	uint16_t conn_rf_timeout;
++};
++
++/******** The ACI_EVT_PIPE_ERROR event return parameters ********/
++struct evt_params_pipe_error {
++	uint8_t pipe_number;
++	uint8_t error_code;
++	uint8_t error_data[27];
++};
++
++/********************* ACI packet structure *********************/
++struct aci_packet {
++	uint8_t dump;
++	uint8_t length;
++	uint8_t opcode;
++	union {
++		struct evt_params_started device_started;
++		struct evt_params_response cmd_rsp;
++		uint8_t payload[30];
++	} params;
++};
++#define REV_PKG_SIZE	sizeof(struct aci_packet)
++
++struct spi_config {
++	uint32_t mode;
++	uint32_t speed;
++	char *device;
++	uint8_t bits;
++};
++
++typedef void (*hook_func)(struct aci_packet *packet_rx);
++
++extern hook_func event_get_addr_hook;
++extern hook_func event_get_version_hook;
++extern hook_func event_timing_hook;
++extern hook_func event_data_receive_hook;
++
++extern struct cmd_params_connect adv_params;
++
++void spidev_init(struct spi_config *config);
++void aci_send_cmd(uint8_t cmd, void *param, uint8_t len);
++uint8_t do_aci_setup(void);
++void aci_event_handle_loop(void);
++void close_spidev(void);
++
++#endif
+diff -ruN kong/blep.c blep/blep.c
+--- kong/blep.c	1970-01-01 08:00:00.000000000 +0800
++++ blep/blep.c	2019-04-05 22:57:27.805106741 +0800
+@@ -0,0 +1,172 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ * Copyright 2018-2019 NXP
++ *
++ * MikroBUS: blep click board(nRF8001) application demo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <string.h>
++#include <stdint.h>
++#include <stdbool.h>
++#include <unistd.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <fcntl.h>
++#include <sys/ioctl.h>
++#include <linux/types.h>
++#include <linux/spi/spidev.h>
++#include <pthread.h>
++#include <signal.h>
++#include "services.h"
++#include "acilib.h"
++
++#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
++
++#define IS_DEVADDR_GETTING(buf)	(memcmp((void*) buf, (void*) "devaddr", 7) == 0)
++#define IS_VERSION_GETTING(buf) (memcmp((void*) buf, (void*) "version", 7) == 0)
++#define IS_NAME_SETTING(buf)	(memcmp((void*) buf, (void*) "name=", 5) == 0)
++#define IS_ECHO_DATA(buf)	(memcmp((void*) buf, (void*) "echo ", 5) == 0)
++
++void event_get_addr_handle(struct aci_packet *packet_rx)
++{
++	printf("Device address");
++	for (uint8_t tmp = 0; tmp < 6; tmp++)
++		printf("\033[0;31m:%02X\033[0;39m",
++			packet_rx->params.cmd_rsp.content.
++			get_device_address.addr[5 - tmp]);
++	printf("\n");
++
++}
++
++void event_get_version_handle(struct aci_packet *packet_rx)
++{
++	struct getversion_response get_device_version;
++
++	memcpy(&get_device_version,
++		&packet_rx->params.cmd_rsp.content.response_data[0], 9);
++	printf("Device version\n");
++	printf("\033[0;31m Configuration ID:0x%02X\033[0;39m\n",
++			get_device_version.configuration_id);
++	printf("\033[0;31m ACI protocol version:%d\033[0;39m\n",
++			get_device_version.aci_version);
++	printf("\033[0;31m Current setup format:%d\033[0;39m\n",
++			get_device_version.setup_format);
++	printf("\033[0;31m Setup ID:0x%02X\033[0;39m\n",
++			get_device_version.setup_id);
++	printf("\033[0;31m Configuration status:%s\033[0;39m\n",
++		get_device_version.setup_status ? "locked(NVM)" : "open(VM)");
++}
++
++void event_timing_handle(struct aci_packet *packet_rx)
++{
++	struct evt_params_timing timing;
++
++	memcpy(&timing, &packet_rx->params.payload[0], 6);
++	printf(" Evt link connection interval changed \n");
++	printf("\033[0;31m ConnectionInterval:0x%04X\033[0;39m\n",
++				timing.conn_rf_interval);
++	printf("\033[0;31m SlaveLatency:0x%04X\033[0;39m\n",
++				timing.conn_slave_rf_latency);
++	printf("\033[0;31m SupervisionTimeout:0x%04X\033[0;39m\n",
++				timing.conn_rf_timeout);
++}
++
++void event_data_receive_handle(struct aci_packet *packet_rx)
++{
++	printf("DataReceivedEvent:\033[0;31m %s\033[0;39m\n",
++			&packet_rx->params.payload[1]);
++}
++
++void set_hook_func(void)
++{
++	event_get_addr_hook	= event_get_addr_handle;
++	event_get_version_hook	= event_get_version_handle;
++	event_timing_hook	= event_timing_handle;
++	event_data_receive_hook	= event_data_receive_handle;
++}
++
++pthread_t console_thread, event_thread;
++void app_exit(int signo)
++{
++	close_spidev();
++	pthread_cancel(console_thread);
++	pthread_cancel(event_thread);
++}
++
++void *console_handle(void *argv)
++{
++	char str[50];
++	uint8_t str_len = 0;
++	uint8_t i = 0;
++	
++	while(1) {
++		memset(str, 0, 50);
++		printf("Please input a command!\n");
++		fgets(str, 50, stdin);
++
++		if (IS_DEVADDR_GETTING(str)) {
++			aci_send_cmd(ACI_CMD_GET_DEVICE_ADDRESS, NULL, 0);
++		} else if (IS_NAME_SETTING(str)) {
++			/* remove the enter character */
++			str_len = strlen(&str[5]) - 1;
++			str_len = str_len > PIPE_GAP_DEVICE_NAME_SET_MAX_SIZE ?
++					PIPE_GAP_DEVICE_NAME_SET_MAX_SIZE :
++					str_len;
++			aci_send_cmd(ACI_CMD_SET_LOCAL_DATA, &str[5], str_len);
++		} else if (IS_ECHO_DATA(str)) {
++			str_len  = strlen(&str[5]) - 1;
++			str_len = PIPE_UART_OVER_BTLE_UART_TX_TX_MAX_SIZE >
++					str_len ? str_len :
++					PIPE_UART_OVER_BTLE_UART_TX_TX_MAX_SIZE;
++			aci_send_cmd(ACI_CMD_SEND_DATA, &str[5], str_len);
++		} else if (IS_VERSION_GETTING(str)) {
++			aci_send_cmd(ACI_CMD_GET_DEVICE_VERSION, NULL, 0);
++		}
++	}
++	pthread_exit(0);
++}
++
++
++void *event_handle(void *argv)
++{
++	for (;;) {
++		aci_event_handle_loop();
++		usleep(10000);
++	}
++	pthread_exit(0);
++}
++
++int main(void)
++{
++	/* Default: mode 0, speed 500k, bit 8 */
++	struct spi_config config = {
++		.mode = 0,
++		.speed = 500000,
++		.bits = 8,
++		.device = "/dev/spidev2.0"
++	};
++
++	/* Broadcast parameter setting */
++	/* Default: no timeout, advertising interval is 50ms */
++	adv_params.timeout = 0;
++	adv_params.adv_interval = 0x0050;
++
++	set_hook_func();
++	spidev_init(&config);
++	
++	signal(SIGINT, app_exit);
++	pthread_create(&console_thread, NULL, console_handle, NULL);
++	pthread_create(&event_thread, NULL, event_handle, NULL);
++
++	pthread_join(console_thread, NULL);
++	pthread_join(event_thread, NULL);
++	printf("Application exit!\n");
++	return 0;
++}
+diff -ruN kong/Makefile blep/Makefile
+--- kong/Makefile	1970-01-01 08:00:00.000000000 +0800
++++ blep/Makefile	2019-04-05 22:48:10.767357251 +0800
+@@ -0,0 +1,12 @@
++#CC = ../../host/usr/bin/aarch64-linux-gnu-gcc
++LIBS = -lpthread
++OBJS = acilib.o blep.o
++
++blep_demo : $(OBJS)
++	$(CC) -o $@ $^ $(LIBS)
++
++%.o : %.c
++	$(CC) -c $< -o $@ $(LIBS)
++
++clean :
++	rm -rf *.o blep_demo
+diff -ruN kong/services.h blep/services.h
+--- kong/services.h	1970-01-01 08:00:00.000000000 +0800
++++ blep/services.h	2019-04-05 23:01:49.817692583 +0800
+@@ -0,0 +1,286 @@
++/**
++* This file is autogenerated by nRFgo Studio 1.21.1.3
++*/
++
++#ifndef SETUP_MESSAGES_H__
++#define SETUP_MESSAGES_H__
++
++#define SETUP_ID 0
++#define SETUP_FORMAT 3 /** nRF8001 D */
++#define ACI_DYNAMIC_DATA_SIZE 283
++
++/* Service: Gap - Characteristic: Device name - Pipe: SET */
++#define PIPE_GAP_DEVICE_NAME_SET          1
++#define PIPE_GAP_DEVICE_NAME_SET_MAX_SIZE 16
++
++/* Service: GATT - Characteristic: Service Changed - Pipe: TX_ACK */
++#define PIPE_GATT_SERVICE_CHANGED_TX_ACK          2
++#define PIPE_GATT_SERVICE_CHANGED_TX_ACK_MAX_SIZE 4
++
++/* Service: Device Information - Characteristic: Hardware Revision String - Pipe: SET */
++#define PIPE_DEVICE_INFORMATION_HARDWARE_REVISION_STRING_SET          3
++#define PIPE_DEVICE_INFORMATION_HARDWARE_REVISION_STRING_SET_MAX_SIZE 9
++
++/* Service: Device Information - Characteristic: Manufacturer Name String - Pipe: SET */
++#define PIPE_DEVICE_INFORMATION_MANUFACTURER_NAME_STRING_SET          4
++#define PIPE_DEVICE_INFORMATION_MANUFACTURER_NAME_STRING_SET_MAX_SIZE 20
++
++/* Service: Device Information - Characteristic: Model Number String - Pipe: SET */
++#define PIPE_DEVICE_INFORMATION_MODEL_NUMBER_STRING_SET          5
++#define PIPE_DEVICE_INFORMATION_MODEL_NUMBER_STRING_SET_MAX_SIZE 8
++
++/* Service: Device Information - Characteristic: Firmware Revision String - Pipe: SET */
++#define PIPE_DEVICE_INFORMATION_FIRMWARE_REVISION_STRING_SET          6
++#define PIPE_DEVICE_INFORMATION_FIRMWARE_REVISION_STRING_SET_MAX_SIZE 4
++
++/* Service: Device Information - Characteristic: PNP_ID - Pipe: SET */
++#define PIPE_DEVICE_INFORMATION_PNP_ID_SET          7
++#define PIPE_DEVICE_INFORMATION_PNP_ID_SET_MAX_SIZE 7
++
++/* Service: UART over BTLE - Characteristic: UART RX - Pipe: RX */
++#define PIPE_UART_OVER_BTLE_UART_RX_RX          8
++#define PIPE_UART_OVER_BTLE_UART_RX_RX_MAX_SIZE 20
++
++/* Service: UART over BTLE - Characteristic: UART TX - Pipe: TX */
++#define PIPE_UART_OVER_BTLE_UART_TX_TX          9
++#define PIPE_UART_OVER_BTLE_UART_TX_TX_MAX_SIZE 20
++
++/* Service: UART over BTLE - Characteristic: UART Control Point - Pipe: TX */
++#define PIPE_UART_OVER_BTLE_UART_CONTROL_POINT_TX          10
++#define PIPE_UART_OVER_BTLE_UART_CONTROL_POINT_TX_MAX_SIZE 9
++
++/* Service: UART over BTLE - Characteristic: UART Control Point - Pipe: RX */
++#define PIPE_UART_OVER_BTLE_UART_CONTROL_POINT_RX          11
++#define PIPE_UART_OVER_BTLE_UART_CONTROL_POINT_RX_MAX_SIZE 9
++
++/* Service: UART over BTLE - Characteristic: UART Link Timing Current - Pipe: SET */
++#define PIPE_UART_OVER_BTLE_UART_LINK_TIMING_CURRENT_SET          12
++#define PIPE_UART_OVER_BTLE_UART_LINK_TIMING_CURRENT_SET_MAX_SIZE 6
++
++
++#define NUMBER_OF_PIPES 12
++
++#define SERVICES_PIPE_TYPE_MAPPING_CONTENT {\
++  {ACI_STORE_LOCAL, ACI_SET},   \
++  {ACI_STORE_LOCAL, ACI_TX_ACK},   \
++  {ACI_STORE_LOCAL, ACI_SET},   \
++  {ACI_STORE_LOCAL, ACI_SET},   \
++  {ACI_STORE_LOCAL, ACI_SET},   \
++  {ACI_STORE_LOCAL, ACI_SET},   \
++  {ACI_STORE_LOCAL, ACI_SET},   \
++  {ACI_STORE_LOCAL, ACI_RX},   \
++  {ACI_STORE_LOCAL, ACI_TX},   \
++  {ACI_STORE_LOCAL, ACI_TX},   \
++  {ACI_STORE_LOCAL, ACI_RX},   \
++  {ACI_STORE_LOCAL, ACI_SET},   \
++}
++
++#define GAP_PPCP_MAX_CONN_INT 0x12 /**< Maximum connection interval as a multiple of 1.25 msec , 0xFFFF means no specific value requested */
++#define GAP_PPCP_MIN_CONN_INT  0xa /**< Minimum connection interval as a multiple of 1.25 msec , 0xFFFF means no specific value requested */
++#define GAP_PPCP_SLAVE_LATENCY 0
++#define GAP_PPCP_CONN_TIMEOUT 0xa /** Connection Supervision timeout multiplier as a multiple of 10msec, 0xFFFF means no specific value requested */
++
++#define NB_SETUP_MESSAGES 34
++#define SETUP_MESSAGES_CONTENT {\
++    {0x00,\
++        {\
++            0x07,0x06,0x00,0x00,0x03,0x02,0x42,0x07,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x10,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0b,0x00,0x0c,0x01,0x01,0x00,0x00,0x06,0x00,0x00,\
++            0x90,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x10,0x1c,0x01,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,\
++            0x00,0x00,0x00,0x10,0x00,0x00,0x00,0x04,0x00,0x90,0x01,0xff,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x10,0x38,0xff,0xff,0x02,0x58,0x0a,0x05,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x00,\
++            0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x05,0x06,0x10,0x54,0x00,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0x00,0x04,0x04,0x02,0x02,0x00,0x01,0x28,0x00,0x01,0x00,0x18,0x04,0x04,0x05,0x05,0x00,\
++            0x02,0x28,0x03,0x01,0x0e,0x03,0x00,0x00,0x2a,0x04,0x14,0x10,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0x1c,0x06,0x00,0x03,0x2a,0x00,0x01,0x4d,0x69,0x6b,0x72,0x6f,0x45,0x73,0x65,0x6d,0x69,\
++            0x2e,0x63,0x6f,0x6d,0x00,0x00,0x04,0x04,0x05,0x05,0x00,0x04,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0x38,0x28,0x03,0x01,0x02,0x05,0x00,0x01,0x2a,0x06,0x04,0x03,0x02,0x00,0x05,0x2a,0x01,\
++            0x01,0x80,0x00,0x04,0x04,0x05,0x05,0x00,0x06,0x28,0x03,0x01,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0x54,0x02,0x07,0x00,0x04,0x2a,0x06,0x04,0x09,0x08,0x00,0x07,0x2a,0x04,0x01,0x0a,0x00,\
++            0x12,0x00,0x00,0x00,0x0a,0x00,0x04,0x04,0x02,0x02,0x00,0x08,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0x70,0x28,0x00,0x01,0x01,0x18,0x04,0x04,0x05,0x05,0x00,0x09,0x28,0x03,0x01,0x22,0x0a,\
++            0x00,0x05,0x2a,0x26,0x04,0x05,0x04,0x00,0x0a,0x2a,0x05,0x01,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0x8c,0x00,0x00,0x00,0x00,0x46,0x14,0x03,0x02,0x00,0x0b,0x29,0x02,0x01,0x00,0x00,0x04,\
++            0x04,0x02,0x02,0x00,0x0c,0x28,0x00,0x01,0x0a,0x18,0x04,0x04,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0xa8,0x05,0x05,0x00,0x0d,0x28,0x03,0x01,0x02,0x0e,0x00,0x27,0x2a,0x04,0x04,0x09,0x01,\
++            0x00,0x0e,0x2a,0x27,0x01,0x0a,0x00,0x00,0x00,0x00,0x00,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0xc4,0x00,0x00,0x04,0x04,0x05,0x05,0x00,0x0f,0x28,0x03,0x01,0x02,0x10,0x00,0x29,0x2a,\
++            0x04,0x04,0x14,0x02,0x00,0x10,0x2a,0x29,0x01,0x30,0x31,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0xe0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,\
++            0x00,0x04,0x04,0x05,0x05,0x00,0x11,0x28,0x03,0x01,0x02,0x12,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x20,0xfc,0x00,0x24,0x2a,0x04,0x04,0x08,0x02,0x00,0x12,0x2a,0x24,0x01,0x31,0x32,0x00,0x00,\
++            0x00,0x00,0x00,0x00,0x04,0x04,0x05,0x05,0x00,0x13,0x28,0x03,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x21,0x18,0x01,0x02,0x14,0x00,0x26,0x2a,0x04,0x04,0x04,0x02,0x00,0x14,0x2a,0x26,0x01,0x33,\
++            0x34,0x00,0x00,0x04,0x04,0x05,0x05,0x00,0x15,0x28,0x03,0x01,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x21,0x34,0x02,0x16,0x00,0x50,0x2a,0x06,0x04,0x08,0x07,0x00,0x16,0x2a,0x50,0x01,0x02,0x00,\
++            0x00,0xaa,0xaa,0xcc,0xcc,0x04,0x04,0x10,0x10,0x00,0x17,0x28,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x21,0x50,0x00,0x01,0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x01,0x00,\
++            0x40,0x6e,0x04,0x04,0x13,0x13,0x00,0x18,0x28,0x03,0x01,0x04,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x21,0x6c,0x19,0x00,0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x02,0x00,\
++            0x40,0x6e,0x44,0x10,0x14,0x00,0x00,0x19,0x00,0x02,0x02,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x21,0x88,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,\
++            0x00,0x00,0x00,0x04,0x04,0x13,0x13,0x00,0x1a,0x28,0x03,0x01,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x21,0xa4,0x10,0x1b,0x00,0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,\
++            0x00,0x40,0x6e,0x14,0x00,0x14,0x00,0x00,0x1b,0x00,0x03,0x02,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x21,0xc0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,\
++            0x00,0x00,0x00,0x00,0x46,0x14,0x03,0x02,0x00,0x1c,0x29,0x02,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x21,0xdc,0x01,0x00,0x00,0x04,0x04,0x13,0x13,0x00,0x1d,0x28,0x03,0x01,0x14,0x1e,0x00,0x9e,\
++            0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x04,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x21,0xf8,0x00,0x40,0x6e,0x54,0x10,0x09,0x00,0x00,0x1e,0x00,0x04,0x02,0x00,0x00,0x00,0x00,\
++            0x00,0x00,0x00,0x00,0x00,0x46,0x14,0x03,0x02,0x00,0x1f,0x29,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x22,0x14,0x02,0x01,0x00,0x00,0x04,0x04,0x13,0x13,0x00,0x20,0x28,0x03,0x01,0x02,0x21,0x00,\
++            0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x17,0x06,0x22,0x30,0x05,0x00,0x40,0x6e,0x06,0x04,0x07,0x06,0x00,0x21,0x00,0x05,0x02,0xff,0xff,0xff,\
++            0xff,0xff,0xff,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x40,0x00,0x2a,0x00,0x01,0x00,0x80,0x04,0x00,0x03,0x00,0x00,0x2a,0x05,0x01,0x00,0x04,0x04,\
++            0x00,0x0a,0x00,0x0b,0x2a,0x27,0x01,0x00,0x80,0x04,0x00,0x0e,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x40,0x1c,0x00,0x00,0x2a,0x29,0x01,0x00,0x80,0x04,0x00,0x10,0x00,0x00,0x2a,0x24,0x01,0x00,\
++            0x80,0x04,0x00,0x12,0x00,0x00,0x2a,0x26,0x01,0x00,0x80,0x04,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x40,0x38,0x00,0x14,0x00,0x00,0x2a,0x50,0x01,0x00,0x80,0x04,0x00,0x16,0x00,0x00,0x00,0x02,\
++            0x02,0x00,0x08,0x04,0x00,0x19,0x00,0x00,0x00,0x03,0x02,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1d,0x06,0x40,0x54,0x02,0x04,0x00,0x1b,0x00,0x1c,0x00,0x04,0x02,0x00,0x0a,0x04,0x00,0x1e,0x00,0x1f,\
++            0x00,0x05,0x02,0x00,0x80,0x04,0x00,0x21,0x00,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x13,0x06,0x50,0x00,0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x00,0x00,0x40,0x6e,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x1f,0x06,0x60,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,\
++            0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x08,0x06,0x60,0x1c,0x00,0x00,0x00,0x00,0x00,\
++        },\
++    },\
++    {0x00,\
++        {\
++            0x06,0x06,0xf0,0x00,0x03,0x69,0x22,\
++        },\
++    },\
++}
++
++#endif

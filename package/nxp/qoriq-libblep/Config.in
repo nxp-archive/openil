@@ -1,0 +1,5 @@
+config BR2_PACKAGE_QORIQ_LIBBLEP
+	bool "qoriq-libblep"
+	default n
+	help
+	  MikroBUS: blep click board(nRF8001)

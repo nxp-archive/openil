@@ -540,6 +540,7 @@ F:	package/nxp/qoriq-ddr-phy/
 F:	package/nxp/qoriq-eth-phy/
 F:	package/nxp/qoriq-fmucode/
 F:	package/nxp/qoriq-libbee/
+F:	package/nxp/qoriq-libblep/
 
 N:	Chris Packham <judge.packham@gmail.com>
 F:	package/gstreamer1/gst1-shark/
