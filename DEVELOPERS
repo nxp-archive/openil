@@ -543,6 +543,7 @@ F:	package/nxp/qoriq-libbee/
 F:	package/nxp/qoriq-libblep/
 F:	package/nxp/qoriq-libnfc-nci/
 F:	package/nxp/qoriq-mc-fw/
+F:	package/nxp/qoriq-mc-utils/
 
 N:	Chris Packham <judge.packham@gmail.com>
 F:	package/gstreamer1/gst1-shark/

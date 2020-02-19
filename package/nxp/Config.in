@@ -10,5 +10,6 @@ source "package/nxp/qoriq-libbee/Config.in"
 source "package/nxp/qoriq-libblep/Config.in"
 source "package/nxp/qoriq-libnfc-nci/Config.in"
 source "package/nxp/qoriq-mc-fw/Config.in"
+source "package/nxp/qoriq-mc-utils/Config.in"
 
 endmenu
