@@ -8,5 +8,6 @@ source "package/nxp/qoriq-eth-phy/Config.in"
 source "package/nxp/qoriq-fmucode/Config.in"
 source "package/nxp/qoriq-libbee/Config.in"
 source "package/nxp/qoriq-libblep/Config.in"
+source "package/nxp/qoriq-libnfc-nci/Config.in"
 
 endmenu

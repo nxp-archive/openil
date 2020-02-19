@@ -1,0 +1,7 @@
+config BR2_PACKAGE_QORIQ_LIBNFC_NCI
+	bool "qoriq-libnfc-nci"
+	default n
+	help
+	  Linux NFC stack for NCI based NXP NFC Controllers.
+
+	  https://www.nxp.com/products/identification-and-security/nfc/nfc-reader-ics:NFC-READER

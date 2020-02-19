@@ -1,0 +1,12 @@
+diff -ruN linux_libnfc-nci-R2.4-base/src/halimpl/pn54x/utils/phNxpConfig.cpp linux_libnfc-nci-R2.4/src/halimpl/pn54x/utils/phNxpConfig.cpp
+--- linux_libnfc-nci-R2.4-base/src/halimpl/pn54x/utils/phNxpConfig.cpp	2019-01-22 14:39:19.187204171 +0800
++++ linux_libnfc-nci-R2.4/src/halimpl/pn54x/utils/phNxpConfig.cpp	2019-01-22 14:40:14.060165758 +0800
+@@ -46,6 +46,8 @@
+
+ #include <phNxpLog.h>
+
++#define GENERIC_TARGET 1
++
+ #if GENERIC_TARGET
+ const char alternative_config_path[] = "/data/nfc/";
+ #else
