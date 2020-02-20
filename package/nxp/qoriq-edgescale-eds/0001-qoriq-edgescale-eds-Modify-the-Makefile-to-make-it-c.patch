@@ -1,0 +1,247 @@
+From 5ab328471f005befe0002a0f9b6f916852f73d55 Mon Sep 17 00:00:00 2001
+From: Changming Huang <jerry.huang@nxp.com>
+Date: Thu, 4 Apr 2019 17:46:59 +0800
+Subject: [PATCH 1/3] qoriq-edgescale-eds: Modify the Makefile to make it can
+ compiles in openil
+
+Signed-off-by: Xianyu Wei <xianyu.wei@nxp.com>
+Signed-off-by: Changming Huang <jerry.huang@nxp.com>
+---
+ Makefile            | 29 ++++++++++++-----------------
+ cert-agent/Makefile | 37 ++++++++++++++++++++++++-------------
+ etc/Makefile        | 10 +++++-----
+ mq-agent/Makefile   | 34 ++++++++++++++++++++++------------
+ startup/Makefile    | 14 +++++++-------
+ 5 files changed, 70 insertions(+), 54 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index eb84d57..cfd1aff 100644
+--- a/Makefile
++++ b/Makefile
+@@ -4,24 +4,27 @@
+ #
+ #####################################
+ 
+-INSTALL_DIR ?= /
++INSTALL_DIR := $(DESTDIR)
+ INSTALL ?= install
+ 
+-GOROOT ?= $(HOME)/go
+-GOPATH ?= $(HOME)/gopathdir
+-GOVERSION ?= 1.9.4
+-GOFILE ?= go$(GOVERSION).linux-amd64.tar.gz
++GO_ROOT := $(GOROOT)
++GO_PATH := $(GOPATH)
+ 
+-TARGETS := cert-agent mq-agent startup etc
++GO_CMD = $(GO_ROOT)/bin/go
++GO_BUILD = $(GO_CMD) build
++GO_GET = $(GO_CMD) get
++GO = $(GO_CMD)
+ 
+-.PHONY: $(TARGETS) clean all install
++export GO
+ 
++.PHONY: $(TARGETS) clean all install
+ 
+-all: goenv
++TARGETS := cert-agent mq-agent startup etc
++all:
+ 	for dir in $(TARGETS);\
+ 	do \
+ 		echo build target $$dir; \
+-		$(MAKE) -C $$dir GOROOT=$(GOROOT) GOPATH=$(GOPATH) PATH=$(GOROOT)/bin:$(PATH) || exit 1; \
++		$(MAKE) -C $$dir || exit 1; \
+ 	done
+ 
+ 
+@@ -36,14 +39,6 @@ $(TARGETS):
+ 	@echo build $@
+ 	$(MAKE) -C $@ 
+ 
+-goenv:
+-	$(GOROOT)/bin/go version | grep $(GOVERSION); \
+-	if [ "$$?" != "0" ]; then  \
+-		wget -c https://redirector.gvt1.com/edgedl/go/$(GOFILE); \
+-		rm -rf $(GOROOT) && tar -C $(HOME) -xzf $(GOFILE); \
+-	fi
+-	usr=`whoami`; \
+-
+ clean:
+ 	for dir in $(TARGETS);\
+ 	do \
+diff --git a/cert-agent/Makefile b/cert-agent/Makefile
+index 475b938..eb9b585 100644
+--- a/cert-agent/Makefile
++++ b/cert-agent/Makefile
+@@ -5,24 +5,35 @@
+ #####################################
+ 
+ INSTALL_DIR ?= /
++ifdef DESTDIR
++INSTALL_DIR := $(DESTDIR)
++endif
+ INSTALL ?= install
+ 
+-SECURE_OBJ_PATH ?= $(shell pwd)/../../secure_obj/securekey_lib/out/export
+-OPENSSL_PATH ?= $(shell pwd)/../../openssl
+-OPTEE_CLIENT_EXPORT ?= $(shell pwd)/../../optee_client/out/libteec
++EDS_ARCH := arm64
++ifdef ARCH
++EDS_ARCH := $(ARCH)
++endif
+ 
+-ARCH ?= arm64
+-CROSS_COMPILE ?= aarch64-linux-gnu-
+-CC := ${CROSS_COMPILE}gcc
+-CGO_LDFLAGS += -L${SECURE_OBJ_PATH}/lib -L${OPENSSL_PATH}/lib -L${OPTEE_CLIENT_EXPORT}
+-CGO_CFLAGS += -I${SECURE_OBJ_PATH}/include -I${OPENSSL_PATH}/include
+-GOBUILDTAGS ?= default
++EDS_CROSS_COMPILE := aarch64-linux-gnu-
++ifdef CROSS_COMPILE
++EDS_CROSS_COMPILE := $(CROSS_COMPILE)
++endif
++CC := ${EDS_CROSS_COMPILE}gcc
+ 
++GO_CMD := go
++ifdef GO
++GO_CMD := $(GO)
++endif
++GO_BUILD := $(GO_CMD) build
++GO_GET := $(GO_CMD) get
++GOBUILDTAGS ?= default
+ 
+ all:
+-	go get github.com/edgeiot/est-client-go
+-	go get gopkg.in/yaml.v2
+-	env CGO_ENABLED=1 GOOS=linux GOARCH=${ARCH} CC=${CC} CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS}" go build -o cert-agent --ldflags="-w -s" --tags "${GOBUILDTAGS}"
++	$(GO_GET) github.com/edgeiot/est-client-go
++	$(GO_GET) gopkg.in/yaml.v2
++	$(GO_CMD) version
++	$(GO_BUILD) --ldflags="-w -s" --tags "${GOBUILDTAGS}"
+ 
+ clean:
+ 	rm -f cert-agent
+@@ -32,4 +43,4 @@ install:
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/conf
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/doc
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/log
+-	sudo cp -r cert-agent $(INSTALL_DIR)/usr/local/edgescale/bin
++	cp -r cert-agent $(INSTALL_DIR)/usr/local/edgescale/bin
+diff --git a/etc/Makefile b/etc/Makefile
+index 4303307..2166426 100644
+--- a/etc/Makefile
++++ b/etc/Makefile
+@@ -4,7 +4,7 @@
+ #
+ #####################################
+ 
+-INSTALL_DIR ?= /
++INSTALL_DIR := $(DESTDIR)
+ INSTALL ?= install
+ 
+ clean:
+@@ -15,10 +15,10 @@ install:
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/etc/rc3.d
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/etc/rc5.d
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/conf
+-	sudo cp -r edgescale-version $(INSTALL_DIR)/usr/local/edgescale/conf
+-	sudo cp -r edgescale $(INSTALL_DIR)/etc/init.d/
+-	sudo ln -sf ../init.d/edgescale $(INSTALL_DIR)/etc/rc3.d/S09edgescale
+-	sudo ln -sf ../init.d/edgescale $(INSTALL_DIR)/etc/rc5.d/S09edgescale
++	cp -r edgescale-version $(INSTALL_DIR)/usr/local/edgescale/conf
++	cp -r edgescale $(INSTALL_DIR)/etc/init.d/
++	ln -sf ../init.d/edgescale $(INSTALL_DIR)/etc/rc3.d/S09edgescale
++	ln -sf ../init.d/edgescale $(INSTALL_DIR)/etc/rc5.d/S09edgescale
+ 
+ 
+ .PHONY: clean install
+diff --git a/mq-agent/Makefile b/mq-agent/Makefile
+index 7687fcf..077dbd2 100644
+--- a/mq-agent/Makefile
++++ b/mq-agent/Makefile
+@@ -5,28 +5,38 @@
+ #####################################
+ 
+ INSTALL_DIR ?= /
++ifdef DESTDIR
++INSTALL_DIR := $(DESTDIR)
++endif
+ INSTALL ?= install
+-ARCH ?= arm64
++
++EDS_ARCH := arm64
++ifdef ARCH
++EDS_ARCH := $(ARCH)
++endif
+ GOBUILDTAGS ?= default
+-OPENSSL_PATH ?= $(shell pwd)/../../openssl
+-CROSS_COMPILE ?= aarch64-linux-gnu-
+-CC := ${CROSS_COMPILE}gcc
+-CGO_LDFLAGS += -L${OPENSSL_PATH}/lib
+-CGO_CFLAGS += -I${OPENSSL_PATH}/include
++
++GO_CMD := go
++ifdef GO
++GO_CMD := $(GO)
++endif
++GO_BUILD := $(GO_CMD) build
++GO_GET := $(GO_CMD) get
++
+ 
+ all:
+ 	test -d ${GOPATH}/src/golang.org/x/sys || git clone https://github.com/golang/sys  ${GOPATH}/src/golang.org/x/sys
+ 	test -d ${GOPATH}/src/golang.org/x/crypto || git clone https://github.com/golang/crypto ${GOPATH}/src/golang.org/x/crypto
+ 	test -d ${GOPATH}/src/golang.org/x/net || git clone https://github.com/golang/net ${GOPATH}/src/golang.org/x/net
+-	go get github.com/sirupsen/logrus
+-	go get github.com/sigma/systemstat
+-	go get github.com/eclipse/paho.mqtt.golang
+-	go get github.com/shirou/gopsutil/disk
+-	env GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=1  CC=${CC} CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS}"  go build --ldflags="-w -s" --tags "${GOBUILDTAGS}"
++	$(GO_GET) github.com/sirupsen/logrus
++	$(GO_GET) github.com/sigma/systemstat
++	$(GO_GET) github.com/eclipse/paho.mqtt.golang
++	$(GO_GET) github.com/shirou/gopsutil/disk
++	$(GO_BUILD) --ldflags="-w -s" --tags "${GOBUILDTAGS}"
+ 
+ clean:
+ 	rm -f mq-agent
+ 
+ install:
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/bin
+-	sudo cp -r mq-agent $(INSTALL_DIR)/usr/local/edgescale/bin
++	cp -r mq-agent $(INSTALL_DIR)/usr/local/edgescale/bin
+diff --git a/startup/Makefile b/startup/Makefile
+index 9a3e4b5..0563400 100644
+--- a/startup/Makefile
++++ b/startup/Makefile
+@@ -4,7 +4,7 @@
+ #
+ #####################################
+ 
+-INSTALL_DIR ?= /
++INSTALL_DIR := $(DESTDIR)
+ INSTALL ?= install
+ 
+ clean:
+@@ -14,11 +14,11 @@ install:
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/conf
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/doc
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/log
+-	sudo cp -r env.sh $(INSTALL_DIR)/usr/local/edgescale/bin/
+-	sudo cp -r startup.sh $(INSTALL_DIR)/usr/local/edgescale/bin/
+-	sudo cp -r ota-updateSet $(INSTALL_DIR)/usr/local/edgescale/bin/
+-	sudo cp -r ota-statuscheck $(INSTALL_DIR)/usr/local/edgescale/bin/
+-	sudo cp -f mmc-check.sh $(INSTALL_DIR)/usr/local/edgescale/bin/
+-	sudo cp -f factory_reset.sh $(INSTALL_DIR)/usr/local/edgescale/bin/
++	cp -r env.sh $(INSTALL_DIR)/usr/local/edgescale/bin/
++	cp -r startup.sh $(INSTALL_DIR)/usr/local/edgescale/bin/
++	cp -r ota-updateSet $(INSTALL_DIR)/usr/local/edgescale/bin/
++	cp -r ota-statuscheck $(INSTALL_DIR)/usr/local/edgescale/bin/
++	cp -f mmc-check.sh $(INSTALL_DIR)/usr/local/edgescale/bin/
++	cp -f factory_reset.sh $(INSTALL_DIR)/usr/local/edgescale/bin/
+ 
+ .PHONY: clean install
+-- 
+2.7.4
+

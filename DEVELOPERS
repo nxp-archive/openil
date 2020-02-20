@@ -537,6 +537,7 @@ F:	configs/nxp_ls1028ardb-64b-xspi_defconfig
 F:	package/nxp/qoriq-bm-uboot/
 F:	package/nxp/qoriq-cadence-dp-firmware/
 F:	package/nxp/qoriq-ddr-phy/
+F:	package/nxp/qoriq-edgescale-eds/
 F:	package/nxp/qoriq-eth-phy/
 F:	package/nxp/qoriq-fmucode/
 F:	package/nxp/qoriq-libbee/

@@ -1,0 +1,31 @@
+From 209ac144d2d11a27c6fbf70755838f837a670138 Mon Sep 17 00:00:00 2001
+From: Xianyu Wei <xianyu.wei@nxp.com>
+Date: Wed, 13 Mar 2019 14:26:48 +0800
+Subject: [PATCH 2/3] qoriq-edgescale-eds: Change the name of the edgescale
+ system init script.
+
+Signed-off-by: Xianyu Wei <xianyu.wei@nxp.com>
+---
+ etc/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/etc/Makefile b/etc/Makefile
+index 2166426..8b87944 100644
+--- a/etc/Makefile
++++ b/etc/Makefile
+@@ -16,9 +16,9 @@ install:
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/etc/rc5.d
+ 	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/conf
+ 	cp -r edgescale-version $(INSTALL_DIR)/usr/local/edgescale/conf
+-	cp -r edgescale $(INSTALL_DIR)/etc/init.d/
+-	ln -sf ../init.d/edgescale $(INSTALL_DIR)/etc/rc3.d/S09edgescale
+-	ln -sf ../init.d/edgescale $(INSTALL_DIR)/etc/rc5.d/S09edgescale
++	cp -r edgescale $(INSTALL_DIR)/etc/init.d/S90edgescale
++	ln -sf ../init.d/S90edgescale $(INSTALL_DIR)/etc/rc3.d/S09edgescale
++	ln -sf ../init.d/S90edgescale $(INSTALL_DIR)/etc/rc5.d/S09edgescale
+ 
+ 
+ .PHONY: clean install
+-- 
+2.7.4
+

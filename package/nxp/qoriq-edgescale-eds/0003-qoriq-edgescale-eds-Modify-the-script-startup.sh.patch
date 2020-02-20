@@ -1,0 +1,50 @@
+From 049526226219eed6dfc2a370d74d8b44f0ba28a4 Mon Sep 17 00:00:00 2001
+From: Xianyu Wei <xianyu.wei@nxp.com>
+Date: Wed, 13 Mar 2019 14:35:49 +0800
+Subject: [PATCH 3/3] qoriq-edgescale-eds: Modify the script startup.sh.
+
+Sometimes it is not necessary to update the certificate,
+so delete the statement that determines whether 'update-ca-certificates' succeeded.
+
+Signed-off-by: Xianyu Wei <xianyu.wei@nxp.com>
+---
+ startup/startup.sh | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
+
+diff --git a/startup/startup.sh b/startup/startup.sh
+index 083fffd..5ec09f6 100755
+--- a/startup/startup.sh
++++ b/startup/startup.sh
+@@ -41,19 +41,17 @@ else
+ 		update-ca-certificates
+ fi
+ 
+-if [ $? -eq 0 ];then
+-    # report public IP Address to cloud
+-    push_publicip
++# report public IP Address to cloud
++push_publicip
+ 
+-    # starting kubelet
+-    ./k8s.sh
++# starting kubelet
++./k8s.sh
+ 
+-    # check OTA status
+-    ./ota-statuscheck &
++# check OTA status
++./ota-statuscheck &
+ 
+-    # check MMC blocks health status
+-    ./mmc-check.sh &
++# check MMC blocks health status
++./mmc-check.sh &
+ 
+-    # starting mq-agent
+-    start-stop-daemon --start --startas /usr/local/edgescale/bin/mq-agent --name mq-agent -m --pidfile /var/run/mq-agent.pid -b
+-fi
++# starting mq-agent
++start-stop-daemon --start --startas /usr/local/edgescale/bin/mq-agent --name mq-agent -m --pidfile /var/run/mq-agent.pid -b
+-- 
+2.7.4
+

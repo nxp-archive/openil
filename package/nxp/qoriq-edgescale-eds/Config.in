@@ -1,0 +1,6 @@
+config BR2_PACKAGE_QORIQ_EDGESCALE_EDS
+	bool "qorio-edgescale-eds"
+	help
+	  The qoriq edgescale eds. 
+
+	  https://bitbucket.sw.nxp.com/projects/DCCA/repos/qoriq-edgescale-eds/browse
