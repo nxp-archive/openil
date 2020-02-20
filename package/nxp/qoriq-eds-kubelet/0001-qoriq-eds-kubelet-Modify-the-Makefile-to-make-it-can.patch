@@ -1,0 +1,121 @@
+From 89a23e8ac5d2d1f8c51b37c645340e7983285229 Mon Sep 17 00:00:00 2001
+From: Xianyu Wei <xianyu.wei@nxp.com>
+Date: Fri, 8 Mar 2019 11:38:41 +0800
+Subject: [PATCH] qoriq-eds-kubelet: Modify the Makefile to make it can
+ compiles in openil
+
+Signed-off-by: Xianyu Wei <xianyu.wei@nxp.com>
+---
+ Makefile | 75 ++++++++++++++++++++++++++++++++--------------------------------
+ 1 file changed, 37 insertions(+), 38 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 913162f..dc1639b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -4,65 +4,64 @@
+ #
+ #####################################
+ 
+-INSTALL_DIR ?= /
++ifdef DESTDIR
++INSTALL_DIR := $(DESTDIR)
++endif
+ INSTALL ?= install
+ 
+-GOROOT ?= $(HOME)/go
+-GOPATH := $(shell pwd)
++GO_ROOT := $(GOROOT)
++GO_PATH := $(GOPATH)
+ 
+-GO_VERSION ?= 1.8.5
+-GO_URL ?= https://redirector.gvt1.com/edgedl/go
+-HOST_ARCH ?= $(shell uname -m | sed -e s/i.86/386/ -e s/x86_64/amd64/ \
+-                                   -e s/i386/386/ -e s/aarch64.*/arm64/ )
++GO_CMD = $(GO_ROOT)/bin/go
++GO_BUILD = $(GO_CMD) build
++GO_GET = $(GO_CMD) get
++GO = $(GO_CMD)
+ 
+ KUBE_VERSION ?= 1.7.0
+-ARCH ?= arm64
+ 
+-# Below ENVs should be overrided
+-
+-CROSS_COMPILE ?= aarch64-linux-gnu-
+-CC := ${CROSS_COMPILE}gcc
++EDS_ARCH := arm64
++ifdef ARCH
++EDS_ARCH := $(ARCH)
++endif
++EDS_CROSS_COMPILE := aarch64-linux-gnu-
++ifdef CROSS_COMPILE
++EDS_CROSS_COMPILE := $(CROSS_COMPILE)
++endif
++CC := ${EDS_CROSS_COMPILE}gcc
+ 
++export GO
+ 
+ kubelet:goenv fetch-kube
+-	export GOROOT=$(GOROOT) && \
+-	export GOPATH=$(GOPATH) && \
+-	export PATH=$(GOROOT)/bin:$(PATH) && \
+-	export CGO_ENABLED=1 GOOS=linux GOARCH=${ARCH} && \
+-	export CC=${CC}  && \
+-	cd $(GOPATH)/src/k8s.io/kubernetes && \
+-	go env && \
+-	go build -o $(GOPATH)/images/kubelet --ldflags="-w -s" cmd/kubelet/kubelet.go
++	cd $(GO_PATH)/src/k8s.io/kubernetes && \
++	$(GO_BUILD) -o $(GO_PATH)/images/kubelet --ldflags="-w -s" cmd/kubelet/kubelet.go
+ 
+ clean:
+-	cd $(GOPATH)/src/k8s.io/kubernetes && \
++	cd $(GO_PATH)/src/k8s.io/kubernetes && \
+ 	$(MAKE) clean
+ 
+ install:
+-	sudo $(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/bin
+-	sudo $(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/conf
+-	sudo $(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/doc
+-	sudo $(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/log
+-	sudo $(INSTALL) -d --mode 755 $(INSTALL_DIR)/etc/
+-	sudo cp -r $(GOPATH)/images/kubelet $(INSTALL_DIR)/usr/local/edgescale/bin
+-	sudo cp -r scripts/* $(INSTALL_DIR)/usr/local/edgescale/bin/
+-	sudo sed -i s/pause-arm64/pause-$(ARCH)/g $(INSTALL_DIR)/usr/local/edgescale/bin/k8s.sh
++	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/bin
++	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/conf
++	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/doc
++	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/usr/local/edgescale/log
++	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/etc/
++	$(INSTALL) -d --mode 755 $(INSTALL_DIR)/etc/kubernetes
++	cp -r $(GO_PATH)/images/kubelet $(INSTALL_DIR)/usr/local/edgescale/bin/
++	cp -r $(GO_PATH)/scripts/* $(INSTALL_DIR)/usr/local/edgescale/bin/
++	cp -r $(GO_PATH)/etc/kubernetes/* $(INSTALL_DIR)/etc/kubernetes/
++	sed -i s/pause-arm64/pause-$(EDS_ARCH)/g $(INSTALL_DIR)/usr/local/edgescale/bin/k8s.sh
+ 
+ goenv:
+-	if [ ! -f $(GOROOT)/bin/go ]; then  \
+-		wget -c $(GO_URL)/go$(GO_VERSION).linux-$(HOST_ARCH).tar.gz; \
+-		tar -C $(HOME) -xzf go$(GO_VERSION).linux-$(HOST_ARCH).tar.gz; \
+-	fi
+-	if [ ! -d $(GOPATH)/src/k8s.io ]; then  \
+-		mkdir -p $(GOPATH)/src/k8s.io; \
++	if [ ! -d $(GO_PATH)/src/k8s.io ]; then  \
++		mkdir -p $(GO_PATH)/src/k8s.io; \
+ 	fi
+-	mkdir -p $(GOPATH)/images
++	mkdir -p $(GO_PATH)/images
+ 
+ fetch-kube:
+-	if [ ! -f $(GOPATH)/src/k8s.io/kubernetes/pkg/version/version.go ]; then  \
++	if [ ! -f $(GO_PATH)/src/k8s.io/kubernetes/pkg/version/version.go ]; then  \
+ 		wget -c https://github.com/kubernetes/kubernetes/archive/v$(KUBE_VERSION).tar.gz; \
+ 		tar -xf v$(KUBE_VERSION).tar.gz; \
+-		mv kubernetes-$(KUBE_VERSION) $(GOPATH)/src/k8s.io/kubernetes; \
++		mv kubernetes-$(KUBE_VERSION) $(GO_PATH)/src/k8s.io/kubernetes; \
+ 	fi
+ 
+ .PHONY: kubelet clean install goenv fetch-kube
+-- 
+2.7.4
+

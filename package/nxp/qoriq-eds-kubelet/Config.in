@@ -1,0 +1,6 @@
+config BR2_PACKAGE_QORIQ_EDS_KUBELET
+	bool "qoriq-eds-kubelet"
+	help
+	  The edgescale kubelet. 
+
+	  https://bitbucket.sw.nxp.com/projects/DCCA/repos/qoriq-eds-kubelet/browse
