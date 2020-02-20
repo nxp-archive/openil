@@ -1,0 +1,6 @@
+config BR2_PACKAGE_QORIQ_EDS_BOOTSTRAP
+	bool "qoriq-eds-bootstrap"
+	help
+	  The qoriq eds bootstrap.
+
+	  https://bitbucket.sw.nxp.com/projects/DCCA/repos/qoriq-eds-bootstrap/browse
