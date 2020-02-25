@@ -2,5 +2,6 @@ menu "NXP QorIQ libraries"
 	depends on BR2_aarch64 || BR2_arm || BR2_powerpc64 || BR2_powerpc
 
 source "package/nxp/qoriq-cadence-dp-firmware/Config.in"
+source "package/nxp/qoriq-bm-uboot/Config.in"
 
 endmenu

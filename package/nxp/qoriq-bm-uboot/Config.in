@@ -1,0 +1,20 @@
+config BR2_PACKAGE_QORIQ_BM_UBOOT
+	bool "qoriq-bm-uboot"
+	select BR2_PACKAGE_HOST_DTC
+	help
+	  Baremetal OS framework running on a single
+	  physical processor. It's built based on Uboot
+	  and includs Hardware resource assignment,
+	  Interrupt, Inter-processor communication and
+	  other features. And the baremetal OS framework
+	  also provides APIs for customer development.
+
+if BR2_PACKAGE_QORIQ_BM_UBOOT
+
+config BR2_PACKAGE_QORIQ_BM_UBOOT_DEFCONFIG
+	string "The defconfig to build baremetal Uboot"
+
+config BR2_PACKAGE_QORIQ_BM_UBOOT_VERSION
+	string "Baremetal uboot version"
+
+endif
