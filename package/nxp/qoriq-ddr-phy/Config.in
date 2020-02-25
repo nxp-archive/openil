@@ -1,0 +1,11 @@
+config BR2_PACKAGE_QORIQ_DDR_PHY
+	bool "qoriq-ddr-phy"
+	help
+	  DDR PHY firmware for qoriq platforms
+
+if BR2_PACKAGE_QORIQ_DDR_PHY
+
+config BR2_PACKAGE_QORIQ_DDR_PHY_VERSION
+	string "qoriq-ddr-phy version"
+
+endif
