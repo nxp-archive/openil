@@ -1,0 +1,25 @@
+config BR2_PACKAGE_QORIQ_FMUCODE
+	bool "qoriq-fmucode"
+	help
+	  These are the microcode families of the Frame Manager
+	  hardware block in QorIQ products. Specific platforms
+	  require specific binaries, and those also have to
+	  further match specific software versions.
+
+	  IPACC IRAM Package Alpha Release 106_x_18
+	  DSAR IRAM Package Alpha Release 107_x_2
+	  IPACC + Next Generation CAPWAP  108_x_5
+
+if BR2_PACKAGE_QORIQ_FMUCODE
+
+config BR2_PACKAGE_QORIQ_FMUCODE_BIN
+	string "Custom Fmucode binary file"
+	help
+	  The fmucode tarball just includes the binaries of
+	  each platform. So the fmucode binary with specific
+	  version must be specified.
+
+config BR2_PACKAGE_QORIQ_FMUCODE_VERSION
+	string "fmucode version"
+
+endif
