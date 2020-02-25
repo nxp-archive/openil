@@ -339,6 +339,23 @@ config BR2_BINUTILS_VERSION_2_30_X
 	  current default version (2.31 or later) has been selected
 	  instead.
 
+config BR2_PACKAGE_HOST_RCW
+	bool "rcw package was renamed"
+	select BR2_LEGACY
+	help
+	  Because rcw package has been renamed to qoriq-rcw and moved
+	  to "nxp", option BR2_PACKAGE_HOST_RCW is removed, the option
+	  BR2_PACKAGE_HOST_QORIQ_RCW can be used for QorIQ platforms.
+
+config BR2_PACKAGE_HOST_RCW_CUSTOM_PATH
+	bool "RCW Source file paths was renamed"
+	select BR2_LEGACY
+	help
+	  Because rcw package has been renamed to qoriq-rcw and moved
+	  to "nxp", option BR2_PACKAGE_HOST_RCW_CUSTOM_PATH is removed,
+	  the option BR2_PACKAGE_HOST_QORIQ_RCW_CUSTOM_PATH can be
+	  used for QorIQ platforms.
+
 config BR2_PACKAGE_RPI_USERLAND_START_VCFILED
 	bool "rpi-userland start vcfiled was removed"
 	select BR2_LEGACY

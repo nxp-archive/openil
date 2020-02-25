@@ -1655,6 +1655,7 @@ F:	package/mrouted/
 F:	package/mtd/
 F:	package/mtools/
 F:	package/nginx-upload/
+F:	package/nxp/qoriq-rcw/
 F:	package/omniorb/
 F:	package/openresolv/
 F:	package/paxtest/
@@ -1675,7 +1676,6 @@ F:	package/python-pyrex/
 F:	package/python-tinyrpc/
 F:	package/python-txdbus/
 F:	package/raptor/
-F:	package/rcw/
 F:	package/rng-tools/
 F:	package/rsyslog/
 F:	package/setools/
