@@ -1,5 +1,6 @@
 config BR2_PACKAGE_SJA1105_PTP
 	bool "sja1105-ptp"
+	depends on BR2_PACKAGE_SJA1105_TOOL
 	help
-	This software implements a IEEE 1588 2-step End-to-End
-	transparent clock on SJA1105 switch.
+	  This software implements a IEEE 1588 2-step End-to-End
+	  transparent clock on SJA1105 switch.
