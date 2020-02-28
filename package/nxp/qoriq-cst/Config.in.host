@@ -1,0 +1,29 @@
+config BR2_PACKAGE_HOST_QORIQ_CST
+	bool "host qoriq-cst tool"
+	help
+	  CST tool providing the following tools:
+
+	  1. Key Generation
+		- gen_keys
+		- gen_drv_drbg
+		- gen_otpmk_drbg
+	  2. Header Creation
+		- create_hdr_pbi
+		- create_hdr_isbc
+		- create_hdr_esbc
+		- create_hdr_cf
+	  3. Signature Geneartion
+		- gen_sign
+		- sign_embed
+
+	  Wrapper scripts for invoking the Header creation tools have also been provided:
+	  1. uni_pbi (create_hdr_pbi)
+	  2. uni_sign (create_hdr_isbc and create_hdr_esbc)
+	  3. uni_cfsign (creat_hdr_cf)
+
+if BR2_PACKAGE_HOST_QORIQ_CST
+
+config BR2_PACKAGE_HOST_QORIQ_CST_VERSION
+	string "qoriq-cst version"
+
+endif
