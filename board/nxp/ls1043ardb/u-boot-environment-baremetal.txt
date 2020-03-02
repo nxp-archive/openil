@@ -1,0 +1,16 @@
+baudrate=115200
+bootcmd=setenv bootargs root=/dev/mmcblk0p2 rootwait rw maxcpus=1 earlycon=uart8250,0x21c0500 console=ttyS0,115200;mmcinfo;fatload mmc 0:1 ${baremetaladdr} ${baremetalfile};cpu start ${baremetaladdr};fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 ${fdtaddr} ${fdtfile};booti ${loadaddr} - ${fdtaddr}
+bootdelay=3
+bootfile=Image
+fdtfile=fsl-ls1043a-rdb-sdk-bm.dtb
+eth2addr=00:1F:7B:63:35:E9
+fdtcontroladdr=ffc01550
+fman_ucode=ffc12090
+hwconfig=fsl_ddr:bank_intlv=auto
+loadaddr=0x86000000
+fdtaddr=0x8a000000
+baremetaladdr=0x84000000
+baremetalfile=bm-u-boot.bin
+stderr=serial
+stdin=serial
+stdout=serial
