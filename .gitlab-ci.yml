@@ -223,6 +223,9 @@ nitrogen6sx_defconfig: { extends: .defconfig }
 nitrogen6x_defconfig: { extends: .defconfig }
 nitrogen7_defconfig: { extends: .defconfig }
 nitrogen8m_defconfig: { extends: .defconfig }
+nxp_ls1021aiot_baremetal_defconfig: { extends: .defconfig }
+nxp_ls1021aiot_defconfig: { extends: .defconfig }
+nxp_ls1021aiot_optee_defconfig: { extends: .defconfig }
 nxp_ls1028ardb-64b_defconfig: { extends: .defconfig }
 nxp_ls1028ardb-64b-emmc_defconfig: { extends: .defconfig }
 nxp_ls1028ardb-64b-xspi_defconfig: { extends: .defconfig }
