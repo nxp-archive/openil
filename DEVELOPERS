@@ -535,6 +535,7 @@ F:	board/nxp/ls1021aiot/
 F:	board/nxp/ls1028ardb/
 F:	board/nxp/ls1043ardb/
 F:	board/nxp/ls1046ardb/
+F:	board/nxp/lx2160rdb/
 F:	configs/nxp_ls1012ardb-64b_defconfig
 F:	configs/nxp_ls1021aiot_baremetal_defconfig
 F:	configs/nxp_ls1021aiot_defconfig
@@ -551,6 +552,8 @@ F:	configs/nxp_ls1046ardb-64b-emmcboot_defconfig
 F:	configs/nxp_ls1046ardb-64b_defconfig
 F:	configs/nxp_ls1046ardb-64b_qspi_defconfig
 F:	configs/nxp_ls1046ardb_baremetal-64b_defconfig
+F:	configs/nxp_lx2160ardb-64b_defconfig
+F:	configs/nxp_lx2160ardb-64b-xspi_defconfig
 F:	package/nxp/qoriq-bm-uboot/
 F:	package/nxp/qoriq-cadence-dp-firmware/
 F:	package/nxp/qoriq-cst/
