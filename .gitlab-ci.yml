@@ -226,6 +226,8 @@ nitrogen8m_defconfig: { extends: .defconfig }
 nxp_ls1028ardb-64b_defconfig: { extends: .defconfig }
 nxp_ls1028ardb-64b-emmc_defconfig: { extends: .defconfig }
 nxp_ls1028ardb-64b-xspi_defconfig: { extends: .defconfig }
+nxp_ls1028ardb_baremetal-64b_defconfig: { extends: .defconfig }
+nxp_ls1028ardb_baremetal_sai-64b_defconfig: { extends: .defconfig }
 odroidxu4_defconfig: { extends: .defconfig }
 olimex_a10_olinuxino_lime_defconfig: { extends: .defconfig }
 olimex_a13_olinuxino_defconfig: { extends: .defconfig }

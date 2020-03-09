@@ -534,6 +534,8 @@ F:	board/nxp/ls1028ardb/
 F:	configs/nxp_ls1028ardb-64b_defconfig
 F:	configs/nxp_ls1028ardb-64b-emmc_defconfig
 F:	configs/nxp_ls1028ardb-64b-xspi_defconfig
+F:	configs/nxp_ls1028ardb_baremetal-64b_defconfig
+F:	configs/nxp_ls1028ardb_baremetal_sai-64b_defconfig
 F:	package/nxp/qoriq-bm-uboot/
 F:	package/nxp/qoriq-cadence-dp-firmware/
 F:	package/nxp/qoriq-ddr-phy/
