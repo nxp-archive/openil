@@ -1,0 +1,7 @@
+config BR2_PACKAGE_QORIQ_SYSREPO_TSN
+	bool "qoriq-sysrepo-tsn"
+	select BR2_PACKAGE_QORIQ_TSNTOOL
+	select BR2_PACKAGE_QORIQ_NETOPEER2_SERVER
+	select BR2_PACKAGE_QORIQ_YANG_MODEL
+	help
+	  application to configure tsn feature based on sysrepo.
