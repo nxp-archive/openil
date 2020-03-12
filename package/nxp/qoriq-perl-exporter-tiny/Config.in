@@ -1,0 +1,8 @@
+config BR2_PACKAGE_QORIQ_PERL_EXPORTER_TINY
+	bool "qoriq-perl-exporter-tiny"
+	select BR2_PACKAGE_PERL
+	help
+	  Exporter::Tiny - an exporter with the features of Sub::Exporter
+	  but only core dependencies
+
+	  https://metacpan.org/release/Exporter-Tiny

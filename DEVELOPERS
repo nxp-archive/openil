@@ -544,6 +544,7 @@ F:	package/nxp/qoriq-libblep/
 F:	package/nxp/qoriq-libnfc-nci/
 F:	package/nxp/qoriq-mc-fw/
 F:	package/nxp/qoriq-mc-utils/
+F:	package/nxp/qoriq-perl-exporter-tiny/
 F:	package/nxp/qoriq-perl-list-moreutils/
 F:	package/nxp/qoriq-ppfe/
 F:	package/nxp/qoriq-prl/
