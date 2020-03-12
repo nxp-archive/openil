@@ -1,0 +1,26 @@
+config BR2_PACKAGE_QORIQ_ICC
+	bool "Inter-core communication with baremetal"
+	help
+	  The ICC is a verification application for
+	  Inter-core communication between Linux and
+	  baremetal on different cores.
+
+if BR2_PACKAGE_QORIQ_ICC
+
+config BR2_PACKAGE_QORIQ_ICC_GIC_OFFSET_ALIGN
+	bool "Set GIC offset aligin to 64K"
+	help
+	  Set GIC offset aligin to 64K, support on rev1.1 of ls1043a.
+
+config BR2_PACKAGE_QORIQ_ICC_GIC_IMX6Q
+	bool "Set GIC support i.mx6q"
+	help
+	  Set GIC support i.mx6q.
+
+config BR2_PACKAGE_QORIQ_ICC_MAX_CPUS
+	int "Max cpus on platform"
+	default 2
+	help
+	  Set the number of cpus on platform.
+
+endif
