@@ -1,0 +1,4 @@
+config BR2_PACKAGE_QORIQ_SERVO
+        bool "qoriq-servo"
+        default y
+          depends on BR2_PACKAGE_IGH_ETHERCAT && BR2_PACKAGE_LIBXML2
