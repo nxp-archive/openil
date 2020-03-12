@@ -564,6 +564,7 @@ F:	package/nxp/qoriq-eds-kubelet/
 F:	package/nxp/qoriq-eth-phy/
 F:	package/nxp/qoriq-fmucode/
 F:	package/nxp/qoriq-h-libxml2/
+F:	package/nxp/qoriq-h-python-libxml2/
 F:	package/nxp/qoriq-icc/
 F:	package/nxp/qoriq-iomem/
 F:	package/nxp/qoriq-libbee/
