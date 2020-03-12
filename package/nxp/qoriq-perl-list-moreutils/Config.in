@@ -1,0 +1,7 @@
+config BR2_PACKAGE_QORIQ_PERL_LIST_MOREUTILS
+	bool "qoriq-perl-list-moreutils"
+	help
+	  List::MoreUtils provides some trivial but commonly needed
+	  functionality on lists which is not going to go into List::Util.
+
+	  https://metacpan.org/release/List-MoreUtils
