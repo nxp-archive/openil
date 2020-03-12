@@ -1,0 +1,13 @@
+#'NUMBER'	'GATE_VLAUE' 'TIME_LONG'
+#
+#NUMBER:
+#	't' or 'T' head. Plus entry number. Duplicate entry number will got error.
+#
+#GATE_VALUE:
+#	format: xxxxxxxxb .
+#	The MS bit corresponds to traffic class 7. The LS bit to traffic class 0.
+#	A bit value of 0 indicates closed, A bit value of 1 indicates open.
+#
+#TIME_LONG:
+#	nanoseconds. Do not input 0 time long.
+t0	00000010b		20000

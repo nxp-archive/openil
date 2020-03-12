@@ -1,0 +1,13 @@
+config BR2_PACKAGE_QORIQ_TSNTOOL
+	bool "qoriq-tsntool"
+	depends on BR2_LINUX_KERNEL
+	select BR2_PACKAGE_LIBNL
+	select BR2_PACKAGE_READLINE
+	select BR2_PACKAGE_NCURSES
+	select BR2_PACKAGE_CJSON
+	help
+	 tsntool is a tool to configure the tsn capability ethernet port.
+	 The kernel need to configure the tsn protocol.
+
+comment "tsntool needs the linux kernel sources"
+	depends on !BR2_LINUX_KERNEL

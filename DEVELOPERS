@@ -553,6 +553,7 @@ F:	package/nxp/qoriq-prl/
 F:	package/nxp/qoriq-ptp4l/
 F:	package/nxp/qoriq-python-libxml2/
 F:	package/nxp/qoriq-servo/
+F:	package/nxp/qoriq-tsntool/
 F:	package/nxp/qoriq-yang-model/
 
 N:	Chris Packham <judge.packham@gmail.com>

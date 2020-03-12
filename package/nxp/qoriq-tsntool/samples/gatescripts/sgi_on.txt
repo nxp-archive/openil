@@ -1,0 +1,21 @@
+#'NUMBER' 'GATE_VLAUE' 'IPV' 'TIME_LONG' 'OCTET_MAX'
+#
+#NUMBER:
+#	't' or 'T' head. Plus entry number. Duplicate entry number will got error.
+#
+#GATE_VALUE:
+#	format: xb
+#	The MS bit corresponds to traffic class 7. The LS bit to traffic class 0.
+#	A bit value of 0 indicates closed, A bit value of 1 indicates open.
+#
+#IPV:
+#	0~7
+#
+#TIME_LONG:
+#	nanoseconds. Do not input 0 time long.
+#
+#OCTET_MAX:
+#	The maximum number of octets that are permitted to pass the gate.
+#	If zero, there is no maximum.
+
+t0	1b	-1	2000	    0
