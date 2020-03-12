@@ -532,6 +532,7 @@ N:	Changming Huang <jerry.huang@nxp.com>
 F:	board/nxp/common/ls/
 F:	board/nxp/ls1012ardb/
 F:	board/nxp/ls1021aiot/
+F:	board/nxp/ls1021atsn/
 F:	board/nxp/ls1028ardb/
 F:	board/nxp/ls1043ardb/
 F:	board/nxp/ls1046ardb/
@@ -542,6 +543,8 @@ F:	configs/nxp_ls1012ardb-64b_defconfig
 F:	configs/nxp_ls1021aiot_baremetal_defconfig
 F:	configs/nxp_ls1021aiot_defconfig
 F:	configs/nxp_ls1021aiot_optee_defconfig
+F:	configs/nxp_ls1021atsn_defconfig
+F:	configs/nxp_ls1021atsn_optee-sb_defconfig
 F:	configs/nxp_ls1028ardb-64b_defconfig
 F:	configs/nxp_ls1028ardb-64b-emmc_defconfig
 F:	configs/nxp_ls1028ardb-64b-xspi_defconfig

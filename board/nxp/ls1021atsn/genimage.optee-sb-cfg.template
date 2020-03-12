@@ -1,0 +1,56 @@
+# Minimal SD card image for the NXP boards Template
+#
+# We mimic the .sdcard NXP's image format:
+# * the SD card must have 4 kB free space at the beginning,
+# * U-Boot is dumped as is,
+#
+
+image boot.vfat {
+  vfat {
+    files = {
+      %FILES%
+    }
+  }
+  size = 128M
+}
+
+image sdcard.img {
+  hdimage {
+  }
+
+  partition u-boot {
+    in-partition-table = "no"
+    image = "u-boot-with-spl-pbl-sec.bin"
+    offset = 4096
+  }
+
+  partition secboot_hdrs {
+    in-partition-table = "no"
+    image = "secboot_hdrs_sdboot.bin"
+    offset = 6M
+  }
+
+  partition hdr_tee.out {
+    in-partition-table = "no"
+    image = "hdr_tee.out"
+    offset = 60736K
+  }
+
+  partition tee.bin {
+    in-partition-table = "no"
+    image = "tee.bin"
+    offset = 60864K
+  }
+
+  partition boot {
+    partition-type = 0xC
+    bootable = "true"
+    image = "boot.vfat"
+    offset = 100M
+  }
+
+  partition rootfs {
+    partition-type = 0x83
+    image = "rootfs.ext2"
+  }
+}

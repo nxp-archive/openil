@@ -1,0 +1,19 @@
+setenv bootfile=kernel-ls1021a-tsn.itb
+setenv loadaddr=0x83000000
+fatload mmc 0:1 ${loadaddr} ${bootfile}
+mmc read 0x82000000 0x4000 0x100
+mmc read 0x82060000 0x1da80 0x100
+mmc read 0x82100000 0x1db80 0x500
+echo Validate kernel-ls1021a-tsn.itb
+esbc_validate 0x82000000
+echo Validate tee.bin
+esbc_validate 0x82060000
+setenv fdt_high 0xffffffff
+setenv initrd_high 0xffffffff
+setenv eth1addr 00:1F:7B:63:35:E9
+setenv eth2addr 00:1F:7B:63:35:EA
+setenv ethact eTSEC1
+setenv ethaddr 00:1F:7B:63:35:E8
+setenv ethprime eTSEC1
+pri
+bootm ${loadaddr}
