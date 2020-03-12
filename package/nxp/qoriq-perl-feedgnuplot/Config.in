@@ -1,0 +1,13 @@
+config BR2_PACKAGE_QORIQ_PERL_FEEDGNUPLOT
+	bool "qoriq-perl-feedgnuplot"
+	depends on !BR2_STATIC_LIBS
+	select BR2_PACKAGE_GNUPLOT
+	select BR2_PACKAGE_QORIQ_PERL_LIST_MOREUTILS
+	select BR2_PACKAGE_QORIQ_PERL_EXPORTER_TINY
+	help
+	  General purpose pipe-oriented plotting tool
+
+	  https://github.com/dkogan/feedgnuplot
+
+comment "qoriq-perl-feedgnuplot needs a toolchain w/ dynamic library"
+	depends on BR2_STATIC_LIBS
