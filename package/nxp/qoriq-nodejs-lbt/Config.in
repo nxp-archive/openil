@@ -1,0 +1,8 @@
+config BR2_PACKAGE_QORIQ_NODEJS_LBT
+	bool "qoriq-nodejs-lbt"
+	depends on BR2_PACKAGE_NODEJS
+	select BR2_PACKAGE_QORIQ_PERL_FEEDGNUPLOT
+	select BR2_PACKAGE_QORIQ_PRL
+	help
+	  Latency and Bandwidth Tester is a web application for generating and
+	  plotting iPerf and ping traffic, used for the NXP LS1021A-TSN demos.

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en-US">
+<meta charset="UTF-8">
+<title>Latency and Bandwidth Tester</title>
+<body>
+  <div id="main">
+    <header>Latency and Bandwidth Tester</header>
+    <div id="flow-plots">
+      <div id="iperf-gnuplot">
+      </div>
+      <div id="ping-gnuplot">
+      </div>
+    </div>
+    <div id="control">
+      <button type="button" id="btnStartStop">Start traffic</button>
+      <button type="button" id="btnSave">Save changes</button>
+    </div>
+    <div id="flow-tables">
+      <p>iPerf flows</p>
+      <table id="iperf-table">
+        <thead>
+          <tr>
+            <th>Enabled</th>
+            <th>Label</th>
+            <th>Source</th>
+            <th>Destination</th>
+            <th>Port</th>
+            <th>Transport</th>
+            <th>(UDP) Bandwidth</th>
+            <th><button type="button" class="btnAdd">+</button></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p>Ping flows</p>
+      <table id="ping-table">
+        <thead>
+          <tr>
+            <th>Enabled</th>
+            <th>Label</th>
+            <th>Source</th>
+            <th>Destination</th>
+            <th>Interval type</th>
+            <th>Interval (ms)</th>
+            <th>Packet size</th>
+            <th><button type="button" class="btnAdd">+</button></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</body>
+
+<script src="client.js"></script>
+
+<style type="text/css">
+body {background-color: #fff; color: #222; font-family: sans-serif;}
+table {border-collapse: collapse; border: 0; width: 1100px; box-shadow: 1px 2px 3px #ccc; margin: 20px; }
+td, th {text-align: center; border: 1px solid #666; font-size: 75%; vertical-align: baseline; padding: 4px 5px;}
+header {background-color: grey; color: white; padding: 15px; font-size: 150%; display: block; font-weight: bold; text-align: center; }
+#main { float: left; }
+#control { text-align: center; margin: auto; clear: both; }
+#btnStartStop { margin: 20px; padding: 10px; }
+#btnSave { margin: 20px; padding: 10px; }
+#iperf-gnuplot {float: left;}
+#iperf-ping {float: right;}
+#flow-tables { margin-left: 70px; margin-top: 20px; }
+</style>
+
+</html>

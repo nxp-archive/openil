@@ -1,0 +1,24 @@
+{
+	"flows": {
+		"iperf": [
+			{
+				"source": {
+					"user": "root",
+					"hostname": "localhost",
+					"port": 22
+				},
+				"destination": {
+					"user": "root",
+					"hostname": "localhost",
+					"port": 22
+				},
+				"port": 5201,
+				"transport": "tcp",
+				"bandwidth": -1,
+				"enabled": false,
+				"label": "a"
+			}
+		],
+		"ping": []
+	}
+}
