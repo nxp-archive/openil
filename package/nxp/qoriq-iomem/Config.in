@@ -1,0 +1,19 @@
+config BR2_PACKAGE_QORIQ_IOMEM
+	bool "qoriq-iomem"
+	select BR2_PACKAGE_READLINE
+	help
+	  iomem is a tool that allows direct access to memory-mapped registers.
+	  In embedded systems, this can be very handy if you do not have to write
+	  a driver for simple tasks but can tamper with iomem directly in the memory.
+
+	  For example, to read out the 32 bit register at the address 0x12345678
+	  call "iomem r32 0x12345678". To read out the four 16 bit registers at
+	  the io address 0x100 one would execute "iomem r16-port: 4 0x100".
+	  There are modes to read and write on register blocks and to make several
+	  read or write accesses to a FIFO register.
+
+	  There is also an option to wait polling for a register to accept a
+	  certain bit pattern.
+
+	  http://svn.clifford.at/tools/trunk/iomem.c
+	  http://www.clifford.at/frame.cgi?blog/index.php?/archives/117-rpn.html
