@@ -1,0 +1,46 @@
+From b01004ac5a69f529792a3ae8f01df355e76a4c4d Mon Sep 17 00:00:00 2001
+From: Xiaolin He <xiaolin.he@nxp.com>
+Date: Fri, 27 Mar 2020 16:43:09 +0800
+Subject: [PATCH 2/2] ieee802-dot1q-bridge.yang: fix warning in libyang
+
+Add prefix before identity in expression.
+
+Signed-off-by: Xiaolin He <xiaolin.he@nxp.com>
+---
+ standard/ieee/published/802.1/ieee802-dot1q-bridge.yang | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/standard/ieee/published/802.1/ieee802-dot1q-bridge.yang b/standard/ieee/published/802.1/ieee802-dot1q-bridge.yang
+index 1695fd8..fe72666 100644
+--- a/standard/ieee/published/802.1/ieee802-dot1q-bridge.yang
++++ b/standard/ieee/published/802.1/ieee802-dot1q-bridge.yang
+@@ -433,7 +433,7 @@ module ieee802-dot1q-bridge {
+           }
+         }
+         container filtering-database {
+-          when "../../bridge-type != 'two-port-mac-relay-bridge'" {
++          when "../../bridge-type != 'dot1q:two-port-mac-relay-bridge'" {
+             description
+               "Applies to non TPMRs.";
+           }
+@@ -760,7 +760,7 @@ module ieee802-dot1q-bridge {
+           }
+         }
+         container bridge-vlan {
+-          when "../../bridge-type != 'two-port-mac-relay-bridge'" {
++          when "../../bridge-type != 'dot1q:two-port-mac-relay-bridge'" {
+             description
+               "Applies to non TPMRs.";
+           }
+@@ -1086,7 +1086,7 @@ module ieee802-dot1q-bridge {
+           }
+         }
+         container bridge-mst {
+-          when "../../bridge-type != 'two-port-mac-relay-bridge'" {
++          when "../../bridge-type != 'dot1q:two-port-mac-relay-bridge'" {
+             description
+               "Applies to non TPMRs.";
+           }
+-- 
+2.17.1
+

@@ -1,0 +1,4 @@
+config BR2_PACKAGE_QORIQ_YANG_MODEL
+	bool "qoriq-yang-model"
+	help
+	  YANG models

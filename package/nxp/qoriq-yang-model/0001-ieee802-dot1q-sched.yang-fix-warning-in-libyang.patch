@@ -1,0 +1,46 @@
+From 8994b39f94bd90d5ea29b7a7c25a7210aea99361 Mon Sep 17 00:00:00 2001
+From: Xiaolin He <xiaolin.he@nxp.com>
+Date: Fri, 27 Mar 2020 16:39:27 +0800
+Subject: [PATCH 1/2] ieee802-dot1q-sched.yang: fix warning in libyang
+
+Add prefix before identity in expression.
+
+Signed-off-by: Xiaolin He <xiaolin.he@nxp.com>
+---
+ standard/ieee/draft/802.1/Qcw/ieee802-dot1q-sched.yang | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-sched.yang b/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-sched.yang
+index 29bdd48..cf33ffe 100644
+--- a/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-sched.yang
++++ b/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-sched.yang
+@@ -104,7 +104,7 @@ organization
+         "The name (type) of the operation for this entry.";
+     }
+     container sgs-params {
+-      when "../operation-name = 'set-gate-states'" {
++      when "../operation-name = 'sched:set-gate-states'" {
+         description
+           "Applies to the SetGateStates operation.";
+       }
+@@ -147,7 +147,7 @@ organization
+     
+     
+     container shm-params { 
+-        when "../operation-name = 'set-and-hold-mac'" {
++        when "../operation-name = 'sched:set-and-hold-mac'" {
+           description
+           "Applies to the Set-And-Hold-MAC operation.";
+         }
+@@ -190,7 +190,7 @@ organization
+         }
+       }
+       container srm-params {     
+-        when "../operation-name = 'set-and-release-mac'" {
++        when "../operation-name = 'sched:set-and-release-mac'" {
+           description
+           "Applies to the Set-And-Release-MAC operation.";
+         }
+-- 
+2.17.1
+

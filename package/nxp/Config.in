@@ -20,5 +20,6 @@ source "package/nxp/qoriq-prl/Config.in"
 source "package/nxp/qoriq-ptp4l/Config.in"
 source "package/nxp/qoriq-python-libxml2/Config.in"
 source "package/nxp/qoriq-servo/Config.in"
+source "package/nxp/qoriq-yang-model/Config.in"
 
 endmenu
