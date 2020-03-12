@@ -1,0 +1,6 @@
+config BR2_PACKAGE_QORIQ_H_LIBXML2
+	bool "qoriq-h-libxml2"
+	help
+	  XML C Parser
+
+	  http://xmlsoft.org/
