@@ -1,0 +1,6 @@
+config BR2_PACKAGE_QORIQ_PYTHON_WAND
+	bool "qoriq-python-wand"
+	help
+	  Wand is a ctypes-based simple ImageMagick binding for Python.
+	  It doesn't cover all functionalities of MagickWand API currently.
+	  It works on Python 2.6, 2.7, 3.2--3.5, and PyPy.

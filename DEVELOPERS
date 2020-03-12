@@ -570,6 +570,7 @@ F:	package/nxp/qoriq-ppfe/
 F:	package/nxp/qoriq-prl/
 F:	package/nxp/qoriq-ptp4l/
 F:	package/nxp/qoriq-python-libxml2/
+F:	package/nxp/qoriq-python-wand/
 F:	package/nxp/qoriq-servo/
 F:	package/nxp/qoriq-sysrepo-tsn/
 F:	package/nxp/qoriq-tsntool/
