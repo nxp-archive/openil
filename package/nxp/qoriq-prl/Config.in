@@ -1,0 +1,6 @@
+config BR2_PACKAGE_QORIQ_PRL
+	bool "qoriq-prl"
+	help
+	  PRL (Pipe Rate Limiter) is a C program for pipeline manipulation
+	  that filters stdin per line, and rate limits stdout to a given rate,
+	  dropping excess lines.
