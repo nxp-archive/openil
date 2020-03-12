@@ -1,0 +1,12 @@
+config BR2_PACKAGE_QORIQ_RESTOOL
+        bool "qoriq-restool"
+        help
+	  qoriq-restool is a user space application providing the ability to
+	  dynamically create and manage DPAA2 containers and objects from Linux.
+
+if BR2_PACKAGE_QORIQ_RESTOOL
+
+config BR2_PACKAGE_QORIQ_RESTOOL_VERSION
+	string "qoriq-restool version"
+
+endif
