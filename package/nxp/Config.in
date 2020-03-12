@@ -18,6 +18,7 @@ source "package/nxp/qoriq-perl-list-moreutils/Config.in"
 source "package/nxp/qoriq-ppfe/Config.in"
 source "package/nxp/qoriq-prl/Config.in"
 source "package/nxp/qoriq-ptp4l/Config.in"
+source "package/nxp/qoriq-python-libxml2/Config.in"
 source "package/nxp/qoriq-servo/Config.in"
 
 endmenu

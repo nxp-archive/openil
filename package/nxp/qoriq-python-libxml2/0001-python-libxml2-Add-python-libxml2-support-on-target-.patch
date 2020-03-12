@@ -1,0 +1,82 @@
+From cb3edea6da7a2c4ce8cee5caac0e28e0b044e33a Mon Sep 17 00:00:00 2001
+From: Liu Gang <Gang.Liu@nxp.com>
+Date: Tue, 14 Mar 2017 15:16:47 +0800
+Subject: [PATCH] python-libxml2: Add python libxml2 support on target
+ platforms
+
+The default libxml2 python cannot support cross-compile, so this
+patch to support the cross-compile and install it to the target
+system.
+
+Signed-off-by: Liu Gang <Gang.Liu@nxp.com>
+---
+ setup.py | 36 +++++++++++++++++++++++++-----------
+ 1 file changed, 25 insertions(+), 11 deletions(-)
+
+diff --git a/setup.py b/setup.py
+index c44269a..77a9da4 100755
+--- a/setup.py
++++ b/setup.py
+@@ -2,7 +2,7 @@
+ #
+ # Setup script for libxml2 and libxslt if found
+ #
+-import sys, os
++import sys, os, re, string
+ from distutils.core import setup, Extension
+
+ # Below ROOT, we expect to find include, include/libxml2, lib and bin.
+@@ -51,17 +51,33 @@ else:
+     libraryPrefix = ''
+     platformLibs = ["m","z"]
+
++def get_setup():
++    data = {}
++    r = re.compile(r'(\S+)\s*=\s*(.+)')
++
++    if not os.path.isfile('Setup'):
++        print "No 'Setup' file. Perhaps you need to run the configure script."
++        sys.exit(1)
++
++    f = open('Setup', 'r')
++
++    for line in f.readlines():
++        m = r.search(line)
++        if not m:
++            print "Error in setup file:", line
++            sys.exit(1)
++        key = m.group(1)
++        val = m.group(2)
++        data[key] = val
++
++    return data
++
++data = get_setup()
+ # those are examined to find
+ # - libxml2/libxml/tree.h
+ # - iconv.h
+ # - libxslt/xsltconfig.h
+-includes_dir = [
+-"/usr/include",
+-"/usr/local/include",
+-"/opt/include",
+-os.path.join(ROOT,'include'),
+-HOME
+-];
++includes_dir = [data['python_libxml2_include_dir']]
+
+ xml_includes=""
+ for dir in includes_dir:
+@@ -84,9 +100,7 @@ if iconv_includes == "":
+     sys.exit(1)
+
+ # those are added in the linker search path for libraries
+-libdirs = [
+-os.path.join(ROOT,'lib'),
+-]
++libdirs = [data['python_libxml2_lib_dir']]
+
+ xml_files = ["libxml2-api.xml", "libxml2-python-api.xml",
+              "libxml.c", "libxml.py", "libxml_wrap.h", "types.c",
+--
+1.8.3.1

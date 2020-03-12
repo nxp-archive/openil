@@ -1,0 +1,17 @@
+config BR2_PACKAGE_QORIQ_PYTHON_LIBXML2
+	bool "qoriq-python-libxml2"
+	select BR2_PACKAGE_LIBXML2
+	select BR2_PACKAGE_LIBXSLT
+	select BR2_PACKAGE_ZLIB
+	help
+	  This is the libxml2 python module, providing access to the
+	  libxml2 and libxslt (if available) libraries. For general
+	  informationss on those XML and XSLT libraries check their
+	  web pages at :
+	  http://xmlsoft.org/
+	  and
+	  http://xmlsoft.org/XSLT/
+
+	  The latest version of the sources for this module and the
+	  associated libraries can be found at:
+	  ftp://xmlsoft.org/
