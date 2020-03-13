@@ -1,0 +1,2124 @@
+From cdc3b7b7faa7adaf44115601216f9ec411abdf78 Mon Sep 17 00:00:00 2001
+From: Jianchao Wang <jianchao.wang@nxp.com>
+Date: Wed, 22 Aug 2018 15:49:29 +0800
+Subject: [PATCH] canfestival add new app
+
+Signed-off-by: Jianchao Wang <jianchao.wang@nxp.com>
+---
+ Makefile.in                     |  17 +-
+ app/CANopen-app.c               | 205 ++++++++++++++
+ app/Makefile                    |  52 ++++
+ app/TestMaster.c                | 596 ++++++++++++++++++++++++++++++++++++++++
+ app/callback.c                  | 119 ++++++++
+ app/cmdTable.c                  | 389 ++++++++++++++++++++++++++
+ app/console.c                   | 205 ++++++++++++++
+ app/inc/TestMaster.h            |  65 +++++
+ app/inc/callback.h              |  54 ++++
+ app/inc/cmdtable.h              |  50 ++++
+ app/inc/console.h               |  52 ++++
+ drivers/can_socket/can_socket.c |   4 +-
+ include/can_driver.h            |   2 +
+ include/config.h                |  49 ++++
+ src/lifegrd.c                   |  14 +-
+ src/states.c                    |  41 ++-
+ 16 files changed, 1892 insertions(+), 22 deletions(-)
+ create mode 100644 app/CANopen-app.c
+ create mode 100644 app/Makefile
+ create mode 100644 app/TestMaster.c
+ create mode 100644 app/callback.c
+ create mode 100644 app/cmdTable.c
+ create mode 100644 app/console.c
+ create mode 100644 app/inc/TestMaster.h
+ create mode 100644 app/inc/callback.h
+ create mode 100644 app/inc/cmdtable.h
+ create mode 100644 app/inc/console.h
+ create mode 100644 include/config.h
+
+diff --git a/Makefile.in b/Makefile.in
+index 5d8dc7d..e5bdd00 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -24,7 +24,11 @@
+ PYTHON ?= python
+ export PYTHON
+ 
+-all: objdictedit canfestival examples
++all: CANopen-app #objdictedit canfestival examples
++
++CANopen-app:
++	mkdir -p ./app/obj
++	$(MAKE) -C app $@
+ 
+ examples: canfestival driver
+ 	$(MAKE) -C examples all
+@@ -45,10 +49,11 @@ driver:
+ 	$(MAKE) -C drivers $@
+ 
+ install: canfestival driver
+-	$(MAKE) -C drivers $@
+-	$(MAKE) -C src $@
+-	$(MAKE) -C examples $@
+-	$(MAKE) -C objdictgen $@
++	$(MAKE) -C app $@
++	#$(MAKE) -C drivers $@
++	#$(MAKE) -C src $@
++	#$(MAKE) -C examples $@
++	#$(MAKE) -C objdictgen $@
+ 	ldconfig
+ 
+ uninstall:
+@@ -58,7 +63,7 @@ uninstall:
+ 	$(MAKE) -C objdictgen $@
+ 
+ clean:
+-	$(MAKE) -C src $@
++	#$(MAKE) -C src $@
+ 	$(MAKE) -C drivers $@
+ 	$(MAKE) -C examples $@
+ 	$(MAKE) -C objdictgen $@
+diff --git a/app/CANopen-app.c b/app/CANopen-app.c
+new file mode 100644
+index 0000000..a3cca9f
+--- /dev/null
++++ b/app/CANopen-app.c
+@@ -0,0 +1,205 @@
++/*
++ * create CANopen application as master node
++ *
++ * Copyright 2018 NXP
++ *
++ * Author: Jianchao Wang <jianchao.wang@nxp.com>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of the above-listed copyright holders nor the
++ *       names of any contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include <stdlib.h>
++#include <stdbool.h>
++#include <sys/socket.h>
++#include <pthread.h>
++#include <unistd.h>
++#include "canfestival.h"
++#include "states.h"
++#include "TestMaster.h"
++#include "callback.h"
++#include "console.h"
++#include "cmdtable.h"
++
++/*
++ *       name             headfile       mean
++ *CAN_PORT、CAN_HANDLE:   applicfg.h     void *
++ *      s_BOARD      :   can_driver.h
++ *    TASK_HANDLE    :   timerscfg.h   pthread_t
++ */
++
++/* call this callback function while timer had been started */
++void start_timer_callback(CO_Data *d, UNS32 id)
++{
++	printf("Note: Alarm timer is running!\n");
++}
++
++void stop_timer_callback(CO_Data *d, UNS32 id)
++{
++	printf("Note: Alarm timer is stopped!\n");
++}
++
++/* this function is the entry function of receive thread */
++void canopen_rx_handler(CAN_PORT port)
++{
++	CAN_HANDLE socketcan_fd = NULL;
++	s_BOARD flexcan = {
++		.busname = (char *)port
++	};
++	Message rx_message = {0};
++
++	socketcan_fd = canOpen_driver(&flexcan);
++	TestMaster_Data.canHandle = socketcan_fd;    /*set CAN port number */
++	/*
++	 * Initialize node.Automatically entered into pre-operation,
++	 * and send Boot-Up message
++	 */
++	setState(&TestMaster_Data, Initialisation);
++	for (;;) {
++		if (canReceive_driver(socketcan_fd, &rx_message) == 0)
++			canDispatch(&TestMaster_Data, &rx_message);
++	}
++}
++
++void *test_handle(void *fd)
++{
++	int argc = 0;
++	char *argv[6];
++
++	console_valid = false;
++
++	printf("------------------------- test ---------------------------\n");
++	printf("Note: Test code start execute...\n");
++	printf("      SDO protocol is valid in preoperation mode, but PDO"
++		" protocol is invalid!\n");
++	printf("      SDO and PDO protocol are both valid in operation"
++		" mode!\n");
++	printf("      Console is invalid when testing!\n");
++
++	printf("----------------------------------------------------------\n");
++	printf("Note: test1--Read slave node single data by SDO.\n");
++	test_sdo_single(argc, argv);
++	sleep(1);
++
++	printf("----------------------------------------------------------\n");
++	printf("Note: test2--Write 0x2CD5 to slave node by SDO.\n");
++	argv[1] = "0x2CD5";
++	test_sdo_single_w(2, argv);
++	sleep(1);
++
++	printf("----------------------------------------------------------\n");
++	printf("Note: test3--Read slave node single data by SDO again.\n");
++	test_sdo_single(argc, argv);
++	sleep(1);
++
++	printf("----------------------------------------------------------\n");
++	printf("Note: test4--Read slave node block data by SDO.\n");
++	test_sdo_block(argc, argv);
++	sleep(1);
++
++	printf("----------------------------------------------------------\n");
++	printf("Note: test5--Master node entry operation mode, and start slave"
++		" nodes!\n");
++	test_start_m(argc, argv);
++	sleep(1);
++
++	printf("----------------------------------------------------------\n");
++	printf("Note: test6--Master node show requested PDO data.\n");
++	test_show_pdo_req(argc, argv);
++	sleep(1);
++
++	printf("----------------------------------------------------------\n");
++	printf("Note: test7--Master node request PDO data.\n");
++	test_request_pdo(argc, argv);
++	sleep(1);
++
++	printf("----------------------------------------------------------\n");
++	printf("Note: test8--Master node show requested PDO data.\n");
++	test_show_pdo_req(argc, argv);
++	sleep(8);
++
++	printf("----------------------------------------------------------\n");
++	printf("Note: test9--Master node show received cycle PDO data.\n");
++	test_show_pdo_cyc(argc, argv);
++	sleep(1);
++
++	printf("----------------------------------------------------------\n");
++	console_help(argc, argv);
++	printf("Note: You can send command by console!\n");
++
++	console_valid = true;
++	pthread_exit(0);
++}
++
++TASK_HANDLE rx_thread = (TASK_HANDLE)NULL;
++static pthread_t test_thread;
++void main(void)
++{
++	int errno = 0;
++	CAN_PORT port = "0";
++
++	errno = system("ip link set can0 up type can bitrate 500000");
++	if (errno == 127) {
++		printf("Error: call \"/bin/sh-c\" fail!\n");
++		return;
++	} else if (errno == -1) {
++		printf("Error: open the CAN interface fail!\n");
++		return;
++	} else {
++		printf("Note: open the CAN interface successfully!\n");
++	}
++
++	callback_list_init();/* Initialize the CANopen callback functions */
++	TimerInit();    /* timers_unix.c/timers_driver.h */
++	console_init();/* create console thread */
++
++	/* callback function runs one time */
++	StartTimerLoop(start_timer_callback);
++	CreateReceiveTask(port, &rx_thread, canopen_rx_handler);
++	pthread_create(&test_thread, NULL, test_handle, NULL);
++
++	pthread_join(test_thread, NULL);
++	console_valid = true;
++	printf("Note: Test code execution is complete!\n");
++
++	wait_console_exit();
++	if (pthread_join(rx_thread, NULL))
++		printf("Warn: Failed to release the resouce of "
++		       "CAN Rx thread!\n");
++	else {
++		printf("Note: Release the resouce of CAN Rx thread "
++		       "successfully!\n");
++		StopTimerLoop(stop_timer_callback);
++	}
++}
++
++void terminate_rx_can(void)
++{
++	pthread_cancel(rx_thread);
++}
+diff --git a/app/Makefile b/app/Makefile
+new file mode 100644
+index 0000000..8b3b41f
+--- /dev/null
++++ b/app/Makefile
+@@ -0,0 +1,52 @@
++CC = arm-linux-gnueabihf-gcc
++INCLUDES = -I./inc -I../include -I../include/unix -I../include/timers_unix
++SRCDIR_PREFIX = ../drivers
++CAN_TYPE = socket
++TIMER_TYPE = unix
++OBJDIR = ./obj/
++LIBDIR = -L../src
++LIB = -lrt -lpthread $(LIBDIR)
++TARGETDIR = ../src/
++TARGET = $(TARGETDIR)unix
++PREFIX = /usr
++ENABLE_LSS = 0
++
++OBJS = $(TARGET)_objacces.o $(TARGET)_lifegrd.o $(TARGET)_sdo.o \
++	$(TARGET)_pdo.o $(TARGET)_sync.o $(TARGET)_nmtSlave.o \
++	$(TARGET)_nmtMaster.o $(TARGET)_states.o $(TARGET)_timer.o \
++	$(TARGET)_dcf.o $(TARGET)_emcy.o \
++	$(OBJDIR)can_socket.o $(OBJDIR)timers_unix.o $(OBJDIR)CANopen-app.o \
++	$(OBJDIR)TestMaster.o $(OBJDIR)callback.o $(OBJDIR)console.o \
++	$(OBJDIR)cmdTable.o
++
++ifeq ($(ENABLE_LSS),1)
++OBJS += $(TARGET)_lss.o
++endif
++
++CANopen-app : $(OBJS)
++	$(CC) -o CANopen-app $(OBJS) $(LIB)
++
++$(OBJDIR)can_$(CAN_TYPE).o : $(SRCDIR_PREFIX)/can_$(CAN_TYPE)/can_$(CAN_TYPE).c
++	$(CC) $(INCLUDES) -c $(SRCDIR_PREFIX)/can_$(CAN_TYPE)/can_$(CAN_TYPE).c -o $(OBJDIR)can_$(CAN_TYPE).o
++
++$(OBJDIR)timers_$(TIMER_TYPE).o : $(SRCDIR_PREFIX)/timers_$(TIMER_TYPE)/timers_$(TIMER_TYPE).c
++	$(CC) $(INCLUDES) -c $(SRCDIR_PREFIX)/timers_$(TIMER_TYPE)/timers_$(TIMER_TYPE).c -o $(OBJDIR)timers_$(TIMER_TYPE).o
++
++$(OBJDIR)%.o : %.c
++	$(CC) $(INCLUDES) -c $< -o $@
++
++$(TARGET)_%.o : $(TARGETDIR)%.c
++	@echo " "
++	@echo "*********************************************"
++	@echo "**Compiling $< -> $@"
++	@echo "*********************************************"
++	$(CC) -O2 $(INCLUDES) -o $@ -c $<
++
++install: CANopen-app
++	mkdir -p $(DESTDIR)$(PREFIX)/bin/
++	cp $< $(DESTDIR)$(PREFIX)/bin/
++
++clean:
++	rm obj/*.o
++	rm ../src/*.o
++	rm CANopen-app
+diff --git a/app/TestMaster.c b/app/TestMaster.c
+new file mode 100644
+index 0000000..acb3f80
+--- /dev/null
++++ b/app/TestMaster.c
+@@ -0,0 +1,596 @@
++/*
++ * create object dictionary for CANopen master node
++ *
++ * Copyright 2018 NXP
++ *
++ * Author: Jianchao Wang <jianchao.wang@nxp.com>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of the above-listed copyright holders nor the
++ *       names of any contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++/* File generated by gen_cfile.py. Should not be modified. */
++
++#include "TestMaster.h"
++
++/**************************************************************************/
++/* Declaration of mapped variables                                        */
++/**************************************************************************/
++UNS8 MasterMap1 = 0x0;		/* Mapped at index 0x2000, subindex 0x00 */
++UNS8 MasterMap2 = 0x0;		/* Mapped at index 0x2001, subindex 0x00 */
++UNS8 MasterMap3 = 0x0;		/* Mapped at index 0x2002, subindex 0x00 */
++UNS8 MasterMap4 = 0x0;		/* Mapped at index 0x2003, subindex 0x00 */
++UNS8 MasterMap5 = 0x0;		/* Mapped at index 0x2004, subindex 0x00 */
++UNS8 MasterMap6 = 0x0;		/* Mapped at index 0x2005, subindex 0x00 */
++UNS8 MasterMap7 = 0x0;		/* Mapped at index 0x2006, subindex 0x00 */
++UNS8 MasterMap8 = 0x0;		/* Mapped at index 0x2007, subindex 0x00 */
++UNS8 MasterMap9 = 0x0;		/* Mapped at index 0x2008, subindex 0x00 */
++UNS32 MasterMap10 = 0x0;	/* Mapped at index 0x2009, subindex 0x00 */
++UNS8 MasterMap11[8] = "";	/* Mapped at index 0x200A, subindex 0x00 */
++INTEGER16 MasterMap12 = 0x0;	/* Mapped at index 0x200B, subindex 0x00 */
++UNS8 MasterMap13[8] = "";	/* Mapped at index 0x200C, subindex 0x00 */
++UNS8 MasterMap14[520] = "";	/* Mapped at index 0x200D, subindex 0x00 */
++/**************************************************************************/
++/* Declaration of value range types                                       */
++/**************************************************************************/
++
++#define valueRange_EMC 0x9F /* Type for index 0x1003 subindex 0x00 (only set of value 0 is possible) */
++UNS32 TestMaster_valueRangeTest (UNS8 typeValue, void * value)
++{
++  switch (typeValue) {
++    case valueRange_EMC:
++      if (*(UNS8*)value != (UNS8)0) return OD_VALUE_RANGE_EXCEEDED;
++      break;
++  }
++  return 0;
++}
++
++/**************************************************************************/
++/* The node id                                                            */
++/**************************************************************************/
++/* node_id default value.*/
++UNS8 TestMaster_bDeviceNodeId = 0x00;
++
++/**************************************************************************/
++/* Array of message processing information */
++
++const UNS8 TestMaster_iam_a_slave = 0;
++
++TIMER_HANDLE TestMaster_heartBeatTimers[1] = {TIMER_NONE};
++
++/*
++$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
++
++                               OBJECT DICTIONARY
++
++$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
++*/
++
++/* index 0x1000 :   Device Type. */
++                    UNS32 TestMaster_obj1000 = 0x12D;	/* 301 */
++                    subindex TestMaster_Index1000[] = 
++                     {
++                       { RO, uint32, sizeof (UNS32), (void*)&TestMaster_obj1000 }
++                     };
++
++/* index 0x1001 :   Error Register. */
++                    UNS8 TestMaster_obj1001 = 0x0;	/* 0 */
++                    subindex TestMaster_Index1001[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_obj1001 }
++                     };
++
++/* index 0x1003 :   Pre-defined Error Field */
++                    UNS8 TestMaster_highestSubIndex_obj1003 = 0; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1003[] = 
++                    {
++                      0x0	/* 0 */
++                    };
++                    ODCallback_t TestMaster_Index1003_callbacks[] = 
++                     {
++                       NULL,
++                       NULL,
++                     };
++                    subindex TestMaster_Index1003[] = 
++                     {
++                       { RW, valueRange_EMC, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1003 },
++                       { RO, uint32, sizeof (UNS32), (void*)&TestMaster_obj1003[0] }
++                     };
++
++/* index 0x1005 :   SYNC COB ID. */
++		    /* 1073741952 bit30 = 1,this node generates synchronous
++			clock;0x80 is SYNC's COB-ID*/
++                    UNS32 TestMaster_obj1005 = 0x40000080;
++                    ODCallback_t TestMaster_Index1005_callbacks[] = 
++                     {
++                       NULL,
++                     };
++                    subindex TestMaster_Index1005[] = 
++                     {
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1005 }
++                     };
++
++/* index 0x1006 :   Communication / Cycle Period. */
++		    /* 0xC350(50000 us), if this node doesn't generate SYNC,
++			this value is invalid.*/
++                    UNS32 TestMaster_obj1006 = 0xF4240;/* 1s */
++                    ODCallback_t TestMaster_Index1006_callbacks[] = 
++                     {
++                       NULL,
++                     };
++                    subindex TestMaster_Index1006[] = 
++                     {
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1006 }
++                     };
++
++/* index 0x100C :   Guard Time */ 
++                    UNS16 TestMaster_obj100C = 0x0;   /* 0 ms,node guard cycle*/
++		    subindex TestMaster_Index100C[] = 
++                     {
++                       { RW, uint16, sizeof (UNS16), (void*)&TestMaster_obj100C }
++                     };
++
++/* index 0x100D :   Life Time Factor */ 
++                    UNS8 TestMaster_obj100D = 0x0;   /* 0 ,slave node number*/
++		    subindex TestMaster_Index100D[] = 
++                     {
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj100D }
++                     };		
++
++/* index 0x1010 :   Store parameters. */
++                    UNS8 TestMaster_highestSubIndex_obj1010 = 4; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1010_Save_All_Parameters = 0x0;	/* 0 */
++                    UNS32 TestMaster_obj1010_Save_Communication_Parameters = 0x0;	/* 0 */
++                    UNS32 TestMaster_obj1010_Save_Application_Parameters = 0x0;	/* 0 */
++                    UNS32 TestMaster_obj1010_Save_Manufacturer_Parameters_1 = 0x0;	/* 0 */
++                    subindex TestMaster_Index1010[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1010 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1010_Save_All_Parameters },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1010_Save_Communication_Parameters },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1010_Save_Application_Parameters },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1010_Save_Manufacturer_Parameters_1 }
++                     };
++
++/* index 0x1011 :   Restore Default Parameters. */
++                    UNS8 TestMaster_highestSubIndex_obj1011 = 4; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1011_Restore_All_Default_Parameters = 0x0;	/* 0 */
++                    UNS32 TestMaster_obj1011_Restore_Communication_Default_Parameters = 0x0;	/* 0 */
++                    UNS32 TestMaster_obj1011_Restore_Application_Default_Parameters = 0x0;	/* 0 */
++                    UNS32 TestMaster_obj1011_Restore_Manufacturer_Defined_Default_Parameters_1 = 0x0;	/* 0 */
++                    subindex TestMaster_Index1011[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1011 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1011_Restore_All_Default_Parameters },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1011_Restore_Communication_Default_Parameters },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1011_Restore_Application_Default_Parameters },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1011_Restore_Manufacturer_Defined_Default_Parameters_1 }
++                     };
++
++/* index 0x1014 :   Emergency COB ID. */
++                    UNS32 TestMaster_obj1014 = 0x80;	/* 128 */
++                    subindex TestMaster_Index1014[] = 
++                     {
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1014 }
++                     };
++
++/* index 0x1016 :   Consumer Heartbeat Time. */
++                    UNS8 TestMaster_highestSubIndex_obj1016 = 1; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1016[] = 
++                    {
++                      0x23A98	/* 146072; 15s,bytes2 is node-ID, low 16bits are timer.Monitor slave node timeout.*/
++                    };
++                    subindex TestMaster_Index1016[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1016 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1016[0] }
++                     };
++
++/* index 0x1017 :   Producer Heartbeat Time */ 
++                    UNS16 TestMaster_obj1017 = 0x0;   /* 0 ,produce heartbeat cycle*/
++
++/* index 0x1018 :   Identity. */
++                    UNS8 TestMaster_highestSubIndex_obj1018 = 4; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1018_Vendor_ID = 0x0;	/* 0 */
++                    UNS32 TestMaster_obj1018_Product_Code = 0x0;	/* 0 */
++                    UNS32 TestMaster_obj1018_Revision_Number = 0x0;	/* 0 */
++                    UNS32 TestMaster_obj1018_Serial_Number = 0x0;	/* 0 */
++                    subindex TestMaster_Index1018[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1018 },
++                       { RO, uint32, sizeof (UNS32), (void*)&TestMaster_obj1018_Vendor_ID },
++                       { RO, uint32, sizeof (UNS32), (void*)&TestMaster_obj1018_Product_Code },
++                       { RO, uint32, sizeof (UNS32), (void*)&TestMaster_obj1018_Revision_Number },
++                       { RO, uint32, sizeof (UNS32), (void*)&TestMaster_obj1018_Serial_Number }
++                     };
++
++/* index 0x1280 :   Client SDO 1 Parameter. */
++                    UNS8 TestMaster_highestSubIndex_obj1280 = 3; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1280_COB_ID_Client_to_Server_Transmit_SDO = 0x602;	/* 1538 */
++                    UNS32 TestMaster_obj1280_COB_ID_Server_to_Client_Receive_SDO = 0x582;	/* 1410 */
++                    UNS8 TestMaster_obj1280_Node_ID_of_the_SDO_Server = 0x2;	/* 2 */
++                    subindex TestMaster_Index1280[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1280 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1280_COB_ID_Client_to_Server_Transmit_SDO },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1280_COB_ID_Server_to_Client_Receive_SDO },
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj1280_Node_ID_of_the_SDO_Server }
++                     };
++
++/* index 0x1400 :   Receive PDO 1 Parameter. */
++                    UNS8 TestMaster_highestSubIndex_obj1400 = 5; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1400_COB_ID_used_by_PDO = 0x200;	/* 512 */
++                    UNS8 TestMaster_obj1400_Transmission_Type = 0x1;	/* 1 */
++                    UNS16 TestMaster_obj1400_Inhibit_Time = 0x0;	/* 0 */
++                    UNS8 TestMaster_obj1400_Compatibility_Entry = 0x0;	/* 0 */
++                    UNS16 TestMaster_obj1400_Event_Timer = 0x0;	/* 0 */
++                    subindex TestMaster_Index1400[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1400 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1400_COB_ID_used_by_PDO },
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj1400_Transmission_Type },
++                       { RW, uint16, sizeof (UNS16), (void*)&TestMaster_obj1400_Inhibit_Time },
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj1400_Compatibility_Entry },
++                       { RW, uint16, sizeof (UNS16), (void*)&TestMaster_obj1400_Event_Timer }
++                     };
++
++/* index 0x1401 :   Receive PDO 2 Parameter. */
++                    UNS8 TestMaster_highestSubIndex_obj1401 = 5; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1401_COB_ID_used_by_PDO = 0x282;	/* 768 */
++                    UNS8 TestMaster_obj1401_Transmission_Type = 0x0;	/* 0 */
++                    UNS16 TestMaster_obj1401_Inhibit_Time = 0x0;	/* 0 */
++                    UNS8 TestMaster_obj1401_Compatibility_Entry = 0x0;	/* 0 */
++                    UNS16 TestMaster_obj1401_Event_Timer = 0x0;	/* 0 */
++                    subindex TestMaster_Index1401[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1401 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1401_COB_ID_used_by_PDO },
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj1401_Transmission_Type },
++                       { RW, uint16, sizeof (UNS16), (void*)&TestMaster_obj1401_Inhibit_Time },
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj1401_Compatibility_Entry },
++                       { RW, uint16, sizeof (UNS16), (void*)&TestMaster_obj1401_Event_Timer }
++                     };
++
++/* index 0x1402 :   Receive PDO 3 Parameter. */
++                    UNS8 TestMaster_highestSubIndex_obj1402 = 5; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1402_COB_ID_used_by_PDO = 0x401;	/* 1025 */
++                    UNS8 TestMaster_obj1402_Transmission_Type = 0x0;	/* 0 */
++                    UNS16 TestMaster_obj1402_Inhibit_Time = 0x0;	/* 0 */
++                    UNS8 TestMaster_obj1402_Compatibility_Entry = 0x0;	/* 0 */
++                    UNS16 TestMaster_obj1402_Event_Timer = 0x0;	/* 0 */
++                    subindex TestMaster_Index1402[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1402 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1402_COB_ID_used_by_PDO },
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj1402_Transmission_Type },
++                       { RW, uint16, sizeof (UNS16), (void*)&TestMaster_obj1402_Inhibit_Time },
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj1402_Compatibility_Entry },
++                       { RW, uint16, sizeof (UNS16), (void*)&TestMaster_obj1402_Event_Timer }
++                     };
++
++/* index 0x1403 :   Receive PDO 4 Parameter. */
++                    UNS8 TestMaster_highestSubIndex_obj1403 = 5; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1403_COB_ID_used_by_PDO = 0x482;	/* 1154 */
++                    UNS8 TestMaster_obj1403_Transmission_Type = 0x0;	/* 0 */
++                    UNS16 TestMaster_obj1403_Inhibit_Time = 0x0;	/* 0 */
++                    UNS8 TestMaster_obj1403_Compatibility_Entry = 0x0;	/* 0 */
++                    UNS16 TestMaster_obj1403_Event_Timer = 0x0;	/* 0 */
++                    subindex TestMaster_Index1403[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1403 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1403_COB_ID_used_by_PDO },
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj1403_Transmission_Type },
++                       { RW, uint16, sizeof (UNS16), (void*)&TestMaster_obj1403_Inhibit_Time },
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_obj1403_Compatibility_Entry },
++                       { RW, uint16, sizeof (UNS16), (void*)&TestMaster_obj1403_Event_Timer }
++                     };
++
++/* index 0x1600 :   Receive PDO 1 Mapping. */
++                    UNS8 TestMaster_highestSubIndex_obj1600 = 10; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1600[] = 
++                    {
++                      0x20000001,	/* 536870913 */
++                      0x20010001,	/* 536936449 */
++                      0x20020001,	/* 537001985 */
++                      0x20030001,	/* 537067521 */
++                      0x20040001,	/* 537133057 */
++                      0x20050001,	/* 537198593 */
++                      0x20060001,	/* 537264129 */
++                      0x20070001,	/* 537329665 */
++                      0x20080008,	/* 537395208 */
++                      0x20090020	/* 537460768 */
++                    };
++                    subindex TestMaster_Index1600[] = 
++                     {
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1600 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[0] },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[1] },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[2] },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[3] },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[4] },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[5] },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[6] },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[7] },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[8] },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1600[9] }
++                     };
++
++/* index 0x1601 :   Receive PDO 2 Mapping. */
++                    UNS8 TestMaster_highestSubIndex_obj1601 = 1; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1601[] = 
++                    {
++                      0x200A0030	/* 537526288 */
++                    };
++                    subindex TestMaster_Index1601[] = 
++                     {
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1601 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1601[0] }
++                     };
++
++/* index 0x1602 :   Receive PDO 3 Mapping. */
++                    UNS8 TestMaster_highestSubIndex_obj1602 = 1; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1602[] = 
++                    {
++                      0x200B0010	/* 537591824 */
++                    };
++                    subindex TestMaster_Index1602[] = 
++                     {
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1602 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1602[0] }
++                     };
++
++/* index 0x1603 :   Receive PDO 4 Mapping. */
++                    UNS8 TestMaster_highestSubIndex_obj1603 = 1; /* number of subindex - 1*/
++                    UNS32 TestMaster_obj1603[] = 
++                    {
++                      0x200C0040	/* 537657360 */
++                    };
++                    subindex TestMaster_Index1603[] = 
++                     {
++                       { RW, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1603 },
++                       { RW, uint32, sizeof (UNS32), (void*)&TestMaster_obj1603[0] }
++                     };
++
++/* index 0x1F22 :   Concise DCF. */
++                    UNS8 TestMaster_highestSubIndex_obj1F22 = 2; /* number of subindex - 1*/
++                    UNS8* TestMaster_obj1F22[] = 
++                    {
++                      "",
++                      "\x01\x00\x00\x00\x17\x10\x00\x02\x00\x00\x00\xe8\x03"
++                    };
++                    subindex TestMaster_Index1F22[] = 
++                     {
++                       { RO, uint8, sizeof (UNS8), (void*)&TestMaster_highestSubIndex_obj1F22 },
++                       { RW, domain, 0, (void*)&TestMaster_obj1F22[0] },
++                       { RW, domain, 13, (void*)&TestMaster_obj1F22[1] }
++                     };
++
++/* index 0x2000 :   Mapped variable MasterMap1 */
++                    ODCallback_t MasterMap1_callbacks[] = 
++                     {
++                       NULL,
++                     };
++                    subindex TestMaster_Index2000[] = 
++                     {
++                       { RW, boolean, sizeof (UNS8), (void*)&MasterMap1 }
++                     };
++
++/* index 0x2001 :   Mapped variable MasterMap2 */
++                    subindex TestMaster_Index2001[] = 
++                     {
++                       { RW, boolean, sizeof (UNS8), (void*)&MasterMap2 }
++                     };
++
++/* index 0x2002 :   Mapped variable MasterMap3 */
++                    subindex TestMaster_Index2002[] = 
++                     {
++                       { RW, boolean, sizeof (UNS8), (void*)&MasterMap3 }
++                     };
++
++/* index 0x2003 :   Mapped variable MasterMap4 */
++                    subindex TestMaster_Index2003[] = 
++                     {
++                       { RW, boolean, sizeof (UNS8), (void*)&MasterMap4 }
++                     };
++
++/* index 0x2004 :   Mapped variable MasterMap5 */
++                    subindex TestMaster_Index2004[] = 
++                     {
++                       { RW, boolean, sizeof (UNS8), (void*)&MasterMap5 }
++                     };
++
++/* index 0x2005 :   Mapped variable MasterMap6 */
++                    subindex TestMaster_Index2005[] = 
++                     {
++                       { RW, boolean, sizeof (UNS8), (void*)&MasterMap6 }
++                     };
++
++/* index 0x2006 :   Mapped variable MasterMap7 */
++                    subindex TestMaster_Index2006[] = 
++                     {
++                       { RW, boolean, sizeof (UNS8), (void*)&MasterMap7 }
++                     };
++
++/* index 0x2007 :   Mapped variable MasterMap8 */
++                    subindex TestMaster_Index2007[] = 
++                     {
++                       { RW, boolean, sizeof (UNS8), (void*)&MasterMap8 }
++                     };
++
++/* index 0x2008 :   Mapped variable MasterMap9 */
++                    subindex TestMaster_Index2008[] = 
++                     {
++                       { RW, uint8, sizeof (UNS8), (void*)&MasterMap9 }
++                     };
++
++/* index 0x2009 :   Mapped variable MasterMap10 */
++                    subindex TestMaster_Index2009[] = 
++                     {
++                       { RW, uint32, sizeof (UNS32), (void*)&MasterMap10 }
++                     };
++
++/* index 0x200A :   Mapped variable MasterMap11 */
++                    subindex TestMaster_Index200A[] = 
++                     {
++                       { RW, visible_string, 6, (void*)MasterMap11 }
++                     };
++
++/* index 0x200B :   Mapped variable MasterMap12 */
++                    subindex TestMaster_Index200B[] = 
++                     {
++                       { RW, int16, sizeof (INTEGER16), (void*)&MasterMap12 }
++                     };
++
++/* index 0x200C :   Mapped variable MasterMap13 */
++                    subindex TestMaster_Index200C[] = 
++                     {
++                       { RW, visible_string, 8, (void*)MasterMap13 }
++                     };
++
++/* index 0x200D :   Mapped variable MasterMap14 */
++                    subindex TestMaster_Index200D[] =
++                     {
++                       { RW, visible_string, 512, (void*)MasterMap14 }
++                     };
++
++/**************************************************************************/
++/* Declaration of pointed variables                                       */
++/**************************************************************************/
++
++const indextable TestMaster_objdict[] = 
++{
++  { (subindex*)TestMaster_Index1000,sizeof(TestMaster_Index1000)/sizeof(TestMaster_Index1000[0]), 0x1000},
++  { (subindex*)TestMaster_Index1001,sizeof(TestMaster_Index1001)/sizeof(TestMaster_Index1001[0]), 0x1001},
++  { (subindex*)TestMaster_Index1005,sizeof(TestMaster_Index1005)/sizeof(TestMaster_Index1005[0]), 0x1005},
++  { (subindex*)TestMaster_Index1006,sizeof(TestMaster_Index1006)/sizeof(TestMaster_Index1006[0]), 0x1006},
++  { (subindex*)TestMaster_Index1010,sizeof(TestMaster_Index1010)/sizeof(TestMaster_Index1010[0]), 0x1010},
++  { (subindex*)TestMaster_Index1011,sizeof(TestMaster_Index1011)/sizeof(TestMaster_Index1011[0]), 0x1011},
++  { (subindex*)TestMaster_Index1014,sizeof(TestMaster_Index1014)/sizeof(TestMaster_Index1014[0]), 0x1014},
++  { (subindex*)TestMaster_Index1016,sizeof(TestMaster_Index1016)/sizeof(TestMaster_Index1016[0]), 0x1016},
++  { (subindex*)TestMaster_Index1018,sizeof(TestMaster_Index1018)/sizeof(TestMaster_Index1018[0]), 0x1018},
++  { (subindex*)TestMaster_Index1280,sizeof(TestMaster_Index1280)/sizeof(TestMaster_Index1280[0]), 0x1280},
++  { (subindex*)TestMaster_Index1400,sizeof(TestMaster_Index1400)/sizeof(TestMaster_Index1400[0]), 0x1400},
++  { (subindex*)TestMaster_Index1401,sizeof(TestMaster_Index1401)/sizeof(TestMaster_Index1401[0]), 0x1401},
++  { (subindex*)TestMaster_Index1402,sizeof(TestMaster_Index1402)/sizeof(TestMaster_Index1402[0]), 0x1402},
++  { (subindex*)TestMaster_Index1403,sizeof(TestMaster_Index1403)/sizeof(TestMaster_Index1403[0]), 0x1403},
++  { (subindex*)TestMaster_Index1600,sizeof(TestMaster_Index1600)/sizeof(TestMaster_Index1600[0]), 0x1600},
++  { (subindex*)TestMaster_Index1601,sizeof(TestMaster_Index1601)/sizeof(TestMaster_Index1601[0]), 0x1601},
++  { (subindex*)TestMaster_Index1602,sizeof(TestMaster_Index1602)/sizeof(TestMaster_Index1602[0]), 0x1602},
++  { (subindex*)TestMaster_Index1603,sizeof(TestMaster_Index1603)/sizeof(TestMaster_Index1603[0]), 0x1603},
++  { (subindex*)TestMaster_Index1F22,sizeof(TestMaster_Index1F22)/sizeof(TestMaster_Index1F22[0]), 0x1F22},
++  { (subindex*)TestMaster_Index2000,sizeof(TestMaster_Index2000)/sizeof(TestMaster_Index2000[0]), 0x2000},
++  { (subindex*)TestMaster_Index2001,sizeof(TestMaster_Index2001)/sizeof(TestMaster_Index2001[0]), 0x2001},
++  { (subindex*)TestMaster_Index2002,sizeof(TestMaster_Index2002)/sizeof(TestMaster_Index2002[0]), 0x2002},
++  { (subindex*)TestMaster_Index2003,sizeof(TestMaster_Index2003)/sizeof(TestMaster_Index2003[0]), 0x2003},
++  { (subindex*)TestMaster_Index2004,sizeof(TestMaster_Index2004)/sizeof(TestMaster_Index2004[0]), 0x2004},
++  { (subindex*)TestMaster_Index2005,sizeof(TestMaster_Index2005)/sizeof(TestMaster_Index2005[0]), 0x2005},
++  { (subindex*)TestMaster_Index2006,sizeof(TestMaster_Index2006)/sizeof(TestMaster_Index2006[0]), 0x2006},
++  { (subindex*)TestMaster_Index2007,sizeof(TestMaster_Index2007)/sizeof(TestMaster_Index2007[0]), 0x2007},
++  { (subindex*)TestMaster_Index2008,sizeof(TestMaster_Index2008)/sizeof(TestMaster_Index2008[0]), 0x2008},
++  { (subindex*)TestMaster_Index2009,sizeof(TestMaster_Index2009)/sizeof(TestMaster_Index2009[0]), 0x2009},
++  { (subindex*)TestMaster_Index200A,sizeof(TestMaster_Index200A)/sizeof(TestMaster_Index200A[0]), 0x200A},
++  { (subindex*)TestMaster_Index200B,sizeof(TestMaster_Index200B)/sizeof(TestMaster_Index200B[0]), 0x200B},
++  { (subindex*)TestMaster_Index200C,sizeof(TestMaster_Index200C)/sizeof(TestMaster_Index200C[0]), 0x200C},
++  { (subindex*)TestMaster_Index200D,sizeof(TestMaster_Index200D)/sizeof(TestMaster_Index200D[0]), 0x200D},
++};
++
++const indextable * TestMaster_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
++{
++	int i;
++	*callbacks = NULL;
++	switch(wIndex){
++		case 0x1000: i = 0;break;
++		case 0x1001: i = 1;break;
++		case 0x1005: i = 2;*callbacks = TestMaster_Index1005_callbacks; break;
++		case 0x1006: i = 3;*callbacks = TestMaster_Index1006_callbacks; break;
++		case 0x1010: i = 4;break;
++		case 0x1011: i = 5;break;
++		case 0x1014: i = 6;break;
++		case 0x1016: i = 7;break;
++		case 0x1018: i = 8;break;
++		case 0x1280: i = 9;break;
++		case 0x1400: i = 10;break;
++		case 0x1401: i = 11;break;
++		case 0x1402: i = 12;break;
++		case 0x1403: i = 13;break;
++		case 0x1600: i = 14;break;
++		case 0x1601: i = 15;break;
++		case 0x1602: i = 16;break;
++		case 0x1603: i = 17;break;
++		case 0x1F22: i = 18;break;
++		case 0x2000: i = 19;*callbacks = MasterMap1_callbacks; break;
++		case 0x2001: i = 20;break;
++		case 0x2002: i = 21;break;
++		case 0x2003: i = 22;break;
++		case 0x2004: i = 23;break;
++		case 0x2005: i = 24;break;
++		case 0x2006: i = 25;break;
++		case 0x2007: i = 26;break;
++		case 0x2008: i = 27;break;
++		case 0x2009: i = 28;break;
++		case 0x200A: i = 29;break;
++		case 0x200B: i = 30;break;
++		case 0x200C: i = 31;break;
++		case 0x200D: i = 32;break;
++		default:
++			*errorCode = OD_NO_SUCH_OBJECT;
++			return NULL;
++	}
++	*errorCode = OD_SUCCESSFUL;
++	return &TestMaster_objdict[i];
++}
++
++/* 
++ * To count at which received SYNC a PDO must be sent.
++ * Even if no pdoTransmit are defined, at least one entry is computed
++ * for compilations issues.
++ */
++s_PDO_status TestMaster_PDO_status[1] = {s_PDO_status_Initializer};
++
++const quick_index TestMaster_firstIndex = {
++  0, /* SDO_SVR */
++  9, /* SDO_CLT */
++  10, /* PDO_RCV */
++  14, /* PDO_RCV_MAP */
++  0, /* PDO_TRS */
++  0 /* PDO_TRS_MAP */
++};
++
++const quick_index TestMaster_lastIndex = {
++  0, /* SDO_SVR */
++  9, /* SDO_CLT */
++  13, /* PDO_RCV */
++  17, /* PDO_RCV_MAP */
++  0, /* PDO_TRS */
++  0 /* PDO_TRS_MAP */
++};
++
++const UNS16 TestMaster_ObjdictSize = sizeof(TestMaster_objdict)/sizeof(TestMaster_objdict[0]); 
++
++CO_Data TestMaster_Data = CANOPEN_NODE_DATA_INITIALIZER(TestMaster);
+diff --git a/app/callback.c b/app/callback.c
+new file mode 100644
+index 0000000..ed5b484
+--- /dev/null
++++ b/app/callback.c
+@@ -0,0 +1,119 @@
++/*
++ * define callback function of CANopen protocol
++ *
++ * Copyright 2018 NXP
++ *
++ * Author: Jianchao Wang <jianchao.wang@nxp.com>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *	 notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *	 notice, this list of conditions and the following disclaimer in the
++ *	 documentation and/or other materials provided with the distribution.
++ *     * Neither the name of the above-listed copyright holders nor the
++ *	 names of any contributors may be used to endorse or promote products
++ *	 derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include "callback.h"
++
++callback_func_t initialization_callback;
++callback_func_t preoperation_callback;
++callback_func_t operation_callback;
++callback_func_t stop_callback;
++callback_func_t slave_state_change_callback;
++callback_func_t heartbeat_error_callback;
++
++void node_initialize_callback(CO_Data *d, UNS8 nodeid,
++			      e_nodeState new_node_state)
++{
++	printf("Note: master node initialization is complete!\n");
++}
++
++void node_preoperation_callback(CO_Data *d, UNS8 nodeid,
++				e_nodeState new_node_state)
++{
++	printf("Note: master node entry into the preOperation mode!\n");
++}
++
++void node_operation_callback(CO_Data *d, UNS8 nodeid,
++			     e_nodeState new_node_state)
++{
++	masterSendNMTstateChange(d, 0, NMT_Start_Node);
++	printf("Note: master node entry into the operation mode,"
++		"and start all slave nodes!\n");
++}
++
++void node_stop_callback(CO_Data *d, UNS8 nodeid, e_nodeState new_node_state)
++{
++	printf("Note: master node entry into the stop mode!\n");
++}
++
++void node_slave_state_change_callback(CO_Data *d, UNS8 nodeid,
++				      e_nodeState new_node_state)
++{
++	char *str;
++
++	switch (new_node_state) {
++	case Initialisation:
++		str = "Initialisation";
++		break;
++
++	case Stopped:
++		str = "Stopped";
++		break;
++
++	case Operational:
++		str = "Operational";
++		break;
++
++	case Pre_operational:
++		str = "Pre_operational";
++		break;
++	}
++	printf("Note: slave node \"0x%02X\" entry into \"%s\" state!\n",
++		nodeid, str);
++}
++
++void node_heartbeat_error_callback(CO_Data *d, UNS8 nodeid,
++				   e_nodeState new_node_state)
++{
++	printf("Error: slave node \"0x%02X\" disconnected!\n", nodeid);
++}
++
++void callback_list_init(void)
++{
++	initialization_callback         = NULL;
++	preoperation_callback           = NULL;
++	operation_callback              = NULL;
++	stop_callback                   = NULL;
++	slave_state_change_callback     = NULL;
++	heartbeat_error_callback        = NULL;
++
++	initialization_callback		= node_initialize_callback;
++	preoperation_callback		= node_preoperation_callback;
++	operation_callback		= node_operation_callback;
++	stop_callback			= node_stop_callback;
++	slave_state_change_callback	= node_slave_state_change_callback;
++	heartbeat_error_callback	= node_heartbeat_error_callback;
++}
+diff --git a/app/cmdTable.c b/app/cmdTable.c
+new file mode 100644
+index 0000000..7af3cbb
+--- /dev/null
++++ b/app/cmdTable.c
+@@ -0,0 +1,389 @@
++/*
++ * create command table for CANopen master node
++ *
++ * Copyright 2018 NXP
++ *
++ * Author: Jianchao Wang <jianchao.wang@nxp.com>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of the above-listed copyright holders nor the
++ *       names of any contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include <stdlib.h>
++#include <stdbool.h>
++#include <string.h>
++#include <pthread.h>
++#include "console.h"
++#include "data.h"
++#include "TestMaster.h"
++
++extern int exit_thread(int argc, char *argv[]);
++extern void terminate_rx_can(void);
++
++int kill_canopen(int argc, char *argv[])
++{
++	terminate_rx_can();
++	exit_thread(argc, argv);
++	return 0;
++}
++
++int set_state(int argc, char *argv[])
++{
++	UNS8 state_name;
++	UNS8 nodeid = 0;
++	char *endptr = NULL;
++
++	switch (argv[1][0]) {
++	case 'i':
++	case 'I':
++		if (argv[2][1] == 's')
++			state_name = NMT_Reset_Node;
++		else
++			state_name = Initialisation;
++		break;
++
++	case 'o':
++	case 'O':
++		if (argv[2][1] == 's')
++			state_name = NMT_Start_Node;
++		else
++			state_name = Operational;
++		break;
++
++	case 'p':
++	case 'P':
++		if (argv[2][1] == 's')
++			state_name = NMT_Enter_PreOperational;
++		else
++			state_name = Pre_operational;
++		break;
++
++	case 's':
++	case 'S':
++		if (argv[2][1] == 's')
++			state_name = NMT_Stop_Node;
++		else
++			state_name = Stopped;
++		break;
++
++	default:
++		printf("usage: setState state_name [-type] [nodeid]\n");
++		printf("       state_name = \"Init\", \"Pre_operation\", "
++					    "\"Stop\", \"Operation\"\n");
++		printf("       type = \"m\"(Set master node.Default)\n"
++		       "              \"s\"(Set slave node)\n");
++		printf("       nodeid = 0(broadcast,default), 1~127, "
++					"support HEX DEC OCT\n");
++		printf("note: You can replace \"state_name\" with an initial,"
++		       "case insensitive\n");
++		return 0;
++	}
++	if ((argc == 2) || ((argv[2][0] == '-') && (argv[2][1] == 'm')))
++		setState(&TestMaster_Data, state_name);
++	else if ((argv[2][0] == '-') && (argv[2][1] == 's')) {
++		nodeid = strtol(argv[3], &endptr, 0);
++		if (*endptr == 0)
++			masterSendNMTstateChange(&TestMaster_Data, nodeid,
++						 (e_nodeState)state_name);
++		else
++			printf("Error: Invalid parameter!\n");
++	}
++	return 0;
++}
++
++int show_pdo(int argc, char *argv[])
++{
++	UNS8 pdo_num = 0;
++	char *endptr = NULL;
++
++	pdo_num = strtol(argv[1], &endptr, 0);
++	if (*endptr != 0) {
++		printf("Error: Invalid pdo_num!\n");
++		return 1;
++	}
++
++	switch (pdo_num) {
++	case 2:
++		printf("Note: Rpdo2 data is \"%8s\"\n", MasterMap11);
++		break;
++
++	case 4:
++		printf("Note: Rpdo4 data is \"%7s\"\n", MasterMap13);
++		break;
++
++	default:
++		printf("Error: This pdo_num is not supported!\n");
++	}
++	return 0;
++}
++
++int request_pdo(int argc, char *argv[])
++{
++	UNS8 pdo_num = 0;
++	char *endptr = NULL;
++
++	pdo_num = strtol(argv[1], &endptr, 0);
++	if (*endptr != 0) {
++		printf("Error: Invalid pdo_num!\n");
++		return 1;
++	}
++
++	switch (pdo_num) {
++	case 4:
++		sendPDOrequest(&TestMaster_Data, 0x1403);
++		break;
++
++	default:
++		printf("Error: This pdo_num is not supported!\n");
++	}
++	return 0;
++}
++
++/* callback function */
++UNS8 buffer[520] = {0};
++void read_sdo_seg_callback(CO_Data *d, UNS8 nodeid)
++{
++	UNS32 count = 510, abort_code = 0;
++	UNS8 data_type = d->transfers[0].dataType;
++
++	memset(buffer, 0, 520);
++	if (getReadResultNetworkDict(d, nodeid, buffer, &count, &abort_code) ==
++	    SDO_FINISHED) {
++		if (data_type  != visible_string) {
++			printf("Note: reveived data is 0x%X\n",
++				*(UNS32 *)buffer);
++		} else {
++			printf("---------------- text ------------------\n");
++			printf("Note: reveived string ==>\n%s\n", buffer);
++			printf("----------------------------------------\n");
++		}
++	} else {
++		printf("Note: Master failed to read SDO %d.AbortCode: 0x%X \n",
++			nodeid, abort_code);
++	}
++	closeSDOtransfer(d, nodeid, SDO_CLIENT);
++}
++void write_sdo_seg_callback(CO_Data *d, UNS8 nodeid)
++{
++	UNS8 line;
++
++	getSDOlineOnUse(d, 0, SDO_CLIENT, &line);
++	resetSDOline(d, line);
++	printf("Note: Master write a data to 0x%02x node successfully.\n",
++		nodeid);
++}
++int sdo(int argc, char *argv[])
++{
++	/* cmd-1,index-2,subindex-1,data-4 */
++	UNS32 index = 0, subindex = 0, value = 0, count = 512;
++	char *endptr = NULL;
++	UNS8 nodeid = 0, data_type = 0, isBlock = 0;
++
++	if (argc == 1) {
++		printf("usage: sdo -type index subindex nodeid data\n");
++		printf("       type = \"r\"(read), \"w\"(write), "
++					"\"b\"(block)\n");
++		printf("       index = 0~0xFFFF,unsigned short\n");
++		printf("       subindex = 0~0xFF,unsigned char\n");
++		printf("       nodeid = 1~127,unsigned char\n");
++		printf("       data = 0 ~ 0xFFFFFFFF\n");
++		printf("note: numeric parameters support HEX DEC OCT\n");
++		return 0;
++	}
++	if (argc < 5) {
++		printf("Error: missing parameter!\n");
++		return 3;
++	}
++
++	if (argv[1][0] != '-') {
++		printf("Error: parameter is error!\n");
++
++		return 1;
++	}
++
++	index = strtol(argv[2], &endptr, 0);
++	if ((*endptr != 0) || (index > 0xFFFF)) {
++		printf("Error: Invalid index value!\n");
++		return 4;
++	}
++	subindex = strtol(argv[3], &endptr, 0);
++	if ((*endptr != 0) || (subindex > 0xFF)) {
++		printf("Error: Invalid subindex value!\n");
++		return 5;
++	}
++	nodeid = strtol(argv[4], &endptr, 0);
++	if ((*endptr != 0) || (nodeid > 127) || (nodeid == 0)) {
++		printf("Error: Invalid nodeid value!\n");
++		return 4;
++	}
++
++	getODentry(&TestMaster_Data, index, subindex, &value, &count,
++		   &data_type, 0);
++	if (strchr(argv[1], 'b') != NULL)
++		isBlock = 1;
++	if (strchr(argv[1], 'r') != NULL) {
++		readNetworkDictCallback(&TestMaster_Data, nodeid, index,
++			subindex, data_type, read_sdo_seg_callback, isBlock);
++	} else if (strchr(argv[1], 'w') != NULL) {
++		if (argc >= 6) {
++			value = strtol(argv[5], &endptr, 0);
++			if (*endptr != 0) {
++				printf("Error: Invalid data value!\n");
++				return 2;
++			}
++		} else {
++			printf("Error: missing parameter!\n");
++			return 3;
++		}
++
++		writeNetworkDictCallBack(&TestMaster_Data, nodeid, index,
++			subindex, count, data_type, &value,
++			write_sdo_seg_callback, isBlock);
++	} else {
++		printf("Error: missing parameter \"read | write\"\n");
++		return 3;
++	}
++
++	return 0;
++}
++
++/* test command */
++int test_start_m(int argc, char *argv[])
++{
++	argc = 2;
++	argv[0] = "setstate";
++	argv[1] = "o";
++	argv[2] = "-m";
++
++	return set_state(argc, argv);
++}
++
++int test_sdo_single(int argc, char *argv[])
++{
++	argc = 5;
++	argv[0] = "sdo";
++	argv[1] = "-r";
++	argv[2] = "0x200B";
++	argv[3] = "0";
++	argv[4] = "2";
++
++	return sdo(argc, argv);
++}
++
++int test_sdo_single_w(int argc, char *argv[])
++{
++	char data[11] = {0};
++	char *endptr = NULL;
++	UNS16 value = 0;
++
++	if (argc == 1) {
++		printf("usage: test_sdoSingleW data\n");
++		printf("       data = 0~0xFFFF");
++		printf("note: numeric parameters support HEX DEC OCT\n");
++		return 0;
++	}
++	value = strtol(argv[1], &endptr, 0);
++	if ((*endptr != 0) || (value > 0xFFFF)) {
++	printf("Error: Invalid data value!\n");
++		return 1;
++	}
++	memcpy(data, argv[1], strlen(argv[1]));
++
++	argc = 6;
++	argv[0] = "sdo";
++	argv[1] = "-w";
++	argv[2] = "0x200B";
++	argv[3] = "0";
++	argv[4] = "2";
++	argv[5] = data;
++
++	return sdo(argc, argv);
++}
++
++int test_sdo_block(int argc, char *argv[])
++{
++	argc = 5;
++	argv[0] = "sdo";
++	argv[1] = "-r";
++	argv[2] = "0x200D";
++	argv[3] = "0";
++	argv[4] = "2";
++
++	return sdo(argc, argv);
++}
++
++int test_show_pdo_cyc(int argc, char *argv[])
++{
++	argc = 2;
++	argv[0] = "showPdo";
++	argv[1] = "2";
++
++	return show_pdo(argc, argv);
++}
++
++int test_show_pdo_req(int argc, char *argv[])
++{
++	argc = 2;
++	argv[0] = "showPdo";
++	argv[1] = "4";
++
++	return show_pdo(argc, argv);
++}
++
++int test_request_pdo(int argc, char *argv[])
++{
++	argc = 2;
++	argv[0] = "requestPdo";
++	argv[1] = "4";
++
++	return request_pdo(argc, argv);
++}
++
++void cmdtable_init(void)
++{
++	register_cmd("can_quit", kill_canopen, "exit CANopen thread");
++	register_cmd("setState", set_state, "set the CANopen node state");
++	register_cmd("showPdo", show_pdo, "show the data of RPDO");
++	register_cmd("requestPdo", request_pdo, "request the data of RPDO");
++	register_cmd("sdo", sdo, "read/write one entry by SDO protocol");
++	register_cmd("", NULL, "");
++	register_cmd("test_startM", test_start_m, "test -- Start master");
++	register_cmd("test_sdoSingle", test_sdo_single,
++			"test -- Read slave node single data");
++	register_cmd("test_sdoSingleW", test_sdo_single_w,
++			"test -- Write slave node single data");
++	register_cmd("test_sdoBlock", test_sdo_block,
++			"test -- Read slave node block data");
++	register_cmd("test_showPdoCyc", test_show_pdo_cyc,
++			"test -- Show cycle PDO data");
++	register_cmd("test_showpdoreq", test_show_pdo_req,
++			"test -- Show requested PDO data");
++	register_cmd("test_requestpdo", test_request_pdo,
++			"test -- Request PDO data");
++}
+diff --git a/app/console.c b/app/console.c
+new file mode 100644
+index 0000000..1c1943d
+--- /dev/null
++++ b/app/console.c
+@@ -0,0 +1,205 @@
++/*
++ * design console function for CANopen
++ *
++ * Copyright 2018 NXP
++ *
++ * Author: Jianchao Wang <jianchao.wang@nxp.com>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of the above-listed copyright holders nor the
++ *       names of any contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include <stdio.h>
++#include <stdbool.h>
++#include <string.h>
++#include <unistd.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include <pthread.h>
++#include "console.h"
++#include "cmdtable.h"
++
++#ifndef ARRAY_SIZE
++	#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
++#endif
++
++#define MSG_MAX_SIZE 100
++
++struct cmd_type {
++	char *name;
++	cmd_func func;
++	char *note;
++};
++
++int cmd_total = 2;
++
++int exit_thread(int argc, char *argv[])
++{
++	printf("\"quit\" command: console thread exit!\n");
++	pthread_exit(0);
++	return 0;
++}
++
++struct cmd_type cmd_table[50] = {
++	{"ctrl_quit", exit_thread, "console thread exit!"},
++	{"help", console_help, "command list"},
++	{NULL, NULL, NULL}
++};
++
++int console_help(int argc, char *argv[])
++{
++	int i = 0;
++
++	printf("-------------------------------------------------------------"
++	       "------------\n");
++	printf(" num |       command       |                introduction\n");
++	printf("-------------------------------------------------------------"
++	       "------------\n");
++	for (i = 0; i < cmd_total; i++) {
++		printf(" %02d  |  %-17s  |  %s\n", i, cmd_table[i].name,
++			cmd_table[i].note);
++		printf("-----------------------------------------------------"
++		       "--------------------\n");
++	}
++	return 0;
++}
++
++void register_cmd(char *name, cmd_func func, char *note)
++{
++	int i = 0;
++	bool isFail = true;
++
++	for (i = 2; (cmd_total < 50) && (i < 50); i++) {
++		if (cmd_table[i].name == NULL) {
++			cmd_table[i].name = name;
++			cmd_table[i].func = func;
++			cmd_table[i].note = note;
++			cmd_total++;
++			isFail = false;
++			printf("\"%s\" command: register OK!\n", name);
++			break;
++		}
++	}
++	if (isFail)
++		printf("\"%s\" command: register fail!\n", name);
++}
++
++int str_split(char *str, char *argv[])
++{
++	int i, num = 0;
++	int total = strlen(str);
++	bool space = true;
++
++	for (i = 0; i < total; i++) {
++		if (str[i] == ' ') {
++			space = true;
++			str[i] = '\0';
++		} else if (space) {/* The previous character is a space */
++			argv[num] = &str[i];
++			num++;/* the number of parameter add 1 */
++			space = false;
++		}
++	}
++
++	return num;
++}
++
++void cmd_exe(char *str)
++{
++	int index = 0, argc = 0;
++	char *argv[10];
++
++	argc = str_split(str, argv);
++	for (index = 0; argc && (index < cmd_total); index++) {
++		if (strcasecmp(argv[0], cmd_table[index].name) == 0) {
++			cmd_table[index].func(argc, argv);
++			break;
++		}
++	}
++	if ((index >= cmd_total) || (argc == 0)) {
++		if (argc == 0)/* if the command is only space */
++			argv[0] = " ";
++		printf("Invalid instruction:%s\n", argv[0]);
++	}
++}
++
++bool console_valid;
++void *console_rx_handle(void *fd)
++{
++	char buffer[MSG_MAX_SIZE] = {0};
++	char *buf = buffer;
++	ssize_t nBytes;
++
++	console_valid = false;
++
++	for (;;) {
++		/*
++		 * support string input and one by one character input
++		 */
++		if (fgets(buf, MSG_MAX_SIZE, stdin) == NULL)
++			continue;
++		if (console_valid) {
++			nBytes = strlen(buf);
++			if (buf[nBytes - 1] == '\n') {
++				nBytes--;
++				buf[nBytes] = '\0';
++
++				if (strlen(buffer) > 0)
++					cmd_exe(buffer);
++
++				memset(buffer, 0, MSG_MAX_SIZE);
++				buf = buffer;
++			} else {
++				buf += nBytes;
++			}
++		} else
++			printf("Warn: Console is invalid when testing!\n");
++	}
++}
++
++static pthread_t console_rx_thread;
++int console_init(void)
++{
++
++	cmdtable_init();
++
++	if (pthread_create(&console_rx_thread, NULL, console_rx_handle,
++	    NULL) != 0) {
++		printf("Error: fail to create \"console\" thread!\n");
++		return 1;
++	}
++
++	return 0;
++}
++
++void wait_console_exit(void)
++{
++	pthread_join(console_rx_thread, NULL);
++}
+diff --git a/app/inc/TestMaster.h b/app/inc/TestMaster.h
+new file mode 100644
+index 0000000..7e2e97d
+--- /dev/null
++++ b/app/inc/TestMaster.h
+@@ -0,0 +1,65 @@
++/*
++ * create object dictionary for CANopen master node
++ *
++ * Copyright 2018 NXP
++ *
++ * Author: Jianchao Wang <jianchao.wang@nxp.com>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of the above-listed copyright holders nor the
++ *       names of any contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#ifndef TESTMASTER_H
++#define TESTMASTER_H
++
++#include "data.h"
++
++/* Prototypes of function provided by object dictionary */
++UNS32 TestMaster_valueRangeTest(UNS8 typeValue, void *value);
++const indextable *TestMaster_scanIndexOD(UNS16 wIndex, UNS32 *errorCode,
++					   ODCallback_t **callbacks);
++
++/* Master node data struct */
++extern CO_Data TestMaster_Data;
++extern UNS8 MasterMap1;		/* Mapped at index 0x2000, subindex 0x00*/
++extern UNS8 MasterMap2;		/* Mapped at index 0x2001, subindex 0x00*/
++extern UNS8 MasterMap3;		/* Mapped at index 0x2002, subindex 0x00*/
++extern UNS8 MasterMap4;		/* Mapped at index 0x2003, subindex 0x00*/
++extern UNS8 MasterMap5;		/* Mapped at index 0x2004, subindex 0x00*/
++extern UNS8 MasterMap6;		/* Mapped at index 0x2005, subindex 0x00*/
++extern UNS8 MasterMap7;		/* Mapped at index 0x2006, subindex 0x00*/
++extern UNS8 MasterMap8;		/* Mapped at index 0x2007, subindex 0x00*/
++extern UNS8 MasterMap9;		/* Mapped at index 0x2008, subindex 0x00*/
++extern UNS32 MasterMap10;	/* Mapped at index 0x2009, subindex 0x00*/
++extern UNS8 MasterMap11[8];	/* Mapped at index 0x200A, subindex 0x00*/
++extern INTEGER16 MasterMap12;	/* Mapped at index 0x200B, subindex 0x00*/
++extern UNS8 MasterMap13[8];	/* Mapped at index 0x200C, subindex 0x00*/
++extern UNS8 MasterMap14[520];
++
++#endif // TESTMASTER_H
+diff --git a/app/inc/callback.h b/app/inc/callback.h
+new file mode 100644
+index 0000000..cac85c3
+--- /dev/null
++++ b/app/inc/callback.h
+@@ -0,0 +1,54 @@
++/*
++ * define callback function of CANopen protocol
++ *
++ * Copyright 2018 NXP
++ *
++ * Author: Jianchao Wang <jianchao.wang@nxp.com>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of the above-listed copyright holders nor the
++ *       names of any contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#ifndef _CALLBACK__H_
++#define _CALLBACK__H_
++
++#include "data.h"
++
++typedef void (*callback_func_t)(CO_Data *, UNS8, e_nodeState);
++
++extern callback_func_t initialization_callback;
++extern callback_func_t preoperation_callback;
++extern callback_func_t operation_callback;
++extern callback_func_t stop_callback;
++extern callback_func_t slave_state_change_callback;
++extern callback_func_t heartbeat_error_callback;
++
++void callback_list_init(void);
++
++#endif
+diff --git a/app/inc/cmdtable.h b/app/inc/cmdtable.h
+new file mode 100644
+index 0000000..ff3b6b0
+--- /dev/null
++++ b/app/inc/cmdtable.h
+@@ -0,0 +1,50 @@
++/*
++ * create command table for CANopen master node
++ *
++ * Copyright 2018 NXP
++ *
++ * Author: Jianchao Wang <jianchao.wang@nxp.com>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of the above-listed copyright holders nor the
++ *       names of any contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#ifndef __CMDTABLE_H__
++#define __CMDTABLE_H__
++
++int test_start_m(int argc, char *argv[]);
++int test_sdo_single(int argc, char *argv[]);
++int test_sdo_single_w(int argc, char *argv[]);
++int test_sdo_block(int argc, char *argv[]);
++int test_show_pdo_cyc(int argc, char *argv[]);
++int test_show_pdo_req(int argc, char *argv[]);
++int test_request_pdo(int argc, char *argv[]);
++void cmdtable_init(void);
++
++#endif
+diff --git a/app/inc/console.h b/app/inc/console.h
+new file mode 100644
+index 0000000..a34c150
+--- /dev/null
++++ b/app/inc/console.h
+@@ -0,0 +1,52 @@
++/*
++ * design console function for CANopen
++ *
++ * Copyright 2018 NXP
++ *
++ * Author: Jianchao Wang <jianchao.wang@nxp.com>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of the above-listed copyright holders nor the
++ *       names of any contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#ifndef _CONSOLE__H_
++#define _CONSOLE__H_
++
++#include <signal.h>
++
++typedef int (*cmd_func)(int argc, char *argv[]);
++
++extern bool console_valid;
++
++int console_help(int argc, char *argv[]);
++void register_cmd(char *name, cmd_func func, char *note);
++int console_init(void);
++void wait_console_exit(void);
++
++#endif
+diff --git a/drivers/can_socket/can_socket.c b/drivers/can_socket/can_socket.c
+index 1fa5e67..ba61b57 100644
+--- a/drivers/can_socket/can_socket.c
++++ b/drivers/can_socket/can_socket.c
+@@ -73,7 +73,7 @@ canReceive_driver (CAN_HANDLE fd0, Message * m)
+   int res;
+   struct can_frame frame;
+ 
+-  res = CAN_RECV (*(int *) fd0, &frame, sizeof (frame), 0);
++  res = CAN_RECV(*(int *)fd0, &frame, sizeof(frame), MSG_WAITALL);
+   if (res < 0)
+     {
+       fprintf (stderr, "Recv failed: %s\n", strerror (CAN_ERRNO (res)));
+@@ -205,7 +205,7 @@ canOpen_driver (s_BOARD * board)
+     }
+   
+   {
+-    int loopback = 1;
++    int loopback = 0;/* loopback disable */
+     err = CAN_SETSOCKOPT(*(int *)fd0, SOL_CAN_RAW, CAN_RAW_LOOPBACK,
+                &loopback, sizeof(loopback));
+     if (err) {
+diff --git a/include/can_driver.h b/include/can_driver.h
+index 99b002c..9ae35ca 100755
+--- a/include/can_driver.h
++++ b/include/can_driver.h
+@@ -69,6 +69,8 @@ CAN_HANDLE DLL_CALL(canOpen)(s_BOARD *)FCT_PTR_INIT;
+ int DLL_CALL(canClose)(CAN_HANDLE)FCT_PTR_INIT;
+ UNS8 DLL_CALL(canChangeBaudRate)(CAN_HANDLE, char *)FCT_PTR_INIT;
+ 
++#define canSend_driver           canSend
++
+ #if defined DEBUG_MSG_CONSOLE_ON || defined NEED_PRINT_MESSAGE
+ #include "def.h"
+ 
+diff --git a/include/config.h b/include/config.h
+new file mode 100644
+index 0000000..6b0360a
+--- /dev/null
++++ b/include/config.h
+@@ -0,0 +1,49 @@
++/* !!!!!!!!!! FILE GENERATED by configure. DO NOT EDIT !!!!!!!!!!*/
++
++/* 
++This file is part of CanFestival, a library implementing CanOpen Stack.
++
++Copyright (C): Edouard TISSERANT and Francis DUPIN
++See COPYING file for copyrights details.
++
++This library is free software; you can redistribute it and/or
++modify it under the terms of the GNU Lesser General Public
++License as published by the Free Software Foundation; either
++version 2.1 of the License, or (at your option) any later version.
++
++This library is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++Lesser General Public License for more details.
++
++You should have received a copy of the GNU Lesser General Public
++License along with this library; if not, write to the Free Software
++Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++*/
++
++#ifndef _CONFIG_H_
++#define _CONFIG_H_
++
++#define MAX_CAN_BUS_ID 1
++#define SDO_MAX_LENGTH_TRANSFER 32
++#define SDO_BLOCK_SIZE 16
++#define SDO_MAX_SIMULTANEOUS_TRANSFERS 4
++#define NMT_MAX_NODE_ID 128
++#define SDO_TIMEOUT_MS 3000
++#define MAX_NB_TIMER 32
++/* CANOPEN_BIG_ENDIAN is not defined */
++/* US_TO_TIMEVAL_FACTOR is not defined */
++/* TIMEVAL is not defined */
++/* TIMEVAL_MAX is not defined */
++/* RTCAN_SOCKET is not defined */
++#define EMCY_MAX_ERRORS 8
++#define LSS_TIMEOUT_MS 1000
++#define LSS_FS_TIMEOUT_MS 100
++
++#define REPEAT_SDO_MAX_SIMULTANEOUS_TRANSFERS_TIMES(repeat)\
++repeat repeat repeat repeat
++#define REPEAT_NMT_MAX_NODE_ID_TIMES(repeat)\
++repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat repeat
++#define REPEAT_EMCY_MAX_ERRORS_TIMES(repeat)\
++repeat repeat repeat repeat repeat repeat repeat repeat
++#endif /* _CONFIG_H_ */
+diff --git a/src/lifegrd.c b/src/lifegrd.c
+index 566a492..c1b798d 100644
+--- a/src/lifegrd.c
++++ b/src/lifegrd.c
+@@ -37,7 +37,7 @@
+ #include "canfestival.h"
+ #include "dcf.h"
+ #include "sysdep.h"
+-
++#include "callback.h"
+ 
+ void ConsumerHeartbeatAlarm(CO_Data* d, UNS32 id);
+ void ProducerHeartbeatAlarm(CO_Data* d, UNS32 id);
+@@ -366,8 +366,16 @@ void lifeGuardStop(CO_Data* d)
+ }
+ 
+ 
+-void _heartbeatError(CO_Data* d, UNS8 heartbeatID){}
++void _heartbeatError(CO_Data *d, UNS8 heartbeatID)
++{
++	if (heartbeat_error_callback != NULL)
++		heartbeat_error_callback(d, heartbeatID, 0);
++}
+ void _post_SlaveBootup(CO_Data* d, UNS8 SlaveID){}
+-void _post_SlaveStateChange(CO_Data* d, UNS8 nodeId, e_nodeState newNodeState){}
++void _post_SlaveStateChange(CO_Data *d, UNS8 nodeId, e_nodeState newNodeState)
++{
++	if (slave_state_change_callback != NULL)
++		slave_state_change_callback(d, nodeId, newNodeState);
++}
+ void _nodeguardError(CO_Data* d, UNS8 id){}
+ 
+diff --git a/src/states.c b/src/states.c
+index a8fb3d3..b988557 100644
+--- a/src/states.c
++++ b/src/states.c
+@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+ #include "data.h"
+ #include "sysdep.h"
++#include "callback.h"
+ 
+ /** Prototypes for internals functions */
+ /*!                                                                                                
+@@ -145,7 +146,10 @@ void switchCommunicationState(CO_Data* d, s_state_communication *newCommunicatio
+ 	StartOrStop(csLifeGuard,	lifeGuardInit(d),	lifeGuardStop(d))
+ 	StartOrStop(csEmergency,	emergencyInit(d),	emergencyStop(d)) 
+ 	StartOrStop(csPDO,	PDOInit(d),	PDOStop(d))
+-	StartOrStop(csBoot_Up,	None,	slaveSendBootUp(d))
++	if (*(d->iam_a_slave))
++		StartOrStop(csBoot_Up,	None,	slaveSendBootUp(d))
++	else
++		StartOrStop(csBoot_Up,  None,   None)
+ }
+ 
+ /*!                                                                                                
+@@ -177,11 +181,14 @@ UNS8 setState(CO_Data* d, e_nodeState newState)
+ 								
+ 			case Pre_operational:
+ 			{
+-				
+ 				s_state_communication newCommunicationState = {0, 1, 1, 1, 1, 0, 1};
+ 				d->nodeState = Pre_operational;
+ 				switchCommunicationState(d, &newCommunicationState);
+-                (*d->preOperational)(d);
++				if (!(*(d->iam_a_slave)))
++					masterSendNMTstateChange(d, 0,
++							NMT_Reset_Node);
++
++				(*d->preOperational)(d);
+ 			}
+ 			break;
+ 								
+@@ -308,12 +315,24 @@ void setNodeId(CO_Data* d, UNS8 nodeId)
+   *d->bDeviceNodeId = nodeId;
+ }
+ 
+-void _initialisation(CO_Data* d){}
+-void _preOperational(CO_Data* d){
+-    if (!(*(d->iam_a_slave)))
+-    {
+-        masterSendNMTstateChange (d, 0, NMT_Reset_Node);
+-    }
++void _initialisation(CO_Data *d)
++{
++	if (initialization_callback != NULL)
++		initialization_callback(d, 0, 0);
++}
++
++void _preOperational(CO_Data *d)
++{
++	if (preoperation_callback != NULL)
++		preoperation_callback(d, 0, 0);
++}
++void _operational(CO_Data *d)
++{
++	if (operation_callback != NULL)
++		operation_callback(d, 0, 0);
++}
++void _stopped(CO_Data *d)
++{
++	if (stop_callback != NULL)
++		stop_callback(d, 0, 0);
+ }
+-void _operational(CO_Data* d){}
+-void _stopped(CO_Data* d){}
+-- 
+2.7.4
+

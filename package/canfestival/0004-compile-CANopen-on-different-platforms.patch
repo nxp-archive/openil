@@ -1,0 +1,187 @@
+From 8cd8778e0548dbe23d77cc98ff4765d638cd777a Mon Sep 17 00:00:00 2001
+From: Jianchao Wang <jianchao.wang@nxp.com>
+Date: Wed, 22 Aug 2018 17:03:49 +0800
+Subject: [PATCH] compile CANopen on different platforms
+
+Signed-off-by: Jianchao Wang <jianchao.wang@nxp.com>
+---
+ Makefile.in     | 18 ++++++++++++++++++
+ app/Makefile    | 52 ----------------------------------------------------
+ app/Makefile.in | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ configure       |  3 ++-
+ 4 files changed, 72 insertions(+), 53 deletions(-)
+ delete mode 100644 app/Makefile
+ create mode 100644 app/Makefile.in
+
+diff --git a/Makefile.in b/Makefile.in
+index e5bdd00..8ecdd3d 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -20,6 +20,21 @@
+ # License along with this library; if not, write to the Free Software
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ # 
++MAKEFILEDIR = app/Makefile \
++	drivers/Makefile \
++	drivers/can_virtual/Makefile \
++	drivers/timers_unix/Makefile \
++	drivers/unix/Makefile \
++	examples/CANOpenShell/Makefile \
++	examples/Makefile \
++	examples/SillySlave/Makefile \
++	examples/TestMasterMicroMod/Makefile \
++	examples/TestMasterSlave/Makefile \
++	examples/TestMasterSlaveLSS/Makefile \
++	examples/test_copcican_linux/Makefile \
++	objdictgen/Makefile \
++	src/Makefile \
++	Makefile
+ 
+ PYTHON ?= python
+ export PYTHON
+@@ -64,9 +79,12 @@ uninstall:
+ 
+ clean:
+ 	#$(MAKE) -C src $@
++	$(MAKE) -C app $@
+ 	$(MAKE) -C drivers $@
+ 	$(MAKE) -C examples $@
+ 	$(MAKE) -C objdictgen $@
++	rm -f objdictgen/canfestival_config.py
++	rm -f $(MAKEFILEDIR)
+ 	
+ mrproper: clean
+ 	$(MAKE) -C src $@
+diff --git a/app/Makefile b/app/Makefile
+deleted file mode 100644
+index 8b3b41f..0000000
+--- a/app/Makefile
++++ /dev/null
+@@ -1,52 +0,0 @@
+-CC = arm-linux-gnueabihf-gcc
+-INCLUDES = -I./inc -I../include -I../include/unix -I../include/timers_unix
+-SRCDIR_PREFIX = ../drivers
+-CAN_TYPE = socket
+-TIMER_TYPE = unix
+-OBJDIR = ./obj/
+-LIBDIR = -L../src
+-LIB = -lrt -lpthread $(LIBDIR)
+-TARGETDIR = ../src/
+-TARGET = $(TARGETDIR)unix
+-PREFIX = /usr
+-ENABLE_LSS = 0
+-
+-OBJS = $(TARGET)_objacces.o $(TARGET)_lifegrd.o $(TARGET)_sdo.o \
+-	$(TARGET)_pdo.o $(TARGET)_sync.o $(TARGET)_nmtSlave.o \
+-	$(TARGET)_nmtMaster.o $(TARGET)_states.o $(TARGET)_timer.o \
+-	$(TARGET)_dcf.o $(TARGET)_emcy.o \
+-	$(OBJDIR)can_socket.o $(OBJDIR)timers_unix.o $(OBJDIR)CANopen-app.o \
+-	$(OBJDIR)TestMaster.o $(OBJDIR)callback.o $(OBJDIR)console.o \
+-	$(OBJDIR)cmdTable.o
+-
+-ifeq ($(ENABLE_LSS),1)
+-OBJS += $(TARGET)_lss.o
+-endif
+-
+-CANopen-app : $(OBJS)
+-	$(CC) -o CANopen-app $(OBJS) $(LIB)
+-
+-$(OBJDIR)can_$(CAN_TYPE).o : $(SRCDIR_PREFIX)/can_$(CAN_TYPE)/can_$(CAN_TYPE).c
+-	$(CC) $(INCLUDES) -c $(SRCDIR_PREFIX)/can_$(CAN_TYPE)/can_$(CAN_TYPE).c -o $(OBJDIR)can_$(CAN_TYPE).o
+-
+-$(OBJDIR)timers_$(TIMER_TYPE).o : $(SRCDIR_PREFIX)/timers_$(TIMER_TYPE)/timers_$(TIMER_TYPE).c
+-	$(CC) $(INCLUDES) -c $(SRCDIR_PREFIX)/timers_$(TIMER_TYPE)/timers_$(TIMER_TYPE).c -o $(OBJDIR)timers_$(TIMER_TYPE).o
+-
+-$(OBJDIR)%.o : %.c
+-	$(CC) $(INCLUDES) -c $< -o $@
+-
+-$(TARGET)_%.o : $(TARGETDIR)%.c
+-	@echo " "
+-	@echo "*********************************************"
+-	@echo "**Compiling $< -> $@"
+-	@echo "*********************************************"
+-	$(CC) -O2 $(INCLUDES) -o $@ -c $<
+-
+-install: CANopen-app
+-	mkdir -p $(DESTDIR)$(PREFIX)/bin/
+-	cp $< $(DESTDIR)$(PREFIX)/bin/
+-
+-clean:
+-	rm obj/*.o
+-	rm ../src/*.o
+-	rm CANopen-app
+diff --git a/app/Makefile.in b/app/Makefile.in
+new file mode 100644
+index 0000000..ca64187
+--- /dev/null
++++ b/app/Makefile.in
+@@ -0,0 +1,52 @@
++CC = SUB_CC
++INCLUDES = -I./inc -I../include -I../include/unix -I../include/timers_unix
++SRCDIR_PREFIX = ../drivers
++CAN_TYPE = socket
++TIMER_TYPE = unix
++OBJDIR = ./obj/
++LIBDIR = -L../src
++LIB = -lrt -lpthread $(LIBDIR)
++TARGETDIR = ../src/
++TARGET = $(TARGETDIR)unix
++PREFIX = /usr
++ENABLE_LSS = 0
++
++OBJS = $(TARGET)_objacces.o $(TARGET)_lifegrd.o $(TARGET)_sdo.o \
++	$(TARGET)_pdo.o $(TARGET)_sync.o $(TARGET)_nmtSlave.o \
++	$(TARGET)_nmtMaster.o $(TARGET)_states.o $(TARGET)_timer.o \
++	$(TARGET)_dcf.o $(TARGET)_emcy.o \
++	$(OBJDIR)can_socket.o $(OBJDIR)timers_unix.o $(OBJDIR)CANopen-app.o \
++	$(OBJDIR)TestMaster.o $(OBJDIR)callback.o $(OBJDIR)console.o \
++	$(OBJDIR)cmdTable.o
++
++ifeq ($(ENABLE_LSS),1)
++OBJS += $(TARGET)_lss.o
++endif
++
++CANopen-app : $(OBJS)
++	$(CC) -o CANopen-app $(OBJS) $(LIB)
++
++$(OBJDIR)can_$(CAN_TYPE).o : $(SRCDIR_PREFIX)/can_$(CAN_TYPE)/can_$(CAN_TYPE).c
++	$(CC) $(INCLUDES) -c $(SRCDIR_PREFIX)/can_$(CAN_TYPE)/can_$(CAN_TYPE).c -o $(OBJDIR)can_$(CAN_TYPE).o
++
++$(OBJDIR)timers_$(TIMER_TYPE).o : $(SRCDIR_PREFIX)/timers_$(TIMER_TYPE)/timers_$(TIMER_TYPE).c
++	$(CC) $(INCLUDES) -c $(SRCDIR_PREFIX)/timers_$(TIMER_TYPE)/timers_$(TIMER_TYPE).c -o $(OBJDIR)timers_$(TIMER_TYPE).o
++
++$(OBJDIR)%.o : %.c
++	$(CC) $(INCLUDES) -c $< -o $@
++
++$(TARGET)_%.o : $(TARGETDIR)%.c
++	@echo " "
++	@echo "*********************************************"
++	@echo "**Compiling $< -> $@"
++	@echo "*********************************************"
++	$(CC) -O2 $(INCLUDES) -o $@ -c $<
++
++install: CANopen-app
++	mkdir -p $(DESTDIR)$(PREFIX)/bin/
++	cp $< $(DESTDIR)$(PREFIX)/bin/
++
++clean:
++	rm -f obj/*.o
++	rm -f ../src/*.o
++	rm -f CANopen-app
+diff --git a/configure b/configure
+index 1a45ec7..4cdca8e 100755
+--- a/configure
++++ b/configure
+@@ -795,7 +795,8 @@ MAKEFILES=Makefile.in\
+ \ drivers/Makefile.in\
+ \ objdictgen/Makefile.in\
+ \ examples/Makefile.in\
+-\ objdictgen/canfestival_config.py.in
++\ objdictgen/canfestival_config.py.in\
++\ app/Makefile.in
+ 
+ # Drivers dependent Makefiles
+ if [ "$SUB_TIMERS_DRIVER" != "" ]; then
+-- 
+2.7.4
+
