@@ -53,6 +53,13 @@ else
 OPENSSH_CONF_OPTS += --without-pam
 endif
 
+define OPENSSH_PERMITEROOTLOGIN_YES
+	$(SED) 's/\#PermitRootLogin prohibit-password/PermitRootLogin yes/' $(TARGET_DIR)/etc/ssh/sshd_config
+	$(SED) 's/\#PermitEmptyPasswords no/PermitEmptyPasswords yes/'  $(TARGET_DIR)/etc/ssh/sshd_config
+endef
+
+OPENSSH_POST_INSTALL_TARGET_HOOKS += OPENSSH_PERMITEROOTLOGIN_YES
+
 ifeq ($(BR2_PACKAGE_LIBSELINUX),y)
 OPENSSH_DEPENDENCIES += libselinux
 OPENSSH_CONF_OPTS += --with-selinux
