@@ -2,25 +2,46 @@
 #
 # sshd        Starts sshd.
 #
+SSHD=/usr/sbin/sshd
+SSH_KEYGEN=/usr/bin/ssh-keygen
+LOCK=/var/lock/sshd
 
-# Make sure the ssh-keygen progam exists
-[ -f /usr/bin/ssh-keygen ] || exit 0
+for file in ${SSHD} ${SSH_KEYGEN}; do
+	[ -f ${file} ] || {
+		echo "$0: The ${file} program does not exist, exiting."
+		exit 1
+	}
+done
 
 umask 077
 
 start() {
-	# Create any missing keys
-	/usr/bin/ssh-keygen -A
+	[ -f ${LOCK} ] && {
+		echo "sshd already started (${LOCK} file present)."
+		exit 1
+	}
+	if ! [ -z "$(${SSHD} -t 2>&1)" ]; then
+		# sshd will not start with current config,
+		echo "Generating a new set of ssh keys."
+		for key_type in rsa dsa ecdsa ed25519; do
+			key_file=/etc/ssh/ssh_host_${key_type}_key
+			# If keys exist, delete them, because they are
+			# not valid and ssh-keygen will not overwrite them.
+			echo "${key_file}..."
+			rm -f ${key_file} ${key_file}.pub
+			${SSH_KEYGEN} -q -f ${key_file} -N '' -t ${key_type}
+		done
+	fi
 
 	printf "Starting sshd: "
-	/usr/sbin/sshd
-	touch /var/lock/sshd
+	${SSHD}
+	touch ${LOCK}
 	echo "OK"
 }
 stop() {
 	printf "Stopping sshd: "
-	killall sshd
-	rm -f /var/lock/sshd
+	killall $(basename ${SSHD})
+	rm -f ${LOCK}
 	echo "OK"
 }
 restart() {
@@ -42,6 +63,4 @@ case "$1" in
 	echo "Usage: $0 {start|stop|restart}"
 	exit 1
 esac
-
-exit $?
 
