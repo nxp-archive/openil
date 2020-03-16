@@ -1,0 +1,39 @@
+From fb4c0d00c76e6f9a36d16d20e0ed1d39d2a1f2ad Mon Sep 17 00:00:00 2001
+From: Changming Huang <jerry.huang@nxp.com>
+Date: Mon, 16 Mar 2020 14:06:02 +0800
+Subject: [PATCH] igh-ethernet: change the type of eccdev_vma_fault to unsigned
+ int
+
+Due to incompatible pointer type ‘int (*)(struct vm_fault *)’ for
+eccdev_vma_fault, change it to unsigned int with Linux-5.4.
+
+Signed-off-by: Changming Huang <jerry.huang@nxp.com>
+---
+ master/cdev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/master/cdev.c b/master/cdev.c
+index 52b1e01..ee89af2 100644
+--- a/master/cdev.c
++++ b/master/cdev.c
+@@ -62,7 +62,7 @@ static int eccdev_mmap(struct file *, struct vm_area_struct *);
+ #define PAGE_FAULT_VERSION KERNEL_VERSION(2, 6, 23)
+ 
+ #if LINUX_VERSION_CODE >= PAGE_FAULT_VERSION
+-static int eccdev_vma_fault(struct vm_fault *);
++static unsigned int eccdev_vma_fault(struct vm_fault *);
+ #else
+ static struct page *eccdev_vma_nopage(
+         struct vm_area_struct *, unsigned long, int *);
+@@ -252,7 +252,7 @@ int eccdev_mmap(
+  *
+  * \return Zero on success, otherwise a negative error code.
+  */
+-static int eccdev_vma_fault(
++static unsigned int eccdev_vma_fault(
+         struct vm_fault *vmf /**< Fault data. */
+         )
+ {
+-- 
+2.17.1
+
