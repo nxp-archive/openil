@@ -242,6 +242,7 @@ nxp_ls1043ardb_baremetal-64b_defconfig: { extends: .defconfig }
 nxp_ls1046ardb-64b-emmcboot_defconfig: { extends: .defconfig }
 nxp_ls1046ardb-64b_defconfig: { extends: .defconfig }
 nxp_ls1046ardb-64b_qspi_defconfig: { extends: .defconfig }
+nxp_ls1046ardb-64b_qspi-sb_defconfig: { extends: .defconfig }
 nxp_ls1046ardb_baremetal-64b_defconfig: { extends: .defconfig }
 nxp_lx2160ardb-64b_defconfig: { extends: .defconfig }
 nxp_lx2160ardb-64b-xspi_defconfig: { extends: .defconfig }
