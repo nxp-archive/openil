@@ -548,6 +548,7 @@ F:	configs/nxp_ls1021atsn_optee-sb_defconfig
 F:	configs/nxp_ls1028ardb-64b_defconfig
 F:	configs/nxp_ls1028ardb-64b-emmc_defconfig
 F:	configs/nxp_ls1028ardb-64b-xspi_defconfig
+F:	configs/nxp_ls1028ardb-64b_ubuntu_full_defconfig
 F:	configs/nxp_ls1028ardb_baremetal-64b_defconfig
 F:	configs/nxp_ls1028ardb_baremetal_sai-64b_defconfig
 F:	configs/nxp_ls1043ardb-64b_defconfig
