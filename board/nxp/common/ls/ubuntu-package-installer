@@ -1,0 +1,195 @@
+#!/bin/bash
+
+DISTROTYPE=$3
+DISTROSCALE=$5
+tarch=$1
+
+do_distrorfs_second_stage() {
+    [ -f /etc/buildinfo -a ! -f /proc/uptime ] && return
+    packages_list=/usr/aptpkg/$4
+    . $packages_list
+
+    # create user and passwd
+    if [ ! -d /home/user ]; then
+	useradd -m -d /home/user -s /bin/bash user
+	gpasswd -a user sudo
+	echo -e 'root\nroot\n' | passwd root
+	echo -e 'user\nuser\n' | passwd user
+	mkdir -p /home/user
+	chown -R user:user /home/user
+    fi
+    # set default hostname
+    echo localhost > /etc/hostname
+
+    # set apt sources list to install additional packages
+    asl=/etc/apt/sources.list
+    if [ $DISTROSCALE != lite -a $DISTROTYPE = ubuntu ]; then
+	rm -f $asl
+	fn=ports; pn=ubuntu-ports;
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2 main >> $asl
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2-updates main >> $asl
+	echo deb http://$fn.ubuntu.com/$pn $2-security main >> $asl
+
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2 universe >> $asl
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2-updates universe >> $asl
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2 multiverse >> $asl
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2-updates multiverse >> $asl
+    elif [ $DISTROSCALE != lite -a $DISTROTYPE = debian ]; then
+	rm -f $asl
+	echo deb [arch=$1] http://mirrors.kernel.org/debian/ $2 main >> $asl
+    fi
+
+    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C \
+    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update
+
+    if [ $DISTROTYPE = ubuntu -a $DISTROSCALE != lite ]; then
+	localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+	export LANG=en_US.utf8
+	if ! dpkg-query -W language-pack-en-base 1>/dev/null; then
+	    echo installing language-pack-en-base ..
+	    DEBIAN_FRONTEND=noninteractive LC_ALL=C LANGUAGE=C LANG=C \
+	    apt-get -y install language-pack-en-base
+	fi
+    fi
+    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
+    echo upgraded
+
+    echo installing base packages: $pkglist
+    for pkg in $additional_base_packages_list; do
+	echo Installing $pkg ...
+	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || true
+    done
+
+    if [ $DISTROTYPE = ubuntu -a $DISTROSCALE = full ]; then
+        echo installing additional full packages: $pkglist
+        for pkg in $additional_full_packages_list; do
+	    echo Installing $pkg ...
+	    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || true
+        done
+
+	echo installing packages for devel userland: $additional_devel_packages_list
+	for pkg in $additional_devel_packages_list; do
+	    echo installing $pkg ...
+	    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || true
+	done
+
+	# install python lib six depended by building ovs-dpdk locally
+	if ! pip show -q six; then
+	    pip install six;
+	fi
+    fi
+
+
+    echo installed additional packages.
+
+    # clean cached packages
+    apt-get clean
+
+    # allow to install non-main packages by users themselves on target board
+    if [ $DISTROTYPE = ubuntu ] && ! `grep universe $asl 1>/dev/null`; then
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2 universe >> $asl
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2-updates universe >> $asl
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2 multiverse >> $asl
+	echo deb http://us.$fn.ubuntu.com/$pn/ $2-updates multiverse >> $asl
+	apt-get update
+    fi
+
+    if [ $1 = arm64 ]; then
+	sysarch=aarch64-linux-gnu
+    elif [ $1 = armhf ]; then
+	sysarch=arm-linux-gnueabihf
+    fi
+
+    if [ $1 = arm64 -o $1 = armhf ]; then
+	cd /usr/lib && ln -sf $sysarch/libcunit.so libcunit.so
+	cd /lib/$sysarch && ln -sf  ../../usr/lib/$sysarch/libxml2.so libxml2.so
+
+	[ $DISTROSCALE != lite ] && ln -sf libz.so.1 libz.so && \
+	ln -sf ../../usr/lib/$sysarch/libpcap.so libpcap.so && \
+	ln -sf ../../usr/lib/$sysarch/libnuma.so libnuma.so && \
+	ln -sf ../../usr/lib/$sysarch/libssl.so libssl.so && \
+	ln -sf ../../usr/lib/$sysarch/libcrypto.so.1.1 libcrypto.so.1.1 && \
+	ln -sf ../../usr/lib/$sysarch/libcrypto.so libcrypto.so && \
+	ln -sf ../../usr/lib/$sysarch/liblua5.3.so  liblua.so && \
+        cd /usr/lib/$sysarch && \
+        ln -sf ../../../lib/$sysarch/librt.so.1 librt.so && \
+        ln -sf ../../../lib/$sysarch/libm.so.6 libm.so && \
+        ln -sf ../../../lib/$sysarch/libpam.so.0 libpam.so && \
+        ln -sf ../../../lib/$sysarch/libdl.so.2 libdl.so && \
+        ln -sf ../../../lib/$sysarch/libutil.so.1 libutil.so
+
+	cd /usr/lib/$sysarch && \
+	ln -sf ../../../lib/$sysarch/libtinfo.so.5 libtinfo.so
+    fi
+
+    [ -f /usr/bin/sudo -a ! -u /usr/bin/sudo ] && chmod +s /usr/bin/sudo
+    [ -d /var/cache/man ] && chown -R man:root /var/cache/man
+
+    # some shared libraries locate in /lib/aarch64-linux-gnu(or /lib/arm-linux-gnueabihf) and /usr/local/lib
+    echo export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib/$sysarch:/lib/$sysarch >> /etc/profile
+
+    tmpusr=`ls -t /home | cut -d' ' -f1 | head -1`
+    [ -d /home/$tmpusr -a "$tmpusr" != "user" ] && rm -rf /home/$tmpusr
+    [ $DISTROSCALE != lite -a $DISTROTYPE = ubuntu ] &&	/usr/aptpkg/reconfigpkg.sh
+
+    setup_distribution_info $3
+    test -c /dev/pts/0 && umount /dev/pts
+    test -f /proc/uptime && umount /proc
+
+    echo APT Packages List: > /etc/packages.list
+    echo -e "Package\t Version\t Download-Size\t APT-Sources" >> /etc/packages.list
+    apt list --installed | cut  -d/ -f1 | xargs apt show | \
+	grep -E '^Package:|^APT-Sources:|^Version:|^Download-Size:'  > packagelist
+    lnum=`wc -l packagelist |cut -d' ' -f1`
+    for((i=1; i<$lnum;)); do
+	t=$[ $i + 3 ]
+	sed -n "${i},${t}p"  packagelist | grep -E 'Package:|APT-Sources:|Version:|Download-Size:' | \
+	tr "\n" " "  | cut -d' ' -f2,4,6,7,9,10 >> /etc/packages.list
+	i=$[ $i + 4 ]
+    done
+    rm -f packagelist
+}
+
+setup_distribution_info () {
+    distroname=`head -1 /etc/.firststagedone | cut -d, -f1`
+    distroversion=`head -1 /etc/.firststagedone | cut -d, -f2`
+    releaseversion="$distroname (based on ${DISTROTYPE}-$distroversion-base) ${tarch}"
+    releasestamp="Build: `date +'%Y-%m-%d %H:%M:%S'`"
+    echo $releaseversion > /etc/buildinfo
+    sed -i "1 a\\$releasestamp" /etc/buildinfo
+    if grep U-Boot /etc/.firststagedone 1>/dev/null 2>&1; then
+	tail -1 /etc/.firststagedone >> /etc/buildinfo
+    fi
+
+    if [ $DISTROTYPE = ubuntu ]; then
+	echo $distroname $1-$distroversion > /etc/issue
+	echo $distroname $1-$distroversion > /etc/issue.net
+
+	tgtfile=/etc/lsb-release
+	echo DISTRIB_ID=NXP-OpenIL > $tgtfile
+	echo DISTRIB_RELEASE=$distroversion >> $tgtfile
+	echo DISTRIB_CODENAME=bionic >> $tgtfile
+	echo DISTRIB_DESCRIPTION=\"$distroname $1-$distroversion\" >> $tgtfile
+
+	tgtfile=/etc/update-motd.d/00-header
+	echo '#!/bin/sh' > $tgtfile
+	echo '[ -r /etc/lsb-release ] && . /etc/lsb-release' >> $tgtfile
+	echo 'printf "Welcome to %s (%s %s %s)\n" "$DISTRIB_DESCRIPTION" "$(uname -o)" "$(uname -r)" "$(uname -m)"' >> $tgtfile
+
+	tgtfile=/etc/update-motd.d/10-help-text
+	echo '#!/bin/sh' > $tgtfile
+	echo 'printf "\n"' >> $tgtfile
+	echo 'printf " * Support:        https://www.openil.org\n"' >> $tgtfile
+	echo 'printf " * Develop:        https://www.openil.org/develop.html\n"' >> $tgtfile
+
+	tgtfile=/usr/lib/os-release
+	echo NAME=\"$distroname\" > $tgtfile
+	echo VERSION=${DISTROTYPE}-$distroversion >> $tgtfile
+	echo ID=OpenIL Based on Buildroot-2020.02 >> $tgtfile
+
+	rm -f /etc/default/motd-news
+	rm -f /etc/update-motd.d/50-motd-news
+    fi
+}
+do_distrorfs_second_stage $1 $2 $3 $4 $5
+# end second stage installing

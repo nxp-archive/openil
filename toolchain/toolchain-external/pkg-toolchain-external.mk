@@ -588,12 +588,18 @@ endef
 # Even though we're installing things in both the staging, the host
 # and the target directory, we do everything within the
 # install-staging step, arbitrarily.
+ifeq ($(BR2_ROOTFS_SKELETON_CUSTOM),y)
+define $(2)_INSTALL_TARGET_CMDS
+
+endef
+else
 define $(2)_INSTALL_TARGET_CMDS
 	$$(TOOLCHAIN_EXTERNAL_CREATE_TARGET_LIB_SYMLINK)
 	$$(TOOLCHAIN_EXTERNAL_INSTALL_TARGET_LIBS)
 	$$(TOOLCHAIN_EXTERNAL_INSTALL_TARGET_GDBSERVER)
 	$$(TOOLCHAIN_EXTERNAL_FIXUP_UCLIBCNG_LDSO)
 endef
+endif
 
 # Call the generic package infrastructure to generate the necessary
 # make targets

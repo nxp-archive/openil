@@ -32,6 +32,61 @@ config BR2_ROOTFS_SKELETON_CUSTOM_PATH
 	help
 	  Path to custom target skeleton.
 
+menu "Custom skeleton via network"
+config BR2_ROOTFS_SKELETON_CUSTOM_SITE
+	string "custom target skeleton site"
+	help
+	  Site where the custom target skeleton can be obtained
+	  via network.
+
+config BR2_ROOTFS_SKELETON_CUSTOM_SOURCE
+	string "name of custom target skeleton"
+	help
+	  The file name of the custom target skeleton.
+
+config BR2_ROOTFS_SKELETON_CUSTOM_SITE_METHOD
+	string "method obtain custom target skeleton from the site"
+	default "wget"
+	help
+	  How to obtain the custom target skeleton via network.
+
+config BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT
+	string "how to extract the custom target skeleton"
+	default "tar zxvf"
+	help
+	  How to extract the custom target skeleton.
+	  The custom skeleton will be extracted to the directory:
+	  output/build/skeleton/custom/
+
+config BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT_IGNORE_ERROR
+	bool "ignore the extract error"
+	help
+	  Sometimes the extract will return error which is nothing
+	  else matters. Fox example, some filesystem will make link
+	  to the host directory (but it is useless for the target)
+	  and it will be fail due to the permission. The error will
+	  stop the compilation.
+
+config BR2_ROOTFS_SKELETON_CUSTOM_FULL_RFS
+	bool "Full RootFS for skeleton custon (Ubuntu)"
+
+endmenu
+
+config BR2_ROOTFS_POST_CUSTOM_SKELETON_SCRIPT
+	string "Custom scripts to run before using custom skeleton"
+	default ""
+	help
+	  Specify a space-separated list of scripts to be run after the download
+	  and unzip has finished and before OpenIL starts using the custom skeleton.
+
+	  This gives users the opportunity to do board/skeleton specific configuration,
+	  add-ons and the like, so the generated files can be used directly
+	  without further processing.
+
+	  These scripts are called with the unzipped custom skeleton directory name
+	  as first argument. Make sure the exit code of those scripts are 0, otherwise
+	  make will stop after calling them.
+
 endif
 
 if BR2_ROOTFS_SKELETON_DEFAULT
