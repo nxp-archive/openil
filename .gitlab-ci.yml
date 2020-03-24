@@ -247,6 +247,7 @@ nxp_ls1046ardb-64b_qspi_defconfig: { extends: .defconfig }
 nxp_ls1046ardb-64b_qspi-sb_defconfig: { extends: .defconfig }
 nxp_ls1046ardb_baremetal-64b_defconfig: { extends: .defconfig }
 nxp_lx2160ardb-64b_defconfig: { extends: .defconfig }
+nxp_lx2160ardb-64b_ubuntu_defconfig: { extends: .defconfig }
 nxp_lx2160ardb-64b-xspi_defconfig: { extends: .defconfig }
 odroidxu4_defconfig: { extends: .defconfig }
 olimex_a10_olinuxino_lime_defconfig: { extends: .defconfig }
