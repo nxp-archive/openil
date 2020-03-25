@@ -560,6 +560,7 @@ F:	configs/nxp_ls1046ardb-64b-emmc_qspiboot_defconfig
 F:	configs/nxp_ls1046ardb-64b-emmcboot_defconfig
 F:	configs/nxp_ls1046ardb-64b_defconfig
 F:	configs/nxp_ls1046ardb-64b_ubuntu_defconfig
+F:	configs/nxp_ls1046ardb-64b_ubuntu_full_defconfig
 F:	configs/nxp_ls1046ardb-64b_qspi_defconfig
 F:	configs/nxp_ls1046ardb-64b_qspi-sb_defconfig
 F:	configs/nxp_ls1046ardb_baremetal-64b_defconfig
