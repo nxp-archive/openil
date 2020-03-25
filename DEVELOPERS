@@ -554,6 +554,7 @@ F:	configs/nxp_ls1028ardb_baremetal-64b_defconfig
 F:	configs/nxp_ls1028ardb_baremetal_sai-64b_defconfig
 F:	configs/nxp_ls1043ardb-64b_defconfig
 F:	configs/nxp_ls1043ardb-64b_ubuntu_defconfig
+F:	configs/nxp_ls1043ardb-64b_ubuntu_full_defconfig
 F:	configs/nxp_ls1043ardb_baremetal-64b_defconfig
 F:	configs/nxp_ls1046ardb-64b-emmc_qspiboot_defconfig
 F:	configs/nxp_ls1046ardb-64b-emmcboot_defconfig
