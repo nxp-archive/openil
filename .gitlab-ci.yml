@@ -197,6 +197,7 @@ imx6-sabresd_defconfig: { extends: .defconfig }
 imx6-sabresd_qt5_defconfig: { extends: .defconfig }
 imx6q-sabresd_baremetal_defconfig: { extends: .defconfig }
 imx6q-sabresd_defconfig: { extends: .defconfig }
+imx6q-sabresd_ubuntu_defconfig: { extends: .defconfig }
 imx6slevk_defconfig: { extends: .defconfig }
 imx6sx-sdb_defconfig: { extends: .defconfig }
 imx6ulevk_defconfig: { extends: .defconfig }
