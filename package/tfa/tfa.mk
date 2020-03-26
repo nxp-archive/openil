@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-TFA_VERSION = LSDK-19.09
+TFA_VERSION = LSDK-19.09-update-311219
 TFA_SITE = https://source.codeaurora.org/external/qoriq/qoriq-components/atf
 TFA_SITE_METHOD = git
 TFA_INSTALL_STAGING = YES
