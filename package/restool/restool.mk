@@ -2,7 +2,7 @@
 ## MC binary
 #########################
 
-RESTOOL_VERSION = LSDK-19.09
+RESTOOL_VERSION = LSDK-19.09-update-291119
 RESTOOL_SITE = http://source.codeaurora.org/external/qoriq/qoriq-components/restool.git
 RESTOOL_SITE_METHOD = git
 RESTOOL_LICENSE = GPL2.0
