@@ -15,6 +15,14 @@ QORIQ_BM_UBOOT_MAKE_OPTS = \
 	CC="$(TARGET_CC)" \
 	CROSS_COMPILE="$(TARGET_CROSS)" \
 
+UBOOT_BOARDNAME = $(call qstrip,$(BR2_TARGET_UBOOT_BOARDNAME))
+BOARD_NAME = $(firstword $(subst _, ,$(UBOOT_BOARDNAME)))
+ifeq ($(BOARD_NAME), lx2160ardb)
+BM_BIN = u-boot-dtb.bin
+else
+BM_BIN = u-boot.bin
+endif
+
 QORIQ_BM_UBOOT_DEFCONFIG = $(call qstrip,$(BR2_PACKAGE_QORIQ_BM_UBOOT_DEFCONFIG))
 
 define QORIQ_BM_UBOOT_BUILD_CMDS
@@ -24,7 +32,7 @@ define QORIQ_BM_UBOOT_BUILD_CMDS
 endef
 
 define QORIQ_BM_UBOOT_INSTALL_TARGET_CMDS
-	$(INSTALL) -D $(@D)/u-boot.bin $(BINARIES_DIR)/bm-u-boot.bin
+	$(INSTALL) -D $(@D)/${BM_BIN} $(BINARIES_DIR)/bm-${BM_BIN}
 endef
 
 $(eval $(generic-package))
