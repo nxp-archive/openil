@@ -146,7 +146,7 @@ void icc_set_sgi(int core_mask, unsigned int hw_irq)
 		printf ("gethostname error");
 		return;
 	}
-	if (strstr(hostname, "LS1028A")) { /* Check the LS1028A board */
+	if (strstr(hostname, "LS1028A") || strstr(hostname, "LX2160A")) { /* Check the LS1028A and LX2160A board */
 		val = core_mask | hw_irq << 24;
 		if (ioctl(shd_memfd, 1, &val))
 			printf("Triger Interrupt failed\n");

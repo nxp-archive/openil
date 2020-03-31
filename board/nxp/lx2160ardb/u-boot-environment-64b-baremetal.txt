@@ -1,5 +1,5 @@
 baudrate=115200
-bootcmd=setenv bootargs console=ttyAMA0,115200 root=/dev/mmcblk0p2 rw rootwait earlycon=pl011,mmio32,0x21c0000 default_hugepagesz=1024m hugepagesz=1024m hugepages=2 pci=pcie_bus_perf; mmcinfo;fatload mmc 0:1 ${baremetaladdr} ${baremetalfile};cpu start ${baremetaladdr};mmc read $mc_fw_addr 0x05000 0x1800;mmc read $dpc_addr 0x07000 0x800;mmc read $dpl_addr 0x06800 0x800;fsl_mc start mc $mc_fw_addr $dpc_addr;fsl_mc apply dpl $dpl_addr;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 ${fdtaddr} ${fdtfile};booti ${loadaddr} - ${fdtaddr}
+bootcmd=setenv bootargs console=ttyAMA0,115200 memmap=1152M$0xb0000000 root=/dev/mmcblk0p2 rw rootwait maxcpus=1 earlycon=pl011,mmio32,0x21c0000 default_hugepagesz=1024m hugepagesz=1024m hugepages=2 pci=pcie_bus_perf; mmcinfo;mmc read $mc_fw_addr 0x05000 0x1800;mmc read $dpc_addr 0x07000 0x800;mmc read $dpl_addr 0x06800 0x800;fsl_mc start mc $mc_fw_addr $dpc_addr;fsl_mc apply dpl $dpl_addr;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 ${fdtaddr} ${fdtfile};fatload mmc 0:1 ${baremetaladdr} ${baremetalfile};cpu start ${baremetaladdr};booti ${loadaddr} - ${fdtaddr}
 bootdelay=3
 bootfile=Image
 fdtfile=fsl-lx2160a-rdb.dtb

@@ -17,6 +17,11 @@ config BR2_PACKAGE_QORIQ_ICC_GIC_IMX6Q
 	help
 	  Set GIC support i.mx6q.
 
+config BR2_PACKAGE_QORIQ_ICC_GIC_LX2160A
+	bool "Set ICC support LX2160A"
+	help
+	  Set GIC support LX2160A.
+
 config BR2_PACKAGE_QORIQ_ICC_MAX_CPUS
 	int "Max cpus on platform"
 	default 2
