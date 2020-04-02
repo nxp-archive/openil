@@ -11,3 +11,15 @@ config BR2_PACKAGE_QORIQ_TSNTOOL
 
 comment "tsntool needs the linux kernel sources"
 	depends on !BR2_LINUX_KERNEL
+
+if BR2_PACKAGE_QORIQ_TSNTOOL
+
+config BR2_PACKAGE_QORIQ_TSNTOOL_VERSION
+	string "qoriq-tsntool version"
+	default "v0.4"
+
+config BR2_PACKAGE_QORIQ_TSNTOOL_SITE
+	string "qoriq-tsntool site"
+	default "https://github.com/openil/tsntool.git"
+
+endif

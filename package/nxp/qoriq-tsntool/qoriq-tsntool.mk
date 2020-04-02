@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-QORIQ_TSNTOOL_VERSION = v0.4
-QORIQ_TSNTOOL_SITE = https://github.com/openil/tsntool.git
+QORIQ_TSNTOOL_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_TSNTOOL_VERSION))
+QORIQ_TSNTOOL_SITE = $(call qstrip,$(BR2_PACKAGE_QORIQ_TSNTOOL_SITE))
 QORIQ_TSNTOOL_SITE_METHOD = git
 QORIQ_TSNTOOL_LICENSE = MIT/GPL2.0
 QORIQ_TSNTOOL_LICENSE_FILES = LICENSE
