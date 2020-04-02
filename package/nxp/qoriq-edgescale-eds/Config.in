@@ -4,3 +4,11 @@ config BR2_PACKAGE_QORIQ_EDGESCALE_EDS
 	  The qoriq edgescale eds. 
 
 	  https://bitbucket.sw.nxp.com/projects/DCCA/repos/qoriq-edgescale-eds/browse
+
+if BR2_PACKAGE_QORIQ_EDGESCALE_EDS
+
+config BR2_PACKAGE_QORIQ_EDGESCALE_EDS_VERSION
+	string "qorio-edgescale-eds version"
+	default "7d70a8767941aed135d609300a0594dfdc60e5ea"
+
+endif

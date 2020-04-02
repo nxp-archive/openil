@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-QORIQ_EDGESCALE_EDS_VERSION = 7d70a8767941aed135d609300a0594dfdc60e5ea
+QORIQ_EDGESCALE_EDS_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_EDGESCALE_EDS_VERSION))
 QORIQ_EDGESCALE_EDS_SITE_METHOD = git
 QORIQ_EDGESCALE_EDS_SITE = https://github.com/NXP/qoriq-edgescale-eds.git
 QORIQ_EDGESCALE_EDS_LICENSE = GPLv2+
