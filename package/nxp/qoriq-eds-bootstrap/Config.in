@@ -4,3 +4,11 @@ config BR2_PACKAGE_QORIQ_EDS_BOOTSTRAP
 	  The qoriq eds bootstrap.
 
 	  https://bitbucket.sw.nxp.com/projects/DCCA/repos/qoriq-eds-bootstrap/browse
+
+if BR2_PACKAGE_QORIQ_EDS_BOOTSTRAP
+
+config BR2_PACKAGE_QORIQ_EDS_BOOTSTRAP_VERSION
+	string "qoriq-eds-bootstrap version"
+	default "72abfd9b61cc8a6d10e4808a87ff4ce1e2b99020"
+
+endif

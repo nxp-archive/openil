@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-QORIQ_EDS_BOOTSTRAP_VERSION = 72abfd9b61cc8a6d10e4808a87ff4ce1e2b99020
+QORIQ_EDS_BOOTSTRAP_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_EDS_BOOTSTRAP_VERSION))
 QORIQ_EDS_BOOTSTRAP_SITE_METHOD = git
 QORIQ_EDS_BOOTSTRAP_SITE = https://github.com/NXP/qoriq-eds-bootstrap.git
 QORIQ_EDS_BOOTSTRAP_LICENSE = GPLv2+
