@@ -8,3 +8,15 @@ config BR2_PACKAGE_QORIQ_PTP4L
 	  Application Programming Interfaces (API) offered by the
 	  Linux kernel. Supporting legacy APIs and other platforms
 	  is not a goal.
+
+if BR2_PACKAGE_QORIQ_PTP4L
+
+config BR2_PACKAGE_QORIQ_PTP4L_SITE
+	string "qoriq-ptp4l site"
+	default "https://github.com/openil/linuxptp.git"
+
+config BR2_PACKAGE_QORIQ_PTP4L_VERSION
+	string "qoriq-pto4l version"
+	default "eee6d0fb995dddf27acde2addfb1fe89b71ab82d"
+
+endif

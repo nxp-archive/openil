@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-QORIQ_PTP4L_VERSION = eee6d0fb995dddf27acde2addfb1fe89b71ab82d
-QORIQ_PTP4L_SITE = https://github.com/openil/linuxptp.git
+QORIQ_PTP4L_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_PTP4L_VERSION))
+QORIQ_PTP4L_SITE = $(call qstrip,$(BR2_PACKAGE_QORIQ_PTP4L_SITE))
 QORIQ_PTP4L_SITE_METHOD = git
 QORIQ_PTP4L_LICENSE = GPL2
 QORIQ_PTP4L_LICENSE_FILES = COPYING
