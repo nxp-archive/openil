@@ -2,3 +2,11 @@ config BR2_PACKAGE_QORIQ_CADENCE_DP_FIRMWARE
 	bool "qoriq-cadence-dp-firmware"
 	help
 	  NXP QorIQ cadence DP firmware, a resident EL3 firmware.
+
+if BR2_PACKAGE_QORIQ_CADENCE_DP_FIRMWARE
+
+config BR2_PACKAGE_QORIQ_CADENCE_DP_FIRMWARE_VERSION
+	string "qoriq-cadence-dp-firmware version"
+	default "lsdk2004"
+
+endif
