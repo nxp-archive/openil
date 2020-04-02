@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-QORIQ_NETOPEER2_CLI_VERSION = 1.1.1
+QORIQ_NETOPEER2_CLI_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_NETOPEER2_CLI_VERSION))
 QORIQ_NETOPEER2_CLI_SITE = $(call github,CESNET,Netopeer2,v$(QORIQ_NETOPEER2_CLI_VERSION))
 QORIQ_NETOPEER2_CLI_SUBDIR = cli
 QORIQ_NETOPEER2_CLI_INSTALL_STAGING = NO

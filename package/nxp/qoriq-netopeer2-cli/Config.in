@@ -6,3 +6,11 @@ config BR2_PACKAGE_QORIQ_NETOPEER2_CLI
 	  A CLI utility for talking to NETCONF servers
 
 	  https://github.com/CESNET/Netopeer2
+
+if BR2_PACKAGE_QORIQ_NETOPEER2_CLI
+
+config BR2_PACKAGE_QORIQ_NETOPEER2_CLI_VERSION
+	string "qoriq-netopeer2-cli version"
+	default "0.7-r2"
+
+endif
