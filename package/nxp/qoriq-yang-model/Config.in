@@ -2,3 +2,11 @@ config BR2_PACKAGE_QORIQ_YANG_MODEL
 	bool "qoriq-yang-model"
 	help
 	  YANG models
+
+if BR2_PACKAGE_QORIQ_YANG_MODEL
+
+config BR2_PACKAGE_QORIQ_YANG_MODEL_VERSION
+	string "qoriq-yang-model version"
+	default "b1df41d72ecbfb38c13e96eff42d8f027997baed"
+
+endif

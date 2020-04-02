@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-QORIQ_YANG_MODEL_VERSION = b1df41d72ecbfb38c13e96eff42d8f027997baed
+QORIQ_YANG_MODEL_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_YANG_MODEL_VERSION))
 QORIQ_YANG_MODEL_SITE = https://github.com/YangModels/yang.git
 QORIQ_YANG_MODEL_SITE_METHOD = git
 QORIQ_YANG_MODEL_LICENSE = MIT
