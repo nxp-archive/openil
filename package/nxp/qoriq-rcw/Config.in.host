@@ -43,4 +43,8 @@ config BR2_PACKAGE_HOST_QORIQ_RCW_BOOT_MODE
 	help
 	  Specify the boot mode, for example, sd, emmc, flexspi_nor.
 
+config BR2_PACKAGE_HOST_QORIQ_RCW_VERSION
+	string "qoriq-rcw version"
+	default "LSDK-20.04"
+
 endif
