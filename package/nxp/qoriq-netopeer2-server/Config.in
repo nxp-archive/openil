@@ -11,3 +11,11 @@ config BR2_PACKAGE_QORIQ_NETOPEER2_SERVER
 	  for remote management of network devices.
 
 	  https://github.com/CESNET/Netopeer2
+
+if BR2_PACKAGE_QORIQ_NETOPEER2_SERVER
+
+config BR2_PACKAGE_QORIQ_NETOPEER2_SERVER_VERSION
+	string "qoriq-netopeer2-server version"
+	default "0.7-r2"
+
+endif
