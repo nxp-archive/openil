@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-QORIQ_SYSREPO_TSN_VERSION = v0.2
-QORIQ_SYSREPO_TSN_SITE = https://github.com/openil/sysrepo-tsn.git
+QORIQ_SYSREPO_TSN_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_SYSREPO_TSN_VERSION))
+QORIQ_SYSREPO_TSN_SITE = $(call qstrip,$(BR2_PACKAGE_QORIQ_SYSREPO_TSN_SITE))
 QORIQ_SYSREPO_TSN_SITE_METHOD = git
 QORIQ_SYSREPO_TSN_LICENSE = GPL2.0
 QORIQ_SYSREPO_TSN_LICENSE_FILES = LICENSE

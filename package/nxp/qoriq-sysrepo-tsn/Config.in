@@ -5,3 +5,15 @@ config BR2_PACKAGE_QORIQ_SYSREPO_TSN
 	select BR2_PACKAGE_QORIQ_YANG_MODEL
 	help
 	  application to configure tsn feature based on sysrepo.
+
+if BR2_PACKAGE_QORIQ_SYSREPO_TSN
+
+config BR2_PACKAGE_QORIQ_SYSREPO_TSN_VERSION
+	string "qoriq-sysrepo-tsn version"
+	default "v0.2"
+
+config BR2_PACKAGE_QORIQ_SYSREPO_TSN_SITE
+	string "qoriq-sysrepo-tsn site"
+	default "https://github.com/openil/sysrepo-tsn.git"
+
+endif
