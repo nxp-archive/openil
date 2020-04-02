@@ -2,3 +2,15 @@ config BR2_PACKAGE_QORIQ_SERVO
         bool "qoriq-servo"
         default y
           depends on BR2_PACKAGE_IGH_ETHERCAT && BR2_PACKAGE_LIBXML2
+
+if BR2_PACKAGE_QORIQ_SERVO
+
+config BR2_PACKAGE_QORIQ_SERVO_VERSION
+	string "qoriq-servo version"
+	default "v1.0"
+
+config BR2_PACKAGE_QORIQ_SERVO_SITE
+	string "qoriq-servo version"
+	default "https://github.com/openil/nxp-servo.git"
+
+endif

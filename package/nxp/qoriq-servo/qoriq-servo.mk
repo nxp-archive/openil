@@ -4,8 +4,8 @@
 #
 ######################################
 
-QORIQ_SERVO_VERSION = v1.0
-QORIQ_SERVO_SITE = https://github.com/openil/nxp-servo.git
+QORIQ_SERVO_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_SERVO_VERSION))
+QORIQ_SERVO_SITE = $(call qstrip,$(BR2_PACKAGE_QORIQ_SERVO_SITE))
 QORIQ_SERVO_SITE_METHOD = git
 QORIQ_SERVO_DEPENDENCIES = igh-ethercat libxml2
 QORIQ_SERVO_INSTALL_STAGING = YES
