@@ -4,3 +4,11 @@ config BR2_PACKAGE_QORIQ_EDS_KUBELET
 	  The edgescale kubelet. 
 
 	  https://bitbucket.sw.nxp.com/projects/DCCA/repos/qoriq-eds-kubelet/browse
+
+if BR2_PACKAGE_QORIQ_EDS_KUBELET
+
+config BR2_PACKAGE_QORIQ_EDS_KUBELET_VERSION
+	string "qoriq-eds-kubelet version"
+	default "cf5175b3186e1308cc29a6295fb7bd012b614a22"
+
+endif
