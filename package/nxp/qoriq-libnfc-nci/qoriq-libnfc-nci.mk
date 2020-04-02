@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-QORIQ_LIBNFC_NCI_VERSION = R2.4.1
+QORIQ_LIBNFC_NCI_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_LIBNFC_NCI_VERSION))
 QORIQ_LIBNFC_NCI_SITE = https://github.com/NXPNFCLinux/linux_libnfc-nci.git
 QORIQ_LIBNFC_NCI_SITE_METHOD = git
 QORIQ_LIBNFC_NCI_LICENSE = APACHE2.0
