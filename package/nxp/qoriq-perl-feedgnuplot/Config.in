@@ -11,3 +11,11 @@ config BR2_PACKAGE_QORIQ_PERL_FEEDGNUPLOT
 
 comment "qoriq-perl-feedgnuplot needs a toolchain w/ dynamic library"
 	depends on BR2_STATIC_LIBS
+
+if BR2_PACKAGE_QORIQ_PERL_FEEDGNUPLOT
+
+config BR2_PACKAGE_QORIQ_PERL_FEEDGNUPLOT_VERSION
+	string "qoriq-perl-feedgnuplot version"
+	default "v1.45"
+
+endif
