@@ -6,3 +6,11 @@ config BR2_PACKAGE_QORIQ_PERL_EXPORTER_TINY
 	  but only core dependencies
 
 	  https://metacpan.org/release/Exporter-Tiny
+
+if BR2_PACKAGE_QORIQ_PERL_EXPORTER_TINY
+
+config BR2_PACKAGE_QORIQ_PERL_EXPORTER_TINY_VERSION
+	string "qoriq-perl-exporter-tiny version"
+	default "1.000000"
+
+endif
