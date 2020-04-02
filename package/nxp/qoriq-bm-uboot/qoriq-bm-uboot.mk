@@ -5,7 +5,7 @@
 ################################################################################
 
 QORIQ_BM_UBOOT_VERSION = $(call qstrip,$(BR2_PACKAGE_QORIQ_BM_UBOOT_VERSION))
-QORIQ_BM_UBOOT_SITE = https://github.com/openil/u-boot.git
+QORIQ_BM_UBOOT_SITE = $(call qstrip,$(BR2_PACKAGE_QORIQ_BM_UBOOT_SITE))
 QORIQ_BM_UBOOT_SITE_METHOD = git
 QORIQ_BM_UBOOT_LICENSE = GPL-2.0+
 QORIQ_BM_UBOOT_LICENSE_FILES = README
