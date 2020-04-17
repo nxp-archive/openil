@@ -536,6 +536,7 @@ F:	board/nxp/ls1021atsn/
 F:	board/nxp/ls1028ardb/
 F:	board/nxp/ls1028atsn/
 F:	board/nxp/ls1043ardb/
+F:	board/nxp/ls1046afrwy/
 F:	board/nxp/ls1046ardb/
 F:	board/nxp/lx2160rdb/
 F:	configs/fii_ls1028atsn-64b_defconfig

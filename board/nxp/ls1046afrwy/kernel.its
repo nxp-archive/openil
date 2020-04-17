@@ -1,0 +1,61 @@
+/*
+ * Copyright 2016-2020, NXP
+ *
+ * Mingkai Hu <mingkai.hu@nxp.com>
+ *
+ * This file is licensed under the terms of the GNU General Public
+ * License version 2.  This program is licensed "as is" without any
+ * warranty of any kind, whether express or implied.
+ */
+
+/dts-v1/;
+
+/ {
+	description = "Image file for the LS1046A Linux Kernel";
+	#address-cells = <1>;
+
+	images {
+		kernel@1 {
+			description = "ARM64 Linux kernel";
+			data = /incbin/("./Image.gz");
+			type = "kernel";
+			arch = "arm64";
+			os = "linux";
+			compression = "gzip";
+			load = <0x80080000>;
+			entry = <0x80080000>;
+		};
+		fdt@1 {
+			description = "Flattened Device Tree blob";
+			data = /incbin/("./fsl-ls1046a-frwy-sdk.dtb");
+			type = "flat_dt";
+			arch = "arm64";
+			compression = "none";
+			load = <0x90000000>;
+		};
+		ramdisk@1 {
+			description = "LS1046 Ramdisk";
+                        data = /incbin/("./rootfs.cpio.gz");
+			type = "ramdisk";
+			arch = "arm64";
+			os = "linux";
+			compression = "gzip";
+		};
+	};
+
+	configurations {
+		default = "config@1";
+		config@1 {
+			description = "Boot Linux kernel";
+			kernel = "kernel@1";
+			fdt = "fdt@1";
+			ramdisk = "ramdisk@1";
+		};
+		ls1046ardb {
+			description = "Boot Linux kernel";
+			kernel = "kernel@1";
+			fdt = "fdt@1";
+			ramdisk = "ramdisk@1";
+		};
+	};
+};
