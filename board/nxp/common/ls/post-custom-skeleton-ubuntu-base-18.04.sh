@@ -108,6 +108,8 @@ plat_name()
 		echo "LX2160ARDB"
 	elif grep -Eq "^BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM=\"ls1046ardb\"$" ${BR2_CONFIG}; then
 		echo "LS1046ARDB"
+	elif grep -Eq "^BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM=\"ls1046afrwy\"$" ${BR2_CONFIG}; then
+		echo "LS1046AFRWY"
 	elif grep -Eq "^BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM=\"ls1043ardb\"$" ${BR2_CONFIG}; then
 		echo "LS1043ARDB"
 	elif grep -Eq "^BR2_LINUX_KERNEL_INTREE_DTS_NAME=\"ls1021a-iot\"$" ${BR2_CONFIG}; then

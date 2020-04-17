@@ -252,6 +252,7 @@ nxp_ls1043ardb-64b_ubuntu_full_defconfig: { extends: .defconfig }
 nxp_ls1043ardb_baremetal-64b_defconfig: { extends: .defconfig }
 nxp_ls1046afrwy-64b_defconfig: { extends: .defconfig }
 nxp_ls1046afrwy-64b_qspi_defconfig: { extends: .defconfig }
+nxp_ls1046afrwy-64b_ubuntu_defconfig: { extends: .defconfig }
 nxp_ls1046ardb-64b-emmcboot_defconfig: { extends: .defconfig }
 nxp_ls1046ardb-64b_defconfig: { extends: .defconfig }
 nxp_ls1046ardb-64b_ubuntu_defconfig: { extends: .defconfig }
