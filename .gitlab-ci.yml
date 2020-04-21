@@ -172,6 +172,7 @@ engicam_imx6qdl_icore_rqs_defconfig: { extends: .defconfig }
 engicam_imx6ul_geam_defconfig: { extends: .defconfig }
 engicam_imx6ul_isiot_defconfig: { extends: .defconfig }
 fii_ls1028atsn-64b_defconfig: { extends: .defconfig }
+fii_ls1028atsn-64b_ubuntu_defconfig: { extends: .defconfig }
 freescale_imx28evk_defconfig: { extends: .defconfig }
 freescale_imx6dlsabreauto_defconfig: { extends: .defconfig }
 freescale_imx6dlsabresd_defconfig: { extends: .defconfig }

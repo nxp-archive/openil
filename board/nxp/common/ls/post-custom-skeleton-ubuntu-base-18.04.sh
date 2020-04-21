@@ -102,6 +102,8 @@ plat_name()
 {
 	if grep -Eq "^BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM=\"ls1028ardb\"$" ${BR2_CONFIG}; then
 		echo "LS1028ARDB"
+	elif grep -Eq "^BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM=\"ls1028atsn\"$" ${BR2_CONFIG}; then
+		echo "LS1028ATSN"
 	elif grep -Eq "^BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM=\"lx2160ardb\"$" ${BR2_CONFIG}; then
 		echo "LX2160ARDB"
 	elif grep -Eq "^BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM=\"ls1046ardb\"$" ${BR2_CONFIG}; then
