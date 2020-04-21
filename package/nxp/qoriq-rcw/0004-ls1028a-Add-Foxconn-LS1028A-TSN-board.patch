@@ -1,0 +1,91 @@
+From 63c44824420e6edc7031e02e3f82b51c0b409b70 Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Wed, 22 Jan 2020 23:29:52 +0200
+Subject: [PATCH] ls1028a: Add Foxconn LS1028A-TSN board
+
+This uses the 4xSGMII (0x9999) SerDes protocol and boots from SD card.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ Makefile                                     |  2 +-
+ ls1028atsn/Makefile                          |  1 +
+ ls1028atsn/R_SSSS_0x9999/rcw_1300_sdboot.rcw | 46 ++++++++++++++++++++
+ 3 files changed, 48 insertions(+), 1 deletion(-)
+ create mode 100644 ls1028atsn/Makefile
+ create mode 100644 ls1028atsn/R_SSSS_0x9999/rcw_1300_sdboot.rcw
+
+diff --git a/Makefile b/Makefile
+index cce6c6edcd10..c8aa1c2cdd49 100644
+--- a/Makefile
++++ b/Makefile
+@@ -5,7 +5,7 @@ BOARDS = b4420qds b4860qds \
+ 	 ls1043aqds ls1043ardb \
+ 	 ls1046ardb ls1046aqds ls1046afrwy \
+ 	 ls1088ardb ls1088aqds\
+-	 ls1028ardb ls1028aqds\
++	 ls1028ardb ls1028aqds ls1028atsn \
+ 	 ls2088ardb ls2088ardb_rev1.1 ls2088aqds \
+ 	 lx2160ardb lx2160aqds \
+ 	 p2041rdb p3041ds p4080ds p5020ds p5040ds \
+diff --git a/ls1028atsn/Makefile b/ls1028atsn/Makefile
+new file mode 100644
+index 000000000000..f77e46b3451a
+--- /dev/null
++++ b/ls1028atsn/Makefile
+@@ -0,0 +1 @@
++include ../Makefile.inc
+diff --git a/ls1028atsn/R_SSSS_0x9999/rcw_1300_sdboot.rcw b/ls1028atsn/R_SSSS_0x9999/rcw_1300_sdboot.rcw
+new file mode 100644
+index 000000000000..db21d7f9cd66
+--- /dev/null
++++ b/ls1028atsn/R_SSSS_0x9999/rcw_1300_sdboot.rcw
+@@ -0,0 +1,46 @@
++/*
++ * SerDes Protocol -  0x9999
++ *
++ * Frequencies:
++ * Core     -- 1300 MHz
++ * Platform -- 400  MHz
++ * DDR      -- 1600 MHz
++ * DDR Data Rate -- 1.600 GT/s
++ */
++
++#include <../ls1028asi/ls1028a.rcwi>
++
++SYS_PLL_RAT=4
++MEM_PLL_RAT=16
++CGA_PLL1_RAT=13
++CGA_PLL2_RAT=12
++HWA_CGA_M1_CLK_SEL=1
++HWA_CGA_M2_CLK_SEL=7
++HWA_CGA_M3_CLK_SEL=2
++HWA_CGA_M4_CLK_SEL=3
++DDR_REFCLK_SEL=2
++DRAM_LAT=1
++BOOT_LOC=21
++FLASH_CFG1=3
++SYSCLK_FREQ=600
++IIC2_PMUX=6
++IIC3_PMUX=1
++IIC4_PMUX=1
++IIC5_PMUX=1
++IIC6_PMUX=3
++UART2_SOUTSIN_PMUX=1
++CLK_OUT_PMUX=1
++EC1_SAI4_5_PMUX=5
++EC1_SAI3_6_PMUX=5
++USB_DRVVBUS_PMUX=2
++USB_PWRFAULT_PMUX=2
++USB3_CLK_FSEL=39
++ENETC_RCW=3
++GTX_CLK125_PMUX=2
++SRDS_PRTCL_S1_L0=9
++SRDS_PRTCL_S1_L1=9
++SRDS_PRTCL_S1_L2=9
++SRDS_PRTCL_S1_L3=9
++
++/* Errata for PCIe controller */
++#include <../ls1028asi/pex_gen3_link_ls1028a.rcw>
+-- 
+2.17.1
+

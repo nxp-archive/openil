@@ -1,0 +1,480 @@
+From 97be6bdda4a66839916291f9155dcf84a51d28c7 Mon Sep 17 00:00:00 2001
+From: Jerry Huang <jerry.huang@nxp.com>
+Date: Mon, 13 Apr 2020 11:19:52 +0800
+Subject: [PATCH] Add ls1028atsn support
+
+Uses a K4A8G165WB DDR chip for ls1028atsn.
+Other setting is the same with ls1028ardb.
+
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Jerry Huang <jerry.huang@nxp.com>
+---
+ plat/nxp/soc-ls1028/ls1028atsn/ddr_init.c     | 192 ++++++++++++++++++
+ plat/nxp/soc-ls1028/ls1028atsn/platform.mk    |  16 ++
+ plat/nxp/soc-ls1028/ls1028atsn/platform_def.h | 184 +++++++++++++++++
+ plat/nxp/soc-ls1028/ls1028atsn/policy.h       |  40 ++++
+ 4 files changed, 432 insertions(+)
+ create mode 100644 plat/nxp/soc-ls1028/ls1028atsn/ddr_init.c
+ create mode 100644 plat/nxp/soc-ls1028/ls1028atsn/platform.mk
+ create mode 100644 plat/nxp/soc-ls1028/ls1028atsn/platform_def.h
+ create mode 100644 plat/nxp/soc-ls1028/ls1028atsn/policy.h
+
+diff --git a/plat/nxp/soc-ls1028/ls1028atsn/ddr_init.c b/plat/nxp/soc-ls1028/ls1028atsn/ddr_init.c
+new file mode 100644
+index 000000000..35cdc8440
+--- /dev/null
++++ b/plat/nxp/soc-ls1028/ls1028atsn/ddr_init.c
+@@ -0,0 +1,192 @@
++/*
++ * Copyright 2018 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ *
++ */
++
++#include <platform_def.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdbool.h>
++#include <debug.h>
++#include <errno.h>
++#include <string.h>
++#include <io.h>
++#include <ddr.h>
++#include <utils.h>
++#include <utils_def.h>
++#include <errata.h>
++
++#ifdef CONFIG_STATIC_DDR
++const struct ddr_cfg_regs static_1600 = {
++	.cs[0].config = 0x80040422,
++	.cs[0].bnds = 0xFF,
++	.sdram_cfg[0] = 0xE50C0004,
++	.sdram_cfg[1] = 0x401100,
++	.timing_cfg[0] = 0x91550018,
++	.timing_cfg[1] = 0xBAB40C42,
++	.timing_cfg[2] = 0x48C111,
++	.timing_cfg[3] = 0x1111000,
++	.timing_cfg[4] = 0x2,
++	.timing_cfg[5] = 0x3401400,
++	.timing_cfg[7] = 0x23300000,
++	.timing_cfg[8] = 0x2114600,
++	.sdram_mode[0] = 0x3010210,
++	.sdram_mode[9] = 0x4000000,
++	.sdram_mode[8] = 0x500,
++	.sdram_mode[2] = 0x10210,
++	.sdram_mode[10] = 0x400,
++	.sdram_mode[11] = 0x4000000,
++	.sdram_mode[4] = 0x10210,
++	.sdram_mode[12] = 0x400,
++	.sdram_mode[13] = 0x4000000,
++	.sdram_mode[6] = 0x10210,
++	.sdram_mode[14] = 0x400,
++	.sdram_mode[15] = 0x4000000,
++	.interval = 0x18600618,
++	.data_init = 0xdeadbeef,
++	.zq_cntl = 0x8A090705,
++	.clk_cntl = 0x2000000,
++	.cdr[0] = 0x80040000,
++	.cdr[1] = 0xA181,
++	.wrlvl_cntl[0] = 0x8675F605,
++	.wrlvl_cntl[1] = 0x6070700,
++	.wrlvl_cntl[2] = 0x0000008,
++	.dq_map[0] = 0x5b65b658,
++	.dq_map[1] = 0xd96d8000,
++	.dq_map[2] = 0,
++	.dq_map[3] = 0x1600000,
++	.debug[28] = 0x00700046,
++};
++
++long long board_static_ddr(struct ddr_info *priv)
++{
++	memcpy(&priv->ddr_reg, &static_1600, sizeof(static_1600));
++
++	return 0x100000000ULL;
++}
++
++#else
++static const struct rc_timing rcz[] = {
++	{1600, 8, 5},
++	{}
++};
++
++static const struct board_timing ram[] = {
++	{0x1f, rcz, 0x1020200, 0x00000003},
++};
++
++int ddr_board_options(struct ddr_info *priv)
++{
++	int ret;
++	struct memctl_opt *popts = &priv->opt;
++
++	ret = cal_board_params(priv, ram, ARRAY_SIZE(ram));
++	if (ret)
++		return ret;
++
++	popts->bstopre = 0x40; /* precharge value */
++	popts->half_strength_drive_en = 1;
++	popts->cpo_sample = 0x46;
++	popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
++			  DDR_CDR1_ODT(DDR_CDR_ODT_80ohm);
++	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_80ohm) |
++			  DDR_CDR2_VREF_OVRD(70);	/* Vref = 70% */
++
++	popts->addr_hash = 1; /* address hashing */
++	return 0;
++}
++
++/* DDR model number: K4A8G165WB */
++struct dimm_params ddr_raw_timing = {
++	.n_ranks = 1,
++	.rank_density = 2147483648u,
++	.capacity = 2147483648u,
++	.primary_sdram_width = 32,
++	.ec_sdram_width = 0,
++	.rdimm = 0,
++	.mirrored_dimm = 0,
++	.n_row_addr = 16,
++	.n_col_addr = 10,
++	.bank_addr_bits = 2,
++	.bank_group_bits = 1,
++	.edc_config = 0,
++	.burst_lengths_bitmask = 0x0c,
++	.tckmin_x_ps = 833,
++	.tckmax_ps = 2000,
++	.caslat_x = 0x0001FFE00,
++	.taa_ps = 13500,
++	.trcd_ps = 13500,
++	.trp_ps = 13500,
++	.tras_ps = 32000,
++	.trc_ps = 48500,
++	.twr_ps = 15000,
++	.trfc1_ps = 350000,
++	.trfc2_ps = 260000,
++	.trfc4_ps = 160000,
++	.tfaw_ps = 21000,
++	.trrds_ps = 3300,
++	.trrdl_ps = 4900,
++	.tccdl_ps = 6000,
++	.refresh_rate_ps = 7800000,
++	.dq_mapping[0] = 0x15,
++	.dq_mapping[1] = 0x36,
++	.dq_mapping[2] = 0x16,
++	.dq_mapping[3] = 0x36,
++	.dq_mapping[4] = 0x0b,
++	.dq_mapping[5] = 0x36,
++	.dq_mapping[6] = 0x17,
++	.dq_mapping[7] = 0x35,
++	.dq_mapping[8] = 0x0,
++	.dq_mapping[9] = 0x0,
++	.dq_mapping[10] = 0x0,
++	.dq_mapping[11] = 0x0,
++	.dq_mapping[12] = 0x0,
++	.dq_mapping[13] = 0x0,
++	.dq_mapping[14] = 0x0,
++	.dq_mapping[15] = 0x0,
++	.dq_mapping[16] = 0x0,
++	.dq_mapping[17] = 0x0,
++	.dq_mapping_ors = 0,
++	.rc = 0x1f,
++};
++
++int ddr_get_ddr_params(struct dimm_params *pdimm,
++			    struct ddr_conf *conf)
++{
++	static const char dimm_model[] = "Fixed DDR on board";
++
++	conf->dimm_in_use[0] = 1;
++	memcpy(pdimm, &ddr_raw_timing, sizeof(struct dimm_params));
++	memcpy(pdimm->mpart, dimm_model, sizeof(dimm_model) - 1);
++
++	return 1;
++}
++#endif
++
++long long _init_ddr(void)
++{
++	struct ddr_info info;
++	struct sysinfo sys;
++	long long dram_size;
++
++	zeromem(&sys, sizeof(sys));
++	get_clocks(&sys);
++	debug("platform clock %lu\n", sys.freq_platform);
++	debug("DDR PLL1 %lu\n", sys.freq_ddr_pll0);
++
++	zeromem(&info, sizeof(struct ddr_info));
++	info.num_ctlrs = 1;
++	info.dimm_on_ctlr = 1;
++	info.clk = get_ddr_freq(&sys, 0);
++	info.ddr[0] = (void *)NXP_DDR_ADDR;
++
++	dram_size = dram_init(&info);
++
++	if (dram_size < 0)
++		ERROR("DDR init failed.\n");
++
++	return dram_size;
++}
+diff --git a/plat/nxp/soc-ls1028/ls1028atsn/platform.mk b/plat/nxp/soc-ls1028/ls1028atsn/platform.mk
+new file mode 100644
+index 000000000..f9b3098c1
+--- /dev/null
++++ b/plat/nxp/soc-ls1028/ls1028atsn/platform.mk
+@@ -0,0 +1,16 @@
++#
++# Copyright 2018 NXP
++#
++# SPDX-License-Identifier: BSD-3-Clause
++#
++# Author Ruchika Gupta <ruchika.gupta@nxp.com>
++
++# board-specific build parameters
++BOOT_MODE	:= 	flexspi_nor
++BOARD		:=	atsn
++
++ # get SoC common build parameters
++include plat/nxp/soc-ls1028/soc.mk
++
++BL2_SOURCES	+=	${BOARD_PATH}/ddr_init.c
++
+diff --git a/plat/nxp/soc-ls1028/ls1028atsn/platform_def.h b/plat/nxp/soc-ls1028/ls1028atsn/platform_def.h
+new file mode 100644
+index 000000000..496803abf
+--- /dev/null
++++ b/plat/nxp/soc-ls1028/ls1028atsn/platform_def.h
+@@ -0,0 +1,184 @@
++/*
++ * Copyright 2018 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ *
++ * Authors: Ruchika Gupta <ruchika.gupta@nxp.com>
++ *	    Pankaj Gupta <pankaj.gupta@nxp.com>
++ */
++
++#ifndef __PLATFORM_DEF_H__
++#define __PLATFORM_DEF_H__
++
++#include <arch.h>
++/* Certain ARM files require defines from this file */
++#include <tbbr_img_def.h>
++/* From ARM :-> Has some common defines ARM requires */
++#include <common_def.h>
++/* Soc specific defines */
++#include <soc.h>
++/* include the platform-level security policy */
++#include <policy.h>
++
++#if defined(IMAGE_BL2)
++#define SEC_MEM_NON_COHERENT
++#endif
++/* Special value used to verify platform parameters from BL2 to BL31 */
++
++/* TBD -- Check and get back if this value is same for all platforms */
++#define LS_BL31_PLAT_PARAM_VAL		0x0f1e2d3c4b5a6978ULL
++
++/******************************************************************************
++ *  Board specific defines
++ *****************************************************************************/
++
++#define NXP_SYSCLK_FREQ		100000000
++#define NXP_DDRCLK_FREQ		100000000
++
++/* UART related definition */
++#define NXP_CONSOLE_ADDR	NXP_UART_ADDR
++#define NXP_CONSOLE_BAUDRATE	115200
++
++#define NXP_SPD_EEPROM0		0x51
++
++#define DDRC_NUM_DIMM		1	
++#define CONFIG_DDR_NODIMM
++#define CONFIG_DDR_ECC_EN
++
++#define PLAT_DEF_DRAM0_SIZE	0x80000000	/*  2G */
++
++/* Board specific - size of QSPI Flash on board */
++#if FLEXSPI_NOR_BOOT
++#define NXP_FLEXSPI_FLASH_SIZE	0x10000000
++#endif
++/* TBD Put all memory specific defines here */
++
++/******************************************************************************
++ * Required platform porting definitions common to all ARM standard platforms
++ *****************************************************************************/
++
++/* Size of cacheable stacks */
++#if defined(IMAGE_BL2)
++#if defined(TRUSTED_BOARD_BOOT)
++#define PLATFORM_STACK_SIZE	0x2000
++#else
++#define PLATFORM_STACK_SIZE	0x1000
++#endif
++#elif defined(IMAGE_BL31)
++#define PLATFORM_STACK_SIZE	0x1000
++#endif
++
++#define FIRMWARE_WELCOME_STR_LS_BL2	"Welcome to LS1028 BL2 Phase\n"
++#define FIRMWARE_WELCOME_STR_LS_BL31	"Welcome to LS1028 BL31 Phase\n"
++
++/* This is common for all platforms where
++ * 64K is reserved for Secure memory
++ */
++/* 64M Secure Memory */
++#define NXP_SECURE_DRAM_SIZE	(64 * 1024 * 1024)
++
++/* 2M Secure EL1 Payload Shared Memory */
++#define NXP_SP_SHRD_DRAM_SIZE	(2 * 1024 * 1024)
++
++/* Non secure memory */
++#define NXP_NS_DRAM_SIZE	(NXP_DRAM0_SIZE - \
++				(NXP_SECURE_DRAM_SIZE + NXP_SP_SHRD_DRAM_SIZE))
++
++#define NXP_NS_DRAM_ADDR	NXP_DRAM0_ADDR
++
++#ifdef TEST_BL31
++#define NXP_SECURE_DRAM_ADDR 0
++#else
++#define NXP_SECURE_DRAM_ADDR	(NXP_NS_DRAM_ADDR + NXP_DRAM0_SIZE - \
++				(NXP_SECURE_DRAM_SIZE  + NXP_SP_SHRD_DRAM_SIZE))
++#endif
++
++#define NXP_SP_SHRD_DRAM_ADDR	(NXP_NS_DRAM_ADDR + NXP_DRAM0_SIZE \
++				- NXP_SP_SHRD_DRAM_SIZE)
++
++#define BL2_BASE		(NXP_OCRAM_ADDR + NXP_ROM_RSVD + CSF_HDR_SZ)
++#ifdef SD_BOOT
++#define BL2_LIMIT		(NXP_OCRAM_ADDR + NXP_OCRAM_SIZE - NXP_SD_BLOCK_BUF_SIZE)
++#else
++#define BL2_LIMIT		(NXP_OCRAM_ADDR + NXP_OCRAM_SIZE)
++#endif
++#define BL2_TEXT_LIMIT		(BL2_LIMIT)
++
++/* 2 MB reserved in secure memory for DDR */
++#define BL31_BASE		NXP_SECURE_DRAM_ADDR
++#define BL31_SIZE		(0x200000)
++#define BL31_LIMIT		(BL31_BASE + BL31_SIZE)
++
++/* Put BL32 in secure memory */
++#define BL32_BASE		(NXP_SECURE_DRAM_ADDR + BL31_SIZE)
++#define BL32_LIMIT		(NXP_SECURE_DRAM_ADDR + \
++				NXP_SECURE_DRAM_SIZE + NXP_SP_SHRD_DRAM_SIZE)
++
++/* BL33 memory region */
++/* Hardcoded based on current address in u-boot */
++#define BL33_BASE		0x82000000
++#define BL33_LIMIT		(NXP_NS_DRAM_ADDR + NXP_NS_DRAM_SIZE)
++
++/* SD block buffer */
++#define NXP_SD_BLOCK_BUF_SIZE	(0xC000)
++#define NXP_SD_BLOCK_BUF_ADDR	(NXP_OCRAM_ADDR + NXP_OCRAM_SIZE - NXP_SD_BLOCK_BUF_SIZE)
++
++
++/* IO defines as needed by IO driver framework */
++/* TBD Add how to reach these numbers */
++#define MAX_IO_DEVICES		4
++#define MAX_IO_BLOCK_DEVICES	1
++#define MAX_IO_HANDLES		4
++
++
++/*
++ * FIP image defines - Offset at which FIP Image would be present
++ * Image would include Bl31 , Bl33 and Bl32 (optional)
++ */
++#ifdef POLICY_FUSE_PROVISION
++#define MAX_FIP_DEVICES		2
++#define FUSE_BUF		ULL(0x81000000)
++#define FUSE_SZ			0x80000
++#endif
++
++
++#define PLAT_FIP_OFFSET		0x100000
++#define PLAT_FIP_MAX_SIZE	0x400000
++
++/* Check if this size can be determined from array size */
++#if defined(IMAGE_BL2)
++#define MAX_MMAP_REGIONS	8
++#define MAX_XLAT_TABLES		6
++#elif defined(IMAGE_BL31)
++#define MAX_MMAP_REGIONS	9
++#define MAX_XLAT_TABLES		9
++#elif defined(IMAGE_BL32)
++#define MAX_MMAP_REGIONS	8
++#define MAX_XLAT_TABLES		9
++#endif
++
++/******************************************************************************/
++/*
++ * ID of the secure physical generic timer interrupt used by the BL32.
++ */
++#define BL32_IRQ_SEC_PHY_TIMER	29
++
++#define BL31_WDOG_SEC		89
++/*
++ * Define properties of Group 1 Secure and Group 0 interrupts as per GICv3
++ * terminology. On a GICv2 system or mode, the lists will be merged and treated
++ * as Group 0 interrupts.
++ */
++#define PLAT_LS_G1S_IRQ_PROPS(grp) \
++	INTR_PROP_DESC(BL32_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
++			GIC_INTR_CFG_EDGE)
++
++/* SGI 15 and Secure watchdog interrupts assigned to Group 0 */
++#define PLAT_LS_G0_IRQ_PROPS(grp)	\
++	INTR_PROP_DESC(BL31_WDOG_SEC, GIC_HIGHEST_SEC_PRIORITY, grp, \
++			GIC_INTR_CFG_EDGE), \
++	INTR_PROP_DESC(15, GIC_HIGHEST_SEC_PRIORITY, grp, \
++			GIC_INTR_CFG_LEVEL)
++
++
++#endif 
+diff --git a/plat/nxp/soc-ls1028/ls1028atsn/policy.h b/plat/nxp/soc-ls1028/ls1028atsn/policy.h
+new file mode 100644
+index 000000000..03f0a5c6a
+--- /dev/null
++++ b/plat/nxp/soc-ls1028/ls1028atsn/policy.h
+@@ -0,0 +1,40 @@
++/*
++ * Copyright 2018-2019 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ *
++ * Author Ruchika Gupta <ruchika.gupta@nxp.com>
++ * 	Pankaj Gupta <pankaj.gupta@nxp.com>
++ */
++
++/*---------------------------------------------------------------------------*/
++
++#ifndef _POLICY_H
++#define	_POLICY_H
++
++ // the following defines affect the PLATFORM SECURITY POLICY
++
++ // set this to 0x0 if the platform is not using/responding to ECC errors
++ // set this to 0x1 if ECC is being used (we have to do some init)
++#define  POLICY_USING_ECC 0x0
++
++ // Set this to 0x0 to leave the default SMMU page size in sACR
++ // Set this to 0x1 to change the SMMU page size to 64K
++#define POLICY_SMMU_PAGESZ_64K 0x1
++
++/*
++ * POLICY_PERF_WRIOP = 0 : No Performance enhancement for WRIOP RN-I
++ * POLICY_PERF_WRIOP = 1 : No Performance enhancement for WRIOP RN-I = 7
++ * POLICY_PERF_WRIOP = 2 : No Performance enhancement for WRIOP RN-I = 23
++ */
++#define POLICY_PERF_WRIOP 0
++
++ /*
++  * set this to '1' if the debug clocks need to remain enabled during
++  * system entry to low-power (LPM20) - this should only be necessary
++  * for testing and NEVER set for normal production
++  */
++#define POLICY_DEBUG_ENABLE 0
++//-----------------------------------------------------------------------------
++
++#endif // _POLICY_H
+-- 
+2.17.1
+
