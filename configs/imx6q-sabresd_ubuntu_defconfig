@@ -39,8 +39,6 @@ BR2_TOOLCHAIN_EXTERNAL_GLIBC=y
 BR2_TARGET_UBOOT=y
 BR2_TARGET_UBOOT_BOARDNAME="mx6sabresd"
 BR2_TARGET_UBOOT_CUSTOM_GIT=y
-BR2_TARGET_UBOOT_CUSTOM_REPO_URL="ssh://git@bitbucket.sw.nxp.com/dnind/industry-uboot.git"
-BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION="LSDK-20.04"
 BR2_TARGET_UBOOT_FORMAT_IMG=y
 BR2_TARGET_UBOOT_SPL=y
 BR2_TARGET_UBOOT_SPL_NAME="SPL"
@@ -48,8 +46,6 @@ BR2_TARGET_UBOOT_SPL_NAME="SPL"
 # Kernel
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_GIT=y
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="ssh://git@bitbucket.sw.nxp.com/dnind/industry-linux.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="linux-5.4.y"
 BR2_LINUX_KERNEL_DEFCONFIG="imx_v6_v7"
 BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="board/freescale/common/imx/linux-selinux.config board/nxp/common/ls/linux-selinux.config board/nxp/common/ls/linux-dmcrypt.config"
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
