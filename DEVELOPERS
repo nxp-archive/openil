@@ -555,6 +555,7 @@ F:	configs/nxp_ls1021aiot_ubuntu_defconfig
 F:	configs/nxp_ls1021aiot_ubuntu_full_defconfig
 F:	configs/nxp_ls1021atsn_defconfig
 F:	configs/nxp_ls1021atsn_optee-sb_defconfig
+F:	configs/nxp_ls1021atwr_defconfig
 F:	configs/nxp_ls1028ardb-64b_defconfig
 F:	configs/nxp_ls1028ardb-64b-emmc_defconfig
 F:	configs/nxp_ls1028ardb-64b-xspi_defconfig

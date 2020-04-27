@@ -238,6 +238,7 @@ nxp_ls1021aiot_ubuntu_defconfig: { extends: .defconfig }
 nxp_ls1021aiot_ubuntu_full_defconfig: { extends: .defconfig }
 nxp_ls1021atsn_defconfig: { extends: .defconfig }
 nxp_ls1021atsn_optee-sb_defconfig: { extends: .defconfig }
+nxp_ls1021atwr_defconfig: { extends: .defconfig }
 nxp_ls1028ardb-64b_defconfig: { extends: .defconfig }
 nxp_ls1028ardb-64b-emmc_defconfig: { extends: .defconfig }
 nxp_ls1028ardb-64b-xspi_defconfig: { extends: .defconfig }
