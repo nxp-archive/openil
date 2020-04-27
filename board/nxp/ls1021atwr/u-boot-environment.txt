@@ -1,0 +1,16 @@
+baudrate=115200
+bootcmd=setenv bootargs root=/dev/mmcblk0p2 rootwait rw console=ttyS0,115200 cma=64M@0x0-0xb0000000;mmcinfo;fatload mmc 0:1 ${loadaddr} ${bootfile};fatload mmc 0:1 ${fdtaddr} ${fdtfile};bootm ${loadaddr} - ${fdtaddr}
+bootdelay=3
+bootfile=uImage
+eth1addr=00:04:9f:ef:07:07
+eth2addr=00:04:9f:ef:08:08
+ethact=eTSEC1
+ethaddr=00:04:9f:ef:06:06
+ethprime=eTSEC1
+fdt_high=0xffffffff
+fdtaddr=0x8f000000
+fdtcontroladdr=beeefe44
+fdtfile=ls1021a-twr.dtb
+initrd_high=0xffffffff
+loadaddr=0x80008000
+scsidevs=0

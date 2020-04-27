@@ -533,6 +533,7 @@ F:	board/nxp/common/ls/
 F:	board/nxp/ls1012ardb/
 F:	board/nxp/ls1021aiot/
 F:	board/nxp/ls1021atsn/
+F:	board/nxp/ls1021atwr/
 F:	board/nxp/ls1028ardb/
 F:	board/nxp/ls1028atsn/
 F:	board/nxp/ls1043ardb/
