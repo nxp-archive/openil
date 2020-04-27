@@ -1,0 +1,44 @@
+Open Industrial Linux, is Linux distribution for Industrial Automation.
+It is a simple, high efficient and easy-to-use distribution to generate
+industrial embedded Linux systems via cross-compilation.
+
+OpenIL provides industrial-grade security, trusted computing, deterministic
+networking technology and real-time Linux system.
+
+To build and use the OpenIL, do the following:
+
+1) run 'make menuconfig'
+2) select the target architecture and the packages you wish to compile
+3) run 'make'
+4) wait while it compiles
+5) find the kernel, bootloader, root filesystem, etc. in output/images
+
+You do not need to be root to build or run OpenIL.
+"sudo" permission is required when building ubuntu RFS.
+
+OpenIL comes with a basic configuration for a number of boards. Run
+'make list-defconfigs' to view the list of provided configurations.
+
+You can run the images built from OpenIL quickly on some platforms, for
+example ls1021atsn from NXP:
+
+1) run 'make nxp_ls1021atsn_defconfig'
+2) the nxp_ls1021atsn_defconfig has included all necessary packages
+3) run 'make'
+4) wait while it compiles
+5) find the complete image 'sdcard.img' in output/images
+
+OpenIL supportes NXP platforms:
+	- LS1012ARDB
+	- LS1043ARDB
+	- LS1046ARDB
+	- LS1046AFRWY
+	- LS1021ATSN
+	- LS1021AIOT
+	- LS1021ATWR
+	- i.MX6Q-SABRESD
+	- LS1028ARDB
+	- FII-LS1028ATSN
+	- LX2160ARDB
+
+For more detailed information, please refer to the openil.org.
