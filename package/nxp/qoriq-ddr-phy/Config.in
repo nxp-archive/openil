@@ -7,5 +7,6 @@ if BR2_PACKAGE_QORIQ_DDR_PHY
 
 config BR2_PACKAGE_QORIQ_DDR_PHY_VERSION
 	string "qoriq-ddr-phy version"
+	default "LSDK-20.04"
 
 endif
