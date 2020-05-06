@@ -591,6 +591,7 @@ F:	package/nxp/qoriq-libnfc-nci/
 F:	package/nxp/qoriq-mc-fw/
 F:	package/nxp/qoriq-mc-utils/
 F:	package/nxp/qoriq-netopeer2-cli/
+F:	package/nxp/qoriq-netopeer2-keystored/
 F:	package/nxp/qoriq-netopeer2-server/
 F:	package/nxp/qoriq-nodejs-lbt/
 F:	package/nxp/qoriq-perl-exporter-tiny/

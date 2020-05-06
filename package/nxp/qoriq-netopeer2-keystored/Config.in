@@ -1,0 +1,19 @@
+config BR2_PACKAGE_QORIQ_NETOPEER2_KEYSTORED
+	bool "qoriq-netopeer2-keystored"
+	select BR2_PACKAGE_OPENSSH
+	select BR2_PACKAGE_SYSREPO
+	select BR2_PACKAGE_LIBNETCONF2
+	help
+	  Management of SSH keys for Netopeer2, a NETCONF server. NETCONF is an
+	  Internet protocol for remote management of network devices.
+
+
+	  https://github.com/CESNET/Netopeer2
+
+if BR2_PACKAGE_QORIQ_NETOPEER2_KEYSTORED
+
+config BR2_PACKAGE_QORIQ_NETOPEER2_KEYSTORED_VERSION
+       string "qoriq-netopeer2-keystored version"
+	default "0.7-r2"
+
+endif
