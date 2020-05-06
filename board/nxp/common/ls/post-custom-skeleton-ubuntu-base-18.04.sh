@@ -114,6 +114,8 @@ plat_name()
 		echo "LS1043ARDB"
 	elif grep -Eq "^BR2_LINUX_KERNEL_INTREE_DTS_NAME=\"ls1021a-iot\"$" ${BR2_CONFIG}; then
 		echo "LS1021AIOT"
+	elif grep -Eq "^BR2_LINUX_KERNEL_INTREE_DTS_NAME=\"ls1021a-tsn\"$" ${BR2_CONFIG}; then
+		echo "LS1021ATSN"
 	elif grep -Eq "^BR2_LINUX_KERNEL_INTREE_DTS_NAME=\"imx6q-sabresd\"$" ${BR2_CONFIG}; then
 		echo "IMX6Q"
 	fi
