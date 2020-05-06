@@ -11,5 +11,6 @@ if BR2_PACKAGE_QORIQ_MC_UTILS
 
 config BR2_PACKAGE_QORIQ_MC_UTILS_VERSION
 	string "mc-utils version"
+	default "LSDK-20.04"
 
 endif
