@@ -12,6 +12,9 @@ QORIQ_SYSREPO_TSN_LICENSE_FILES = LICENSE
 QORIQ_SYSREPO_TSN_DEPENDENCIES = qoriq-netopeer2-server qoriq-tsntool qoriq-yang-model cjson
 
 QORIQ_SYSREPO_TSN_MAKE_ENV = LD_LIBRARY_PATH=$(HOST_DIR)/usr/lib:$(HOST_DIR)/lib
+ifeq ($(BR2_PACKAGE_QORIQ_SYSREPO_TSN_TC),y)
+QORIQ_SYSREPO_TSN_CONF_OPTS += -DCONF_SYSREPO_TSN_TC=true
+endif
 
 # copying models from standard model repo
 define QORIQ_SYSREPO_TSN_COPY_BRIDGE_MODELS

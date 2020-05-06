@@ -16,4 +16,7 @@ config BR2_PACKAGE_QORIQ_SYSREPO_TSN_SITE
 	string "qoriq-sysrepo-tsn site"
 	default "https://github.com/openil/sysrepo-tsn.git"
 
+config BR2_PACKAGE_QORIQ_SYSREPO_TSN_TC
+	bool "enable tc command to configure tsn"
+
 endif
