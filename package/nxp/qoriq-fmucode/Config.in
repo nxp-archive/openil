@@ -21,5 +21,6 @@ config BR2_PACKAGE_QORIQ_FMUCODE_BIN
 
 config BR2_PACKAGE_QORIQ_FMUCODE_VERSION
 	string "fmucode version"
+	default "LSDK-20.04"
 
 endif
