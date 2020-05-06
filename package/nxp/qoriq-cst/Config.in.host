@@ -25,5 +25,6 @@ if BR2_PACKAGE_HOST_QORIQ_CST
 
 config BR2_PACKAGE_HOST_QORIQ_CST_VERSION
 	string "qoriq-cst version"
+	default "LSDK-20.04"
 
 endif
