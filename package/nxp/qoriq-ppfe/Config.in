@@ -8,5 +8,6 @@ if BR2_PACKAGE_QORIQ_PPFE
 
 config BR2_PACKAGE_QORIQ_PPFE_VERSION
 	string "ppfe version"
+	default "LSDK-20.04"
 
 endif
