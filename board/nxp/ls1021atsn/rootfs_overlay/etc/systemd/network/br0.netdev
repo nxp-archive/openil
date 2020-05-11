@@ -1,0 +1,11 @@
+[NetDev]
+Name=br0
+Kind=bridge
+
+[Bridge]
+VLANFiltering=no
+DefaultPVID=1
+STP=no
+
+[VLAN]
+MVRP=no

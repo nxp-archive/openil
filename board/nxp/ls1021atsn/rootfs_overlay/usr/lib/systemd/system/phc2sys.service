@@ -1,0 +1,10 @@
+[Unit]
+Description=Precision Time Protocol system clock synchronization
+After=ptp4l.service
+
+[Service]
+ExecStart=/usr/sbin/phc2sys -a -rr -f /etc/linuxptp-system-clock.cfg
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

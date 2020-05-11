@@ -1,0 +1,6 @@
+[Match]
+Name=swp*
+
+[Network]
+BindCarrier=eth2
+Bridge=br0
