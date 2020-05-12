@@ -31,6 +31,7 @@ source "package/nxp/qoriq-python-wand/Config.in"
 source "package/nxp/qoriq-restool/Config.in"
 source "package/nxp/qoriq-servo/Config.in"
 source "package/nxp/qoriq-sysrepo-tsn/Config.in"
+source "package/nxp/qoriq-tsn-scripts/Config.in"
 source "package/nxp/qoriq-tsntool/Config.in"
 source "package/nxp/qoriq-yang-model/Config.in"
 

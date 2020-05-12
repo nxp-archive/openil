@@ -1,0 +1,10 @@
+config BR2_PACKAGE_QORIQ_TSN_SCRIPTS
+	bool "qoriq-tsn-scripts"
+	depends on BR2_LINUX_KERNEL
+	select BR2_PACKAGE_JQ
+	help
+	  tsn-scripts is a repository for showcasing and testing IEEE 802.1 TSN
+	  hardware features on NXP LS1028A-RDB and NXP LS1021A-TSN boards. The
+	  repo provides an 'isochron' binary for generating isochronous traffic
+	  which is latency-sensitive and helps measure propagation delay across
+	  a TSN network.
