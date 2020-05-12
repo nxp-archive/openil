@@ -1,0 +1,21 @@
+From 20aced8217bfc73ff551a20c93b906d77bf693d0 Mon Sep 17 00:00:00 2001
+From: Changming Huang <jerry.huang@nxp.com>
+Date: Tue, 12 May 2020 20:40:33 +0800
+Subject: [PATCH] arm: support linux-5.4.x
+
+Signed-off-by: Changming Huang <jerry.huang@nxp.com>
+---
+ arm-linux-gnueabihf/libc/usr/include/linux/version.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arm-linux-gnueabihf/libc/usr/include/linux/version.h b/arm-linux-gnueabihf/libc/usr/include/linux/version.h
+index 7670350..08893ec 100644
+--- a/arm-linux-gnueabihf/libc/usr/include/linux/version.h
++++ b/arm-linux-gnueabihf/libc/usr/include/linux/version.h
+@@ -1,2 +1,2 @@
+-#define LINUX_VERSION_CODE 264707
++#define LINUX_VERSION_CODE 328707
+ #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+-- 
+2.17.1
+

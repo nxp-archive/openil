@@ -1,0 +1,21 @@
+From 1000f82e9e9dc9495ed69c5e79cec068325aa2f5 Mon Sep 17 00:00:00 2001
+From: Changming Huang <jerry.huang@nxp.com>
+Date: Tue, 12 May 2020 19:50:02 +0800
+Subject: [PATCH] aarch64: support linux-5.4.x
+
+Signed-off-by: Changming Huang <jerry.huang@nxp.com>
+---
+ aarch64-linux-gnu/libc/usr/include/linux/version.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/aarch64-linux-gnu/libc/usr/include/linux/version.h b/aarch64-linux-gnu/libc/usr/include/linux/version.h
+index 7670350..08893ec 100644
+--- a/aarch64-linux-gnu/libc/usr/include/linux/version.h
++++ b/aarch64-linux-gnu/libc/usr/include/linux/version.h
+@@ -1,2 +1,2 @@
+-#define LINUX_VERSION_CODE 264707
++#define LINUX_VERSION_CODE 328707
+ #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+-- 
+2.17.1
+

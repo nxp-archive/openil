@@ -102,11 +102,31 @@ ifeq ($(BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD),y)
 # As a regular package, the toolchain gets extracted in $(@D), but
 # since it's actually a fairly special package, we need it to be moved
 # into TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR.
+CUSTOM_TC = toolchain-external-linaro-aarch64
+ifeq ($(findstring $(CUSTOM_TC), $(BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL)), $(CUSTOM_TC))
+define TOOLCHAIN_EXTERNAL_MOVE
+       rm -rf $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)
+       mkdir -p $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)
+       patch -p1 -s -d $(@D) < $(@D)/../../../toolchain/toolchain-external/0001-aarch64-support-linux-5.4.x.patch.conditional
+       mv $(@D)/* $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)/
+endef
+else
+CUSTOM_TC = toolchain-external-linaro-arm
+ifeq ($(findstring $(CUSTOM_TC), $(BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL)), $(CUSTOM_TC))
+define TOOLCHAIN_EXTERNAL_MOVE
+	rm -rf $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)
+	mkdir -p $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)
+       patch -p1 -s -d $(@D) < $(@D)/../../../toolchain/toolchain-external/0001-arm-support-linux-5.4.x.patch.conditional
+	mv $(@D)/* $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)/
+endef
+else
 define TOOLCHAIN_EXTERNAL_MOVE
 	rm -rf $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)
 	mkdir -p $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)
 	mv $(@D)/* $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)/
 endef
+endif
+endif
 endif
 
 #
