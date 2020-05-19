@@ -1,0 +1,61 @@
+From 86bc22b391e7866921d85b9f76d8309ed6b825b9 Mon Sep 17 00:00:00 2001
+From: Wenbin Song <wenbin.song@nxp.com>
+Date: Mon, 18 May 2020 18:34:35 +0800
+Subject: [PATCH 7/7] examples/user: simplify the Igh test case
+
+On the original case, we needed a stepper motor and the
+corresponding driver. It was diffcult to rebuild this
+test environment. On the new case, we only need to check
+whether the LED0 on the EL2008 is blinking with 1Hz.
+
+Signed-off-by: Wenbin Song  <wenbin.song@nxp.com>
+---
+ examples/user/main.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
+
+diff --git a/examples/user/main.c b/examples/user/main.c
+index 998b6e3..b0c2ae8 100644
+--- a/examples/user/main.c
++++ b/examples/user/main.c
+@@ -80,7 +80,7 @@ static unsigned int user_alarms = 0;
+ // process data
+ static uint8_t *domain1_pd = NULL;
+ #define BusCouplerPos  0, 0
+-#define DigOutSlavePos 0, 3
++#define DigOutSlavePos 0, 1
+ 
+ #define Beckhoff_EK1100 0x00000002, 0x044c2c52
+ #define Beckhoff_EL2008 0x00000002, 0x07d83052
+@@ -110,7 +110,6 @@ const static ec_pdo_entry_reg_t domain1_regs[] = {
+ 
+ static unsigned int counter = 0;
+ static unsigned int blink_out_0 = 0x01;
+-static unsigned int blink_out_1 = 0x01;
+ const struct timespec cycletime = {0, PERIOD_NS};
+ 
+ /*****************************************************************************/
+@@ -242,18 +241,14 @@ void cyclic_task_nanosleep(void)
+ 
+ 		// check process data state (optional)
+ 		check_domain1_state();
+-		EC_WRITE_BIT(domain1_pd + o_dig_out[2], bo_dig_out[2], 0x01);
+ 		EC_WRITE_BIT(domain1_pd + o_dig_out[0], bo_dig_out[0],
+ 				blink_out_0 ? 0x01 : 0x00);
+-		blink_out_0 = !blink_out_0;
+ 
+ 		if (counter) {
+ 			counter--;
+-		} else { // 0.1hz
+-			counter = FREQUENCY * 10;
+-			EC_WRITE_BIT(domain1_pd + o_dig_out[1], bo_dig_out[1],
+-					blink_out_1 ? 0x01 : 0x00);
+-			blink_out_1 = !blink_out_1;
++		} else { // 1hz
++			counter = FREQUENCY;
++			blink_out_0 = !blink_out_0;
+ 		}
+ 
+ 		// check for master state (optional)
+-- 
+2.17.1
+
