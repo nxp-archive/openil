@@ -1,3 +1,50 @@
+diff -ruN linux_libnfc-nci-R2.4-base/conf/libnfc-nci.conf linux_libnfc-nci-R2.4/conf/libnfc-nci.conf
+--- linux_libnfc-nci-R2.4-base/conf/libnfc-nci.conf	2019-01-22 14:39:19.171203892 +0800
++++ linux_libnfc-nci-R2.4/conf/libnfc-nci.conf	2019-01-22 14:42:57.431028647 +0800
+@@ -6,10 +6,13 @@
+ PROTOCOL_TRACE_LEVEL=0x00
+
+ ###############################################################################
+-# Force HOST listen feature enable or disable.
+-# 0: Disable
+-# 1: Enable
+-HOST_LISTEN_ENABLE=0x01
++# Specify HOST to listen for a selected protocol
++# 0x00 : Disable Host Listen
++# 0x01 : Enable Host to Listen (A)  for ISO-DEP tech A
++# 0x02 : Enable Host to Listen (B)  for ISO-DEP tech B
++# 0x04 : Enable Host to Listen (F)  for T3T Tag Type Protocol tech F
++# 0x07 : Enable Host to Listen (ABF)for ISO-DEP tech AB & T3T Tag Type Protocol tech F
++HOST_LISTEN_TECH_MASK=0x07
+
+ ###############################################################################
+ # Force tag polling for the following technology(s).
+diff -ruN linux_libnfc-nci-R2.4-base/conf/libnfc-nxp-init.conf linux_libnfc-nci-R2.4/conf/libnfc-nxp-init.conf
+--- linux_libnfc-nci-R2.4-base/conf/libnfc-nxp-init.conf	2019-01-22 14:39:19.171203892 +0800
++++ linux_libnfc-nci-R2.4/conf/libnfc-nxp-init.conf	2019-01-22 14:43:41.603802723 +0800
+@@ -28,6 +28,10 @@
+ NXPLOG_TML_LOGLEVEL=0x00
+
+ ###############################################################################
++# NXP HW Device Node information, when pn5xx_i2c kernel driver configuration is used
++NXP_NFC_DEV_NODE="/dev/pn544"
++
++###############################################################################
+ # NXP proprietary settings to enable NXP Proprietary features
+ # For NXP NFC Controller value must be fixed to {2F, 02, 00}
+ NXP_ACT_PROP_EXTN={2F, 02, 00}
+diff -ruN linux_libnfc-nci-R2.4-base/src/halimpl/pn54x/tml/i2c/phTmlNfc.c linux_libnfc-nci-R2.4/src/halimpl/pn54x/tml/i2c/phTmlNfc.c
+--- linux_libnfc-nci-R2.4-base/src/halimpl/pn54x/tml/i2c/phTmlNfc.c	2019-01-22 14:39:19.183204102 +0800
++++ linux_libnfc-nci-R2.4/src/halimpl/pn54x/tml/i2c/phTmlNfc.c	2019-01-22 14:40:14.060165758 +0800
+@@ -388,7 +388,7 @@
+                     else // aborting
+                     {
+                         s_customReadErrCounter = 0; // reset counter
+-                        printf("CUSTOM> too many i2c read errors: ABORTING...\n");
++                        //printf("CUSTOM> too many i2c read errors: ABORTING...\n");
+                         // XXX: similar code than nominal case, but with FAIL status (see later)
+                         gpphTmlNfc_Context->tReadInfo.bEnable = 0;
+                         if ((phTmlNfc_e_EnableRetrans == gpphTmlNfc_Context->eConfig) &&
 diff -ruN linux_libnfc-nci-R2.4-base/src/halimpl/pn54x/utils/phNxpConfig.cpp linux_libnfc-nci-R2.4/src/halimpl/pn54x/utils/phNxpConfig.cpp
 --- linux_libnfc-nci-R2.4-base/src/halimpl/pn54x/utils/phNxpConfig.cpp	2019-01-22 14:39:19.187204171 +0800
 +++ linux_libnfc-nci-R2.4/src/halimpl/pn54x/utils/phNxpConfig.cpp	2019-01-22 14:40:14.060165758 +0800

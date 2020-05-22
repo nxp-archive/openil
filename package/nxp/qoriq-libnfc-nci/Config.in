@@ -10,6 +10,6 @@ if BR2_PACKAGE_QORIQ_LIBNFC_NCI
 
 config BR2_PACKAGE_QORIQ_LIBNFC_NCI_VERSION
 	string "qoriq-libnfc-nci version"
-	default "R2.4.1"
+	default "R2.4"
 
 endif
