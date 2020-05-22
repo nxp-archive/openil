@@ -1,0 +1,16 @@
+[Unit]
+Description=netopeer2-server management
+Requires=sysrepod.service
+After=sysrepod.service
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/netopeer2-server
+PIDFile=/var/run/netopeer2-server.pid
+PrivateTmp=yes
+ProtectSystem=yes
+ProtectHome=yes
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

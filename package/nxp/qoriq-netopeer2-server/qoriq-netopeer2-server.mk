@@ -17,6 +17,11 @@ define QORIQ_NETOPEER2_SERVER_INSTALL_DAEMON_SCRIPT
 		$(TARGET_DIR)/etc/init.d/
 endef
 
+define QORIQ_NETOPEER2_SERVER_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 0644 package/nxp/qoriq-netopeer2-server/netopeer2-server.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/netopeer2-server.service
+endef
+
 QORIQ_NETOPEER2_SERVER_POST_INSTALL_TARGET_HOOKS = QORIQ_NETOPEER2_SERVER_INSTALL_DAEMON_SCRIPT
 
 # prevent an attempted chown to root:root

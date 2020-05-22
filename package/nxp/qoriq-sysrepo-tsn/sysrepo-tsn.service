@@ -1,0 +1,16 @@
+[Unit]
+Description=Sysrepo-tsn management
+Requires=sysrepod.service
+After=sysrepod.service
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/sysrepo-tsn
+PIDFile=/var/run/sysrepo-tsn.pid
+PrivateTmp=yes
+ProtectSystem=yes
+ProtectHome=yes
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target
