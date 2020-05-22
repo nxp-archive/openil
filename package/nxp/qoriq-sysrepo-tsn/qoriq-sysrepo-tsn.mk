@@ -40,6 +40,11 @@ define QORIQ_SYSREPO_TSN_INSTALL_INIT_SYSV
 		$(TARGET_DIR)/etc/init.d/S52sysrepo-tsn
 endef
 
+define QORIQ_SYSREPO_TSN_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 0644 package/nxp/qoriq-sysrepo-tsn/sysrepo-tsn.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/sysrepo-tsn.service
+endef
+
 QORIQ_SYSREPO_TSN_PRE_CONFIGURE_HOOKS += QORIQ_SYSREPO_TSN_COPY_BRIDGE_MODELS
 
 $(eval $(cmake-package))
