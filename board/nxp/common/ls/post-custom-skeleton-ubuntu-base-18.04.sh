@@ -18,6 +18,7 @@ do_distrorfs_first_stage() {
     DISTROSCALE=$6
     DISTROTYPE=$5
     [ -z "$RFSDIR" ] && RFSDIR=$2
+    [ -z $RFSDIR ] && echo No RootFS exist! && return
     [ -f $RFSDIR/etc/.firststagedone ] && echo $RFSDIR firststage exist! && return
     [ -f /etc/.firststagedone -a ! -f /proc/uptime ] && return
     mkdir -p $RFSDIR/lib/modules
@@ -68,11 +69,9 @@ do_distrorfs_first_stage() {
 
     if [ -n "$http_proxy" ]; then
 	mkdir -p $RFSDIR/etc/apt
-	echo "http_proxy = $http_proxy" | sudo tee -a /etc/wgetrc 1>/dev/null
 	echo "Acquire::http::proxy \"$http_proxy\";" | tee -a $RFSDIR/etc/apt/apt.conf 1>/dev/null
     fi
     if [ -n "$https_proxy" ]; then
-	echo "https_proxy = $https_proxy" | sudo tee -a /etc/wgetrc 1>/dev/null
 	echo "Acquire::https::proxy \"$https_proxy\";" | tee -a $RFSDIR/etc/apt/apt.conf 1>/dev/null
     fi
 
