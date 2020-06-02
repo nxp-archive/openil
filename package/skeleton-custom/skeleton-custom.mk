@@ -33,10 +33,12 @@ define SKELETON_CUSTOM_INSTALL_TARGET_CMDS
 	$(call SYSTEM_RSYNC,$(@D),$(TARGET_DIR))
 	$(INSTALL) -m 0644 support/misc/target-dir-warning.txt \
 		$(TARGET_DIR_WARNING_FILE)
+	cd $(TARGET_DIR)/var && rm run && ln -sf ../run run && rm lock && ln -sf ../run/lock lock
 endef
 
 define SKELETON_CUSTOM_INSTALL_STAGING_CMDS
 	$(call SYSTEM_RSYNC,$(@D),$(STAGING_DIR))
+	cd $(STAGING_DIR)/var && rm run && ln -sf ../run run &&	rm lock && ln -sf ../run/lock lock
 endef
 
 else
