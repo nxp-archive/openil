@@ -1,4 +1,5 @@
 # Locally calculated
 sha256 4a9ce5bb1733239bf1b740b705df20f90802b16114e24f3fd56c08a7ba4b56c2 qoriq-rcw-LSDK-19.09.tar.gz
 sha256 f849a8ed208d2e79062ec89736c98c17ef930d5ef3395c48ca702d73d940bbeb qoriq-rcw-LSDK-20.04.tar.gz
+sha256 99051955b300a1acb2c98308cc5b99f6300c8977eb438724ae1f71b3031bf81b qoriq-rcw-LSDK-20.04-update-290520.tar.gz
 sha256 a531b3146425e592db17a51ff39c4801cb01fb4055ffdaada0572decc0655bcd LICENSE
