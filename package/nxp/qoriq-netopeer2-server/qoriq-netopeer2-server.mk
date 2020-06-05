@@ -22,7 +22,16 @@ define QORIQ_NETOPEER2_SERVER_INSTALL_INIT_SYSTEMD
 		$(TARGET_DIR)/usr/lib/systemd/system/netopeer2-server.service
 endef
 
+define  QORIQ_NETOPEER2_SERVER_CREATE_SERVICE_LINK
+       cd $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/ && rm -f netopeer2-server.service && ln -sf /usr/lib/systemd/system/netopeer2-server.service netopeer2-server.service
+endef
+
 QORIQ_NETOPEER2_SERVER_POST_INSTALL_TARGET_HOOKS = QORIQ_NETOPEER2_SERVER_INSTALL_DAEMON_SCRIPT
+
+ifneq ($(BR2_ROOTFS_SKELETON_CUSTOM_SITE),)
+QORIQ_NETOPEER2_SERVER_POST_INSTALL_TARGET_HOOKS += QORIQ_NETOPEER2_SERVER_INSTALL_INIT_SYSTEMD
+QORIQ_NETOPEER2_SERVER_POST_INSTALL_TARGET_HOOKS += QORIQ_NETOPEER2_SERVER_CREATE_SERVICE_LINK
+endif
 
 # prevent an attempted chown to root:root
 QORIQ_NETOPEER2_SERVER_CONF_OPTS += -DSYSREPOCTL_ROOT_PERMS="-p 666"
