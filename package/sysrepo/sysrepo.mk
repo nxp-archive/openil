@@ -41,6 +41,24 @@ define SYSREPO_INSTALL_INIT_SYSV
 		$(TARGET_DIR)/etc/init.d/S51sysrepo-plugind
 endef
 
+define SYSREPO_INSTALL_INIT_SYSTEMD_UBUNTU
+       $(INSTALL) -D -m 0644 package/sysrepo/sysrepod.service \
+               $(TARGET_DIR)/usr/lib/systemd/system/sysrepod.service
+       $(INSTALL) -D -m 0644 package/sysrepo/sysrepo-plugind.service \
+               $(TARGET_DIR)/usr/lib/systemd/system/sysrepo-plugind.service
+endef
+
+define  SYSREPO_CREATE_SERVICE_LINK
+	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/
+	cd $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/ && rm -f sysrepod.service && ln -sf /usr/lib/systemd/system/sysrepod.service sysrepod.service
+	cd $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/ && rm -f sysrepo-plugind.service && ln -sf /usr/lib/systemd/system/sysrepo-plugind.service sysrepo-plugind.service
+endef
+
+ifneq ($(BR2_ROOTFS_SKELETON_CUSTOM_SITE),)
+SYSREPO_PRE_CONFIGURE_HOOKS += SYSREPO_INSTALL_INIT_SYSTEMD_UBUNTU
+SYSREPO_PRE_CONFIGURE_HOOKS += SYSREPO_CREATE_SERVICE_LINK
+endif
+
 HOST_SYSREPO_CONF_OPTS = \
 	-DGEN_PYTHON2_TESTS=OFF \
 	-DENABLE_TESTS=OFF \
