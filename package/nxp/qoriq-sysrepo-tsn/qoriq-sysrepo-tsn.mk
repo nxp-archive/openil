@@ -45,6 +45,15 @@ define QORIQ_SYSREPO_TSN_INSTALL_INIT_SYSTEMD
 		$(TARGET_DIR)/usr/lib/systemd/system/sysrepo-tsn.service
 endef
 
+define QORIQ_SYSREPO_TSN_CREATE_SERVICE_LINK
+       cd $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/ && rm -f sysrepo-tsn.service && ln -sf /usr/lib/systemd/system/sysrepo-tsn.service sysrepo-tsn.service
+endef
+
 QORIQ_SYSREPO_TSN_PRE_CONFIGURE_HOOKS += QORIQ_SYSREPO_TSN_COPY_BRIDGE_MODELS
+
+ifneq ($(BR2_ROOTFS_SKELETON_CUSTOM_SITE),)
+QORIQ_SYSREPO_TSN_PRE_CONFIGURE_HOOKS += QORIQ_SYSREPO_TSN_INSTALL_INIT_SYSTEMD
+QORIQ_SYSREPO_TSN_PRE_CONFIGURE_HOOKS += QORIQ_SYSREPO_TSN_CREATE_SERVICE_LINK
+endif
 
 $(eval $(cmake-package))

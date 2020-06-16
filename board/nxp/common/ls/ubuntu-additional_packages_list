@@ -9,7 +9,7 @@ additional_full_packages_list="apt apt-utils git gcc vim wget make build-essenti
  hdparm psmisc keyutils python-numpy software-properties-common efibootmgr
  ca-certificates libffi-dev libudev-dev libinput-dev libpixman-1-dev
  libxkbcommon-dev libpng-dev libcairo2-dev libpam0g-dev lsb-release kexec-tools iptables
- liblua5.3-dev parted strongswan"
+ liblua5.3-dev parted strongswan libatomic1"
 
 
 # for devel userland gathered packages from main/universe/multiverse/restricted besides additional_main_packages_list

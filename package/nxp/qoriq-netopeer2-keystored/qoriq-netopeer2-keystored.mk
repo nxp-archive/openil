@@ -30,6 +30,15 @@ define QORIQ_NETOPEER2_KEYSTORED_INSTALL_INIT_SYSTEMD
 		$(TARGET_DIR)/usr/lib/systemd/system/netopeer2-keystored.service
 endef
 
+define  QORIQ_NETOPEER2_KEYSTORED_CREATE_SERVICE_LINK
+       cd $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/ && rm -f netopeer2-keystored.service && ln -sf /usr/lib/systemd/system/netopeer2-keystored.service netopeer2-keystored.service
+endef
+
 QORIQ_NETOPEER2_KEYSTORED_POST_INSTALL_TARGET_HOOKS = QORIQ_NETOPEER2_KEYSTORED_INSTALL_DAEMON_SCRIPT
+
+ifneq ($(BR2_ROOTFS_SKELETON_CUSTOM_SITE),)
+QORIQ_NETOPEER2_KEYSTORED_POST_INSTALL_TARGET_HOOKS += QORIQ_NETOPEER2_KEYSTORED_INSTALL_INIT_SYSTEMD
+QORIQ_NETOPEER2_KEYSTORED_POST_INSTALL_TARGET_HOOKS += QORIQ_NETOPEER2_KEYSTORED_CREATE_SERVICE_LINK
+endif
 
 $(eval $(cmake-package))

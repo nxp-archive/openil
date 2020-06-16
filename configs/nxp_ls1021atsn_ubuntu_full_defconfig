@@ -79,3 +79,6 @@ BR2_PACKAGE_QORIQ_TSN_SCRIPTS=y
 
 # busybox setting disable
 BR2_PACKAGE_BUSYBOX=n
+
+# sysrepo-tsn
+BR2_PACKAGE_QORIQ_SYSREPO_TSN=y
