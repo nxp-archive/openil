@@ -1,0 +1,27 @@
+From 8d93bcca118634ec897150c00cde81ac8737f489 Mon Sep 17 00:00:00 2001
+From: Changming Huang <jerry.huang@nxp.com>
+Date: Wed, 10 Jun 2020 18:53:12 +0800
+Subject: [PATCH 3/3] Add LDFLAGS to link step
+
+Signed-off-by: Erik Larsson <karl.erik.larsson@gmail.com>
+Signed-off-by: Changming Huang <jerry.huang@nxp.com>
+---
+ iMX8M/soc.mak | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/iMX8M/soc.mak b/iMX8M/soc.mak
+index b9be97f..840acaf 100644
+--- a/iMX8M/soc.mak
++++ b/iMX8M/soc.mak
+@@ -80,7 +80,7 @@ FW_DIR = imx-boot/imx-boot-tools/$(PLAT)
+ $(MKIMG): mkimage_imx8.c
+ 	@echo "PLAT="$(PLAT) "HDMI="$(HDMI)
+ 	@echo "Compiling mkimage_imx8"
+-	$(CC) $(CFLAGS) mkimage_imx8.c -o $(MKIMG) -lz
++	$(CC) $(CFLAGS) mkimage_imx8.c -o $(MKIMG) $(LDFLAGS) -lz
+ 
+ lpddr4_imem_1d = lpddr4_pmu_train_1d_imem$(LPDDR_FW_VERSION).bin
+ lpddr4_dmem_1d = lpddr4_pmu_train_1d_dmem$(LPDDR_FW_VERSION).bin
+-- 
+2.17.1
+
