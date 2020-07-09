@@ -30,7 +30,7 @@ IMX_GPU_VIV_DEPENDENCIES += xlib_libXdamage xlib_libXext xlib_libXfixes
 endif
 
 ifeq ($(IMX_GPU_VIV_LIB_TARGET),wl)
-IMX_GPU_VIV_DEPENDENCIES += libdrm wayland
+IMX_GPU_VIV_DEPENDENCIES += libdrm-imx wayland
 endif
 
 define IMX_GPU_VIV_EXTRACT_CMDS
@@ -117,7 +117,10 @@ endif
 define IMX_GPU_VIV_INSTALL_TARGET_CMDS
 	$(IMX_GPU_VIV_INSTALL_EXAMPLES)
 	$(IMX_GPU_VIV_INSTALL_GMEM_INFO)
+	mkdir -p $(TARGET_DIR)/etc/OpenCL/vendors
+	cp $(@D)/gpu-core/etc/Vivante.icd $(TARGET_DIR)/etc/OpenCL/vendors/
 	cp -a $(@D)/gpu-core/usr/lib $(TARGET_DIR)/usr
+	cp -a $(@D)/gpu-core/usr/include $(TARGET_DIR)/usr
 	for lib in EGL GAL GLESv2 VDK; do \
 		for f in $(TARGET_DIR)/usr/lib/lib$${lib}-*.so; do \
 			case $$f in \
