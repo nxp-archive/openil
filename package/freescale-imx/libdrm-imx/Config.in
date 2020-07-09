@@ -1,0 +1,8 @@
+config BR2_PACKAGE_LIBDRM_IMX
+	bool "libdrm-imx"
+	help
+	  Userspace interface to the kernel DRM services.
+	  The runtime library for accessing the kernel DRM services.
+	  DRM stands for "Direct Rendering Manager", which is the kernel
+	  portion of the Direct Rendering Infrastructure" (DRI).
+	  DRI is required for many hardware accelerated OpenGL drivers.
