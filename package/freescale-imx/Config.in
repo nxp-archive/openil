@@ -115,5 +115,6 @@ source "package/freescale-imx/imx-gpu-viv/Config.in"
 source "package/freescale-imx/kernel-module-imx-gpu-viv/Config.in"
 endif
 source "package/freescale-imx/libdrm-imx/Config.in"
+source "package/freescale-imx/wayland-protocols-imx/Config.in"
 
 endif

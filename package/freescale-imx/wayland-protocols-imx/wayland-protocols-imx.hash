@@ -1,0 +1,5 @@
+# From https://lists.freedesktop.org/archives/wayland-devel/2019-July/040756.html
+md5 99e1cc3c0cde4c2508a0def591e36328  wayland-protocols-imx-rel_imx_5.4.24_2.1.0.tar.gz
+sha1 ce61452edc8fc8b301a1d6d10f704b4d2b5701b8  wayland-protocols-imx-rel_imx_5.4.24_2.1.0.tar.gz
+sha256 8bc3f6ddf4cd26637c6c932156f472ca88f985b82c01022e7ab22a326456becd  wayland-protocols-imx-rel_imx_5.4.24_2.1.0.tar.gz
+sha256 f1a2b233e8a9a71c40f4aa885be08a0842ac85bb8588703c1dd7e6e6502e3124  COPYING
