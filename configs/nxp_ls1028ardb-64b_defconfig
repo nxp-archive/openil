@@ -103,6 +103,9 @@ BR2_PACKAGE_QORIQ_LIBBLEP=y
 BR2_PACKAGE_QORIQ_LIBBEE=y
 
 # sysrepo-tsn
+# BR2_PACKAGE_OPENSSH=y # Already set in basic packages
+BR2_PACKAGE_LIBSSH=y
+BR2_PACKAGE_LIBSSH_SERVER=y
 BR2_PACKAGE_QORIQ_SYSREPO_TSN=y
 
 # basic packages and tools
