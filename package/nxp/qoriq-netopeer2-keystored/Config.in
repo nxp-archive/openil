@@ -1,6 +1,5 @@
 config BR2_PACKAGE_QORIQ_NETOPEER2_KEYSTORED
 	bool "qoriq-netopeer2-keystored"
-	select BR2_PACKAGE_OPENSSH
 	select BR2_PACKAGE_SYSREPO
 	select BR2_PACKAGE_LIBNETCONF2
 	help
