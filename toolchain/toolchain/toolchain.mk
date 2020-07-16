@@ -37,6 +37,7 @@ endef
 TOOLCHAIN_POST_INSTALL_STAGING_HOOKS += TOOLCHAIN_MUSL_KERNEL_HEADERS_COMPATIBILITY_HACK
 endif
 
+ifneq ($(BR2_ROOTFS_SKELETON_CUSTOM),y)
 # Install default nsswitch.conf file if the skeleton doesn't provide it
 ifeq ($(BR2_TOOLCHAIN_USES_GLIBC),y)
 define GLIBC_COPY_NSSWITCH_FILE
@@ -45,6 +46,7 @@ define GLIBC_COPY_NSSWITCH_FILE
 	fi
 endef
 TOOLCHAIN_POST_INSTALL_TARGET_HOOKS += GLIBC_COPY_NSSWITCH_FILE
+endif
 endif
 
 $(eval $(virtual-package))

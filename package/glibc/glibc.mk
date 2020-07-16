@@ -161,6 +161,7 @@ GLIBC_TARGET_UTILS_USR_BIN += locale/locale
 endif
 endif
 
+ifneq ($(BR2_ROOTFS_SKELETON_CUSTOM),y)
 define GLIBC_INSTALL_TARGET_CMDS
 	for libpattern in $(GLIBC_LIBS_LIB); do \
 		$(call copy_toolchain_lib_root,$$libpattern) ; \
@@ -172,5 +173,6 @@ define GLIBC_INSTALL_TARGET_CMDS
 		$(INSTALL) -D -m 0755 $(@D)/build/$(util) $(TARGET_DIR)/sbin/$(notdir $(util))
 	)
 endef
+endif
 
 $(eval $(autotools-package))
