@@ -51,6 +51,7 @@ do_distrorfs_second_stage() {
 	    apt-get -y install language-pack-en-base
 	fi
     fi
+    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C \
     apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
     echo upgraded
 
