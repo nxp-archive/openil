@@ -5,7 +5,7 @@
 ################################################################################
 
 ifeq ($(BR2_aarch64),y)
-IMX_GPU_G2D_VERSION = 6.4.0.p1.0-aarch64
+IMX_GPU_G2D_VERSION = 6.4.0.p2.4-aarch64
 else
 IMX_GPU_G2D_VERSION = 6.4.0.p1.0-aarch32
 endif
