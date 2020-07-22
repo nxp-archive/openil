@@ -6,6 +6,7 @@ BR2_cortex_a72=y
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
 BR2_TARGET_ROOTFS_EXT2_SIZE="512M"
+BR2_TARGET_ROOTFS_EXT2_LABEL="root"
 
 # Hostname and issue
 BR2_TARGET_GENERIC_HOSTNAME="LS1046ARDB"
@@ -74,7 +75,7 @@ BR2_PACKAGE_QORIQ_FMUCODE_BIN="fsl_fman_ucode_ls1046_r1.0_106_4_18.bin"
 
 #eudev support
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
-BR2_ROOTFS_OVERLAY="board/nxp/common/ls/busybox_init_overlay"
+BR2_ROOTFS_OVERLAY="board/nxp/common/ls/busybox_rootfs_resize_overlay board/nxp/common/ls/busybox_init_overlay"
 
 # Arm-Trusted-Firmware
 BR2_TARGET_ARM_TRUSTED_FIRMWARE=y

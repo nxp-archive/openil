@@ -6,6 +6,7 @@ BR2_cortex_a72=y
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
 BR2_TARGET_ROOTFS_EXT2_SIZE="2G"
+BR2_TARGET_ROOTFS_EXT2_LABEL="root"
 
 # custom skeleton
 BR2_ROOTFS_SKELETON_CUSTOM=y
@@ -16,6 +17,9 @@ BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT="tar zxvf"
 BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT_IGNORE_ERROR=y
 BR2_ROOTFS_POST_BUILD_SCRIPT="board/nxp/common/ls/post-custom-skeleton-ubuntu-base-18.04.sh"
 BR2_INIT_NONE=y
+
+# custom fakeroot script
+BR2_ROOTFS_POST_FAKEROOT_SCRIPT="board/nxp/common/ls/post-custom-ubuntu-fakeroot-script.sh"
 
 # toolchain
 BR2_TOOLCHAIN=y
@@ -67,7 +71,7 @@ BR2_PACKAGE_HOST_QORIQ_RCW=y
 BR2_PACKAGE_HOST_QORIQ_RCW_BOOT_MODE="sd"
 BR2_PACKAGE_HOST_QORIQ_RCW_BIN="ls1028atsn/R_SSSS_0x9999/rcw_1300_sdboot.bin"
 
-BR2_ROOTFS_OVERLAY="board/nxp/ls1028ardb/rootfs_overlay"
+BR2_ROOTFS_OVERLAY="board/nxp/common/ls/ubuntu_overlay board/nxp/ls1028ardb/rootfs_overlay"
 
 # Arm-Trusted-Firmware
 BR2_TARGET_ARM_TRUSTED_FIRMWARE=y

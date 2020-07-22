@@ -491,6 +491,7 @@ export STAGING_DIR
 export HOST_DIR
 export BINARIES_DIR
 export BASE_DIR
+export BR2_ROOTFS_PARTITION_SIZE
 
 ################################################################################
 #

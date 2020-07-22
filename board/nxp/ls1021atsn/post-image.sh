@@ -35,7 +35,7 @@ main()
 	local GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 
 	echo ${BR2_ROOTFS_PARTITION_SIZE}
-	sed -e "s/%FILES%/${FILES}/" \
+	sed -e "s/%FILES%/${FILES}/" -e "s/%PARTITION_SIZE%/${BR2_ROOTFS_PARTITION_SIZE}/" \
 		board/nxp/ls1021atsn/genimage.cfg.template > ${GENIMAGE_CFG}
 
 	rm -rf "${GENIMAGE_TMP}"

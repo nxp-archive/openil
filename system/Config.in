@@ -562,6 +562,46 @@ config BR2_ROOTFS_USERS_TABLES
 
 	  See manual for details on the usage and syntax of these files.
 
+config BR2_ROOTFS_PARTITION_SIZE
+       string "Partition size of the storage for the rootfs"
+       default "3G"
+       help
+         Specify the size of the storage device partition for the
+         building rootfs. Currently used by NXP platforms in the
+         file "board/nxp/xxxx/genimage.cfg.template". In the case
+         of SD card system, the space map of the SD card in the
+         final created image will be like:
+               0       ---------------------------
+                       |   reserved for SD card  |
+               4096    ---------------------------
+                       |   uboot                 |
+                       ---------------------------
+                       |   uboot env             |
+                       ---------------------------
+                       |   firmwares             |
+               8M      ---------------------------
+         mmcblk0p1     |   fat partition (0xc)   | -> for kernel/dtb/itb
+               xx      ---------------------------
+         mmcblk0p2     |   Linux partition (0x83)| -> for rootfs
+               yy      ---------------------------
+
+         So simply the BR2_ROOTFS_PARTITION_SIZE is used to specify
+         the size of the mmcblk0p2. And be careful to calculate it
+         due to the variable "xx" number in above map. The value of
+         "xx" will be set based on the size of kernel/dtb or itb
+         images. Generally you should reserve at least 512M size of
+         "xx" for NXP platform system. So for a 4G SD card, the max
+         value of the BR2_ROOTFS_PARTITION_SIZE can be set to 3584M.
+
+               BR2_ROOTFS_PARTITION_SIZE="3584M"
+
+         or other smaller value:
+
+               BR2_ROOTFS_PARTITION_SIZE="2G"
+
+         NOTE: It must NOT be smaller then the real rootfs size.
+               In general the size should be larger then 300M.
+
 config BR2_ROOTFS_OVERLAY
 	string "Root filesystem overlay directories"
 	default ""

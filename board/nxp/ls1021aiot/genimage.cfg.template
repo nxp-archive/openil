@@ -42,5 +42,6 @@ image sdcard.img {
   partition rootfs {
     partition-type = 0x83
     image = "rootfs.ext2"
+    size = %PARTITION_SIZE%
   }
 }
