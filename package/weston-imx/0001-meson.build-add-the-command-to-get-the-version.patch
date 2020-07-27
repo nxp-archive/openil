@@ -1,0 +1,25 @@
+From a9f9abb8980df90aaa047bfdab1c20a64925340b Mon Sep 17 00:00:00 2001
+From: Changming Huang <jerry.huang@nxp.com>
+Date: Fri, 24 Jul 2020 18:15:11 +0800
+Subject: [PATCH] meson.build: add the command to get the version
+
+Signed-off-by: Changming Huang <jerry.huang@nxp.com>
+---
+ meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/meson.build b/meson.build
+index 098442c8..c23737bb 100644
+--- a/meson.build
++++ b/meson.build
+@@ -49,6 +49,7 @@ pkgconfig = import('pkgconfig')
+ git_version_h = vcs_tag(
+ 	input: 'libweston/git-version.h.meson',
+ 	output: 'git-version.h',
++	command: ['git describe --always'],
+ 	fallback: version_weston
+ )
+ 
+-- 
+2.25.1
+
