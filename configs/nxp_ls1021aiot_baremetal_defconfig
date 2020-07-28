@@ -6,7 +6,7 @@ BR2_ARM_FPU_NEON=y
 # Filesystem
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
-BR2_TARGET_ROOTFS_EXT2_SIZE="512M"
+BR2_TARGET_ROOTFS_EXT2_LABEL="root"
 
 # Hostname and issue
 BR2_TARGET_GENERIC_HOSTNAME="LS1021AIOT"
@@ -63,7 +63,7 @@ BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
 
 #eudev support
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
-BR2_ROOTFS_OVERLAY="board/nxp/common/ls/busybox_init_overlay"
+BR2_ROOTFS_OVERLAY="board/nxp/common/ls/busybox_rootfs_resize_overlay board/nxp/common/ls/busybox_init_overlay"
 
 # Baremetal u-boot package
 BR2_PACKAGE_QORIQ_BM_UBOOT=y
