@@ -549,6 +549,7 @@ F:	configs/imx6q-sabresd_defconfig
 F:	configs/imx6q-sabresd_ubuntu_defconfig
 F:	configs/imx6q-sabresd_ubuntu_full_defconfig
 F:	configs/imx8mpevk_defconfig
+F:	configs/imx8mpevk_ubuntu_defconfig
 F:	configs/nxp_ls1012ardb-64b_defconfig
 F:	configs/nxp_ls1021aiot_baremetal_defconfig
 F:	configs/nxp_ls1021aiot_defconfig
