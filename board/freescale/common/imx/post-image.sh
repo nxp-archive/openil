@@ -87,7 +87,7 @@ main()
 
 	sed -e "s/%FILES%/${FILES}/" \
 		-e "s/%IMXOFFSET%/${IMXOFFSET}/" \
-		-e "s/%UBOOTBIN%/${UBOOTBIN}/" \
+		-e "s/%UBOOTBIN%/${UBOOTBIN}/" -e "s/%PARTITION_SIZE%/${BR2_ROOTFS_PARTITION_SIZE}/" \
 		board/freescale/common/imx/$(genimage_type) > ${GENIMAGE_CFG}
 
 	rm -rf "${GENIMAGE_TMP}"
