@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+distro=focal
 
 do_distrorfs_first_stage() {
 # $1: platform architecture, arm64, armhf, ppc64el
@@ -90,7 +91,7 @@ do_distrorfs_first_stage() {
     fi
     echo OpenIL-Ubuntu,18.04.4 | sudo tee $RFSDIR/etc/.firststagedone 1>/dev/null
 
-    sudo chroot $RFSDIR ubuntu-package-installer $1 $4 $5 $3 $6
+    sudo chroot $RFSDIR ubuntu-package-installer $1 $distro $5 $3 $6
     sudo chown -R $USER $RFSDIR
     sudo chgrp -R $USER $RFSDIR
     sudo rm $RFSDIR/etc/apt/apt.conf
@@ -111,6 +112,8 @@ plat_name()
 		echo "LS1046AFRWY"
 	elif grep -Eq "^BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM=\"ls1043ardb\"$" ${BR2_CONFIG}; then
 		echo "LS1043ARDB"
+	elif grep -Eq "^BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM=\"imx8mp\"$" ${BR2_CONFIG}; then
+		echo "IMX8MPEVK"
 	elif grep -Eq "^BR2_LINUX_KERNEL_INTREE_DTS_NAME=\"ls1021a-iot\"$" ${BR2_CONFIG}; then
 		echo "LS1021AIOT"
 	elif grep -Eq "^BR2_LINUX_KERNEL_INTREE_DTS_NAME=\"ls1021a-tsn\"$" ${BR2_CONFIG}; then

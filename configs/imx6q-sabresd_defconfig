@@ -16,7 +16,8 @@ BR2_TARGET_GENERIC_GETTY_PORT="ttymxc0"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/freescale/common/imx/post-image.sh"
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
-BR2_TARGET_ROOTFS_EXT2_SIZE="512M"
+BR2_TARGET_ROOTFS_EXT2_LABEL="root"
+BR2_ROOTFS_OVERLAY="board/nxp/common/ls/busybox_rootfs_resize_overlay"
 
 # Hostname and issue
 BR2_TARGET_GENERIC_HOSTNAME="IMX6QSABRESD"

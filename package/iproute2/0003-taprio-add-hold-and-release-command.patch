@@ -1,0 +1,28 @@
+From 4b8d88d788f2ac1909eeab460679f79301043037 Mon Sep 17 00:00:00 2001
+From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Date: Sun, 19 Jan 2020 15:37:36 +0800
+Subject: [PATCH] taprio: add hold and release command
+
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+---
+ tc/q_taprio.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/tc/q_taprio.c b/tc/q_taprio.c
+index b995443..517f547 100644
+--- a/tc/q_taprio.c
++++ b/tc/q_taprio.c
+@@ -108,6 +108,10 @@ static int str_to_entry_cmd(const char *str)
+ {
+ 	if (strcmp(str, "S") == 0)
+ 		return TC_TAPRIO_CMD_SET_GATES;
++	else if (strcmp(str, "H") == 0)
++                return TC_TAPRIO_CMD_SET_AND_HOLD;
++        else if (strcmp(str, "R") == 0)
++                return TC_TAPRIO_CMD_SET_AND_RELEASE;
+ 
+ 	return -1;
+ }
+-- 
+2.17.1
+
