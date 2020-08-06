@@ -1,0 +1,61 @@
+From 5af74090fe3c8c7777e941717fd2c5f7dae4468f Mon Sep 17 00:00:00 2001
+From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Date: Thu, 6 Aug 2020 16:12:42 +0800
+Subject: [PATCH] ethtool: Add configure to compile preempt file
+
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+---
+ Makefile.in | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index a547ca2..2f4591b 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -104,7 +104,7 @@ sbin_PROGRAMS = ethtool$(EXEEXT)
+ @ETHTOOL_ENABLE_NETLINK_TRUE@		  netlink/settings.c netlink/parser.c netlink/parser.h \
+ @ETHTOOL_ENABLE_NETLINK_TRUE@		  netlink/permaddr.c netlink/prettymsg.c netlink/prettymsg.h \
+ @ETHTOOL_ENABLE_NETLINK_TRUE@		  netlink/desc-ethtool.c netlink/desc-genlctrl.c \
+-@ETHTOOL_ENABLE_NETLINK_TRUE@		  netlink/desc-rtnl.c \
++@ETHTOOL_ENABLE_NETLINK_TRUE@		  netlink/desc-rtnl.c netlink/preempt.c\
+ @ETHTOOL_ENABLE_NETLINK_TRUE@		  uapi/linux/ethtool_netlink.h \
+ @ETHTOOL_ENABLE_NETLINK_TRUE@		  uapi/linux/netlink.h uapi/linux/genetlink.h \
+ @ETHTOOL_ENABLE_NETLINK_TRUE@		  uapi/linux/rtnetlink.h uapi/linux/if_link.h
+@@ -143,7 +143,7 @@ am__ethtool_SOURCES_DIST = ethtool.c uapi/linux/ethtool.h internal.h \
+ 	netlink/bitset.c netlink/bitset.h netlink/settings.c \
+ 	netlink/parser.c netlink/parser.h netlink/permaddr.c \
+ 	netlink/prettymsg.c netlink/prettymsg.h netlink/desc-ethtool.c \
+-	netlink/desc-genlctrl.c netlink/desc-rtnl.c \
++	netlink/desc-genlctrl.c netlink/desc-rtnl.c netlink/preempt.c \
+ 	uapi/linux/ethtool_netlink.h uapi/linux/netlink.h \
+ 	uapi/linux/genetlink.h uapi/linux/rtnetlink.h \
+ 	uapi/linux/if_link.h
+@@ -187,6 +187,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
+ @ETHTOOL_ENABLE_NETLINK_TRUE@	netlink/parser.$(OBJEXT) \
+ @ETHTOOL_ENABLE_NETLINK_TRUE@	netlink/permaddr.$(OBJEXT) \
+ @ETHTOOL_ENABLE_NETLINK_TRUE@	netlink/prettymsg.$(OBJEXT) \
++@ETHTOOL_ENABLE_NETLINK_TRUE@	netlink/preempt.$(OBJEXT) \
+ @ETHTOOL_ENABLE_NETLINK_TRUE@	netlink/desc-ethtool.$(OBJEXT) \
+ @ETHTOOL_ENABLE_NETLINK_TRUE@	netlink/desc-genlctrl.$(OBJEXT) \
+ @ETHTOOL_ENABLE_NETLINK_TRUE@	netlink/desc-rtnl.$(OBJEXT)
+@@ -210,7 +211,7 @@ am__test_cmdline_SOURCES_DIST = test-cmdline.c test-common.c ethtool.c \
+ 	netlink/bitset.c netlink/bitset.h netlink/settings.c \
+ 	netlink/parser.c netlink/parser.h netlink/permaddr.c \
+ 	netlink/prettymsg.c netlink/prettymsg.h netlink/desc-ethtool.c \
+-	netlink/desc-genlctrl.c netlink/desc-rtnl.c \
++	netlink/desc-genlctrl.c netlink/desc-rtnl.c netlink/preempt.c \
+ 	uapi/linux/ethtool_netlink.h uapi/linux/netlink.h \
+ 	uapi/linux/genetlink.h uapi/linux/rtnetlink.h \
+ 	uapi/linux/if_link.h
+@@ -282,7 +283,7 @@ am__test_features_SOURCES_DIST = test-features.c test-common.c \
+ 	netlink/bitset.c netlink/bitset.h netlink/settings.c \
+ 	netlink/parser.c netlink/parser.h netlink/permaddr.c \
+ 	netlink/prettymsg.c netlink/prettymsg.h netlink/desc-ethtool.c \
+-	netlink/desc-genlctrl.c netlink/desc-rtnl.c \
++	netlink/desc-genlctrl.c netlink/desc-rtnl.c netlink/preempt.c \
+ 	uapi/linux/ethtool_netlink.h uapi/linux/netlink.h \
+ 	uapi/linux/genetlink.h uapi/linux/rtnetlink.h \
+ 	uapi/linux/if_link.h
+-- 
+2.17.1
+
