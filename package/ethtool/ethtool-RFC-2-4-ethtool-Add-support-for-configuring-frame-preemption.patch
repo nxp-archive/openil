@@ -1,0 +1,136 @@
+ethtool: add support for configuring frame preemption
+
+The configuration knobs that can be set are:
+  - enabling/disabling frame preemption per-device;
+  - setting the mask of preemptible queues;
+  - configuring the minimum fragment size;
+
+The values that can be retrieved from the hardware are:
+  - if frame preemption is supported;
+  - if frame preemption is active;
+  - which queues can be set as preemptible;
+  - which queues are set as preemptible;
+  - the current minimum fragment size;
+
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+---
+ ethtool.c | 92 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 92 insertions(+)
+
+diff --git a/ethtool.c b/ethtool.c
+index 900880a..4c69d1c 100644
+--- a/ethtool.c
++++ b/ethtool.c
+@@ -1573,6 +1573,28 @@ static void dump_fec(u32 fec)
+ 		fprintf(stdout, " LLRS");
+ }
+ 
++static void dump_fpcmd(struct ethtool_fp *fpcmd)
++{
++	fprintf(stdout, "	support: ");
++	if (fpcmd->fp_supported)
++		fprintf(stdout, "supported\n");
++	else
++		fprintf(stdout, "not supported\n");
++
++	fprintf(stdout, "	status: ");
++	if (fpcmd->fp_enabled)
++		fprintf(stdout, "enabled\n");
++	else
++		fprintf(stdout, "disabled\n");
++
++	fprintf(stdout, "	supported queues: %#x\n",
++		fpcmd->supported_queues_mask);
++	fprintf(stdout, "	preemptible queues: %#x\n",
++		fpcmd->preemptible_queues_mask);
++	fprintf(stdout, "	minimum fragment size: %d\n",
++		fpcmd->min_frag_size);
++}
++
+ #define N_SOTS 7
+ 
+ static char *so_timestamping_labels[N_SOTS] = {
+@@ -4731,6 +4753,63 @@ static int do_seee(struct cmd_context *ctx)
+ 	return 0;
+ }
+ 
++static int do_get_preempt(struct cmd_context *ctx)
++{
++	struct ethtool_fp fpcmd;
++
++	if (ctx->argc != 0)
++		exit_bad_args();
++
++	fpcmd.cmd = ETHTOOL_GFP;
++	if (send_ioctl(ctx, &fpcmd)) {
++		perror("Cannot get frame preemption settings");
++		return 1;
++	}
++
++	fprintf(stdout, "Frame preemption Settings for %s:\n", ctx->devname);
++	dump_fpcmd(&fpcmd);
++
++	return 0;
++}
++
++static int do_set_preempt(struct cmd_context *ctx)
++{
++	int fp_c = -1, preempt_queues_mask_c = -1, min_frag_c = -1;
++	int change = -1;
++	struct ethtool_fp fpcmd;
++	struct cmdline_info cmdline_fp[] = {
++		{ "fp", CMDL_BOOL, &fp_c, &fpcmd.fp_enabled },
++		{ "preemptible-queues-mask", CMDL_U32, &preempt_queues_mask_c,
++		  &fpcmd.preemptible_queues_mask },
++		{ "min-frag-size", CMDL_U32, &min_frag_c,
++		  &fpcmd.min_frag_size },
++	};
++
++	if (ctx->argc == 0)
++		exit_bad_args();
++
++	parse_generic_cmdline(ctx, &change, cmdline_fp,
++			      ARRAY_SIZE(cmdline_fp));
++
++	fpcmd.cmd = ETHTOOL_GFP;
++	if (send_ioctl(ctx, &fpcmd)) {
++		perror("Cannot get frame preemption settings");
++		return 1;
++	}
++
++	do_generic_set(cmdline_fp, ARRAY_SIZE(cmdline_fp), &change);
++
++	if (change) {
++		fpcmd.cmd = ETHTOOL_SFP;
++		if (send_ioctl(ctx, &fpcmd)) {
++			perror("Cannot set frame preemption settings");
++			return 1;
++		}
++	}
++
++	return 0;
++}
++
+ static int do_get_phy_tunable(struct cmd_context *ctx)
+ {
+ 	int argc = ctx->argc;
+@@ -5505,6 +5584,19 @@ static const struct option args[] = {
+ 		.help	= "Set FEC settings",
+ 		.xhelp	= "		[ encoding auto|off|rs|baser|llrs [...]]\n"
+ 	},
++	{
++		.opts	= "--show-frame-preemption",
++		.func	= do_get_preempt,
++		.help	= "Show Frame Preemption settings",
++	},
++	{
++		.opts	= "--set-frame-preemption",
++		.func	= do_set_preempt,
++		.help	= "Set Frame Preemption settings",
++		.xhelp	= "		[ fp on|off ]\n"
++			  "		[ preemptible-queues-mask %x ]\n"
++			  "		[ min-frag-size %d ]\n",
++	},
+ 	{
+ 		.opts	= "-Q|--per-queue",
+ 		.func	= do_perqueue,
