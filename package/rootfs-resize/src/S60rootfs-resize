@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# rootfs-resize        Starts rootfs-resize.
+#
+rootfs_resize() {
+	printf "\t Resize the rootfs: "
+	if [ -b /dev/disk/by-label/root ]
+	then
+		/sbin/resize2fs /dev/disk/by-label/root
+		if [ $? -eq 0 ]
+		then
+			echo  "OK"
+		else
+			echo  "Failed"
+		fi
+	else
+		echo  "No find /dev/disk/by-label/root"
+		exit 1
+	fi
+}
+
+start() {
+	printf "Starting rootfs-resize: \n"
+	rootfs_resize
+}
+
+stop() {
+	printf "Stopping rootfs-resize: "
+	echo "OK"
+}
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart|reload)
+		restart
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
+exit $?
