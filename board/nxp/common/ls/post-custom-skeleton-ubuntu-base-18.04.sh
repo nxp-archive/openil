@@ -92,6 +92,7 @@ do_distrorfs_first_stage() {
     echo OpenIL-Ubuntu,18.04.4 | sudo tee $RFSDIR/etc/.firststagedone 1>/dev/null
 
     sudo chroot $RFSDIR ubuntu-package-installer $1 $distro $5 $3 $6
+    sudo chroot $RFSDIR systemctl enable systemd-rootfs-resize
     sudo chown -R $USER $RFSDIR
     sudo chgrp -R $USER $RFSDIR
     sudo rm $RFSDIR/etc/apt/apt.conf
