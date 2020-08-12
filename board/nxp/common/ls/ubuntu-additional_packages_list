@@ -21,4 +21,4 @@ additional_devel_packages_list="makedev tree lxc lxd virt-manager lm-sensors i2c
 
 # for Lite userland gathered from main repo
 additional_base_packages_list="systemd udev net-tools iputils-ping isc-dhcp-client libxml2-dev
- libnl-genl-3-dev libreadline-dev libtinfo-dev"
+ libnl-genl-3-dev libreadline-dev libtinfo-dev libatomic1"
