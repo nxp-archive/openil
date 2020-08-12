@@ -42,7 +42,7 @@ do_distrorfs_first_stage() {
     [ ! -f /usr/sbin/update-binfmts ] && echo update-binfmts not found && exit 1
 
     if update-binfmts --display qemu-$tgtarch | grep -q disabled; then
-	update-binfmts --enable qemu-$tgtarch
+	sudo update-binfmts --enable qemu-$tgtarch
 	if update-binfmts --display qemu-$tgtarch | grep disabled; then
 	    echo enable qemu-$tgtarch failed && exit 1
 	else
