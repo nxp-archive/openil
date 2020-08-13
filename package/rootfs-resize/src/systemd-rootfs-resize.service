@@ -1,11 +1,13 @@
 [Unit]
-Description=OpenIL init for systemd
+Description=Resize rootfs
 DefaultDependencies=no
 After=getty.target
 
 [Service]
 Type=oneshot
-ExecStart=-/etc/init.d/openil_init.sh
+ExecStart=/etc/init.d/S60rootfs-resize start
+RestartSec=2
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

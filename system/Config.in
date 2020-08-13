@@ -602,6 +602,11 @@ config BR2_ROOTFS_PARTITION_SIZE
          NOTE: It must NOT be smaller then the real rootfs size.
                In general the size should be larger then 300M.
 
+config BR2_ROOTFS_RESIZE
+	bool "Install rootfs_resize service"
+	select BR2_PACKAGE_E2FSPROGS
+	select BR2_PACKAGE_E2FSPROGS_RESIZE2FS
+
 config BR2_ROOTFS_OVERLAY
 	string "Root filesystem overlay directories"
 	default ""
