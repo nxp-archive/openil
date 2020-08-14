@@ -151,6 +151,10 @@ main()
 	echo $(plat_name)
 	echo $(full_rtf)
 
+	if [[ $(plat_name) = LS1021ATSN ]] || [[ $(plat_name) = LS1021AIOT ]] || [[ $(plat_name) = IMX6Q ]]; then
+		distro=bionic
+	fi
+
 	# run first stage do_distrorfs_first_stage arm64 ${1} ubuntu-additional_packages_list bionic ubuntu
 	do_distrorfs_first_stage $(arch_type) ${1} ubuntu-additional_packages_list bionic ubuntu $(full_rtf)
 
