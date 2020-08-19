@@ -95,6 +95,9 @@ do_distrorfs_first_stage() {
     sudo chroot $RFSDIR systemctl enable systemd-rootfs-resize
     sudo chown -R $USER $RFSDIR
     sudo chgrp -R $USER $RFSDIR
+    if dpkg-query -l snapd | grep ii 1>/dev/null; then
+	chmod +rw -R $RFSDIR/var/lib/snapd/
+    fi
     sudo rm $RFSDIR/etc/apt/apt.conf
     sudo rm $RFSDIR/dev/* -rf
 }
