@@ -589,7 +589,7 @@ $(BUILD_DIR)/buildroot-config/auto.conf: $(BR2_CONFIG)
 prepare: $(BUILD_DIR)/buildroot-config/auto.conf
 
 .PHONY: world
-world: target-post-image
+world: _check_ubuntu_env _check_openil_sudo_perm target-post-image
 
 .PHONY: prepare-sdk
 prepare-sdk: world
@@ -1037,6 +1037,32 @@ outputmakefile:
 ifeq ($(NEED_WRAPPER),y)
 	$(Q)$(TOPDIR)/support/scripts/mkmakefile $(TOPDIR) $(O)
 endif
+
+.PHONY: _check_ubuntu_env
+_check_ubuntu_env:
+ifeq ($(BR2_ROOTFS_SKELETON_UBUNTU), y)
+	@echo "*************************"
+	@$(TOPDIR)/utils/ubuntu_env_check.sh || \
+	( echo "*************************"; exit 1)
+endif
+
+.PHONY: _check_openil_sudo_perm
+_check_openil_sudo_perm:
+ifeq ($(BR2_ROOTFS_SKELETON_UBUNTU), y)
+	@echo "*************************"
+	@$(TOPDIR)/utils/grant_openil_sudo_perm.sh -i -g || exit 1
+endif
+
+.PHONY: grant_openil_sudo_perm
+grant_openil_sudo_perm:
+	@$(TOPDIR)/utils/grant_openil_sudo_perm.sh -g
+.PHONY: withdraw_openil_sudo_perm
+withdraw_openil_sudo_perm:
+	@$(TOPDIR)/utils/grant_openil_sudo_perm.sh -w
+
+.PHONY: check_openil_sudo_perm
+check_openil_sudo_perm:
+	@$(TOPDIR)/utils/grant_openil_sudo_perm.sh -c
 
 # printvars prints all the variables currently defined in our
 # Makefiles. Alternatively, if a non-empty VARS variable is passed,

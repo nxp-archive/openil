@@ -27,6 +27,11 @@ endchoice
 
 if BR2_ROOTFS_SKELETON_CUSTOM
 
+config BR2_ROOTFS_SKELETON_UBUNTU
+	bool "custom target skeleton is ubuntu"
+	help
+	  Custom target skeleton is ubuntu.
+
 config BR2_ROOTFS_SKELETON_CUSTOM_PATH
 	string "custom target skeleton path"
 	help
