@@ -98,8 +98,8 @@ do_distrorfs_first_stage() {
     if dpkg-query -l snapd | grep ii 1>/dev/null; then
 	chmod +rw -R $RFSDIR/var/lib/snapd/
     fi
-    sudo rm $RFSDIR/etc/apt/apt.conf
-    sudo rm $RFSDIR/dev/* -rf
+    rm $RFSDIR/etc/apt/apt.conf
+    rm $RFSDIR/dev/* -rf
 }
 
 plat_name()
