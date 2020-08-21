@@ -4,19 +4,17 @@
 #
 rootfs_resize() {
 	printf "\t Resize the rootfs: "
-	if [ -b /dev/disk/by-label/root ]
+
+	RDEV=$(findmnt -n -o SOURCE /)
+	/sbin/resize2fs ${RDEV}
+	if [ $? -eq 0 ]
 	then
-		/sbin/resize2fs /dev/disk/by-label/root
-		if [ $? -eq 0 ]
-		then
-			echo  "OK"
-		else
-			echo  "Failed"
-		fi
+		echo  "OK"
 	else
-		echo  "No find /dev/disk/by-label/root"
+		echo  "Failed"
 		exit 1
 	fi
+	echo 0
 }
 
 start() {

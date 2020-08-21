@@ -6,8 +6,6 @@ After=getty.target
 [Service]
 Type=oneshot
 ExecStart=/etc/init.d/S60rootfs-resize start
-RestartSec=2
-Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

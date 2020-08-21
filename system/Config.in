@@ -609,8 +609,7 @@ config BR2_ROOTFS_PARTITION_SIZE
 
 config BR2_ROOTFS_RESIZE
 	bool "Install rootfs_resize service"
-	select BR2_PACKAGE_E2FSPROGS
-	select BR2_PACKAGE_E2FSPROGS_RESIZE2FS
+	select BR2_PACKAGE_ROOTFS_RESIZE
 
 config BR2_ROOTFS_OVERLAY
 	string "Root filesystem overlay directories"
