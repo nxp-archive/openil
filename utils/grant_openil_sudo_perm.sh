@@ -1,5 +1,5 @@
 #!/bin/bash
-set -u
+
 SUDO_FILE=/etc/sudoers.d/openil_conf
 
 permission_grant()
