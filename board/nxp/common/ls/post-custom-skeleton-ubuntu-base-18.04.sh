@@ -24,13 +24,6 @@ do_distrorfs_first_stage() {
     [ -f /etc/.firststagedone -a ! -f /proc/uptime ] && return
     mkdir -p $RFSDIR/lib/modules
 
-    for pkg in binfmt-support qemu-system-common qemu-user-static debootstrap; do
-	if ! dpkg-query -l $pkg | grep ii 1>/dev/null; then
-	    echo installing $pkg
-	    sudo apt-get -y install $pkg
-        fi
-    done
-
     if [ $1 = arm64 ]; then
 	tgtarch=aarch64
     elif [ $1 = armhf ]; then
@@ -39,20 +32,19 @@ do_distrorfs_first_stage() {
 	tgtarch=ppc64le
     fi
 
-    [ ! -f /usr/sbin/update-binfmts ] && echo update-binfmts not found && exit 1
-
-    if update-binfmts --display qemu-$tgtarch | grep -q disabled; then
-	sudo update-binfmts --enable qemu-$tgtarch
-	if update-binfmts --display qemu-$tgtarch | grep disabled; then
-	    echo enable qemu-$tgtarch failed && exit 1
-	else
-	    echo enable qemu-$tgtarch successfully
-	fi
+    qemu-${tgtarch}-static -version > /dev/null 2>&1
+    if [ "x$?" != "x0" ]; then
+        echo qemu-${tgtarch}-static not found
+        exit 1
     fi
 
-    [ ! -f /usr/bin/qemu-${tgtarch}-static ] && echo qemu-${tgtarch}-static not found && exit 1
-    [ ! -f /usr/sbin/debootstrap -a $DISTROSCALE != lite ] && echo debootstrap not found && exit 1
-    [ $1 != amd64 -a ! -f $RFSDIR/usr/bin/qemu-${tgtarch}-static ] && cp /usr/bin/qemu-${tgtarch}-static $RFSDIR/usr/bin
+    debootstrap --version > /dev/null 2>&1
+    if [ "x$?" != "x0" -a $DISTROSCALE != lite ]; then
+        echo debootstrap not found
+        exit 1
+    fi
+
+    [ $1 != amd64 -a ! -f $RFSDIR/usr/bin/qemu-${tgtarch}-static ] && cp $(which qemu-${tgtarch}-static) $RFSDIR/usr/bin
     mkdir -p $2/usr/local/bin
     cp -f board/nxp/common/ls/ubuntu-package-installer $RFSDIR/usr/local/bin/
 
@@ -89,12 +81,11 @@ do_distrorfs_first_stage() {
 	DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C \
 	sudo chroot $RFSDIR dpkg --configure -a
     fi
-    echo OpenIL-Ubuntu,18.04.4 | sudo tee $RFSDIR/etc/.firststagedone 1>/dev/null
+    echo OpenIL-Ubuntu,18.04.4 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
 
     sudo chroot $RFSDIR ubuntu-package-installer $1 $distro $5 $3 $6
     sudo chroot $RFSDIR systemctl enable systemd-rootfs-resize
-    sudo chown -R $USER $RFSDIR
-    sudo chgrp -R $USER $RFSDIR
+    sudo chown -R $USER:$GROUPS $RFSDIR
     if dpkg-query -l snapd | grep ii 1>/dev/null; then
 	chmod +rw -R $RFSDIR/var/lib/snapd/
     fi

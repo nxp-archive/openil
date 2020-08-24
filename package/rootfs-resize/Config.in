@@ -1,0 +1,5 @@
+config BR2_PACKAGE_ROOTFS_RESIZE
+        bool "rootfs_resize"
+        select BR2_PACKAGE_E2FSPROGS
+        select BR2_PACKAGE_E2FSPROGS_RESIZE2FS
+        select BR2_PACKAGE_UTIL_LINUX_BINARIES

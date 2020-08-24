@@ -6,9 +6,9 @@ BR2_ARM_FPU_NEON=y
 # Filesystem
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
-BR2_TARGET_ROOTFS_EXT2_LABEL="root"
 
 # custom skeleton
+BR2_ROOTFS_SKELETON_UBUNTU=y
 BR2_ROOTFS_SKELETON_CUSTOM=y
 BR2_ROOTFS_SKELETON_CUSTOM_SITE="http://cdimage.ubuntu.com/ubuntu-base/releases/bionic/release"
 BR2_ROOTFS_SKELETON_CUSTOM_SOURCE="ubuntu-base-18.04.4-base-armhf.tar.gz"
