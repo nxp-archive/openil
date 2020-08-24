@@ -78,7 +78,7 @@ config BR2_TARGET_UBOOT_CUSTOM_REPO_URL
 
 config BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION
 	string "Custom repository version"
-	default "dev"
+	default "OpenIL-v1.9-u-boot-202009"
 	help
 	  Revision to use in the typical format used by
 	  Git/Mercurial/Subversion E.G. a sha id, a tag, branch, ..
