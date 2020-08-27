@@ -59,7 +59,7 @@ for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
 	then
 		pg_set $dev "queue_map_min $QUEUES"
 		pg_set $dev "queue_map_max $QUEUES"
-		pg_set $dev "pkt_size PKT_SIZE"
+		pg_set $dev "pkt_size $PKT_SIZE"
 	    pg_set $dev "dst_mac $DST_MAC"
 	else
 		pg_set $dev "queue_map_min $queuen"
