@@ -40,7 +40,7 @@ do_distrorfs_second_stage() {
     fi
 
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C \
-    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update
+    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update || exit 1
 
     if [ $DISTROTYPE = ubuntu -a $DISTROSCALE != lite ]; then
 	localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
@@ -52,26 +52,26 @@ do_distrorfs_second_stage() {
 	fi
     fi
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C \
-    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
+    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade || exit 1
     echo upgraded
 
     echo installing base packages: $pkglist
     for pkg in $additional_base_packages_list; do
 	echo Installing $pkg ...
-	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || true
+	DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || exit 1
     done
 
     if [ $DISTROTYPE = ubuntu -a $DISTROSCALE = full ]; then
         echo installing additional full packages: $pkglist
         for pkg in $additional_full_packages_list; do
 	    echo Installing $pkg ...
-	    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || true
+	    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || exit 1
         done
 
 	echo installing packages for devel userland: $additional_devel_packages_list
 	for pkg in $additional_devel_packages_list; do
 	    echo installing $pkg ...
-	    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || true
+	    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || exit 1
 	done
 
 	# install python lib six depended by building ovs-dpdk locally
@@ -92,7 +92,7 @@ do_distrorfs_second_stage() {
 	echo deb http://us.$fn.ubuntu.com/$pn/ $2-updates universe >> $asl
 	echo deb http://us.$fn.ubuntu.com/$pn/ $2 multiverse >> $asl
 	echo deb http://us.$fn.ubuntu.com/$pn/ $2-updates multiverse >> $asl
-	apt-get update
+	apt-get update || exit 1
     fi
 
     if [ $1 = arm64 ]; then

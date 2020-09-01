@@ -2,6 +2,28 @@
 
 distro=focal
 
+trap recover_from_ctrl_c INT
+
+recover_from_ctrl_c()
+{
+	do_recover_from_error "Interrupt caught ... exiting"
+	exit 1
+}
+
+do_recover_from_error()
+{
+	sudo chroot $RFSDIR /bin/umount /proc > /dev/null 2>&1;
+	sudo chroot $RFSDIR /bin/umount /sys > /dev/null 2>&1;
+	USER=$(id -u); GROUPS=${GROUPS}; \
+	sudo chroot $RFSDIR  /bin/chown -R ${USER}:${GROUPS} / > /dev/null 2>&1;
+	echo -e "\n************"
+    echo $1
+	echo -e "  Please running the below commands before re-compiling:"
+	echo -e "    rm -rf $RFSDIR"
+	echo -e "    make skeleton-custom-dirclean"
+	echo -e "  Or\n    make skeleton-custom-dirclean O=<output dir>"
+}
+
 do_distrorfs_first_stage() {
 # $1: platform architecture, arm64, armhf, ppc64el
 # $2: rootfs directory, output/build/skeleton-custom
@@ -74,9 +96,19 @@ do_distrorfs_first_stage() {
        [ ! -d $RFSDIR/debootstrap -a $DISTROTYPE = debian ]; then
 	export LANG=en_US.UTF-8
 	sudo debootstrap --arch=$1 --foreign $4 $RFSDIR
+	if [ "x$?" != "x0" ]; then
+		do_recover_from_error "debootstrap failed in first-stage"
+		exit 1
+	fi
+
 	echo "installing for second-stage ..."
 	DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C \
 	sudo chroot $RFSDIR /debootstrap/debootstrap  --second-stage
+	if [ "x$?" != "x0" ]; then
+		do_recover_from_error "debootstrap failed in second-stage"
+		exit 1
+	fi
+
 	echo "configure ... "
 	DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C \
 	sudo chroot $RFSDIR dpkg --configure -a
@@ -84,6 +116,11 @@ do_distrorfs_first_stage() {
     echo OpenIL-Ubuntu,18.04.4 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
 
     sudo chroot $RFSDIR ubuntu-package-installer $1 $distro $5 $3 $6
+	if [ "x$?" != "x0" ]; then
+		 do_recover_from_error "ubuntu-package-installer failed"
+		exit 1
+	fi
+
     sudo chroot $RFSDIR systemctl enable systemd-rootfs-resize
     sudo chown -R $USER:$GROUPS $RFSDIR
     if dpkg-query -l snapd | grep ii 1>/dev/null; then
@@ -144,7 +181,6 @@ main()
 	echo $(arch_type)
 	echo $(plat_name)
 	echo $(full_rtf)
-
 	if [[ $(plat_name) = LS1021ATSN ]] || [[ $(plat_name) = LS1021AIOT ]] || [[ $(plat_name) = IMX6Q ]]; then
 		distro=bionic
 	fi
