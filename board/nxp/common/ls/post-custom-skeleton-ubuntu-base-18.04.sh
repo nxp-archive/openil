@@ -113,7 +113,11 @@ do_distrorfs_first_stage() {
 	DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C \
 	sudo chroot $RFSDIR dpkg --configure -a
     fi
-    echo OpenIL-Ubuntu,18.04.4 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
+    if [ $distro = focal ]; then
+	echo OpenIL-Ubuntu,20.04.1 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
+    elif [ $distro = bionic ]; then
+	echo OpenIL-Ubuntu,18.04.4 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
+    fi
 
     sudo chroot $RFSDIR ubuntu-package-installer $1 $distro $5 $3 $6
 	if [ "x$?" != "x0" ]; then
