@@ -1,0 +1,230 @@
+config BR2_PACKAGE_LIBOPEN62541
+	bool "libopen62541"
+	help
+	  open62541 is an open source and free implementation of OPC UA (OPC
+	  Unified Architecture) written in the common subset of the C99 and
+	  C++98 languages.open62541 implements the OPC UA binary protocol
+	  stack as well as a client and server SDK.
+
+	  http://open62541.org
+
+if BR2_PACKAGE_LIBOPEN62541
+
+menu "Main Build Options"
+choice
+	bool "cmake build type"
+	default BR2_PACKAGE_LIBOPEN62541_CMAKE_BUILD_TYPE_DEBUG
+	help
+
+config BR2_PACKAGE_LIBOPEN62541_CMAKE_BUILD_TYPE_RELWITHDEBINFO
+	bool "RelWithDebInfo"
+	help
+	  -O2 optimization with debug symbols
+
+config BR2_PACKAGE_LIBOPEN62541_CMAKE_BUILD_TYPE_RELEASE
+	bool "Release"
+	help
+	  -O2 optimization without debug symbols
+
+config BR2_PACKAGE_LIBOPEN62541_CMAKE_BUILD_TYPE_DEBUG
+	bool "Debug"
+	help
+	  -O0 optimization with debug symbols
+
+config BR2_PACKAGE_LIBOPEN62541_CMAKE_BUILD_TYPE_MINSIZEREL
+	bool "MinSizeRel"
+	help
+	  -Os optimization without debug symbols
+endchoice
+
+choice
+	bool "loglevel"
+	default BR2_PACKAGE_LIBOPEN62541_LOG_INFO
+	help
+	  The SDK logs events of the level
+config BR2_PACKAGE_LIBOPEN62541_LOG_FATAL
+	bool "Fatal"
+
+config BR2_PACKAGE_LIBOPEN62541_LOG_ERROR
+	bool "Error"
+
+config BR2_PACKAGE_LIBOPEN62541_LOG_WARNING
+	bool "Warning"
+
+config BR2_PACKAGE_LIBOPEN62541_LOG_INFO
+	bool "Info"
+
+config BR2_PACKAGE_LIBOPEN62541_LOG_DEBUG
+	bool "Debug"
+
+config BR2_PACKAGE_LIBOPEN62541_LOG_TRACE
+	bool "Trace"
+endchoice
+
+config BR2_PACKAGE_LIBOPEN62541_MULTITHREADING
+	string "Level of multi-threading support"
+	default "0"
+	help
+	  0-199: Multithreading support disabled.
+	  100-199: API functions marked with the UA_THREADSAFE-macro
+	    are protected internally with mutexes. Multiple threads
+		are allowed to call these functions of the SDK at the same
+		time without causing race conditions. Furthermore, this
+		level support the handling of asynchronous method calls
+		from external worker threads.
+	  >=200: Work is distributed to a number of internal worker
+	    threads. Those worker threads are created within the SDK.
+endmenu
+
+menu "Select build artefacts"
+
+config BR2_PACKAGE_LIBOPEN62541_BUILD_EXAMPLES
+	bool "Build example servers and clients"
+	depends on ! BR2_PACKAGE_ENABLE_AMALGAMATION
+	help
+	  Compile example servers and clients from examples/*.c
+
+config BR2_PACKAGE_LIBOPEN62541_BUILD_UNIT_TESTS
+	bool "Build unit tests"
+	help
+	  Compile unit tests. The tests can be executed with make test
+
+config BR2_PACKAGE_LIBOPEN62541_BUILD_SELFSIGNED_CERTIFICATE
+	bool "Generate a self-signed certificate"
+	depends on BR2_PACKAGE_OPENSSL
+	help
+	  Generate a self-signed certificate for the server
+endmenu
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_SUBSCRIPTIONS
+	bool "Enable subscriptions"
+	default y
+	help
+	  Enable subscriptions
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_SUBSCRIPTIONS_EVENTS
+	bool "Enable event subscription(experimental)"
+	help
+	  Enable the use of events for subscriptions.
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_ALARMS_CONDITION
+	bool "Enable alarms conditions subscription(experimental)"
+	depends on BR2_PACKAGE_LIBOPEN62541_NAMESPACE_ZERO_FULL \
+		&& BR2_PACKAGE_LIBOPEN62541_ENABLE_SUBSCRIPTIONS_EVENTS
+	help
+	  Enable the use of A&C for subscriptions.
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_METHODCALLS
+	bool "Enable Method service"
+	default y
+	help
+	  Enable the Method service set
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_PARSING
+	bool "Enable parsing"
+	default y
+	help
+	  Enable parsing human readable formats of builtin data types (Guid, NodeId,
+	  etc.). Utility functions that are not essential to the SDK.
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_NODEMANAGEMENT
+	bool "Enable nodemanagement"
+	default y
+	help
+	  Enable dynamic addition and removal of nodes at runtime
+
+comment "Examples cannot be built with source amalgamation enabled"
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_AMALGAMATION
+	bool "Enable amalgamation"
+	help
+	  Compile a single-file release into the files open62541.c and open62541.h.
+	  Not recommended for installation.
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_IMMUTABLE_NODES
+	bool "Enable immutable nodes"
+	help
+	  Nodes in the information model are not edited but copied and replaced.
+	  The replacement is done with atomic operations so that the information
+	  model is always consistent and can be accessed from an interrupt or parallel
+	  thread (depends on the node storage plugin implementation).
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_COVERAGE
+	bool "Enable coverage"
+	help
+	  Measure the coverage of unit tests
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_DISCOVERY
+	bool "Enable Discovery Service (LDS)"
+	default y
+	help
+	  Enable Discovery Service (LDS)
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_DISCOVERY_MULTICAST
+	bool "Enable Discovery Service with multicast support (LDS-ME)"
+	depends on BR2_PACKAGE_LIBOPEN62541_ENABLE_DISCOVERY
+	help
+	  Enable Discovery Service with multicast support (LDS-ME)
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_DISCOVERY_SEMAPHORE
+	bool "Enable Discovery Semaphore support"
+	default y
+	help
+	  Enable Discovery Semaphore support
+choice
+	bool "Set namespace zero"
+	default BR2_PACKAGE_LIBOPEN62541_NAMESPACE_ZERO_REDUCED
+
+config BR2_PACKAGE_LIBOPEN62541_NAMESPACE_ZERO_MINIMAL
+	bool "MINIMAL"
+	help
+	  A barebones namespace zero that is compatible with most clients.
+	  But this namespace 0 is so small that it does not pass the CTT
+	  (Conformance Testing Tools of the OPC Foundation).
+
+config BR2_PACKAGE_LIBOPEN62541_NAMESPACE_ZERO_REDUCED
+	bool "REDUCED"
+	help
+	  Small namespace zero that passes the CTT.
+
+config BR2_PACKAGE_LIBOPEN62541_NAMESPACE_ZERO_FULL
+	bool "FULL"
+	help
+	  Full namespace zero generated from the official XML definitions.
+
+endchoice
+
+config BR2_PACKAGE_LIBOPEN62541_UA_FILE_NS0
+	string "Override the official XML file"
+	depends on BR2_PACKAGE_LIBOPEN62541_NAMESPACE_ZERO_FULL
+	help
+	   Be used to override the XML file used for namespace zero generation.
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_TYPEDESCRIPTION
+	bool "Enable typedescription"
+	default y
+	help
+	  Add the type and member names to the UA_DataType structure.
+
+config BR2_PACKAGE_LIBOPEN62541_ENABLE_STATUSCODE_DESCRIPTIONS
+	bool "Enable statuscode descriptions"
+	default y
+	help
+	  Compile the human-readable name of the StatusCodes into the binary.
+config BR2_PACKAGE_LIBOPEN62541_BUILD_SHARED_LIBS
+	bool "Build shared libs"
+	help
+	  Build libopen62541 as shared libs
+
+menu "Debug"
+config BR2_PACKAGE_LIBOPEN62541_UA_DEBUG
+	bool "Enable debug"
+	help
+	  Enable assertions and additional definitions not intended for production builds
+
+config BR2_PACKAGE_LIBOPEN62541_UA_DEBUG_DUMP_PKGS
+	bool "Dump pkgs"
+	help
+	  Dump every package received by the server as hexdump format
+endmenu
+endif
