@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-host_packages_list="vim git make net-tools build-essential cpio autotools-dev automake dh-autoreconf binfmt-support qemu-system-common qemu-user-static debootstrap u-boot-tools binutils bash patch gzip bzip2 tar wget libncurses5-dev unzip python3-pyelftools python-pyelftools python3-pycryptodome python-pycryptodome pkg-config libtool rsync file bc openssl sed libssl-dev autogen"
+host_packages_list="vim git make net-tools build-essential cpio autotools-dev automake dh-autoreconf binfmt-support qemu-system-common qemu-user-static debootstrap u-boot-tools binutils bash patch gzip bzip2 tar wget libncurses5-dev unzip python3-pyelftools python-pyelftools python3-pycryptodome python-pycryptodome pkg-config libtool rsync file bc openssl sed libssl-dev autogen bison flex inetutils-ping"
 
 main()
 {
