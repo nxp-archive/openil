@@ -1,0 +1,45 @@
+From a0945eb015c0835d15dfbe8251f5b3f01d756f22 Mon Sep 17 00:00:00 2001
+From: Jianchao Wang <jianchao.wang@nxp.com>
+Date: Fri, 4 Sep 2020 12:21:07 +0800
+Subject: [PATCH] adding delay function for the event handler
+
+If don't add the delay function, it will go wrong that SPI port
+transfers data.
+
+Signed-off-by: Jianchao Wang <jianchao.wang@nxp.com>
+---
+ acilib.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/acilib.c b/acilib.c
+index f3e7e04..c971888 100644
+--- a/acilib.c
++++ b/acilib.c
+@@ -227,6 +227,7 @@ void aci_send_cmd(uint8_t cmd, void *param, uint8_t len)
+ 
+ static uint8_t aci_setup_loop(uint8_t *cmd_status, uint8_t *setup_offset)
+ {
++	usleep(500);
+ 	switch (*cmd_status) {
+ 	case ACI_STATUS_SUCCESS:
+ 	case ACI_STATUS_TRANSACTION_CONTINUE:
+@@ -371,6 +372,7 @@ void aci_event_handle_loop(void)
+ 		transfer(fd, HAL_ACI_MAX_LENGTH);
+ 		memcpy(&packet_rx, buf_rx, HAL_ACI_MAX_LENGTH);
+ 
++		usleep(100);
+ 		switch (packet_rx.opcode) {
+ 		case ACI_EVT_DEVICE_STARTED:
+ 			printf("\033[0;33m Event device started: \033[0;39m");
+@@ -468,6 +470,8 @@ void aci_event_handle_loop(void)
+ 		if (SETUP_SUCCESS == do_aci_setup()) {
+ 			event_flag = true;
+ 			setup_required = false;
++		} else {
++			printf("Failed to initialize blep\n");
+ 		}
+ 	}
+ }
+-- 
+2.17.1
+
