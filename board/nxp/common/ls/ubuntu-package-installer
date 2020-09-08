@@ -133,7 +133,6 @@ do_distrorfs_second_stage() {
     [ -d /home/$tmpusr -a "$tmpusr" != "user" ] && rm -rf /home/$tmpusr
     [ $DISTROSCALE != lite -a $DISTROTYPE = ubuntu ] &&	/usr/aptpkg/reconfigpkg.sh
 
-    setup_distribution_info $3
     test -c /dev/pts/0 && umount /dev/pts
     test -f /proc/uptime && umount /proc
 
@@ -151,46 +150,5 @@ do_distrorfs_second_stage() {
     rm -f packagelist
 }
 
-setup_distribution_info () {
-    distroname=`head -1 /etc/.firststagedone | cut -d, -f1`
-    distroversion=`head -1 /etc/.firststagedone | cut -d, -f2`
-    releaseversion="$distroname (based on ${DISTROTYPE}-$distroversion-base) ${tarch}"
-    releasestamp="Build: `date +'%Y-%m-%d %H:%M:%S'`"
-    echo $releaseversion > /etc/buildinfo
-    sed -i "1 a\\$releasestamp" /etc/buildinfo
-    if grep U-Boot /etc/.firststagedone 1>/dev/null 2>&1; then
-	tail -1 /etc/.firststagedone >> /etc/buildinfo
-    fi
-
-    if [ $DISTROTYPE = ubuntu ]; then
-	echo $distroname $1-$distroversion > /etc/issue
-	echo $distroname $1-$distroversion > /etc/issue.net
-
-	tgtfile=/etc/lsb-release
-	echo DISTRIB_ID=NXP-OpenIL > $tgtfile
-	echo DISTRIB_RELEASE=$distroversion >> $tgtfile
-	echo DISTRIB_CODENAME=bionic >> $tgtfile
-	echo DISTRIB_DESCRIPTION=\"$distroname $1-$distroversion\" >> $tgtfile
-
-	tgtfile=/etc/update-motd.d/00-header
-	echo '#!/bin/sh' > $tgtfile
-	echo '[ -r /etc/lsb-release ] && . /etc/lsb-release' >> $tgtfile
-	echo 'printf "Welcome to %s (%s %s %s)\n" "$DISTRIB_DESCRIPTION" "$(uname -o)" "$(uname -r)" "$(uname -m)"' >> $tgtfile
-
-	tgtfile=/etc/update-motd.d/10-help-text
-	echo '#!/bin/sh' > $tgtfile
-	echo 'printf "\n"' >> $tgtfile
-	echo 'printf " * Support:        https://www.openil.org\n"' >> $tgtfile
-	echo 'printf " * Develop:        https://www.openil.org/develop.html\n"' >> $tgtfile
-
-	tgtfile=/usr/lib/os-release
-	echo NAME=\"$distroname\" > $tgtfile
-	echo VERSION=${DISTROTYPE}-$distroversion >> $tgtfile
-	echo ID=OpenIL Based on Buildroot-2020.02 >> $tgtfile
-
-	rm -f /etc/default/motd-news
-	rm -f /etc/update-motd.d/50-motd-news
-    fi
-}
 do_distrorfs_second_stage $1 $2 $3 $4 $5
 # end second stage installing
