@@ -14,7 +14,6 @@ menu "Main Build Options"
 choice
 	bool "cmake build type"
 	default BR2_PACKAGE_LIBOPEN62541_CMAKE_BUILD_TYPE_DEBUG
-	help
 
 config BR2_PACKAGE_LIBOPEN62541_CMAKE_BUILD_TYPE_RELWITHDEBINFO
 	bool "RelWithDebInfo"
