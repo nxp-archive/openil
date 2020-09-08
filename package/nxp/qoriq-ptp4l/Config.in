@@ -17,6 +17,6 @@ config BR2_PACKAGE_QORIQ_PTP4L_SITE
 
 config BR2_PACKAGE_QORIQ_PTP4L_VERSION
 	string "qoriq-ptp4l version"
-	default "25bbcabf05600b0cac18136c05c2d2bf3d538232"
+	default "f078f19339a351be8bccd1daed59c4845918d30d"
 
 endif
