@@ -195,6 +195,10 @@ main()
 	# change the hostname to "platforms-Ubuntu"
 	echo $(plat_name)-Ubuntu > ${1}/etc/hostname
 
+	if [ $distro = focal ]; then
+		sed -i "s/float(n\[0\])/float(n[0].split()[0])/" ${1}/usr/share/pyshared/lsb_release.py
+	fi
+
 	exit $?
 }
 
