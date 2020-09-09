@@ -25,7 +25,9 @@ QT5BASE_CONFIGURE_OPTS += \
 	-system-zlib \
 	-system-pcre \
 	-no-pch \
-	-shared
+	-shared \
+	-no-vulkan \
+	-no-xcb
 
 # starting from version 5.9.0, -optimize-debug is enabled by default
 # for debug builds and it overrides -O* with -Og which is not what we
