@@ -113,11 +113,6 @@ do_distrorfs_first_stage() {
 	DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C \
 	sudo chroot $RFSDIR dpkg --configure -a
     fi
-    if [ $distro = focal ]; then
-	echo OpenIL-Ubuntu,20.04.1 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
-    elif [ $distro = bionic ]; then
-	echo OpenIL-Ubuntu,18.04.4 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
-    fi
 
     sudo chroot $RFSDIR ubuntu-package-installer $1 $distro $5 $3 $6
 	if [ "x$?" != "x0" ]; then
@@ -130,8 +125,60 @@ do_distrorfs_first_stage() {
     if dpkg-query -l snapd | grep ii 1>/dev/null; then
 	chmod +rw -R $RFSDIR/var/lib/snapd/
     fi
+
+    if [ $distro = focal ]; then
+	echo OpenIL-Ubuntu,20.04.1 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
+    elif [ $distro = bionic ]; then
+	echo OpenIL-Ubuntu,18.04.4 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
+    fi
+    setup_distribution_info $5 $2
+
     rm $RFSDIR/etc/apt/apt.conf
     rm $RFSDIR/dev/* -rf
+}
+
+setup_distribution_info () {
+    DISTROTYPE=$1
+    RFSDIR=$2
+    distroname=`head -1 $RFSDIR/etc/.firststagedone | cut -d, -f1`
+    distroversion=`head -1 $RFSDIR/etc/.firststagedone | cut -d, -f2`
+    releaseversion="$distroname (based on $DISTROTYPE-$distroversion-base) ${tarch}"
+    releasestamp="Build: `date +'%Y-%m-%d %H:%M:%S'`"
+    echo $releaseversion > $RFSDIR/etc/buildinfo
+    sed -i "1 a\\$releasestamp" $RFSDIR/etc/buildinfo
+    if grep U-Boot $RFSDIR/etc/.firststagedone 1>$RFSDIR/dev/null 2>&1; then
+        tail -1 $RFSDIR/etc/.firststagedone >> $RFSDIR/etc/buildinfo
+    fi
+
+    if [ $DISTROTYPE = ubuntu ]; then
+        echo $distroname $1-$distroversion > $RFSDIR/etc/issue
+        echo $distroname $1-$distroversion > $RFSDIR/etc/issue.net
+
+        tgtfile=$RFSDIR/etc/lsb-release
+        echo DISTRIB_ID=NXP-OpenIL > $tgtfile
+        echo DISTRIB_RELEASE=$distroversion >> $tgtfile
+        echo DISTRIB_CODENAME=$distro- >> $tgtfile
+        echo DISTRIB_DESCRIPTION=\"$distroname $1-$distroversion\" >> $tgtfile
+
+        tgtfile=$RFSDIR/etc/update-motd.d/00-header
+        echo '#!/bin/sh' > $tgtfile
+        echo '[ -r /etc/lsb-release ] && . /etc/lsb-release' >> $tgtfile
+        echo 'printf "Welcome to %s (%s %s %s)\n" "$DISTRIB_DESCRIPTION" "$(uname -o)" "$(uname -r)" "$(uname -m)"' >> $tgtfile
+
+        tgtfile=$RFSDIR/etc/update-motd.d/10-help-text
+        echo '#!/bin/sh' > $tgtfile
+        echo 'printf "\n"' >> $tgtfile
+        echo 'printf " * Support:        https://www.openil.org\n"' >> $tgtfile
+        echo 'printf " * Develop:        https://www.openil.org/develop.html\n"' >> $tgtfile
+
+        tgtfile=$RFSDIR/usr/lib/os-release
+        echo NAME=\"$distroname\" > $tgtfile
+        echo VERSION=${DISTROTYPE}-$distroversion >> $tgtfile
+        echo ID=OpenIL Based on Buildroot-2020.02 >> $tgtfile
+
+        rm -f $RFSDIR/etc/default/motd-news
+        rm -f $RFSDIR/etc/update-motd.d/50-motd-news
+    fi
 }
 
 plat_name()
@@ -194,6 +241,10 @@ main()
 
 	# change the hostname to "platforms-Ubuntu"
 	echo $(plat_name)-Ubuntu > ${1}/etc/hostname
+
+	if [ $distro = focal ]; then
+		sed -i "s/float(n\[0\])/float(n[0].split()[0])/" ${1}/usr/share/pyshared/lsb_release.py
+	fi
 
 	exit $?
 }
