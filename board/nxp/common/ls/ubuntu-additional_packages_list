@@ -14,7 +14,7 @@ additional_full_packages_list="apt apt-utils git gcc vim wget make build-essenti
 
 # for devel userland gathered packages from main/universe/multiverse/restricted besides additional_main_packages_list
 additional_devel_packages_list="makedev tree lxc lxd virt-manager lm-sensors i2c-tools fio rt-tests
- libcunit1-dev python-pip iperf netperf hugepages blktrace sysfsutils cpufrequtils iozone3 busybox
+ libcunit1-dev iperf netperf hugepages blktrace sysfsutils cpufrequtils iozone3 busybox
  ipsec-tools lmbench watchdog libtclap-dev lttng-tools xterm can-utils python-virtualenv gdb
  memtester usbutils linuxptp android-tools-fsutils netdata redis-server"
 
