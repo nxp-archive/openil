@@ -10,7 +10,7 @@ if BR2_PACKAGE_QORIQ_SYSREPO_TSN
 
 config BR2_PACKAGE_QORIQ_SYSREPO_TSN_VERSION
 	string "qoriq-sysrepo-tsn version"
-	default "v0.2"
+	default "v0.3"
 
 config BR2_PACKAGE_QORIQ_SYSREPO_TSN_SITE
 	string "qoriq-sysrepo-tsn site"
