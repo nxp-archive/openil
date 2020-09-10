@@ -131,7 +131,7 @@ do_distrorfs_first_stage() {
     elif [ $distro = bionic ]; then
 	echo OpenIL-Ubuntu,18.04.4 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
     fi
-    setup_distribution_info $5 $2
+    setup_distribution_info $5 $2 $1
 
     rm $RFSDIR/etc/apt/apt.conf
     rm $RFSDIR/dev/* -rf
@@ -140,6 +140,7 @@ do_distrorfs_first_stage() {
 setup_distribution_info () {
     DISTROTYPE=$1
     RFSDIR=$2
+    tarch=$3
     distroname=`head -1 $RFSDIR/etc/.firststagedone | cut -d, -f1`
     distroversion=`head -1 $RFSDIR/etc/.firststagedone | cut -d, -f2`
     releaseversion="$distroname (based on $DISTROTYPE-$distroversion-base) ${tarch}"
@@ -157,7 +158,7 @@ setup_distribution_info () {
         tgtfile=$RFSDIR/etc/lsb-release
         echo DISTRIB_ID=NXP-OpenIL > $tgtfile
         echo DISTRIB_RELEASE=$distroversion >> $tgtfile
-        echo DISTRIB_CODENAME=$distro- >> $tgtfile
+        echo DISTRIB_CODENAME=$distro >> $tgtfile
         echo DISTRIB_DESCRIPTION=\"$distroname $1-$distroversion\" >> $tgtfile
 
         tgtfile=$RFSDIR/etc/update-motd.d/00-header
@@ -174,7 +175,10 @@ setup_distribution_info () {
         tgtfile=$RFSDIR/usr/lib/os-release
         echo NAME=\"$distroname\" > $tgtfile
         echo VERSION=${DISTROTYPE}-$distroversion >> $tgtfile
-        echo ID=OpenIL Based on Buildroot-2020.02 >> $tgtfile
+        echo ID=OpenIL Ubuntu >> $tgtfile
+        echo VERSION_ID=$distroversion >> $tgtfile
+	echo PRETTY_NAME=\"OpenIL Ubuntu Built with Buildroot, based on Ubuntu $distroversion LTS\" >> $tgtfile
+	echo VERSION_CODENAME=$distro >> $tgtfile
 
         rm -f $RFSDIR/etc/default/motd-news
         rm -f $RFSDIR/etc/update-motd.d/50-motd-news
