@@ -16,7 +16,7 @@ if BR2_PACKAGE_QORIQ_TSNTOOL
 
 config BR2_PACKAGE_QORIQ_TSNTOOL_VERSION
 	string "qoriq-tsntool version"
-	default "OpenIL-v1.8-202005"
+	default "OpenIL-v1.9-202009"
 
 config BR2_PACKAGE_QORIQ_TSNTOOL_SITE
 	string "qoriq-tsntool site"
