@@ -126,5 +126,8 @@ BR2_PACKAGE_QORIQ_LIBBLEP=y
 # qoriqi-libbee support for MikroBus
 BR2_PACKAGE_QORIQ_LIBBEE=y
 
+BR2_PACKAGE_IPROUTE2=y
+BR2_PACKAGE_ETHTOOL=y
+
 # busybox setting disable
 BR2_PACKAGE_BUSYBOX=n
