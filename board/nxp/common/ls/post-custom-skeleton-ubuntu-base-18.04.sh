@@ -250,6 +250,11 @@ main()
 		sed -i "s/float(n\[0\])/float(n[0].split()[0])/" ${1}/usr/share/pyshared/lsb_release.py
 	fi
 
+	# rebuild iproute2 and use the tc command modified for target system
+	if grep -Eq "^BR2_PACKAGE_IPROUTE2=y$" ${BR2_CONFIG}; then
+		make iproute2-rebuild
+	fi
+
 	exit $?
 }
 
