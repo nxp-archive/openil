@@ -1,7 +1,7 @@
 
 # additional packages list for LSDK main userland gathered from main repo
 additional_full_packages_list="apt apt-utils git gcc vim wget make build-essential u-boot-tools
- device-tree-compiler python python-dev ethtool zip libsensors4-dev libssl-dev ftp
+ device-tree-compiler python python-dev zip libsensors4-dev libssl-dev ftp
  libedit-dev liblzma-dev binutils-dev autoconf automake dh-autoreconf libnuma-dev libpcap-dev
  bc qemu-kvm bridge-utils libtool libncurses5-dev bison libelf-dev curl flex autotools-dev
  openssh-server openssh-client tcpdump vlan ifenslave linux-tools-generic tftp-hpa tftpd-hpa
