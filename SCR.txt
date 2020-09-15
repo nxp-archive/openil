@@ -1,0 +1,97 @@
+NXP Software Content Register
+
+Release - OpenIL v1.9
+Sept. 2020
+
+--------------------------------------------
+
+Package:                   linux.git
+Outgoing License:          GPL-2.0
+License Files:             COPYING
+Package Category:          Kernel
+Type of content:           Source code
+Description and comments:  Industrial Linux kernel code
+Release Location:          https://github.com/openil/linux.git -b linux-5.4.y
+Origin:                    NXP (GPL-2.0)
+                           https://source.codeaurora.org/external/qoriq/qoriq-components/linux.git
+
+--------------------------------------------
+
+Package:                   u-boot.git
+Outgoing License:          GPL-2.0
+License Files:             COPYING
+Package Category:          Bootloader
+Type of content:           Source code
+Description and comments:  U-Boot Bootloader
+Release Location:          https://github.com/openil/u-boot.git -b master
+Origin:                    NXP (GPL-2.0)
+                           https://source.codeaurora.org/external/qoriq/qoriq-components/u-boot
+
+--------------------------------------------
+
+Package:                   u-boot.git
+Outgoing License:          GPL-2.0
+License Files:             COPYING
+Package Category:          Bootloader
+Type of content:           Source code
+Description and comments:  OpenIL baremetal framework code
+Release Location:          https://github.com/openil/u-boot.git -b Baremetal-Framework-LSDK-19.09-v1.7
+Origin:                    NXP (GPL-2.0)
+                           https://source.codeaurora.org/external/qoriq/qoriq-components/u-boot
+
+--------------------------------------------
+
+Package:                   openil.git
+Outgoing License:          GPL-2.0
+License Files:             COPYING
+Package Category:          User space
+Type of content:           Source code
+Description and comments:  OpenIL code
+Release Location:          https://github.com/openil/openil.git
+Origin:                    NXP (GPL-2.0)
+
+--------------------------------------------
+
+Package:                   linuxptp.git
+Outgoing License:          GPL-2.0
+License Files:             COPYING
+Package Category:          User space
+Type of content:           Source code
+Description and comments:  Precision Time Protocol (PTP) software
+Release Location:          https://github.com/openil/linuxptp.git
+Origin:                    https://github.com/richardcochran/linuxptp.git
+
+--------------------------------------------
+
+Package:                   tsntool.git
+Outgoing License:          MIT
+License Files:             COPYING
+Package Category:          User space
+Type of content:           Source code
+Description and comments:  TSN configuration tool
+Release Location:          https://github.com/openil/tsntool.git
+Origin:                    NXP (MIT)
+
+--------------------------------------------
+
+Package:                   sysrepo-tsn.git
+Outgoing License:          Apache
+License Files:             COPYING
+Package Category:          User space
+Type of content:           Source code
+Description and comments:  Sysrepo for TSN cofiguration
+Release Location:          https://github.com/openil/sysrepo-tsn.git
+Origin:                    https://github.com/sysrepo/sysrepo.git
+
+--------------------------------------------
+
+Package:                   nxp-servo.git
+Outgoing License:          GPL-2.0, MIT
+License Files:             COPYING
+Package Category:          User space
+Type of content:           Source code
+Description and comments:  CiA402 profile framework based on Igh CoE interface
+Release Location:          https://github.com/openil/nxp-servo.git
+Origin:                    NXP (GPL-2.0, MIT)
+
+--------------------------------------------
