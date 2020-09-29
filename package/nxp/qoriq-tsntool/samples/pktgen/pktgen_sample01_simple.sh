@@ -66,7 +66,12 @@ pg_set $DEV "udp_src_min $UDP_MIN"
 pg_set $DEV "udp_src_max $UDP_MAX"
 pg_set $DEV "queue_map_min $QUEUES"
 pg_set $DEV "queue_map_max $QUEUES"
-
+if [ $VLAN_ID ]; then
+	echo "With vlan id:$VLAN_ID prio:$VLAN_P cfi:$VLAN_CFI"
+	pg_set $DEV "vlan_id $VLAN_ID"
+	pg_set $DEV "vlan_p $VLAN_P"
+	pg_set $DEV "vlan_cfi $VLAN_CFI"
+fi
 # start_run
 echo "Running... ctrl^C to stop" >&2
 pg_ctrl "start"

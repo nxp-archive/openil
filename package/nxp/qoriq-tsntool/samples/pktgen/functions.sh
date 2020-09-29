@@ -119,3 +119,15 @@ function root_check_run_with_sudo() {
 	err 4 "cannot perform sudo run of $0"
     fi
 }
+
+function extract_vlan() {
+    echo "Input vlan id:"
+    read id
+    export VLAN_ID=$id
+    echo "Input vlan priority:"
+    read p
+    export VLAN_P=$p
+    echo "Input vlan cfi:"
+    read cfi
+    export VLAN_CFI=$cfi
+}

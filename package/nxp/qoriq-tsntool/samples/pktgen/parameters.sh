@@ -15,6 +15,7 @@ function usage() {
     echo "  -c : (\$SKB_CLONE) SKB clones send before alloc new SKB"
     echo "  -n : (\$COUNT)     num messages to send per thread, 0 means indefinitely"
     echo "  -b : (\$BURST)     HW level bursting of SKBs"
+    echo "  -a :               VLAN interactive input"
     echo "  -v : (\$VERBOSE)   verbose"
     echo "  -x : (\$DEBUG)     debug"
     echo "  -6 : (\$IP6)       IPv6"
@@ -23,7 +24,7 @@ function usage() {
 
 ##  --- Parse command line arguments / parameters ---
 ## echo "Commandline options:"
-while getopts "s:i:q:d:m:f:t:c:n:b:vxh6" option; do
+while getopts "s:i:q:d:m:f:t:c:n:b:avxh6" option; do
     case $option in
         i) # interface
           export DEV=$OPTARG
@@ -72,6 +73,9 @@ while getopts "s:i:q:d:m:f:t:c:n:b:vxh6" option; do
         x)
           export DEBUG=yes
           info "Debug mode: DEBUG=$DEBUG"
+          ;;
+        a)
+		extract_vlan
           ;;
 	6)
 	  export IP6=6
