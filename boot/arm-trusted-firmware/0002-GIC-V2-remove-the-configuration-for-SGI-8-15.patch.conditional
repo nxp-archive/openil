@@ -1,0 +1,115 @@
+From c20b2209ab1622b071638165fecd685b45986a88 Mon Sep 17 00:00:00 2001
+From: Changming Huang <jerry.huang@nxp.com>
+Date: Thu, 15 Oct 2020 17:20:38 +0800
+Subject: [PATCH] GIC-V2: remove the configuration for SGI 8 ~ 15
+
+Don't configure these SGIs to group0 (secure),
+and continue to use group1 (non-secure) for SGI 8 ~ 15 for ls1043ardb and ls1046ardb.
+
+Signed-off-by: Changming Huang <jerry.huang@nxp.com>
+---
+ plat/nxp/soc-ls1043/ls1043ardb/platform_def.h | 31 +------------------
+ plat/nxp/soc-ls1046/ls1046ardb/platform_def.h | 31 +------------------
+ 2 files changed, 2 insertions(+), 60 deletions(-)
+
+diff --git a/plat/nxp/soc-ls1043/ls1043ardb/platform_def.h b/plat/nxp/soc-ls1043/ls1043ardb/platform_def.h
+index 2edac5e70..b40eaffa6 100644
+--- a/plat/nxp/soc-ls1043/ls1043ardb/platform_def.h
++++ b/plat/nxp/soc-ls1043/ls1043ardb/platform_def.h
+@@ -164,19 +164,6 @@
+  * needs cleanup by Rod
+  */
+ 
+-/*
+- * The number of regions like RO(code), coherent and data required by
+- * different BL stages which need to be mapped in the MMU.
+- */
+-#define ARM_IRQ_SEC_SGI_0		8
+-#define ARM_IRQ_SEC_SGI_1		9
+-#define ARM_IRQ_SEC_SGI_2		10
+-#define ARM_IRQ_SEC_SGI_3		11
+-#define ARM_IRQ_SEC_SGI_4		12
+-#define ARM_IRQ_SEC_SGI_5		13
+-#define ARM_IRQ_SEC_SGI_6		14
+-#define ARM_IRQ_SEC_SGI_7		15
+-
+ /*
+  * Define properties of Group 1 Secure and Group 0 interrupts as per GICv3
+  * terminology. On a GICv2 system or mode, the lists will be merged and treated
+@@ -184,23 +171,7 @@
+  */
+ #define PLAT_LS_G1S_IRQ_PROPS(grp) \
+ 	INTR_PROP_DESC(BL32_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_LEVEL), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_3, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_4, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_5, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE)
++			GIC_INTR_CFG_LEVEL)
+ 
+ #define PLAT_LS_G0_IRQ_PROPS(grp)
+ 
+diff --git a/plat/nxp/soc-ls1046/ls1046ardb/platform_def.h b/plat/nxp/soc-ls1046/ls1046ardb/platform_def.h
+index 3d1501c71..410109d38 100644
+--- a/plat/nxp/soc-ls1046/ls1046ardb/platform_def.h
++++ b/plat/nxp/soc-ls1046/ls1046ardb/platform_def.h
+@@ -166,19 +166,6 @@
+  * needs cleanup by Rod
+  */
+ 
+-/*
+- * The number of regions like RO(code), coherent and data required by
+- * different BL stages which need to be mapped in the MMU.
+- */
+-#define ARM_IRQ_SEC_SGI_0		8
+-#define ARM_IRQ_SEC_SGI_1		9
+-#define ARM_IRQ_SEC_SGI_2		10
+-#define ARM_IRQ_SEC_SGI_3		11
+-#define ARM_IRQ_SEC_SGI_4		12
+-#define ARM_IRQ_SEC_SGI_5		13
+-#define ARM_IRQ_SEC_SGI_6		14
+-#define ARM_IRQ_SEC_SGI_7		15
+-
+ /*
+  * Define properties of Group 1 Secure and Group 0 interrupts as per GICv3
+  * terminology. On a GICv2 system or mode, the lists will be merged and treated
+@@ -186,23 +173,7 @@
+  */
+ #define PLAT_LS_G1S_IRQ_PROPS(grp) \
+ 	INTR_PROP_DESC(BL32_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_LEVEL), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_3, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_4, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_5, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE), \
+-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, grp, \
+-			GIC_INTR_CFG_EDGE)
++			GIC_INTR_CFG_LEVEL)
+ 
+ #define PLAT_LS_G0_IRQ_PROPS(grp)
+ 
+-- 
+2.25.1
+

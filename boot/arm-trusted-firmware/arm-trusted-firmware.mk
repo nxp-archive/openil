@@ -145,6 +145,16 @@ endif
 ARM_TRUSTED_FIRMWARE_MAKE_TARGETS += \
 	$(call qstrip,$(BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_TARGETS))
 
+# patch hooks to apply patch for ls1043a and ls1046a platforms
+ifeq ($(findstring ls104, $(BR2_TARGET_UBOOT_BOARDNAME)), ls104)
+define ARM_TRUSTED_FIRMWARE_TRY_PATCHES
+	 @if patch -p1 --dry-run -f -s -d $(@D) <boot/arm-trusted-firmware/0002-GIC-V2-remove-the-configuration-for-SGI-8-15.patch.conditional >/dev/null ; then \
+		$(APPLY_PATCHES) $(@D) boot/arm-trusted-firmware 0002-GIC-V2-remove-the-configuration-for-SGI-8-15.patch.conditional; \
+	 fi
+endef
+ARM_TRUSTED_FIRMWARE_POST_PATCH_HOOKS += ARM_TRUSTED_FIRMWARE_TRY_PATCHES
+endif
+
 define ARM_TRUSTED_FIRMWARE_CONFIGURE_CMDS
 	$(foreach f,$(call qstrip,$(BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_DEPENDENCIES)), \
 		if [ $(f) = host-qoriq-cst ]; then \
