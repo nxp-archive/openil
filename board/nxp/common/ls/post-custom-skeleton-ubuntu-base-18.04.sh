@@ -129,7 +129,7 @@ do_distrorfs_first_stage() {
     if [ $distro = focal ]; then
 	echo OpenIL-Ubuntu,20.04.1 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
     elif [ $distro = bionic ]; then
-	echo OpenIL-Ubuntu,18.04.4 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
+	echo OpenIL-Ubuntu,18.04.5 | tee $RFSDIR/etc/.firststagedone 1>/dev/null
     fi
     setup_distribution_info $5 $2 $1
 

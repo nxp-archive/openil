@@ -9,8 +9,8 @@ BR2_TARGET_ROOTFS_EXT2_4=y
 # custom skeleton
 BR2_ROOTFS_SKELETON_UBUNTU=y
 BR2_ROOTFS_SKELETON_CUSTOM=y
-BR2_ROOTFS_SKELETON_CUSTOM_SITE="http://cdimage.ubuntu.com/ubuntu-base/releases/bionic/release"
-BR2_ROOTFS_SKELETON_CUSTOM_SOURCE="ubuntu-base-18.04.4-base-arm64.tar.gz"
+BR2_ROOTFS_SKELETON_CUSTOM_SITE="http://cdimage.ubuntu.com/ubuntu-base/releases/18.04.5/release"
+BR2_ROOTFS_SKELETON_CUSTOM_SOURCE="ubuntu-base-18.04.5-base-arm64.tar.gz"
 BR2_ROOTFS_SKELETON_CUSTOM_SITE_METHOD="wget"
 BR2_ROOTFS_SKELETON_CUSTOM_EXTRACT="tar zxvf"
 BR2_ROOTFS_SKELETON_CUSTOM_FULL_RFS=y
