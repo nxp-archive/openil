@@ -593,6 +593,7 @@ F:	configs/nxp_lx2160ardb_rev2-64b_defconfig
 F:	configs/nxp_lx2160ardb_rev2-64b-xspi_defconfig
 F:	configs/nxp_lx2160ardb_rev2-64b_ubuntu_defconfig
 F:	configs/nxp_lx2160ardb_rev2-64b_ubuntu_full_defconfig
+F:	package/freescale-imx/gstreamer-imx/
 F:	package/freescale-imx/libdrm-imx/
 F:	package/freescale-imx/wayland-protocols-imx/
 F:	package/nxp/qoriq-bm-uboot/

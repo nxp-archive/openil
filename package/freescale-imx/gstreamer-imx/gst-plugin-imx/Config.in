@@ -1,0 +1,19 @@
+comment "gst-plugin-imx needs a toolchain w/ dynamic library"
+	depends on BR2_arm || BR2_aarch64
+	depends on BR2_STATIC_LIBS
+
+menuconfig BR2_PACKAGE_GST_PLUGIN_IMX
+	bool "gst-plugin-imx"
+	depends on BR2_arm || BR2_aarch64 # Only relevant for i.MX
+	depends on !BR2_STATIC_LIBS
+	select BR2_PACKAGE_GST_PLUGINS_BASE_IMX
+	select BR2_PACKAGE_GST_PLUGINS_BAD_IMX
+	select BR2_PACKAGE_GST_PLUGINS_BOOD_IMX
+	select BR2_PACKAGE_IMX_CODEC
+	select BR2_PACKAGE_IMX_PARSER
+	help
+	  This is a set of GStreamer 1.0 plugins for plugins for
+	  Freescale's i.MX platforms, which make use of the i.MX
+	  multimedia capabilities.
+
+	  https://github.com/Freescale/gstreamer-imx
