@@ -117,4 +117,5 @@ endif
 source "package/freescale-imx/libdrm-imx/Config.in"
 source "package/freescale-imx/wayland-protocols-imx/Config.in"
 
+source "package/freescale-imx/gstreamer-imx/Config.in"
 endif

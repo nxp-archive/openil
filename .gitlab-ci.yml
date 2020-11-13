@@ -210,6 +210,8 @@ imx7d-sdb_defconfig: { extends: .defconfig }
 imx7dpico_defconfig: { extends: .defconfig }
 imx8mmevk_defconfig: { extends: .defconfig }
 imx8mmevk_revb_defconfig: { extends: .defconfig }
+imx8mmevk_revb_ubuntu_defconfig: { extends: .defconfig }
+imx8mmevk_ubuntu_defconfig: { extends: .defconfig }
 imx8mmpico_defconfig: { extends: .defconfig }
 imx8mpevk_defconfig: { extends: .defconfig }
 imx8mpevk_ubuntu_defconfig: { extends: .defconfig }

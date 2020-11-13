@@ -1,0 +1,9 @@
+# Gstreamer 1.x & Plugins
+source "package/freescale-imx/gstreamer-imx/gstreamer-imx/Config.in"
+
+if BR2_PACKAGE_GSTREAMER_IMX
+source "package/freescale-imx/gstreamer-imx/gst-plugin-imx/Config.in"
+source "package/freescale-imx/gstreamer-imx/gst-plugins-base-imx/Config.in"
+source "package/freescale-imx/gstreamer-imx/gst-plugins-good-imx/Config.in"
+source "package/freescale-imx/gstreamer-imx/gst-plugins-bad-imx/Config.in"
+endif
