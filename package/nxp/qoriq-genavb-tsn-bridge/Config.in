@@ -10,11 +10,11 @@ comment "GenAVB/TSN needs the linux kernel sources"
 if	BR2_PACKAGE_QORIQ_GENAVB_TSN_BRIDGE
 
 config BR2_PACKAGE_QORIQ_GENAVB_TSN_BRIDGE_VERSION
-	string "GenAVB/TSN Version"
-	default "bridge_3_2_0_cand20201104"
+	string "GenAVB/TSN SDK Version"
+	default "bridge_3_2_0"
 
 config BR2_PACKAGE_QORIQ_GENAVB_TSN_BRIDGE_SITE
-	string "GenAVB SDK Site"
-	default "ssh://git@bitbucket.sw.nxp.com/mss/gen_avb_sdk.git"
+	string "GenAVB/TSN SDK Site"
+	default "https://github.com/NXP/GenAVB_TSN"
 
 endif
