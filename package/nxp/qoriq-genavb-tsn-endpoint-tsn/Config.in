@@ -1,0 +1,20 @@
+config BR2_PACKAGE_QORIQ_GENAVB_TSN_ENDPOINT_TSN
+	bool "qoriq-genavb-tsn-endpoint-tsn"
+	depends on BR2_LINUX_KERNEL
+	help
+	 install GenAVB/TSN binaries and kernel module
+
+comment "GenAVB/TSN needs the linux kernel sources"
+	depends on !BR2_LINUX_KERNEL
+
+if	BR2_PACKAGE_QORIQ_GENAVB_TSN_ENDPOINT_TSN
+
+config BR2_PACKAGE_QORIQ_GENAVB_TSN_ENDPOINT_TSN_VERSION
+	string "GenAVB/TSN Version"
+	default "endpoint_tsn_3_2_0_cand20201104"
+
+config BR2_PACKAGE_QORIQ_GENAVB_TSN_ENDPOINT_TSN_SITE
+	string "GenAVB SDK Site"
+	default "ssh://git@bitbucket.sw.nxp.com/mss/gen_avb_sdk.git"
+
+endif
