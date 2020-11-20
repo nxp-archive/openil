@@ -11,7 +11,7 @@ if	BR2_PACKAGE_QORIQ_GENAVB_TSN_ENDPOINT_TSN
 
 config BR2_PACKAGE_QORIQ_GENAVB_TSN_ENDPOINT_TSN_VERSION
 	string "GenAVB/TSN SDK Version"
-	default "endpoint_tsn_3_2_0"
+	default "endpoint_tsn_3_2_1"
 
 config BR2_PACKAGE_QORIQ_GENAVB_TSN_ENDPOINT_TSN_SITE
 	string "GenAVB/TSN SDK Site"
