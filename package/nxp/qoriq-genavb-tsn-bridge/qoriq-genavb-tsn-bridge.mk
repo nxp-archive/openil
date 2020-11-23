@@ -28,7 +28,7 @@ endef
 define QORIQ_GENAVB_TSN_BRIDGE_INSTALL_INIT_SYSV
 	$(INSTALL) -d $(TARGET_DIR)/etc/init.d
 	$(INSTALL) -m 755 $(@D)/scripts/genavb $(TARGET_DIR)/etc/init.d/genavb
-	ln -snf $(TARGET_DIR)/etc/init.d/genavb $(TARGET_DIR)/etc/init.d/S99genavb
+	ln -snfr $(TARGET_DIR)/etc/init.d/genavb $(TARGET_DIR)/etc/init.d/S99genavb
 	# disable autostart
 	$(SED) 's/CFG_AUTO_START=.*/CFG_AUTO_START=0/' $(TARGET_DIR)/etc/genavb/config
 endef
