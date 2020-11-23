@@ -103,6 +103,9 @@ BR2_PACKAGE_QORIQ_LIBBEE=y
 # sysrepo-tsn
 BR2_PACKAGE_QORIQ_SYSREPO_TSN=y
 
+# qoriq-genavb-tsn-bridge
+BR2_PACKAGE_QORIQ_GENAVB_TSN_BRIDGE=y
+
 # basic packages and tools
 BR2_PACKAGE_MTD=y
 BR2_PACKAGE_MTD_MTD_DEBUG=y
