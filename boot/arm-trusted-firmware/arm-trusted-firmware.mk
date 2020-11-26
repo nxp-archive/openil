@@ -155,6 +155,15 @@ endef
 ARM_TRUSTED_FIRMWARE_POST_PATCH_HOOKS += ARM_TRUSTED_FIRMWARE_TRY_PATCHES
 endif
 
+ifeq ($(BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8MM),y)
+define ARM_TRUSTED_FIRMWARE_TRY_PATCHES
+	 @if patch -p1 --dry-run -f -s -d $(@D) <boot/arm-trusted-firmware/0003-OpenIL-Baremetal-make-UART4-accessed-by-A53-cores.patch.conditional >/dev/null ; then \
+		$(APPLY_PATCHES) $(@D) boot/arm-trusted-firmware 0003-OpenIL-Baremetal-make-UART4-accessed-by-A53-cores.patch.conditional; \
+	 fi
+endef
+ARM_TRUSTED_FIRMWARE_POST_PATCH_HOOKS += ARM_TRUSTED_FIRMWARE_TRY_PATCHES
+endif
+
 define ARM_TRUSTED_FIRMWARE_CONFIGURE_CMDS
 	$(foreach f,$(call qstrip,$(BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_DEPENDENCIES)), \
 		if [ $(f) = host-qoriq-cst ]; then \
