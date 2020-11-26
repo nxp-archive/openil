@@ -22,6 +22,11 @@ config BR2_PACKAGE_QORIQ_ICC_GIC_LX2160A
 	help
 	  Set GIC support LX2160A.
 
+config BR2_PACKAGE_QORIQ_ICC_GIC_IMX8M
+	bool "Set ICC support i.MX8M"
+	help
+	  Set GIC support i.MX8MM and i.MX8MP.
+
 config BR2_PACKAGE_QORIQ_ICC_MAX_CPUS
 	int "Max cpus on platform"
 	default 2

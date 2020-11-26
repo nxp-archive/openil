@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-QORIQ_ICC_VERSION = v1.0
+QORIQ_ICC_VERSION = v1.1
 QORIQ_ICC_SITE = https://github.com/openil/icc.git
 QORIQ_ICC_SITE_METHOD = git
 QORIQ_ICC_LICENSE = GPL
@@ -17,6 +17,9 @@ endif
 ifdef BR2_PACKAGE_QORIQ_ICC_GIC_LX2160A
 QORIQ_ICC_CONFIGURE_LX2160A = "\#define CONFIG_ICC_LX2160A $(BR2_PACKAGE_QORIQ_ICC_GIC_LX2160A)"
 endif
+ifdef BR2_PACKAGE_QORIQ_ICC_GIC_IMX8M
+QORIQ_ICC_CONFIGURE_IMX8M = "\#define CONFIG_ICC_IMX8M $(BR2_PACKAGE_QORIQ_ICC_GIC_IMX8M)"
+endif
 ifdef BR2_PACKAGE_QORIQ_ICC_MAX_CPUS
 QORIQ_ICC_CONFIGURE_CPUS = "\#define CONFIG_ICC_MAX_CPUS $(BR2_PACKAGE_QORIQ_ICC_MAX_CPUS)"
 endif
@@ -25,6 +28,7 @@ define QORIQ_ICC_BUILD_CMDS
 	echo $(QORIQ_ICC_CONFIGURE_OFFSET) > $(@D)/icc_configure.h
 	echo $(QORIQ_ICC_CONFIGURE_IMX6Q) >> $(@D)/icc_configure.h
 	echo $(QORIQ_ICC_CONFIGURE_LX2160A) >> $(@D)/icc_configure.h
+	echo $(QORIQ_ICC_CONFIGURE_IMX8M) >> $(@D)/icc_configure.h
 	echo $(QORIQ_ICC_CONFIGURE_CPUS) >> $(@D)/icc_configure.h
 	$(TARGET_MAKE_ENV) $(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)
 endef
