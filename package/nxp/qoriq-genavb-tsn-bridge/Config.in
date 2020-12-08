@@ -11,7 +11,7 @@ if	BR2_PACKAGE_QORIQ_GENAVB_TSN_BRIDGE
 
 config BR2_PACKAGE_QORIQ_GENAVB_TSN_BRIDGE_VERSION
 	string "GenAVB/TSN SDK Version"
-	default "bridge_3_2_1"
+	default "bridge_3_2_2"
 
 config BR2_PACKAGE_QORIQ_GENAVB_TSN_BRIDGE_SITE
 	string "GenAVB/TSN SDK Site"
