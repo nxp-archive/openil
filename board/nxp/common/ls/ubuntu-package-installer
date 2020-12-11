@@ -9,15 +9,6 @@ do_distrorfs_second_stage() {
     packages_list=/usr/aptpkg/$4
     . $packages_list
 
-    # create user and passwd
-    if [ ! -d /home/user ]; then
-	useradd -m -d /home/user -s /bin/bash user
-	gpasswd -a user sudo
-	echo -e 'root\nroot\n' | passwd root
-	echo -e 'user\nuser\n' | passwd user
-	mkdir -p /home/user
-	chown -R user:user /home/user
-    fi
     # set default hostname
     echo localhost > /etc/hostname
 
