@@ -78,3 +78,14 @@ Type of content:           Source code
 Description and comments:  CiA402 profile framework based on Igh CoE interface
 Release Location:          https://github.com/openil/nxp-servo.git
 Origin:                    NXP (GPL-2.0, MIT)
+
+--------------------------------------------
+
+Package:                   icc.git
+Outgoing License:          GPL-2.0, MIT
+License Files:             LICENSE
+Package Category:          User space
+Type of content:           Source code
+Description and comments:  Inter-core Communication with baremetal cores
+Release Location:          https://github.com/openil/icc.git
+Origin:                    NXP (GPL-2.0, MIT)
