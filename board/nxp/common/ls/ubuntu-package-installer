@@ -9,6 +9,8 @@ do_distrorfs_second_stage() {
     packages_list=/usr/aptpkg/$4
     . $packages_list
 
+    echo -e 'root\nroot\n' | passwd root
+
     # set default hostname
     echo localhost > /etc/hostname
 
