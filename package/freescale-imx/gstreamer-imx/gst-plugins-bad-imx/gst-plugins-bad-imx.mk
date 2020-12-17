@@ -688,7 +688,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_BAD_IMX_PLUGIN_WEBRTC),y)
 GST_PLUGINS_BAD_IMX_CONF_OPTS += --enable-webrtc
-GST_PLUGINS_BAD_IMX_DEPENDENCIES += gst1-plugins-base libnice
+GST_PLUGINS_BAD_IMX_DEPENDENCIES += gst-plugins-base-imx libnice
 else
 GST_PLUGINS_BAD_IMX_CONF_OPTS += --disable-webrtc
 endif
