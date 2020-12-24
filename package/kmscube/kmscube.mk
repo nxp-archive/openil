@@ -4,8 +4,9 @@
 #
 ################################################################################
 
-KMSCUBE_VERSION = 4660a7dca6512b6e658759d00cff7d4ad2a2059d
-KMSCUBE_SITE = https://cgit.freedesktop.org/mesa/kmscube/snapshot
+KMSCUBE_VERSION = e6386d1b99366ea7559438c0d3abd2ae2d6d61ac
+KMSCUBE_SITE = https://gitlab.freedesktop.org/mesa/kmscube
+KMSCUBE_SITE_METHOD = git
 KMSCUBE_LICENSE = MIT
 KMSCUBE_DEPENDENCIES = host-pkgconf libdrm-imx imx-gpu-viv
 
