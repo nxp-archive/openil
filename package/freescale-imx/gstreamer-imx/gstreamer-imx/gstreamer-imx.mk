@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GSTREAMER_IMX_VERSION = rel_imx_5.4.24_2.1.0
+GSTREAMER_IMX_VERSION = rel_imx_5.4.70_2.3.0
 GSTREAMER_IMX_SITE = https://source.codeaurora.org/external/imx/gstreamer
 GSTREAMER_IMX_SITE_METHOD = git
 GSTREAMER_IMX_GIT_SUBMODULES = YES
