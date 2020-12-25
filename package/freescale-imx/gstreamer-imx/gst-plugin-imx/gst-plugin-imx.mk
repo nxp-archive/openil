@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GST_PLUGIN_IMX_VERSION = rel_imx_5.4.24_2.1.0
+GST_PLUGIN_IMX_VERSION = rel_imx_5.4.70_2.3.0
 GST_PLUGIN_IMX_SITE = git://source.codeaurora.org/external/imx/imx-gst1.0-plugin.git
 GST_PLUGIN_IMX_SITE_METHOD = git
 GST_PLUGIN_IMX_LICENSE = LGPL-2.0+

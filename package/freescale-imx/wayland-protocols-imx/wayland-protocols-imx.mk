@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WAYLAND_PROTOCOLS_IMX_VERSION = rel_imx_5.4.24_2.1.0
+WAYLAND_PROTOCOLS_IMX_VERSION = rel_imx_5.4.70_2.3.0
 WAYLAND_PROTOCOLS_IMX_SITE = https://source.codeaurora.org/external/imx/wayland-protocols-imx
 WAYLAND_PROTOCOLS_IMX_SITE_METHOD = git
 WAYLAND_PROTOCOLS_IMX_LICENSE = GPL-2.0+

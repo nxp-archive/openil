@@ -5,9 +5,9 @@
 ################################################################################
 
 ifeq ($(BR2_aarch64),y)
-IMX_GPU_VIV_VERSION = 6.4.0.p2.4-aarch64
+IMX_GPU_VIV_VERSION = 6.4.3.p1.0-aarch64
 else
-IMX_GPU_VIV_VERSION = 6.4.0.p2.4-aarch32
+IMX_GPU_VIV_VERSION = 6.4.3.p1.0-aarch32
 endif
 IMX_GPU_VIV_SITE = $(FREESCALE_IMX_SITE)
 IMX_GPU_VIV_SOURCE = imx-gpu-viv-$(IMX_GPU_VIV_VERSION).bin
@@ -20,6 +20,7 @@ IMX_GPU_VIV_REDISTRIBUTE = NO
 
 IMX_GPU_VIV_PROVIDES = libegl libgles libopenvg
 IMX_GPU_VIV_LIB_TARGET = $(call qstrip,$(BR2_PACKAGE_IMX_GPU_VIV_OUTPUT))
+IMX_GPU_VIV_XWINDOW=fb
 
 ifeq ($(IMX_GPU_VIV_LIB_TARGET),x11)
 # The libGAL.so library provided by imx-gpu-viv uses X functions. Packages
@@ -27,10 +28,12 @@ ifeq ($(IMX_GPU_VIV_LIB_TARGET),x11)
 # does so). For this to work we need build dependencies to libXdamage,
 # libXext and libXfixes so that X functions used in libGAL.so are referenced.
 IMX_GPU_VIV_DEPENDENCIES += xlib_libXdamage xlib_libXext xlib_libXfixes
+IMX_GPU_VIV_XWINDOW=x11
 endif
 
 ifeq ($(IMX_GPU_VIV_LIB_TARGET),wl)
 IMX_GPU_VIV_DEPENDENCIES += libdrm-imx wayland
+IMX_GPU_VIV_XWINDOW=wayland
 endif
 
 define IMX_GPU_VIV_EXTRACT_CMDS
@@ -43,19 +46,22 @@ endef
 define IMX_GPU_VIV_BUILD_CMDS
 	$(SED) 's/defined(LINUX)/defined(__linux__)/g' $(@D)/gpu-core/usr/include/*/*.h
 	$(if $(BR2_PACKAGE_IMX_GPU_VIV_OUTPUT_X11)$(BR2_PACKAGE_IMX_GPU_VIV_OUTPUT_WL),
-		ln -sf libGL-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGL.so
-		ln -sf libGL-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGL.so.1
-		ln -sf libGL-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGL.so.1.2
-		ln -sf libGL-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGL.so.1.2.0
+		ln -sf $(IMX_GPU_VIV_XWINDOW)/libGL.so.1.2.0 $(@D)/gpu-core/usr/lib/libGL.so
+		ln -sf $(IMX_GPU_VIV_XWINDOW)/libGL.so.1.2.0 $(@D)/gpu-core/usr/lib/libGL.so.1
+		ln -sf $(IMX_GPU_VIV_XWINDOW)/libGL.so.1.2.0 $(@D)/gpu-core/usr/lib/libGL.so.1.2
+		ln -sf $(IMX_GPU_VIV_XWINDOW)/libGL.so.1.2.0 $(@D)/gpu-core/usr/lib/libGL.so.1.2.0
 	)
-	ln -sf libEGL-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libEGL.so
-	ln -sf libEGL-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libEGL.so.1
-	ln -sf libEGL-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libEGL.so.1.0
-	ln -sf libGLESv2-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGLESv2.so
-	ln -sf libGLESv2-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGLESv2.so.2
-	ln -sf libGLESv2-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGLESv2.so.2.0.0
-	ln -sf libGAL-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGAL.so
-	ln -sf libVDK-$(IMX_GPU_VIV_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libVDK.so
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libEGL.so.1.5.0 $(@D)/gpu-core/usr/lib/libEGL.so
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libEGL.so.1.5.0 $(@D)/gpu-core/usr/lib/libEGL.so.1
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libEGL.so.1.5.0 $(@D)/gpu-core/usr/lib/libEGL.so.1.0
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libGLESv2.so.2.0.0 $(@D)/gpu-core/usr/lib/libGLESv2.so
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libGLESv2.so.2.0.0 $(@D)/gpu-core/usr/lib/libGLESv2.so.2
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libGLESv2.so.2.0.0 $(@D)/gpu-core/usr/lib/libGLESv2.so.2.0.0
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libGAL.so $(@D)/gpu-core/usr/lib/libGAL.so
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libVDK.so.1.2.0 $(@D)/gpu-core/usr/lib/libVDK.so
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libVDK.so.1.2.0 $(@D)/gpu-core/usr/lib/libVDK.so.1
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libvulkan.so.1.1.6 $(@D)/gpu-core/usr/lib/libvulkan.so
+	ln -sf $(IMX_GPU_VIV_XWINDOW)/libvulkan.so.1.1.6 $(@D)/gpu-core/usr/lib/libvulkan.so.1
 endef
 
 ifeq ($(IMX_GPU_VIV_LIB_TARGET),fb)

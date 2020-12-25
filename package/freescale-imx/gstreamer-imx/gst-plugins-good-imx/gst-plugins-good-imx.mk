@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GST_PLUGINS_GOOD_IMX_VERSION = rel_imx_5.4.24_2.1.0
+GST_PLUGINS_GOOD_IMX_VERSION = rel_imx_5.4.70_2.3.0
 GST_PLUGINS_GOOD_IMX_SITE = https://source.codeaurora.org/external/imx/gst-plugins-good
 GST_PLUGINS_GOOD_IMX_SITE_METHOD = git
 GST_PLUGINS_GOOD_IMX_GIT_SUBMODULES = YES
