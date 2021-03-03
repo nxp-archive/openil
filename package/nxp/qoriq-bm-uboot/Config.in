@@ -16,7 +16,7 @@ config BR2_PACKAGE_QORIQ_BM_UBOOT_DEFCONFIG
 
 config BR2_PACKAGE_QORIQ_BM_UBOOT_VERSION
 	string "Baremetal uboot version"
-	default "OpenIL-v1.10-Baremetal-202012"
+	default "Baremetal-Framework-LSDK-19.09-v1.7"
 
 config BR2_PACKAGE_QORIQ_BM_UBOOT_SITE
 	string "Baremetal uboot website"
