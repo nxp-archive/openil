@@ -74,7 +74,7 @@ if BR2_TARGET_UBOOT_CUSTOM_GIT || BR2_TARGET_UBOOT_CUSTOM_HG || BR2_TARGET_UBOOT
 
 config BR2_TARGET_UBOOT_CUSTOM_REPO_URL
 	string "URL of custom repository"
-	default "https://github.com/openil/u-boot.git"
+	default "ssh://git@bitbucket.sw.nxp.com/dnind/industry-uboot.git"
 
 config BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION
 	string "Custom repository version"
