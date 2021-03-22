@@ -61,12 +61,6 @@ do_distrorfs_second_stage() {
 	    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || exit 1
         done
 
-	echo installing packages for devel userland: $additional_devel_packages_list
-	for pkg in $additional_devel_packages_list; do
-	    echo installing $pkg ...
-	    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $pkg || exit 1
-	done
-
 	# install python lib six depended by building ovs-dpdk locally
 	if ! pip show -q six; then
 	    pip install six;
