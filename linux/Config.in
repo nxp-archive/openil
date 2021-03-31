@@ -113,7 +113,7 @@ if BR2_LINUX_KERNEL_CUSTOM_GIT || BR2_LINUX_KERNEL_CUSTOM_HG || BR2_LINUX_KERNEL
 
 config BR2_LINUX_KERNEL_CUSTOM_REPO_URL
 	string "URL of custom repository"
-	default "ssh://git@bitbucket.sw.nxp.com/dnind/industry-linux.git"
+	default "https://github.com/openil/linux.git"
 
 config BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION
 	string "Custom repository version"
