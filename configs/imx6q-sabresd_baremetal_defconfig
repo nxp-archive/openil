@@ -51,7 +51,7 @@ BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
 
 # Baremetal u-boot package
 BR2_PACKAGE_QORIQ_BM_UBOOT=y
-BR2_PACKAGE_QORIQ_BM_UBOOT_VERSION="OpenIL-v1.11-Baremetal-imx6-RC1"
+BR2_PACKAGE_QORIQ_BM_UBOOT_VERSION="OpenIL-v1.11-Baremetal-imx6-RC2"
 BR2_PACKAGE_QORIQ_BM_UBOOT_DEFCONFIG="mx6sabresd_baremetal_defconfig"
 
 # icc package for baremetal

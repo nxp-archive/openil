@@ -66,7 +66,7 @@ BR2_ROOTFS_OVERLAY="board/nxp/common/ls/busybox_init_overlay board/nxp/ls1021aio
 
 # Baremetal u-boot package
 BR2_PACKAGE_QORIQ_BM_UBOOT=y
-BR2_PACKAGE_QORIQ_BM_UBOOT_VERSION="OpenIL-v1.11-Baremetal-RC1"
+BR2_PACKAGE_QORIQ_BM_UBOOT_VERSION="OpenIL-v1.11-Baremetal-RC2"
 BR2_PACKAGE_QORIQ_BM_UBOOT_DEFCONFIG="ls1021aiot_baremetal_defconfig"
 
 # icc package for baremetal
