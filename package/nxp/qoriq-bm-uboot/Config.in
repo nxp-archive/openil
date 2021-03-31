@@ -20,6 +20,6 @@ config BR2_PACKAGE_QORIQ_BM_UBOOT_VERSION
 
 config BR2_PACKAGE_QORIQ_BM_UBOOT_SITE
 	string "Baremetal uboot website"
-	default "ssh://git@bitbucket.sw.nxp.com/dnind/industry-uboot.git"
+	default "https://github.com/openil/u-boot.git"
 
 endif
