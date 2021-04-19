@@ -40,5 +40,7 @@ OpenIL supportes NXP platforms:
 	- LS1028ARDB
 	- FII-LS1028ATSN
 	- LX2160ARDB
+	- IMX8MP-EVK
+	- IMX8MM-EVK
 
 For more detailed information, please refer to the openil.org.
