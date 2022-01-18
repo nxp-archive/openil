@@ -8,19 +8,19 @@ main()
         echo "These packages will be installed if they are not exist!"
 
 	if ! dpkg-query -l debootstrap | grep ii 1>/dev/null; then
-		echo "Installing debootstrap-1.0.95ubuntu0.8"
-		wget http://ports.ubuntu.com/pool/main/d/debootstrap/debootstrap_1.0.95ubuntu0.8_all.deb
-		sudo dpkg -i debootstrap_1.0.95ubuntu0.8_all.deb
-		rm debootstrap_1.0.95ubuntu0.8_all.deb
+		echo "Installing debootstrap-1.0.95ubuntu0.10"
+		wget http://ports.ubuntu.com/pool/main/d/debootstrap/debootstrap_1.0.95ubuntu0.10_all.deb
+		sudo dpkg -i debootstrap_1.0.95ubuntu0.10_all.deb
+		rm debootstrap_1.0.95ubuntu0.10_all.deb
 	else
-		if ! dpkg-query -l debootstrap | grep 1.0.95ubuntu0.8 1>/dev/null; then
-			echo "Reinstalling debootstrap (1.0.95ubuntu0.8)"
+		if ! dpkg-query -l debootstrap | grep 1.0.95ubuntu0.10 1>/dev/null; then
+			echo "Reinstalling debootstrap (1.0.95ubuntu0.10)"
 			sudo apt remove -y debootstrap
-			wget http://ports.ubuntu.com/pool/main/d/debootstrap/debootstrap_1.0.95ubuntu0.8_all.deb
-			sudo dpkg -i debootstrap_1.0.95ubuntu0.8_all.deb
-			rm debootstrap_1.0.95ubuntu0.8_all.deb
+			wget http://ports.ubuntu.com/pool/main/d/debootstrap/debootstrap_1.0.95ubuntu0.10_all.deb
+			sudo dpkg -i debootstrap_1.0.95ubuntu0.10_all.deb
+			rm debootstrap_1.0.95ubuntu0.10_all.deb
 		else
-			echo "debootstrap-1.0.95ubuntu0.8 is ready"
+			echo "debootstrap-1.0.95ubuntu0.10 is ready"
 		fi
 	fi
 
