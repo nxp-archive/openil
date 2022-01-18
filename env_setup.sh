@@ -5,7 +5,7 @@ host_packages_list="vim git make net-tools build-essential cpio autotools-dev au
 main()
 {
 	echo "Checking the packages required on host!"
-        echo "These packages will be installed if they are not exist!"
+        echo "These packages will be installed if they do not exist!"
 
 	if ! dpkg-query -l debootstrap | grep ii 1>/dev/null; then
 		echo "Installing debootstrap-1.0.95ubuntu0.10"
